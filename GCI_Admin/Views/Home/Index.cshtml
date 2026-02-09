@@ -1,0 +1,207 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid">
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex justify-content-between mb-3">
+        <h4 class="fw-bold">Admin Dashboard</h4>
+        <span class="text-muted">Overview of Church Activity</span>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6>Total Members</h6>
+                        <h3 class="fw-bold">1,254</h3>
+                    </div>
+                    <i class="fa fa-users fa-2x text-primary"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6>Certified Members</h6>
+                        <h3 class="fw-bold">842</h3>
+                    </div>
+                    <i class="fa fa-user-check fa-2x text-success"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6>Upcoming Events</h6>
+                        <h3 class="fw-bold">12</h3>
+                    </div>
+                    <i class="fa fa-calendar fa-2x text-warning"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6>Total Giving</h6>
+                        <h3 class="fw-bold">KES 1,250,000</h3>
+                    </div>
+                    <i class="fa fa-money-bill-wave fa-2x text-danger"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CHARTS -->
+    <div class="row g-3 mb-4">
+
+        <!-- MEMBER GROWTH -->
+        <div class="col-md-7">
+            <div class="card shadow-sm p-3">
+                <h6 class="fw-bold mb-2">Member Growth</h6>
+                <canvas id="membersChart" height="110"></canvas>
+            </div>
+        </div>
+
+        <!-- GIVING -->
+        <div class="col-md-5">
+            <div class="card shadow-sm p-3">
+                <h6 class="fw-bold mb-2">Monthly Giving</h6>
+                <canvas id="givingChart" height="110"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- DATA PANELS -->
+    <div class="row g-3">
+
+        <!-- UPCOMING EVENTS -->
+        <div class="col-md-4">
+            <div class="card shadow-sm p-3">
+                <h6 class="fw-bold mb-2">Upcoming Events</h6>
+                <ul class="list-group">
+                    <li class="list-group-item">Sunday Service - Feb 11</li>
+                    <li class="list-group-item">Youth Conference - Feb 18</li>
+                    <li class="list-group-item">Leadership Summit - Mar 2</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- PENDING APPROVALS -->
+        <div class="col-md-4">
+            <div class="card shadow-sm p-3">
+                <h6 class="fw-bold mb-2">Pending Approvals</h6>
+                <ul class="list-group">
+                    <li class="list-group-item">5 Member Certifications</li>
+                    <li class="list-group-item">3 Ministry Join Requests</li>
+                    <li class="list-group-item">2 Event Registrations</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="col-md-4">
+            <div class="card shadow-sm p-3">
+                <h6 class="fw-bold mb-2">Quick Actions</h6>
+
+                <a href="@Url.Action("Create", "Members")" class="btn btn-outline-primary w-100 mb-2">
+                    <i class="fa fa-user-plus me-2"></i> Add Member
+                </a>
+
+                <a href="@Url.Action("Create", "Events")" class="btn btn-outline-success w-100 mb-2">
+                    <i class="fa fa-calendar-plus me-2"></i> Create Event
+                </a>
+
+                <a href="@Url.Action("Create", "Announcements")" class="btn btn-outline-warning w-100 mb-2">
+                    <i class="fa fa-bullhorn me-2"></i> New Announcement
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RECENT MEMBERS -->
+    <div class="card shadow-sm p-3 mt-4">
+        <h6 class="fw-bold mb-2">Recent Members</h6>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Branch</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>John Waweru</td>
+                    <td>GCI Central</td>
+                    <td><span class="badge bg-success">Certified</span></td>
+                    <td>Feb 2, 2026</td>
+                </tr>
+                <tr>
+                    <td>Mary Achieng</td>
+                    <td>Kasarani</td>
+                    <td><span class="badge bg-warning">Pending</span></td>
+                    <td>Jan 29, 2026</td>
+                </tr>
+                <tr>
+                    <td>Paul Mutiso</td>
+                    <td>Ruiru</td>
+                    <td><span class="badge bg-success">Certified</span></td>
+                    <td>Jan 25, 2026</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // MEMBER GROWTH CHART
+        new Chart(document.getElementById('membersChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Members',
+                    data: [200, 350, 520, 690, 890, 1250],
+                    borderWidth: 3,
+                    tension: 0.4
+                }]
+            }
+        });
+
+        // GIVING CHART
+        new Chart(document.getElementById('givingChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'KES',
+                    data: [120000, 200000, 180000, 250000, 210000, 300000],
+                    borderWidth: 1
+                }]
+            }
+        });
+    </script>
+
+}

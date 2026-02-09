@@ -1,0 +1,59 @@
+﻿@model Member
+
+<form id="memberForm">
+    <div class="mb-3">
+        <label class="form-label">First Name</label>
+        <input type="text" class="form-control" asp-for="FirstName" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Other Names</label>
+        <input type="text" class="form-control" asp-for="OtherNames" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Phone</label>
+        <input type="text" class="form-control" asp-for="Phone" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" asp-for="Email" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Gender</label>
+        <select class="form-select" asp-for="Gender">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Assembly</label>
+        <input type="text" class="form-control" asp-for="Assembly" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Status</label>
+        <select class="form-select" asp-for="Status">
+            <option value="FullMember">Full Member</option>
+            <option value="MembershipClass">Membership Class</option>
+            <option value="NonMember">Non Member</option>
+        </select>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" asp-for="IsAdmin" />
+        <label class="form-check-label">Admin</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+<script>
+    $('#memberForm').submit(function (e) {
+        e.preventDefault();
+        $.ajax({
+            url: '@Url.Action("Save")',
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function () {
+                $('#globalModal').modal('hide');
+                location.reload();
+            }
+        });
+    });
+</script>

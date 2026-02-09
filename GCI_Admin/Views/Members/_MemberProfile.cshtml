@@ -1,0 +1,12 @@
+﻿@model Member
+
+<div>
+    <h5>@Model.FirstName @Model.OtherNames</h5>
+    <p><strong>Phone:</strong> @Model.Phone</p>
+    <p><strong>Email:</strong> @Model.Email</p>
+    <p><strong>Gender:</strong> @Model.Gender</p>
+    <p><strong>Assembly:</strong> @Model.Assembly</p>
+    <p><strong>Status:</strong> @Model.Status</p>
+    <p><strong>Admin:</strong> @(Model.IsAdmin ? "Yes" : "No")</p>
+    <p><strong>Joined:</strong> @Model.CreatedAt.ToString("dd MMM yyyy")</p>
+</div>

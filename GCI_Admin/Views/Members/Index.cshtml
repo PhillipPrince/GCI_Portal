@@ -1,0 +1,157 @@
+﻿@model List<Member>
+
+@{
+    ViewData["Title"] = "Members";
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h4 class="fw-bold">Church Members</h4>
+    <button class="btn btn-primary" onclick="openModal('@Url.Action("Create")')">
+        <i class="fa fa-user-plus me-1"></i> Add Member
+    </button>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+
+        <table id="membersTable" class="table table-striped table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Gender</th>
+                    <th>Assembly</th>
+                    <th>Status</th>
+                    <th>Admin</th>
+                    <th>Joined</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                <tr>
+                    <th><input type="text" placeholder="Search Name" class="form-control form-control-sm" /></th>
+                    <th></th>
+                    <th></th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </th>
+                    <th><input type="text" placeholder="Search Assembly" class="form-control form-control-sm" /></th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="FullMember">Full Member</option>
+                            <option value="MembershipClass">Membership Class</option>
+                            <option value="NonMember">Non Member</option>
+                        </select>
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in Model)
+                {
+                    <tr>
+                        <td>@m.FirstName @m.OtherNames</td>
+                        <td>@m.Phone</td>
+                        <td>@m.Email</td>
+                        <td>@m.Gender</td>
+                        <td>@m.Assembly</td>
+                        <td>@m.Status</td>
+                        <td>
+                            @if (m.IsAdmin)
+                            {
+                                <span class="badge bg-success">Yes</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">No</span>
+                            }
+                        </td>
+                        <td>@m.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-info" onclick="openModal('@Url.Action("Profile", new { id = m.Id })')">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning" onclick="openModal('@Url.Action("Edit", new { id = m.Id })')">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteMember(@m.Id)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+<!-- GLOBAL MODAL -->
+<div class="modal fade" id="globalModal">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-scrollable">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Member</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var table = $('#membersTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50, 100],
+                order: [[7, "desc"]],
+                dom: 'Bfrtip',
+                buttons: [
+                    { extend: 'excelHtml5', title: 'GCI Members' },
+                    { extend: 'pdfHtml5', title: 'GCI Members' },
+                    { extend: 'print', title: 'GCI Members' }
+                ]
+            });
+
+            // Column search/filter
+            $('#membersTable thead tr:eq(1) th').each(function (i) {
+                $('input, select', this).on('keyup change', function () {
+                    table.column(i).search(this.value).draw();
+                });
+            });
+        });
+
+        function openModal(url) {
+            $('#modalContent').html('<div class="text-center py-5"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
+            $('#modalContent').load(url, function () {
+                $('#globalModal').modal('show');
+            });
+        }
+
+        function deleteMember(id) {
+            if (!confirm("Delete this member?")) return;
+            $.post('/Members/Delete', { id }, function () {
+                location.reload();
+            });
+        }
+    </script>
+}

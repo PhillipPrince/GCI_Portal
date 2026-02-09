@@ -1,0 +1,78 @@
+﻿@{
+    ViewData["Title"] = "Events";
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h4 class="fw-bold">Church Events</h4>
+    <button class="btn btn-primary" onclick="openEventModal('@Url.Action("Create", "Event")')">
+        <i class="fa fa-plus-circle me-1"></i> Add Event
+    </button>
+</div>
+
+<div id="eventsTableContainer">
+    @await Html.PartialAsync("_EventsTable")
+</div>
+
+<!-- GLOBAL MODAL -->
+<!-- GLOBAL MODAL -->
+<div class="modal fade" id="globalModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-scrollable">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Event</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalContent"></div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    
+
+
+    <script>
+               function openEventModal(url) {
+            // Remove any existing backdrops (prevents multiple overlays)
+            var existingBackdrop = document.querySelector('.modal-backdrop');
+            if (existingBackdrop) existingBackdrop.remove();
+
+            var modal = document.getElementById('globalModal');
+            var modalBody = modal.querySelector('#modalContent');
+
+            modalBody.innerHTML = '<div class="text-center py-5"><i class="fa fa-spinner fa-spin fa-2x"></i></div>';
+
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    modalBody.innerHTML = html;
+
+                    // Initialize and show modal properly
+                    var bsModal = bootstrap.Modal.getOrCreateInstance(modal, {
+                        backdrop: 'static', // prevent closing by clicking outside
+                        keyboard: false
+                    });
+                    bsModal.show();
+                })
+                .catch(err => {
+                    modalBody.innerHTML = '<div class="text-danger text-center">Failed to load content</div>';
+                    console.error(err);
+                });
+        }
+
+        // Reload the events table after CRUD actions
+        function reloadEventsTable() {
+            $('#eventsTableContainer').load('@Url.Action("EventsTable", "Event")');
+        }
+
+        function deleteEvent(id) {
+            if (!confirm("Delete this event?")) return;
+
+            $.post('/Event/Delete', { eventId: id }, function () {
+                reloadEventsTable();
+            });
+        }
+
+    </script>
+}

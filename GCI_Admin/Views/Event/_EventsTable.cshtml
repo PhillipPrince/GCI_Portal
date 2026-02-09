@@ -1,0 +1,92 @@
+﻿@model List<Event>
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="eventsTable" class="table table-striped table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Paid</th>
+                    <th>Price</th>
+                    <th>Created At</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                <tr>
+                    <th><input type="text" placeholder="Search Title" class="form-control form-control-sm" /></th>
+                    <th></th>
+                    <th><input type="date" class="form-control form-control-sm" /></th>
+                    <th><input type="text" placeholder="Search Location" class="form-control form-control-sm" /></th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="True">Yes</option>
+                            <option value="False">No</option>
+                        </select>
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    <tr>
+                        <td>@e.Title</td>
+                        <td>@e.Description</td>
+                        <td>@e.EventDate.ToString("dd MMM yyyy")</td>
+                        <td>@e.Location</td>
+                        <td>
+                            @if (e.IsPaid)
+                            {
+                                <span class="badge bg-success">Yes</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">No</span>
+                            }
+                        </td>
+                        <td>@(e.Price.HasValue? e.Price.Value.ToString("C") : "-")</td>
+                        <td>@e.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-info" onclick="openEventModal('@Url.Action("Details", new { id = e.EventId })')">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning" onclick="openEventModal('@Url.Action("Edit", new { id = e.EventId })')">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteEvent(@e.EventId)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var table = $('#eventsTable').DataTable({
+            responsive: true,
+            pageLength: 10,
+            order: [[2, "desc"]],
+            dom: 'Bfrtip',
+            buttons: [
+                { extend: 'excelHtml5', title: 'GCI Events' },
+                { extend: 'pdfHtml5', title: 'GCI Events' },
+                { extend: 'print', title: 'GCI Events' }
+            ]
+        });
+
+        $('#eventsTable thead tr:eq(1) th').each(function (i) {
+            $('input, select', this).on('keyup change', function () {
+                table.column(i).search(this.value).draw();
+            });
+        });
+    });
+</script>
