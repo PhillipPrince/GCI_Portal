@@ -1,9 +1,7 @@
-﻿namespace GCI_Admin.Models
+﻿namespace GCI_Admin.Models.DTOs
 {
-    public class Member
+    public class MemberDto
     {
-        public int Id { get; set; }
-
         public string FirstName { get; set; }
         public string OtherNames { get; set; }
 
@@ -15,8 +13,6 @@
         public string PasswordHash { get; set; }
 
         public string Assembly { get; set; }
-
-        public DateTime CreatedAt { get; set; }
 
         public int? StatusId { get; set; }
     }

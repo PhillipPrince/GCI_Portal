@@ -4,33 +4,37 @@
     ViewData["Title"] = "Members";
 }
 
-<div class="d-flex justify-content-between mb-3">
-    <h4 class="fw-bold">Church Members</h4>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0">Church Members</h4>
     <button class="btn btn-primary" onclick="openModal('@Url.Action("Create")')">
         <i class="fa fa-user-plus me-1"></i> Add Member
     </button>
 </div>
 
-<div class="card shadow-sm">
-    <div class="table-responsive p-3">
+<div class="card shadow-sm h-100">
+    <div class="table-responsive p-2">
 
-        <table id="membersTable" class="table table-striped table-hover">
+        <table id="membersTable" class="table table-striped table-hover w-100">
             <thead class="table-light">
                 <tr>
+                    <th style="width:35px;"></th> <!-- Expand icon -->
+                    <th style="width:50px;">#</th>
                     <th>Name</th>
                     <th>Phone</th>
                     <th>Email</th>
                     <th>Gender</th>
                     <th>Assembly</th>
-                    <th>Status</th>
-                    <th>Admin</th>
                     <th>Joined</th>
                     <th class="text-end">Actions</th>
                 </tr>
+
+                <!-- FILTER ROW -->
                 <tr>
+                    <th></th>
+                    <th></th>
                     <th><input type="text" placeholder="Search Name" class="form-control form-control-sm" /></th>
-                    <th></th>
-                    <th></th>
+                    <th><input type="text" placeholder="Phone" class="form-control form-control-sm" /></th>
+                    <th><input type="text" placeholder="Email" class="form-control form-control-sm" /></th>
                     <th>
                         <select class="form-select form-select-sm">
                             <option value="">All</option>
@@ -38,53 +42,50 @@
                             <option value="Female">Female</option>
                         </select>
                     </th>
-                    <th><input type="text" placeholder="Search Assembly" class="form-control form-control-sm" /></th>
-                    <th>
-                        <select class="form-select form-select-sm">
-                            <option value="">All</option>
-                            <option value="FullMember">Full Member</option>
-                            <option value="MembershipClass">Membership Class</option>
-                            <option value="NonMember">Non Member</option>
-                        </select>
-                    </th>
-                    <th></th>
+                    <th><input type="text" placeholder="Assembly" class="form-control form-control-sm" /></th>
                     <th></th>
                     <th></th>
                 </tr>
             </thead>
+
             <tbody>
                 @foreach (var m in Model)
                 {
-                    <tr>
-                        <td>@m.FirstName @m.OtherNames</td>
-                        <td>@m.Phone</td>
-                        <td>@m.Email</td>
-                        <td>@m.Gender</td>
-                        <td>@m.Assembly</td>
-                        <td>@m.Status</td>
-                        <td>
-                            @if (m.IsAdmin)
-                            {
-                                <span class="badge bg-success">Yes</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">No</span>
-                            }
-                        </td>
-                        <td>@m.CreatedAt.ToString("dd MMM yyyy")</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-info" onclick="openModal('@Url.Action("Profile", new { id = m.Id })')">
-                                <i class="fa fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning" onclick="openModal('@Url.Action("Edit", new { id = m.Id })')">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteMember(@m.Id)">
-                                <i class="fa fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
+                    <tr data-child="
+                            <div class='p-2'>
+                                <strong>Status:</strong> @m.StatusId <br/>
+                                <strong>Email:</strong> @m.Email <br/>
+                                <strong>Phone:</strong> @m.Phone <br/>
+                                <strong>Gender:</strong> @m.Gender <br/>
+                                <strong>Assembly:</strong> @m.Assembly
+                            </div>
+                        ">
+                            <td class="expand-row text-primary" style="cursor:pointer;">
+                                <i class="fa fa-plus-circle"></i>
+                            </td>
+
+                            <td></td> <!-- Auto-number -->
+                            <td>@m.FirstName @m.OtherNames</td>
+                            <td>@m.Phone</td>
+                            <td>@m.Email</td>
+                            <td>@m.Gender</td>
+                            <td>@m.Assembly</td>
+                            <td>@m.CreatedAt.ToString("dd MMM yyyy")</td>
+
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-info" onclick="openModal('@Url.Action("Profile", new { id = m.Id })')">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-outline-warning" onclick="openModal('@Url.Action("Edit", new { id = m.Id })')">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteMember(@m.Id)">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
                 }
             </tbody>
         </table>
@@ -92,9 +93,8 @@
     </div>
 </div>
 
-<!-- GLOBAL MODAL -->
 <div class="modal fade" id="globalModal">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-scrollable">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-scrollable">
         <div class="modal-content shadow">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title">Member</h5>
@@ -106,40 +106,53 @@
 </div>
 
 @section Scripts {
+
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
     <script>
         $(document).ready(function () {
+
             var table = $('#membersTable').DataTable({
                 responsive: true,
                 pageLength: 10,
-                lengthMenu: [5, 10, 25, 50, 100],
+                lengthMenu: [10, 25, 50, 100],
                 order: [[7, "desc"]],
-                dom: 'Bfrtip',
-                buttons: [
-                    { extend: 'excelHtml5', title: 'GCI Members' },
-                    { extend: 'pdfHtml5', title: 'GCI Members' },
-                    { extend: 'print', title: 'GCI Members' }
-                ]
+                autoWidth: false
             });
 
-            // Column search/filter
+            // Auto row numbers
+            table.on('order.dt search.dt', function () {
+                let i = 1;
+                table.column(1, { search: 'applied', order: 'applied' }).nodes()
+                    .each(cell => cell.innerHTML = i++);
+            }).draw();
+
+            // Column filtering
             $('#membersTable thead tr:eq(1) th').each(function (i) {
                 $('input, select', this).on('keyup change', function () {
                     table.column(i).search(this.value).draw();
                 });
             });
+
+            // Expandable rows
+            $('#membersTable tbody').on('click', '.expand-row', function () {
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    $(this).find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
+                } else {
+                    row.child(tr.data('child')).show();
+                    $(this).find('i').removeClass('fa-plus-circle').addClass('fa-minus-circle');
+                }
+            });
+
         });
 
+        // Modal loader
         function openModal(url) {
             $('#modalContent').html('<div class="text-center py-5"><i class="fa fa-spinner fa-spin fa-2x"></i></div>');
             $('#modalContent').load(url, function () {
@@ -149,9 +162,11 @@
 
         function deleteMember(id) {
             if (!confirm("Delete this member?")) return;
+
             $.post('/Members/Delete', { id }, function () {
                 location.reload();
             });
         }
     </script>
 }
+

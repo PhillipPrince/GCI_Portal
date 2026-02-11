@@ -18,8 +18,12 @@ var connectionString = await connStringProvider.BuildConnectionString();
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.Configure<JwtSettings>(jwtSettings);
 
+//Services
 builder.Services.AddScoped<IEventsService, EventsService>();
+builder.Services.AddScoped<IMembersService, MembersService>();
+//Repositories
 builder.Services.AddScoped<EventsRepository>();
+builder.Services.AddScoped<MembersRepository>();
 
 
 builder.Services.AddDbContext<AppDbContext>(x => x.UseSqlServer(connectionString));
