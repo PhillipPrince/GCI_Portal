@@ -185,5 +185,150 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+        public async Task<DbResponse<AnnualEventCalendar>> CreateAnnualEventAsync(AnnualEventCalendarDto dto)
+        {
+            try
+            {
+                var newEvent = new AnnualEventCalendar
+                {
+                    Title = dto.Title,
+                    Description = dto.Description,
+                    EventStartDate = dto.EventStartDate,
+                    EventEndDate = dto.EventEndDate,
+                    Year = dto.Year,
+                    Location = dto.Location,
+                    IsActive = dto.IsActive,
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.AnnualEventCalendars.Add(newEvent);
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<AnnualEventCalendar>
+                {
+                    Success = true,
+                    Message = "Annual event created successfully",
+                    Data = newEvent
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error in CreateAnnualEventAsync: {ex}");
+                return new DbResponse<AnnualEventCalendar>
+                {
+                    Success = false,
+                    Message = $"Error creating annual event: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<List<AnnualEventCalendar>>> GetAllAnnualEventsAsync()
+        {
+            try
+            {
+                var events = await _context.AnnualEventCalendars
+                    .OrderByDescending(e => e.EventStartDate)
+                    .ToListAsync();
+
+                return new DbResponse<List<AnnualEventCalendar>>
+                {
+                    Success = true,
+                    Data = events
+                };
+            }
+            catch (Exception ex)
+            {
+                return new DbResponse<List<AnnualEventCalendar>>
+                {
+                    Success = false,
+                    Message = $"Error fetching annual events: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<AnnualEventCalendar>> UpdateAnnualEventAsync(int calendarEventId, AnnualEventCalendarDto dto)
+        {
+            try
+            {
+                var existingEvent = await _context.AnnualEventCalendars.FindAsync(calendarEventId);
+
+                if (existingEvent == null)
+                {
+                    return new DbResponse<AnnualEventCalendar>
+                    {
+                        Success = false,
+                        Message = "Annual event not found"
+                    };
+                }
+
+                existingEvent.Title = dto.Title;
+                existingEvent.Description = dto.Description;
+                existingEvent.EventStartDate = dto.EventStartDate;
+                existingEvent.EventEndDate = dto.EventEndDate;
+                existingEvent.Year = dto.Year;
+                existingEvent.Location = dto.Location;
+                existingEvent.IsActive = dto.IsActive;
+                existingEvent.UpdatedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<AnnualEventCalendar>
+                {
+                    Success = true,
+                    Message = "Annual event updated successfully",
+                    Data = existingEvent
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error in UpdateAnnualEventAsync: {ex}");
+                return new DbResponse<AnnualEventCalendar>
+                {
+                    Success = false,
+                    Message = $"Error updating annual event: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<bool>> DeleteAnnualEventAsync(int calendarEventId)
+        {
+            try
+            {
+                var eventItem = await _context.AnnualEventCalendars.FindAsync(calendarEventId);
+
+                if (eventItem == null)
+                {
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Annual event not found"
+                    };
+                }
+
+                eventItem.IsActive = false;
+                eventItem.UpdatedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<bool>
+                {
+                    Success = true,
+                    Message = "Annual event deactivated successfully",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new DbResponse<bool>
+                {
+                    Success = false,
+                    Message = $"Error deleting annual event: {ex.Message}"
+                };
+            }
+        }
+
+
+
+
     }
 }

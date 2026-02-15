@@ -21,9 +21,11 @@ builder.Services.Configure<JwtSettings>(jwtSettings);
 //Services
 builder.Services.AddScoped<IEventsService, EventsService>();
 builder.Services.AddScoped<IMembersService, MembersService>();
+builder.Services.AddScoped<IGECMemberService,GECMemberService>();
 //Repositories
 builder.Services.AddScoped<EventsRepository>();
 builder.Services.AddScoped<MembersRepository>();
+builder.Services.AddScoped<GECMemberRepository>();
 
 
 builder.Services.AddDbContext<AppDbContext>(x => x.UseSqlServer(connectionString));

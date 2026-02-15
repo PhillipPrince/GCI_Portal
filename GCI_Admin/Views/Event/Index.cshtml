@@ -2,77 +2,742 @@
     ViewData["Title"] = "Events";
 }
 
-<div class="d-flex justify-content-between mb-3">
-    <h4 class="fw-bold">Church Events</h4>
-    <button class="btn btn-primary" onclick="openEventModal('@Url.Action("Create", "Event")')">
-        <i class="fa fa-plus-circle me-1"></i> Add Event
-    </button>
+<!-- Page Header with Stats -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Church Events</h2>
+        <p class="text-muted mb-0">Manage and schedule all church activities and gatherings</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="@Url.Action("CreateEvent", "Event")" class="btn btn-primary btn-lg">
+            <i class="fa fa-plus-circle me-2"></i>Create New Event
+        </a>
+    </div>
 </div>
 
-<div id="eventsTableContainer">
-    @await Html.PartialAsync("_EventsTable")
-</div>
-
-<!-- GLOBAL MODAL -->
-<!-- GLOBAL MODAL -->
-<div class="modal fade" id="globalModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-scrollable">
-        <div class="modal-content shadow">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Event</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<!-- Quick Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-calendar text-primary fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Events</h6>
+                        <h3 class="fw-bold mb-0" id="totalEvents">0</h3>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body" id="modalContent"></div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-clock text-success fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Upcoming</h6>
+                        <h3 class="fw-bold mb-0" id="upcomingEvents">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-users text-warning fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Attendees</h6>
+                        <h3 class="fw-bold mb-0" id="totalAttendees">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-danger bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-chart-line text-danger fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">This Month</h6>
+                        <h3 class="fw-bold mb-0" id="monthEvents">0</h3>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- Filter Bar -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0">
+                        <i class="fa fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" id="eventSearch" placeholder="Search events...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="eventType">
+                    <option value="">All Types</option>
+                    <option value="service">Service</option>
+                    <option value="conference">Conference</option>
+                    <option value="meeting">Meeting</option>
+                    <option value="youth">Youth</option>
+                    <option value="prayer">Prayer</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="eventStatus">
+                    <option value="">All Status</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="ongoing">Ongoing</option>
+                    <option value="past">Past</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="date" class="form-control" id="eventDate" placeholder="Date">
+            </div>
+            <div class="col-md-3 text-end">
+                <button class="btn btn-outline-secondary me-2" onclick="clearFilters()">
+                    <i class="fa fa-times me-1"></i>Clear
+                </button>
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fa fa-filter me-1"></i>Apply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Toggle -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="btn-group" role="group">
+        <button class="btn btn-outline-primary active" onclick="toggleView('table')">
+            <i class="fa fa-table me-1"></i>Table View
+        </button>
+        <button class="btn btn-outline-primary" onclick="toggleView('calendar')">
+            <i class="fa fa-calendar-alt me-1"></i>Calendar View
+        </button>
+        <button class="btn btn-outline-primary" onclick="toggleView('grid')">
+            <i class="fa fa-th me-1"></i>Grid View
+        </button>
+    </div>
+    <div>
+        <button class="btn btn-outline-secondary" onclick="exportEvents()">
+            <i class="fa fa-download me-1"></i>Export
+        </button>
+    </div>
+</div>
+
+<!-- Events Container -->
+<div id="eventsTableContainer">
+    @await Html.PartialAsync("_EventsTable")
+</div>
+
+<!-- Calendar View (Hidden by default) -->
+<div id="calendarView" style="display: none;">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div id="eventCalendar"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Grid View (Hidden by default) -->
+<div id="gridView" style="display: none;">
+    <div class="row g-4" id="eventGrid">
+        <!-- Events will be loaded here dynamically -->
+    </div>
+</div>
+
+<!-- Success Toast Notification -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fa fa-check-circle me-2"></i>
+                <span id="toastMessage">Operation completed successfully</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
-    
+    <!-- FullCalendar for calendar view -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
 
+    <!-- Moment.js for date handling -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+    <!-- SweetAlert2 for better confirmations -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important;
+            }
+
+        .event-card {
+            transition: all 0.3s;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+            .event-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            }
+
+        .event-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .btn-group .btn.active {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+
+        .fc-event {
+            cursor: pointer;
+        }
+
+            .fc-event:hover {
+                opacity: 0.9;
+            }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        /* Action buttons */
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+            .action-btn:hover {
+                transform: translateY(-2px);
+            }
+
+            .action-btn.edit-btn:hover {
+                background-color: #0d6efd;
+                color: white;
+            }
+
+            .action-btn.delete-btn:hover {
+                background-color: #dc3545;
+                color: white;
+            }
+
+            .action-btn.view-btn:hover {
+                background-color: #6c757d;
+                color: white;
+            }
+    </style>
 
     <script>
-               function openEventModal(url) {
-            // Remove any existing backdrops (prevents multiple overlays)
-            var existingBackdrop = document.querySelector('.modal-backdrop');
-            if (existingBackdrop) existingBackdrop.remove();
+        // Global variables
+        let calendar = null;
+        let currentView = 'table';
+        let events = [];
 
-            var modal = document.getElementById('globalModal');
-            var modalBody = modal.querySelector('#modalContent');
+        $(document).ready(function() {
+            loadEvents();
+            initializeDataTable();
 
-            modalBody.innerHTML = '<div class="text-center py-5"><i class="fa fa-spinner fa-spin fa-2x"></i></div>';
+            // Check for success message from TempData
+            @if (TempData["SuccessMessage"] != null)
+            {
+                    <text>
+                    showToast('@TempData["SuccessMessage"]', 'success');
+                    </text>
+            }
 
-            fetch(url)
-                .then(response => response.text())
-                .then(html => {
-                    modalBody.innerHTML = html;
+            // Check for error message from TempData
+            @if (TempData["ErrorMessage"] != null)
+            {
+                    <text>
+                    showToast('@TempData["ErrorMessage"]', 'error');
+                    </text>
+            }
+        });
 
-                    // Initialize and show modal properly
-                    var bsModal = bootstrap.Modal.getOrCreateInstance(modal, {
-                        backdrop: 'static', // prevent closing by clicking outside
-                        keyboard: false
-                    });
-                    bsModal.show();
-                })
-                .catch(err => {
-                    modalBody.innerHTML = '<div class="text-danger text-center">Failed to load content</div>';
-                    console.error(err);
-                });
-        }
-
-        // Reload the events table after CRUD actions
-        function reloadEventsTable() {
-            $('#eventsTableContainer').load('@Url.Action("EventsTable", "Event")');
-        }
-
-        function deleteEvent(id) {
-            if (!confirm("Delete this event?")) return;
-
-            $.post('/Event/Delete', { eventId: id }, function () {
-                reloadEventsTable();
+        // Load events from server
+        function loadEvents() {
+            $.get('@Url.Action("GetEvents", "Event")', function(data) {
+                events = data;
+                updateStats();
+                if (currentView === 'calendar') {
+                    setTimeout(() => initializeCalendar(), 100);
+                } else if (currentView === 'grid') {
+                    renderGridView();
+                }
+            }).fail(function() {
+                console.error('Failed to load events');
             });
         }
 
+        // Update statistics
+        function updateStats() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            const monthEvents = events.filter(e => {
+                const eventDate = new Date(e.startDate);
+                return eventDate.getMonth() === currentMonth && eventDate.getFullYear() === currentYear;
+            }).length;
+
+            const upcoming = events.filter(e => new Date(e.startDate) > now).length;
+            const totalAttendees = events.reduce((sum, e) => sum + (e.attendees || 0), 0);
+
+            $('#totalEvents').text(events.length);
+            $('#upcomingEvents').text(upcoming);
+            $('#totalAttendees').text(totalAttendees);
+            $('#monthEvents').text(monthEvents);
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = $('#successToast');
+            toast.removeClass('bg-success bg-danger bg-warning');
+
+            if (type === 'success') {
+                toast.addClass('bg-success');
+                toast.find('i').removeClass().addClass('fa fa-check-circle me-2');
+            } else if (type === 'error') {
+                toast.addClass('bg-danger');
+                toast.find('i').removeClass().addClass('fa fa-exclamation-circle me-2');
+            } else if (type === 'warning') {
+                toast.addClass('bg-warning');
+                toast.find('i').removeClass().addClass('fa fa-exclamation-triangle me-2');
+            }
+
+            $('#toastMessage').text(message);
+            const bsToast = new bootstrap.Toast(toast[0], { delay: 3000 });
+            bsToast.show();
+        }
+
+        // Edit event - redirect to edit page
+        function editEvent(id) {
+            window.location.href = '@Url.Action("Edit", "Event")/' + id;
+        }
+
+        // View event details - redirect to details page
+        function viewEvent(id) {
+            window.location.href = '@Url.Action("Details", "Event")/' + id;
+        }
+
+        // Delete event with SweetAlert2 confirmation
+        function deleteEvent(id) {
+            Swal.fire({
+                title: 'Delete Event',
+                text: 'Are you sure you want to delete this event? This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return $.ajax({
+                        url: '@Url.Action("Delete", "Event")',
+                        type: 'POST',
+                        data: { eventId: id },
+                        dataType: 'json'
+                    }).then(response => {
+                        if (!response.success) {
+                            throw new Error(response.message || 'Delete failed');
+                        }
+                        return response;
+                    }).catch(error => {
+                        Swal.showValidationMessage(`Request failed: ${error.message}`);
+                    });
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showToast('Event deleted successfully');
+                    reloadEventsTable();
+                    loadEvents();
+                }
+            });
+        }
+
+        // Toggle between views
+        function toggleView(view) {
+            currentView = view;
+
+            // Update button states
+            $('.btn-group .btn').removeClass('active');
+            $(`.btn-group .btn:eq(${view === 'table' ? 0 : view === 'calendar' ? 1 : 2})`).addClass('active');
+
+            // Hide all views
+            $('#eventsTableContainer').hide();
+            $('#calendarView').hide();
+            $('#gridView').hide();
+
+            // Show selected view
+            if (view === 'table') {
+                $('#eventsTableContainer').show();
+                reloadEventsTable();
+            } else if (view === 'calendar') {
+                $('#calendarView').show();
+                initializeCalendar();
+            } else if (view === 'grid') {
+                $('#gridView').show();
+                renderGridView();
+            }
+        }
+
+        // Initialize calendar
+        function initializeCalendar() {
+            const calendarEl = document.getElementById('eventCalendar');
+
+            if (!calendarEl) return;
+
+            if (calendar) {
+                calendar.destroy();
+            }
+
+            const calendarEvents = events.map(e => ({
+                id: e.id,
+                title: e.name,
+                start: e.startDate,
+                end: e.endDate,
+                description: e.description,
+                color: e.color || getRandomColor(),
+                extendedProps: {
+                    location: e.location,
+                    attendees: e.attendees
+                }
+            }));
+
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                events: calendarEvents,
+                eventClick: function(info) {
+                    viewEvent(info.event.id);
+                },
+                dateClick: function(info) {
+                    window.location.href = '@Url.Action("Create", "Event")?date=' + info.dateStr;
+                },
+                height: 600,
+                aspectRatio: 2,
+                editable: false,
+                eventDidMount: function(info) {
+                    $(info.el).tooltip({
+                        title: info.event.title + (info.event.extendedProps.location ? ' at ' + info.event.extendedProps.location : ''),
+                        placement: 'top',
+                        trigger: 'hover',
+                        container: 'body'
+                    });
+                }
+            });
+
+            calendar.render();
+        }
+
+        function getRandomColor() {
+            const colors = ['#0d6efd', '#198754', '#0dcaf0', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // Render grid view
+        function renderGridView() {
+            const grid = $('#eventGrid');
+            grid.empty();
+
+            if (events.length === 0) {
+                grid.html(`
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="fa fa-calendar-times fa-4x text-muted mb-3"></i>
+                            <h5>No Events Found</h5>
+                            <p class="text-muted">Create your first event to get started</p>
+                            <a href="@Url.Action("Create", "Event")" class="btn btn-primary mt-3">
+                                <i class="fa fa-plus-circle me-2"></i>Create New Event
+                            </a>
+                        </div>
+                    </div>
+                `);
+                return;
+            }
+
+            events.forEach(event => {
+                const startDate = moment(event.startDate);
+                const endDate = event.endDate ? moment(event.endDate) : null;
+                const now = moment();
+                const isUpcoming = startDate.isAfter(now);
+                const isOngoing = startDate.isBefore(now) && endDate && endDate.isAfter(now);
+                const isPast = endDate ? endDate.isBefore(now) : startDate.isBefore(now);
+
+                let statusBadge = '';
+                if (isUpcoming) {
+                    statusBadge = '<span class="event-badge badge bg-success">Upcoming</span>';
+                } else if (isOngoing) {
+                    statusBadge = '<span class="event-badge badge bg-warning">Ongoing</span>';
+                } else if (isPast) {
+                    statusBadge = '<span class="event-badge badge bg-secondary">Past</span>';
+                }
+
+                grid.append(`
+                    <div class="col-md-4">
+                        <div class="card event-card border-0 shadow-sm h-100">
+                            ${statusBadge}
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                                            <i class="fa fa-calendar text-primary fa-2x"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="card-title mb-1">${escapeHtml(event.name)}</h5>
+                                        <p class="text-muted small mb-0">${escapeHtml(event.category || 'General')}</p>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <p class="small text-muted mb-2">
+                                        <i class="fa fa-calendar-day me-2"></i>${startDate.format('MMMM D, YYYY')}<br>
+                                        <i class="fa fa-clock me-2"></i>${startDate.format('h:mm A')}${endDate ? ' - ' + endDate.format('h:mm A') : ''}<br>
+                                        <i class="fa fa-map-marker me-2"></i>${escapeHtml(event.location || 'TBD')}
+                                    </p>
+                                    <p class="small">${escapeHtml(event.description ? (event.description.substring(0, 100) + (event.description.length > 100 ? '...' : '')) : 'No description')}</p>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <span class="badge bg-light text-dark">
+                                        <i class="fa fa-users me-1"></i>${event.attendees || 0} attending
+                                    </span>
+                                    <div>
+                                        <button class="action-btn view-btn btn btn-sm btn-outline-secondary me-1" onclick="viewEvent(${event.id})" title="View Details">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn edit-btn btn btn-sm btn-outline-primary me-1" onclick="editEvent(${event.id})" title="Edit">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete-btn btn btn-sm btn-outline-danger" onclick="deleteEvent(${event.id})" title="Delete">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            });
+        }
+
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(text));
+            return div.innerHTML;
+        }
+
+        // Reload events table
+        function reloadEventsTable() {
+            $('#eventsTableContainer').load('@Url.Action("EventsTable", "Event")', function() {
+                initializeDataTable();
+            });
+        }
+
+        // Initialize DataTable
+        function initializeDataTable() {
+            if ($.fn.DataTable.isDataTable('#eventsTable')) {
+                $('#eventsTable').DataTable().destroy();
+            }
+
+            $('#eventsTable').DataTable({
+                pageLength: 10,
+                language: {
+                    search: "Search events:",
+                    lengthMenu: "Show _MENU_ events",
+                    info: "Showing _START_ to _END_ of _TOTAL_ events",
+                    emptyTable: "No events available",
+                    zeroRecords: "No matching events found"
+                },
+                columnDefs: [
+                    {
+                        targets: -1,
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                initComplete: function() {
+                    // Add action buttons styling
+                    $('#eventsTable .btn-group .btn').addClass('action-btn');
+                }
+            });
+        }
+
+        // Filter functions
+        function applyFilters() {
+            const search = $('#eventSearch').val();
+            const type = $('#eventType').val();
+            const status = $('#eventStatus').val();
+            const date = $('#eventDate').val();
+
+            if (currentView === 'table') {
+                const table = $('#eventsTable').DataTable();
+                table.search(search).draw();
+
+                // Additional custom filtering can be implemented here
+            } else if (currentView === 'grid') {
+                // Filter grid view
+                filterGridView(search, type, status, date);
+            } else if (currentView === 'calendar') {
+                // Filter calendar view
+                filterCalendarView(search, type, status, date);
+            }
+        }
+
+        function filterGridView(search, type, status, date) {
+            // Simple client-side filtering for grid view
+            const filteredEvents = events.filter(e => {
+                let matches = true;
+
+                if (search) {
+                    matches = matches && (e.name.toLowerCase().includes(search.toLowerCase()) ||
+                               (e.description && e.description.toLowerCase().includes(search.toLowerCase())));
+                }
+
+                if (type) {
+                    matches = matches && (e.category === type);
+                }
+
+                if (date) {
+                    const eventDate = moment(e.startDate).format('YYYY-MM-DD');
+                    matches = matches && (eventDate === date);
+                }
+
+                if (status) {
+                    const now = moment();
+                    const startDate = moment(e.startDate);
+                    const endDate = e.endDate ? moment(e.endDate) : null;
+
+                    if (status === 'upcoming') {
+                        matches = matches && startDate.isAfter(now);
+                    } else if (status === 'ongoing') {
+                        matches = matches && (startDate.isBefore(now) && endDate && endDate.isAfter(now));
+                    } else if (status === 'past') {
+                        matches = matches && (endDate ? endDate.isBefore(now) : startDate.isBefore(now));
+                    }
+                }
+
+                return matches;
+            });
+
+            // Re-render with filtered events
+            const tempEvents = events;
+            events = filteredEvents;
+            renderGridView();
+            events = tempEvents;
+        }
+
+        function filterCalendarView(search, type, status, date) {
+            // For calendar, we'll just show a message
+            showToast('Filters applied to calendar view', 'info');
+        }
+
+        function clearFilters() {
+            $('#eventSearch').val('');
+            $('#eventType').val('');
+            $('#eventStatus').val('');
+            $('#eventDate').val('');
+
+            if (currentView === 'table') {
+                const table = $('#eventsTable').DataTable();
+                table.search('').columns().search('').draw();
+            } else if (currentView === 'grid') {
+                renderGridView();
+            }
+        }
+
+        // Export events
+        function exportEvents() {
+            Swal.fire({
+                title: 'Export Events',
+                text: 'Choose export format',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Excel',
+                cancelButtonText: 'Cancel',
+                showDenyButton: true,
+                denyButtonText: 'PDF',
+                showCloseButton: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '@Url.Action("ExportExcel", "Event")';
+                } else if (result.isDenied) {
+                    window.location.href = '@Url.Action("ExportPDF", "Event")';
+                }
+            });
+        }
+
+        // Handle delete confirmation from table
+        window.deleteEvent = deleteEvent;
+        window.editEvent = editEvent;
+        window.viewEvent = viewEvent;
     </script>
 }

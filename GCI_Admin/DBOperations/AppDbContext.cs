@@ -18,6 +18,10 @@ namespace GCI_Admin.DBOperations
         }
         public DbSet<Member> Members { get; set; }
         public DbSet<Event> Events { get; set; }
+        public DbSet<AnnualEventCalendar> AnnualEventCalendars { get; set; }
+        public DbSet<GECMember> GECMembers { get; set; }
+        public DbSet<SystemConfig> SystemConfig { get; set; }
+
         //public DbSet<Assembly> Assemblies { get; set; }
     }
-    }
+}

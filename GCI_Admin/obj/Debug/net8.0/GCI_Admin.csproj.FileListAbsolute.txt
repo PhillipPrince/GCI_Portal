@@ -261,3 +261,4 @@ C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\GCI_Admin.pdb
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\GCI_Admin.genruntimeconfig.cache
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\ref\GCI_Admin.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\GCI_Admin.sourcelink.json

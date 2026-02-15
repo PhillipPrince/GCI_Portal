@@ -1,16 +1,38 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using GCI_Admin.DBOperations.Repositories;
+using GCI_Admin.Models;
+using GCI_Admin.Services.IService;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCI_Admin.Controllers
 {
     public class HomeController : Controller
     {
-        // GET: HomeController1
-        public ActionResult Index()
+        private readonly IMembersService _membersService;
+        private readonly IEventsService _eventsService;
+        public HomeController(IMembersService membersService, IEventsService eventsService)
         {
-            return View();
+            _membersService = membersService;
+            _eventsService = eventsService;
         }
 
+        // GET: HomeController1
+        public async Task<IActionResult> Index()
+        {
+            DashboardViewModel dashboard = new DashboardViewModel();
+            var allMembers = await _membersService.GetAllMembersAsync();
+            var upcomingEvents = await _eventsService.GetAllEventsAsync();
+
+
+            dashboard.ActiveMembers = allMembers.Data.Where(m => m.StatusId == 1).ToList();
+            dashboard.MembershipClassMembers = allMembers.Data.Where(m => m.StatusId == 2).ToList();
+            dashboard.NonMembers = allMembers.Data.Where(m => m.StatusId == 3).ToList();
+            dashboard.UpcomingEvents = upcomingEvents.Data.Count;
+            dashboard.TotalActiveMembers = dashboard.ActiveMembers.Count;
+            dashboard.TotalMembers = allMembers.Data.Count;
+
+            return View(dashboard);
+        }
         // GET: HomeController1/Details/5
         public ActionResult Details(int id)
         {

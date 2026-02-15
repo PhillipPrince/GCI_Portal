@@ -48,10 +48,10 @@ namespace GCI_Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult CreateEvent()
         {
             var dto = new EventDto();
-            return PartialView("_CreateEvent", dto);
+            return View("_CreateEvent", dto);
         }
 
 

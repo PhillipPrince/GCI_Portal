@@ -1,68 +1,561 @@
 ﻿@model GCI_Admin.Models.DTOs.EventDto
 
-<form asp-action="Create" asp-controller="Event" method="post">
-    <div class="mb-3">
-        <label class="form-label">Title</label>
-        <input asp-for="Title" class="form-control" required />
-        <span asp-validation-for="Title" class="text-danger"></span>
-    </div>
+@{
+    ViewData["Title"] = "Create New Event";
+}
 
-    <div class="mb-3">
-        <label class="form-label">Description</label>
-        <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
+<!-- Page Header with Breadcrumb -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Create New Event</h2>
+        <p class="text-muted mb-0">Add a new event to the church calendar</p>
     </div>
-
-    <div class="mb-3">
-        <label class="form-label">Event Date</label>
-        <input asp-for="EventDate" type="date" class="form-control" required />
-        <span asp-validation-for="EventDate" class="text-danger"></span>
+    <div class="col-md-4 text-end">
+        <a href="@Url.Action("Index", "Event")" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left me-2"></i>Back to Events
+        </a>
     </div>
+</div>
 
-    <div class="mb-3">
-        <label class="form-label">Location</label>
-        <input asp-for="Location" class="form-control" required />
-        <span asp-validation-for="Location" class="text-danger"></span>
+<!-- Validation Summary -->
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa fa-exclamation-circle me-2"></i>
+        <strong>Please correct the following errors:</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div asp-validation-summary="All" class="mt-2"></div>
     </div>
+}
 
-    <div class="mb-3">
-        <label class="form-label">Is Paid?</label>
-        <div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="IsPaid" value="false" id="isPaidNo" checked>
-                <label class="form-check-label" for="isPaidNo">No</label>
+<!-- Create Event Form -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa fa-calendar-plus me-2 text-primary"></i>
+                    Event Details
+                </h5>
             </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="IsPaid" value="true" id="isPaidYes">
-                <label class="form-check-label" for="isPaidYes">Yes</label>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="Event" method="post" id="eventForm">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Basic Information -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="Title" class="form-label fw-medium">
+                                    Event Title <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fa fa-heading text-muted"></i>
+                                    </span>
+                                    <input asp-for="Title" class="form-control border-start-0"
+                                           placeholder="e.g., Sunday Service, Youth Conference"
+                                           required />
+                                </div>
+                                <span asp-validation-for="Title" class="text-danger small"></span>
+                                <div class="form-text">Give your event a clear and descriptive title.</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="Description" class="form-label fw-medium">
+                                    Description <span class="text-danger">*</span>
+                                </label>
+                                <textarea asp-for="Description" class="form-control" rows="4"
+                                          placeholder="Provide details about the event, schedule, speakers, etc."
+                                          required></textarea>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                                <div class="form-text">Include important information attendees should know.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Date and Location -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="EventDate" class="form-label fw-medium">
+                                    Event Date <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fa fa-calendar text-muted"></i>
+                                    </span>
+                                    <input asp-for="EventDate" type="datetime-local" class="form-control border-start-0"
+                                           value="@(Model?.EventDate.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.AddDays(7).ToString("yyyy-MM-ddTHH:mm"))"
+                                           required />
+                                </div>
+                                <span asp-validation-for="EventDate" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Location" class="form-label fw-medium">
+                                    Location <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fa fa-map-marker-alt text-muted"></i>
+                                    </span>
+                                    <input asp-for="Location" class="form-control border-start-0"
+                                           placeholder="e.g., Main Sanctuary, Fellowship Hall"
+                                           required />
+                                </div>
+                                <span asp-validation-for="Location" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Category -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-medium">Event Category</label>
+                                <select class="form-select" id="EventCategory">
+                                    <option value="">Select a category</option>
+                                    <option value="service">Sunday Service</option>
+                                    <option value="conference">Conference</option>
+                                    <option value="youth">Youth Event</option>
+                                    <option value="prayer">Prayer Meeting</option>
+                                    <option value="bible-study">Bible Study</option>
+                                    <option value="fellowship">Fellowship</option>
+                                    <option value="outreach">Outreach</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-medium">Expected Attendees</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fa fa-users text-muted"></i>
+                                    </span>
+                                    <input type="number" class="form-control border-start-0"
+                                           id="ExpectedAttendees" min="0" step="1"
+                                           placeholder="Optional" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Information -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-12">
+                            <label class="form-label fw-medium">Registration Fee</label>
+                            <div class="border rounded-3 p-3 bg-light">
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="IsPaid"
+                                                   value="false" id="isPaidNo" checked>
+                                            <label class="form-check-label" for="isPaidNo">
+                                                <i class="fa fa-free-code-camp text-success me-1"></i>
+                                                Free Event
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="IsPaid"
+                                                   value="true" id="isPaidYes">
+                                            <label class="form-check-label" for="isPaidYes">
+                                                <i class="fa fa-credit-card text-primary me-1"></i>
+                                                Paid Event
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4" id="priceContainer" style="display:none;">
+                                        <div class="input-group">
+                                            <span class="input-group-text">KES</span>
+                                            <input asp-for="Price" type="number" class="form-control"
+                                                   min="0" step="0.01" placeholder="Enter amount" />
+                                        </div>
+                                        <span asp-validation-for="Price" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Options -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-12">
+                            <h6 class="fw-medium mb-3">Additional Options</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="RequireRegistration">
+                                        <label class="form-check-label" for="RequireRegistration">
+                                            <i class="fa fa-clipboard-list text-info me-1"></i>
+                                            Require Registration
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="AllowWalkIns">
+                                        <label class="form-check-label" for="AllowWalkIns">
+                                            <i class="fa fa-door-open text-success me-1"></i>
+                                            Allow Walk-ins
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="FeatureOnHomepage">
+                                        <label class="form-check-label" for="FeatureOnHomepage">
+                                            <i class="fa fa-star text-warning me-1"></i>
+                                            Feature on Homepage
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <div>
+                            <button type="button" class="btn btn-light" onclick="clearForm()">
+                                <i class="fa fa-eraser me-2"></i>Clear Form
+                            </button>
+                        </div>
+                        <div>
+                            <a href="@Url.Action("Index", "Event")" class="btn btn-outline-secondary me-2">
+                                <i class="fa fa-times me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="saveButton">
+                                <i class="fa fa-save me-2"></i>Create Event
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-        <span asp-validation-for="IsPaid" class="text-danger"></span>
     </div>
 
-    <div class="mb-3" id="priceContainer" style="display:none;">
-        <label class="form-label">Price</label>
-        <input asp-for="Price" type="number" class="form-control" min="0" step="0.01" />
-        <span asp-validation-for="Price" class="text-danger"></span>
-    </div>
+    <!-- Sidebar with Tips -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa fa-lightbulb me-2 text-warning"></i>
+                    Tips for Creating Events
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded-circle">
+                            <i class="fa fa-heading text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">Clear Title</h6>
+                        <p class="small text-muted mb-0">Use a descriptive title that clearly communicates the event's purpose.</p>
+                    </div>
+                </div>
 
-    <div class="text-end">
-        <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <div class="d-flex mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 p-2 rounded-circle">
+                            <i class="fa fa-align-left text-success"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">Detailed Description</h6>
+                        <p class="small text-muted mb-0">Include schedule, speakers, and what attendees should bring.</p>
+                    </div>
+                </div>
+
+                <div class="d-flex mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 p-2 rounded-circle">
+                            <i class="fa fa-map-pin text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">Accurate Location</h6>
+                        <p class="small text-muted mb-0">Provide specific location details including room numbers if applicable.</p>
+                    </div>
+                </div>
+
+                <div class="d-flex mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-danger bg-opacity-10 p-2 rounded-circle">
+                            <i class="fa fa-clock text-danger"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">Set Correct Date/Time</h6>
+                        <p class="small text-muted mb-0">Double-check the date and time to avoid scheduling conflicts.</p>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="alert alert-primary bg-opacity-10 border-0" role="alert">
+                    <i class="fa fa-info-circle me-2"></i>
+                    After creation, you can add more details like speakers, agenda, and registration settings.
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Card -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa fa-eye me-2 text-info"></i>
+                    Event Preview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="eventPreview" class="text-center text-muted py-3">
+                    <i class="fa fa-calendar-alt fa-3x mb-3 opacity-50"></i>
+                    <p>Fill in the form to see a preview</p>
+                </div>
+            </div>
+        </div>
     </div>
-</form>
+</div>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
     <script>
         $(document).ready(function () {
+            // Initialize form with default values
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(9, 0, 0, 0);
+
+            // Handle payment toggle
             $('input[name="IsPaid"]').on('change', function () {
                 if ($('#isPaidYes').is(':checked')) {
-                    $('#priceContainer').show();
+                    $('#priceContainer').slideDown(300);
+                    $('#priceContainer input').prop('required', true);
                 } else {
-                    $('#priceContainer').hide();
-                    $('#priceContainer input').val('');
+                    $('#priceContainer').slideUp(300);
+                    $('#priceContainer input').prop('required', false).val('');
                 }
             });
+
+            // Live preview update
+            $('input, textarea, select').on('input change', function() {
+                updatePreview();
+            });
+
+            // Form submission with validation
+            $('#eventForm').on('submit', function(e) {
+                e.preventDefault();
+
+                if (!$(this).valid()) {
+                    showToast('Please correct the errors in the form', 'error');
+                    return;
+                }
+
+                const submitBtn = $('#saveButton');
+                const originalText = submitBtn.html();
+
+                // Show loading state
+                submitBtn.html('<i class="fa fa-spinner fa-spin me-2"></i>Creating...').prop('disabled', true);
+
+                // Submit the form
+                this.submit();
+            });
+
+            // Check for query parameters (pre-filled date)
+            const urlParams = new URLSearchParams(window.location.search);
+            const prefilledDate = urlParams.get('date');
+            if (prefilledDate) {
+                const dateObj = new Date(prefilledDate);
+                dateObj.setHours(9, 0, 0, 0);
+                $('#EventDate').val(dateObj.toISOString().slice(0, 16));
+            }
+        });
+
+        // Update preview function
+        function updatePreview() {
+            const title = $('#Title').val() || 'Event Title';
+            const date = $('#EventDate').val() ? new Date($('#EventDate').val()) : null;
+            const location = $('#Location').val() || 'Location TBD';
+            const isPaid = $('#isPaidYes').is(':checked');
+            const price = $('#Price').val();
+
+            const formattedDate = date ? date.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }) : 'Date TBD';
+
+            let priceHtml = '';
+            if (isPaid && price) {
+                priceHtml = `<span class="badge bg-primary">KES ${parseFloat(price).toLocaleString()}</span>`;
+            } else {
+                priceHtml = '<span class="badge bg-success">Free</span>';
+            }
+
+            $('#eventPreview').html(`
+                <div class="text-start">
+                    <h5 class="fw-bold mb-2">${escapeHtml(title)}</h5>
+                    <p class="small text-muted mb-2">
+                        <i class="fa fa-calendar me-2"></i>${escapeHtml(formattedDate)}
+                    </p>
+                    <p class="small text-muted mb-2">
+                        <i class="fa fa-map-marker me-2"></i>${escapeHtml(location)}
+                    </p>
+                    <p class="mb-3">${priceHtml}</p>
+                    <div class="alert alert-light small p-2 mb-0">
+                        <i class="fa fa-info-circle me-1"></i>
+                        Preview updates as you type
+                    </div>
+                </div>
+            `);
+        }
+
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(text));
+            return div.innerHTML;
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            // Check if toast container exists
+            let toastContainer = $('.toast-container');
+            if (toastContainer.length === 0) {
+                toastContainer = $(`
+                    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                        <div id="dynamicToast" class="toast align-items-center text-white bg-${type} border-0" role="alert">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    <i class="fa ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+                                    <span>${message}</span>
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                $('body').append(toastContainer);
+            }
+
+            const toast = new bootstrap.Toast($('#dynamicToast')[0]);
+            toast.show();
+
+            // Remove after hiding
+            setTimeout(() => {
+                toastContainer.remove();
+            }, 5000);
+        }
+
+        // Clear form function
+        function clearForm() {
+            if (confirm('Are you sure you want to clear all form fields?')) {
+                $('#eventForm')[0].reset();
+                $('#priceContainer').hide();
+                $('#eventPreview').html(`
+                    <div class="text-center text-muted py-3">
+                        <i class="fa fa-calendar-alt fa-3x mb-3 opacity-50"></i>
+                        <p>Fill in the form to see a preview</p>
+                    </div>
+                `);
+                showToast('Form cleared', 'info');
+            }
+        }
+
+        // Warn before leaving if form is dirty
+        let formDirty = false;
+        $('#eventForm').on('input change', function() {
+            formDirty = true;
+        });
+
+        $(window).on('beforeunload', function() {
+            if (formDirty) {
+                return 'You have unsaved changes. Are you sure you want to leave?';
+            }
+        });
+
+        // Handle navigation away
+        $('a:not(#saveButton, .cancel-btn)').on('click', function(e) {
+            if (formDirty && !confirm('You have unsaved changes. Are you sure you want to leave?')) {
+                e.preventDefault();
+            }
         });
     </script>
+
+    <style>
+        .form-label.fw-medium {
+            font-weight: 500;
+        }
+
+        .input-group-text {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            padding: 10px 15px;
+            transition: all 0.3s;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #0d6efd;
+                box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+            }
+
+        .card {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .bg-opacity-10 {
+            opacity: 0.1;
+        }
+
+        .btn {
+            border-radius: 10px;
+            padding: 10px 20px;
+            transition: all 0.3s;
+        }
+
+            .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+        /* Validation styling */
+        .input-validation-error {
+            border-color: #dc3545 !important;
+        }
+
+        .field-validation-error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* Loading spinner for button */
+        .btn .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+       
+    </style>
 }

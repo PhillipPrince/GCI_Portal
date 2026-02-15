@@ -1,0 +1,153 @@
+﻿@model List<GCI_Admin.Models.GECMember>
+
+<div class="table-responsive p-2">
+    <table id="gecMembersTable" class="table table-striped table-hover w-100">
+        <thead class="table-light">
+            <tr>
+                <th style="width:35px;"></th>
+                <th style="width:50px;">#</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Gender</th>
+                <th>Position</th>
+                <th>Start Date</th>
+                <th class="text-end">Actions</th>
+            </tr>
+
+            <!-- FILTER ROW -->
+            <tr>
+                <th></th>
+                <th></th>
+                <th><input type="text" placeholder="Search Name" class="form-control form-control-sm" /></th>
+                <th><input type="text" placeholder="Phone" class="form-control form-control-sm" /></th>
+                <th><input type="text" placeholder="Email" class="form-control form-control-sm" /></th>
+                <th>
+                    <select class="form-select form-select-sm">
+                        <option value="">All</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </th>
+                <th><input type="text" placeholder="Position" class="form-control form-control-sm" /></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                int count = 1;
+                foreach (var m in Model)
+                {
+                    <tr class="main-row">
+                        <td class="text-center expand-row" style="cursor:pointer;">
+                            <i class="fa fa-chevron-right text-muted"></i>
+                        </td>
+
+                        <td>@count</td>
+                        <td>@m.FullName</td>
+                        <td>@m.Phone</td>
+                        <td>@m.Email</td>
+                        <td>@m.Gender</td>
+                        <td>@m.PositionTitle</td>
+                        <td>@m.StartDate.ToString("dd MMM yyyy")</td>
+
+                        <td class="text-end">
+                            <!-- VIEW -->
+                            <button class="btn btn-sm btn-outline-info"
+                                    onclick="openModal('@Url.Action("Profile", "GECMember", new { id = m.GECId })')">
+                                <i class="fa fa-eye"></i>
+                            </button>
+
+                            <!-- EDIT -->
+                            <button class="btn btn-sm btn-outline-warning"
+                                    onclick="openModal('@Url.Action("Edit", "GECMember", new { id = m.GECId })')">
+                                <i class="fa fa-edit"></i>
+                            </button>
+
+                            <!-- DELETE -->
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteGECMember(@m.GECId)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Expandable child row -->
+                    <tr class="child-row" style="display:none;">
+                        <td colspan="9">
+                            <div class="p-2 border bg-light">
+                                <strong>Name:</strong> @m.FullName <br />
+                                <strong>Gender:</strong> @m.Gender <br />
+                                <strong>Email:</strong> @m.Email <br />
+                                <strong>Phone:</strong> @m.Phone <br />
+                                <strong>Position:</strong> @m.PositionTitle <br />
+                                <strong>Start Date:</strong> @m.StartDate.ToString("dd MMM yyyy") <br />
+                                <strong>End Date:</strong> @(m.EndDate.HasValue? m.EndDate.Value.ToString("dd MMM yyyy") : "N/A") <br />
+                                <strong>Status:</strong> @(m.IsActive ? "Active" : "Inactive")
+                            </div>
+                        </td>
+                    </tr>
+
+                    count++;
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-3">
+                        No GEC members found
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle child row
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.expand-row').forEach(function (iconCell) {
+                iconCell.addEventListener('click', function () {
+                    var tr = this.parentElement;
+                    var childRow = tr.nextElementSibling;
+                    if (childRow && childRow.classList.contains('child-row')) {
+                        if (childRow.style.display === 'none') {
+                            childRow.style.display = '';
+                            this.querySelector('i').classList.remove('fa-chevron-right');
+                            this.querySelector('i').classList.add('fa-chevron-down');
+                        } else {
+                            childRow.style.display = 'none';
+                            this.querySelector('i').classList.remove('fa-chevron-down');
+                            this.querySelector('i').classList.add('fa-chevron-right');
+                        }
+                    }
+                });
+            });
+        });
+
+        // Delete GEC member
+        async function deleteGECMember(id) {
+            if (!confirm("Are you sure you want to delete this member?")) return;
+
+            const response = await fetch('@Url.Action("Delete", "GECMember")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify({ id })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert(data.message || "Member deleted successfully");
+                location.reload(); // or call AJAX refresh
+            } else {
+                alert(data || "Failed to delete member");
+            }
+        }
+    </script>
+}
