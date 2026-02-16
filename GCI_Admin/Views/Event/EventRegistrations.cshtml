@@ -1,0 +1,11 @@
+﻿@model List<GCI_Admin.Models.EventRegistration>
+
+@{
+    ViewData["Title"] = "Event Registrations";
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<div id="event-registrations">
+    @await Html.PartialAsync("_EventRegistrationsTable", Model)
+</div>

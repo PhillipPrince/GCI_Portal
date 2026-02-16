@@ -326,8 +326,70 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+        //public async Task<DbResponse<List<EventRegistration>>> GetEventRegistrationsAsync()
+        //{
+        //    try
+        //    {
+        //        var today = DateTime.Today;
+        //        var upcomingEventIds = await _context.Events
+        //            .Where(e => e.EventDate >= today)
+        //            .Select(e => e.EventId)
+        //            .ToListAsync();
+        //        if (!upcomingEventIds.Any())
+        //        {
+        //            return new DbResponse<List<EventRegistration>>
+        //            {
+        //                Success = true,
+        //                Message =" No upcoming events found",
+        //                Data = new List<EventRegistration>()
+        //            };
+        //        }
 
+        //        var registrations = await _context.EventRegistrations
+        //            .Where(r => upcomingEventIds.Contains(r.EventId))
+        //            .ToListAsync();
 
+        //        return new DbResponse<List<EventRegistration>>
+        //        {
+        //            Success = true,
+        //            Data = registrations
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new DbResponse<List<EventRegistration>>
+        //        {
+        //            Success = false,
+        //            Message = $"Error fetching event registrations: {ex.Message}"
+        //        };
+        //    }
+        //}
+
+        public async Task<DbResponse<List<EventRegistration>>> GetEventRegistrationsAsync()
+        {
+            try
+            {
+                var data = await _context.EventRegistrations
+                    .Include(r => r.Event)
+                    .Include(r => r.User)
+                    .OrderByDescending(r => r.RegistrationDate)
+                    .ToListAsync();
+
+                return new DbResponse<List<EventRegistration>>
+                {
+                    Success = true,
+                    Data = data
+                };
+            }
+            catch (Exception ex)
+            {
+                return new DbResponse<List<EventRegistration>>
+                {
+                    Success = false,
+                    Message = $"Error fetching event registrations: {ex.Message}"
+                };
+            }
+        }
 
 
     }

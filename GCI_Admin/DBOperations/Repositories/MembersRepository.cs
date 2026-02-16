@@ -38,8 +38,37 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+        public async Task<DbResponse<Member>> GetMemberByIdAsync(int id)
+        {
+            try
+            {
+                var member = await _context.Members.FindAsync(id);
+                if (member == null)
+                {
+                    return new DbResponse<Member>
+                    {
+                        Success = false,
+                        Message = "Member not found"
+                    };
+                }
+                return new DbResponse<Member>
+                {
+                    Success = true,
+                    Data = member
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching member with ID {id}: {ex.Message}");
+                return new DbResponse<Member>
+                {
+                    Success = false,
+                    Message = $"Error fetching member: {ex.Message}"
+                };
+            }
+        }
 
-       
+
         public async Task<DbResponse<Member>> UpdateMemberAsync(int id, MemberDto dto)
         {
             try

@@ -55,62 +55,55 @@ public class MembersController : Controller
 
 
 
-//    // VIEW PROFILE
-//    public IActionResult Profile(int id)
-//    {
-//        var member = Members.FirstOrDefault(x => x.Id == id);
-//        return PartialView("_Profile", member);
-//    }
+    //    // VIEW PROFILE
+    //    public IActionResult Profile(int id)
+    //    {
+    //        var member = Members.FirstOrDefault(x => x.Id == id);
+    //        return PartialView("_Profile", member);
+    //    }
 
-//    // CREATE
-//    public IActionResult Create()
-//    {
-//        return PartialView("_CreateEdit", new Member());
-//    }
+    // CREATE
+    public IActionResult AddMemberPartial()
+    {
+        return PartialView("_AddMember");
+    }
 
-//    [HttpPost]
-//    public IActionResult Create(Member model)
-//    {
-//        model.Id = Members.Max(x => x.Id) + 1;
-//        model.CreatedAt = DateTime.Now;
-//        Members.Add(model);
 
-//        return Json(new { success = true });
-//    }
+    
 
-//    // EDIT
-//    public IActionResult Edit(int id)
-//    {
-//        var member = Members.FirstOrDefault(x => x.Id == id);
-//        return PartialView("_CreateEdit", member);
-//    }
+    //    // EDIT
+    //    public IActionResult Edit(int id)
+    //    {
+    //        var member = Members.FirstOrDefault(x => x.Id == id);
+    //        return PartialView("_CreateEdit", member);
+    //    }
 
-//    [HttpPost]
-//    public IActionResult Edit(Member model)
-//    {
-//        var member = Members.FirstOrDefault(x => x.Id == model.Id);
+    //    [HttpPost]
+    //    public IActionResult Edit(Member model)
+    //    {
+    //        var member = Members.FirstOrDefault(x => x.Id == model.Id);
 
-//        if (member != null)
-//        {
-//            member.FirstName = model.FirstName;
-//            member.OtherNames = model.OtherNames;
-//            member.Phone = model.Phone;
-//            member.Email = model.Email;
-//            member.Gender = model.Gender;
-//            member.Assembly = model.Assembly;
-//\        }
+    //        if (member != null)
+    //        {
+    //            member.FirstName = model.FirstName;
+    //            member.OtherNames = model.OtherNames;
+    //            member.Phone = model.Phone;
+    //            member.Email = model.Email;
+    //            member.Gender = model.Gender;
+    //            member.Assembly = model.Assembly;
+    //\        }
 
-//        return Json(new { success = true });
-//    }
+    //        return Json(new { success = true });
+    //    }
 
-//    // DELETE
-//    [HttpPost]
-//    public IActionResult Delete(int id)
-//    {
-//        var member = Members.FirstOrDefault(x => x.Id == id);
-//        if (member != null)
-//            Members.Remove(member);
+    //    // DELETE
+    //    [HttpPost]
+    //    public IActionResult Delete(int id)
+    //    {
+    //        var member = Members.FirstOrDefault(x => x.Id == id);
+    //        if (member != null)
+    //            Members.Remove(member);
 
-//        return Json(new { success = true });
-//    }
+    //        return Json(new { success = true });
+    //    }
 }

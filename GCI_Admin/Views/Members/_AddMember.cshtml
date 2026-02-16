@@ -1,0 +1,339 @@
+﻿@model GCI_Admin.Models.Member
+
+<form id="addMemberForm" class="needs-validation" novalidate>
+
+    <!-- Progress Indicator -->
+    <div class="form-progress mb-4">
+        <div class="progress" style="height: 4px;">
+            <div class="progress-bar" role="progressbar" style="width: 0%;" id="formProgress"></div>
+        </div>
+        <small class="text-muted mt-1 d-block" id="progressText">0 of 10 fields completed</small>
+    </div>
+
+    <div class="row g-4">
+        <!-- Personal Information Section -->
+        <div class="col-12">
+            <h6 class="section-title d-flex align-items-center">
+                <span class="badge bg-primary me-2 rounded-circle p-2">1</span>
+                Personal Information
+            </h6>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-floating">
+                <input asp-for="FirstName" class="form-control" placeholder="First Name" required id="firstName" />
+                <label for="firstName">First Name <span class="text-danger">*</span></label>
+                <div class="invalid-feedback">First name is required</div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-floating">
+                <input asp-for="OtherNames" class="form-control" placeholder="Other Names" id="otherNames" />
+                <label for="otherNames">Other Names</label>
+            </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div class="col-12 mt-3">
+            <h6 class="section-title d-flex align-items-center">
+                <span class="badge bg-primary me-2 rounded-circle p-2">2</span>
+                Contact Information
+            </h6>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-floating">
+                <input asp-for="Phone" class="form-control" placeholder="Phone" required id="phone" />
+                <label for="phone">Phone Number <span class="text-danger">*</span></label>
+                <div class="invalid-feedback">Phone number is required</div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-floating">
+                <input asp-for="Email" type="email" class="form-control" placeholder="Email" id="email" />
+                <label for="email">Email Address</label>
+                <div class="invalid-feedback">Please enter a valid email</div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="form-floating">
+                <input asp-for="ResidentialAddress" class="form-control" placeholder="Residential Address" id="address" />
+                <label for="address">Residential Address</label>
+            </div>
+        </div>
+
+        <!-- Demographic Information Section -->
+        <div class="col-12 mt-3">
+            <h6 class="section-title d-flex align-items-center">
+                <span class="badge bg-primary me-2 rounded-circle p-2">3</span>
+                Demographic Information
+            </h6>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-floating">
+                <select asp-for="Gender" class="form-select" id="gender">
+                    <option value="">Select gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+                <label for="gender">Gender</label>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-floating">
+                <input asp-for="DateOfBirth" type="date" class="form-control" id="dob" placeholder="Date of Birth" />
+                <label for="dob">Date of Birth</label>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-floating">
+                <input asp-for="Assembly" class="form-control" placeholder="Assembly" id="assembly" />
+                <label for="assembly">Assembly/Church Location</label>
+            </div>
+        </div>
+
+        <!-- Family Information Section -->
+        <div class="col-12 mt-3">
+            <h6 class="section-title d-flex align-items-center">
+                <span class="badge bg-primary me-2 rounded-circle p-2">4</span>
+                Family Information
+            </h6>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-floating">
+                <select asp-for="MaritalStatus" class="form-select" id="maritalStatus">
+                    <option value="">Select marital status</option>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Widowed">Widowed</option>
+                    <option value="Separated">Separated</option>
+                </select>
+                <label for="maritalStatus">Marital Status</label>
+            </div>
+        </div>
+
+        <div class="col-md-6" id="spouseField" style="display: none;">
+            <div class="form-floating spouse-field">
+                <input asp-for="SpouseName" class="form-control" placeholder="Spouse Name" id="spouseName" />
+                <label for="spouseName">Spouse Name</label>
+                <small class="text-muted spouse-hint">Enter full name of spouse</small>
+            </div>
+        </div>
+
+        <div class="col-md-6" id="childrenField">
+            <div class="form-floating">
+                <input asp-for="NumberOfChildren" type="number" class="form-control" placeholder="Number of Children" id="childrenCount" min="0" />
+                <label for="childrenCount">Number of Children</label>
+            </div>
+        </div>
+
+        <!-- Social Media Section -->
+        <div class="col-12 mt-3">
+            <h6 class="section-title d-flex align-items-center">
+                <span class="badge bg-primary me-2 rounded-circle p-2">5</span>
+                Social Media
+            </h6>
+        </div>
+
+        <div class="col-md-12">
+            <div class="form-floating">
+                <input asp-for="SocialMediaName" class="form-control" placeholder="Social Media Handle" id="socialMedia" />
+                <label for="socialMedia">Social Media Handle (WhatsApp/Instagram/Facebook)</label>
+                <small class="text-muted">Include username or link</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
+        <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg me-2"></i>Cancel
+        </button>
+        <button type="button" class="btn btn-primary px-5" onclick="submitMember()" id="submitBtn">
+            <i class="bi bi-check-lg me-2"></i>Save Member
+        </button>
+    </div>
+</form>
+
+<!-- Enhanced CSS -->
+
+<!-- JavaScript for dynamic behavior -->
+<script>
+    (function() {
+        // Get DOM elements
+        const maritalStatus = document.getElementById('maritalStatus');
+        const spouseField = document.getElementById('spouseField');
+        const spouseInput = document.getElementById('spouseName');
+        const childrenField = document.getElementById('childrenField');
+        const childrenCount = document.getElementById('childrenCount');
+
+        // Form fields for progress tracking
+        const formFields = [
+            'firstName', 'phone', 'email', 'gender',
+            'dob', 'assembly', 'maritalStatus', 'spouseName',
+            'childrenCount', 'socialMedia'
+        ];
+
+        // Show/hide spouse field based on marital status
+        function toggleSpouseField() {
+            const selectedStatus = maritalStatus.value;
+
+            if (selectedStatus === 'Married') {
+                spouseField.style.display = 'block';
+                spouseInput.required = true;
+
+                // Add animation class
+                spouseField.classList.add('spouse-field');
+
+                // Focus on spouse input after animation
+                setTimeout(() => {
+                    spouseInput.focus();
+                }, 300);
+            } else {
+                spouseField.style.display = 'none';
+                spouseInput.required = false;
+                spouseInput.value = ''; // Clear the value
+            }
+
+            // If divorced or widowed, show children field
+            if (selectedStatus === 'Divorced' || selectedStatus === 'Widowed') {
+                childrenField.style.display = 'block';
+            }
+
+            updateProgress();
+        }
+
+        // Update form progress
+        function updateProgress() {
+            let completedFields = 0;
+            let totalVisibleFields = 0;
+
+            formFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    // Check if field is visible
+                    const isVisible = field.closest('[id$="Field"]') ?
+                        field.closest('[id$="Field"]').style.display !== 'none' : true;
+
+                    if (isVisible) {
+                        totalVisibleFields++;
+
+                        // Check if field has value
+                        if (field.type === 'checkbox' || field.type === 'radio') {
+                            if (field.checked) completedFields++;
+                        } else {
+                            if (field.value && field.value.trim() !== '') {
+                                completedFields++;
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Calculate progress percentage
+            const percentage = totalVisibleFields > 0 ?
+                (completedFields / totalVisibleFields) * 100 : 0;
+
+            // Update progress bar
+            const progressBar = document.getElementById('formProgress');
+            const progressText = document.getElementById('progressText');
+
+            if (progressBar && progressText) {
+                progressBar.style.width = percentage + '%';
+                progressText.textContent = `${completedFields} of ${totalVisibleFields} fields completed`;
+
+                // Change color based on progress
+                if (percentage < 30) {
+                    progressBar.className = 'progress-bar bg-danger';
+                } else if (percentage < 70) {
+                    progressBar.className = 'progress-bar bg-warning';
+                } else {
+                    progressBar.className = 'progress-bar bg-success';
+                }
+            }
+        }
+
+        // Add validation for spouse field when married
+        function validateMarriedFields() {
+            if (maritalStatus.value === 'Married' && !spouseInput.value.trim()) {
+                spouseInput.classList.add('is-invalid');
+                return false;
+            }
+            return true;
+        }
+
+        // Event listeners
+        maritalStatus.addEventListener('change', toggleSpouseField);
+
+        // Add input listeners for progress tracking
+        formFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', updateProgress);
+                field.addEventListener('change', updateProgress);
+            }
+        });
+
+        // Initial call to set proper state
+        toggleSpouseField();
+
+        // Override submitMember function to include validation
+        window.submitMember = function() {
+            const form = document.getElementById('addMemberForm');
+
+            // Validate form
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+
+            // Validate married fields
+            if (!validateMarriedFields()) {
+                alert('Please enter spouse name for married members');
+                return;
+            }
+
+            // Disable submit button and show loading
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+
+            // Simulate API call (replace with actual submission)
+            setTimeout(() => {
+                // Show success message
+                alert('Member saved successfully!');
+
+                // Reset button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-check-lg me-2"></i>Save Member';
+
+                // Close modal (if using Bootstrap)
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addMemberModal'));
+                if (modal) modal.hide();
+            }, 2000);
+        };
+
+        // Reset form when modal is closed
+        document.addEventListener('hidden.bs.modal', function(event) {
+            if (event.target.id === 'addMemberModal') {
+                const form = document.getElementById('addMemberForm');
+                form.reset();
+                form.classList.remove('was-validated');
+                toggleSpouseField();
+                updateProgress();
+            }
+        });
+
+        // Initial progress update
+        updateProgress();
+    })();
+</script>

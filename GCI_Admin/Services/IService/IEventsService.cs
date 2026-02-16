@@ -15,5 +15,6 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<Event>> UpdateEventAsync(int eventId, EventDto dto);
 
         Task<ApiResponse<bool>> DeleteEventAsync(int eventId);
+        Task<ApiResponse<List<EventRegistration>>> GetEventRegistrationsAsync();
     }
 }

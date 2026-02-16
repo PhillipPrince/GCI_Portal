@@ -147,15 +147,36 @@ namespace GCI_Admin.Controllers
             }
         }
 
-        public IActionResult Privacy()
+        // add method for         Task<ApiResponse<List<EventRegistration>>> GetEventRegistrationsAsync();
+        [HttpGet]
+        public async Task<IActionResult> GetEventRegistrations()
         {
-            return View();
-        }
+            try
+            {
+                ApiResponse<List<EventRegistration>> response = await _eventsService.GetEventRegistrationsAsync();
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+                if (!response.IsSuccess)
+                    return BadRequest(response);
+
+                return PartialView("_EventRegistrationsTable", new List<EventRegistration>());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<List<EventRegistration>>
+                {
+                    IsSuccess = false,
+                    Code = "500",
+                    Message = ex.Message
+                });
+            }
         }
+        //create view for the above method and add a link to it in the index view
+         [HttpGet]
+         public IActionResult EventRegistrations()
+         {
+            GetEventRegistrations();
+             return View();
+        }
+      
     }
 }

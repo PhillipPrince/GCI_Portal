@@ -9,10 +9,12 @@ namespace GCI_Admin.Services.Service
     public class EventsService : IEventsService
     {
         private readonly EventsRepository _eventsRepository;
+        private readonly MembersRepository _membersRepository;
 
-        public EventsService(EventsRepository eventsRepository)
+        public EventsService(EventsRepository eventsRepository, MembersRepository membersRepository)
         {
             _eventsRepository = eventsRepository;
+            _membersRepository = membersRepository;
         }
 
         public async Task<ApiResponse<Event>> CreateEventAsync(EventDto dto)
@@ -151,5 +153,41 @@ namespace GCI_Admin.Services.Service
 
             return response;
         }
-    }
+        public async Task<ApiResponse<List<EventRegistration>>> GetEventRegistrationsAsync()
+        {
+            var response = new ApiResponse<List<EventRegistration>>();
+            try
+            {
+                var result = await _eventsRepository.GetEventRegistrationsAsync();
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = "Failed to retrieve event registrations";
+                    return response;
+                }
+                else
+                {
+                    foreach (var registration in result.Data)
+                    {
+                        var eventResult = await _eventsRepository.GetEventByIdAsync(registration.EventId);
+                        var userResult = await _membersRepository.GetMemberByIdAsync(registration.UserId);
+                        registration.Event = eventResult.Data;
+                        registration.User = userResult.Data;
+                    }
+                    response.Data = result.Data;
+                    response.Message = "Event registrations retrieved successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+
+        }
 }
