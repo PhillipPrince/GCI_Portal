@@ -1,0 +1,1192 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\members\\_addmember.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\members\\_addmember.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\wwwroot\\css\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\wwwroot\\css\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\dboperations\\repositories\\membersrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\dboperations\\repositories\\membersrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\memberscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\memberscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\models\\member.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\models\\member.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\services\\service\\membersservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\services\\service\\membersservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\members\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\members\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\eventcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\eventcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\services\\service\\eventsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\services\\service\\eventsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\dboperations\\repositories\\eventsrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\dboperations\\repositories\\eventsrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\event\\_eventregistrationstable.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\event\\_eventregistrationstable.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\models\\eventregistration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\models\\eventregistration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\elderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\elderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\event\\eventregistrations.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\event\\eventregistrations.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\models\\event.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\models\\event.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\home\\_memberstablepartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\home\\_memberstablepartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\services\\iservice\\ieventsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\services\\iservice\\ieventsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\dboperations\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\dboperations\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\gecmember\\addnewgecmember.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\gecmember\\addnewgecmember.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\gecmembercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\gecmembercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\gecmember\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\gecmember\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\dboperations\\repositories\\systemconfigrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\dboperations\\repositories\\systemconfigrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\services\\service\\gecmemberservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\services\\service\\gecmemberservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\models\\dtos\\gecmemberdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\models\\dtos\\gecmemberdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\services\\iservice\\igecmemberservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\services\\iservice\\igecmemberservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\utils\\systemconfighelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\utils\\systemconfighelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\models\\dtos\\systemconfigdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\models\\dtos\\systemconfigdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\models\\systemconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\models\\systemconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\utils\\imagehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\utils\\imagehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\dboperations\\repositories\\gecmemberrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\dboperations\\repositories\\gecmemberrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\gecmember\\_gecmemberstable.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\gecmember\\_gecmemberstable.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\home\\privacy.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\home\\privacy.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\models\\gecmember.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\models\\gecmember.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\models\\dtos\\annualeventcalendardto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\models\\dtos\\annualeventcalendardto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\models\\annualeventcalendar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\models\\annualeventcalendar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\models\\dashboardviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\models\\dashboardviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\settingscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\settingscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\auditlogscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\auditlogscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\rolescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\rolescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\notificationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\notificationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\announcementscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\announcementscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\ministriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\ministriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\growthcenterleaderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\growthcenterleaderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\branchleaderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\branchleaderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\ministryleaderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\ministryleaderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\deaconscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\deaconscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\growthcenterscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\growthcenterscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\assembliescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\assembliescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\controllers\\branchescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\controllers\\branchescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\event\\_createevent.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\event\\_createevent.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\event\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\event\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\utils\\connectionstringprovider.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\utils\\connectionstringprovider.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\members\\_memberprofile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\members\\_memberprofile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\members\\_memberform.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\members\\_memberform.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\services\\iservice\\imembersservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\services\\iservice\\imembersservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\utils\\loggers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\utils\\loggers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\models\\dtos\\memberdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\models\\dtos\\memberdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\models\\dtos\\eventsdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\models\\dtos\\eventsdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\views\\event\\_eventstable.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\views\\event\\_eventstable.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\utils\\apiresponses.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\utils\\apiresponses.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\utils\\jwttokenservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\utils\\jwttokenservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\gci_admin.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\gci_admin.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\models\\memberstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\models\\memberstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|c:\\users\\psimiyu\\desktop\\simiyu\\gospel center international\\gci_admin\\gci_admin\\models\\errorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E61DD877-0E36-4B79-8D29-8686B36C0BB7}|GCI_Admin\\GCI_Admin.csproj|solutionrelative:gci_admin\\models\\errorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 8,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\Home\\Index.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAADADAAAAAAAAAAAowGQDAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-09T13:27:53.217Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "EldersController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\EldersController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\EldersController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\EldersController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\EldersController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:55:07.714Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "MembersController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\MembersController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\MembersController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\MembersController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\MembersController.cs",
+              "ViewState": "AgIAACAAAAAAAAAAAAAswEcAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T13:47:25.056Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Member.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\Member.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Models\\Member.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\Member.cs",
+              "RelativeToolTip": "GCI_Admin\\Models\\Member.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwBsAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T19:35:47.321Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "HomeController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\HomeController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\HomeController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\HomeController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\HomeController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T18:40:54.984Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "MembersService.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Services\\Service\\MembersService.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Services\\Service\\MembersService.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Services\\Service\\MembersService.cs",
+              "RelativeToolTip": "GCI_Admin\\Services\\Service\\MembersService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAABIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-11T06:26:30.465Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "MembersRepository.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\DBOperations\\Repositories\\MembersRepository.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\DBOperations\\Repositories\\MembersRepository.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\DBOperations\\Repositories\\MembersRepository.cs",
+              "RelativeToolTip": "GCI_Admin\\DBOperations\\Repositories\\MembersRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-11T06:12:14.151Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "site.css",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\wwwroot\\css\\site.css",
+              "RelativeDocumentMoniker": "GCI_Admin\\wwwroot\\css\\site.css",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\wwwroot\\css\\site.css",
+              "RelativeToolTip": "GCI_Admin\\wwwroot\\css\\site.css",
+              "ViewState": "AgIAACQAAAAAAAAAAAAAAB0AAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2026-02-11T05:58:00.843Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "_AddMember.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Members\\_AddMember.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\Members\\_AddMember.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Members\\_AddMember.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\Members\\_AddMember.cshtml",
+              "ViewState": "AgIAAOcAAAAAAAAAAAAIwMAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-16T19:34:25.437Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Members\\Index.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\Members\\Index.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Members\\Index.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\Members\\Index.cshtml",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAAKkAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-09T13:44:58.75Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "_EventRegistrationsTable.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Event\\_EventRegistrationsTable.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\Event\\_EventRegistrationsTable.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Event\\_EventRegistrationsTable.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\Event\\_EventRegistrationsTable.cshtml",
+              "ViewState": "AgIAAGkAAAAAAAAAAIAwwHgAAABBAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-16T14:17:24.172Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACkAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-09T12:00:55.198Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "EventsRepository.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\DBOperations\\Repositories\\EventsRepository.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\DBOperations\\Repositories\\EventsRepository.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\DBOperations\\Repositories\\EventsRepository.cs",
+              "RelativeToolTip": "GCI_Admin\\DBOperations\\Repositories\\EventsRepository.cs",
+              "ViewState": "AgIAAGABAAAAAAAAAAAQwIcBAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T18:16:05.877Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "EventController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\EventController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\EventController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\EventController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\EventController.cs",
+              "ViewState": "AgIAAJYAAAAAAAAAAAAgwKcAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T13:28:15.699Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "EventsService.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Services\\Service\\EventsService.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Services\\Service\\EventsService.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Services\\Service\\EventsService.cs",
+              "RelativeToolTip": "GCI_Admin\\Services\\Service\\EventsService.cs",
+              "ViewState": "AgIAAI4AAAAAAAAAAAAowLwAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T18:32:57.693Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "EventRegistration.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\EventRegistration.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Models\\EventRegistration.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\EventRegistration.cs",
+              "RelativeToolTip": "GCI_Admin\\Models\\EventRegistration.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwBUAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T13:45:18.144Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "EventRegistrations.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Event\\EventRegistrations.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\Event\\EventRegistrations.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Event\\EventRegistrations.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\Event\\EventRegistrations.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-16T14:07:35.32Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "IEventsService.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Services\\IService\\IEventsService.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Services\\IService\\IEventsService.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Services\\IService\\IEventsService.cs",
+              "RelativeToolTip": "GCI_Admin\\Services\\IService\\IEventsService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAABNAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T18:33:19.164Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "_MembersTablePartial.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Home\\_MembersTablePartial.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\Home\\_MembersTablePartial.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Home\\_MembersTablePartial.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\Home\\_MembersTablePartial.cshtml",
+              "ViewState": "AgIAAFsAAAAAAAAAAAAswHcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-11T13:14:21.417Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "Event.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\Event.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Models\\Event.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\Event.cs",
+              "RelativeToolTip": "GCI_Admin\\Models\\Event.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T18:26:24.22Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\DBOperations\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\DBOperations\\AppDbContext.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\DBOperations\\AppDbContext.cs",
+              "RelativeToolTip": "GCI_Admin\\DBOperations\\AppDbContext.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAA1wBcAAABIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T17:50:53.725Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "AddNewGecMember.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\GECMember\\AddNewGecMember.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\GECMember\\AddNewGecMember.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\GECMember\\AddNewGecMember.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\GECMember\\AddNewGecMember.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFMAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-15T20:33:39.784Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "GECMemberController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\GECMemberController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\GECMemberController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\GECMemberController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\GECMemberController.cs",
+              "ViewState": "AgIAAEgAAAAAAAAAAAAqwG8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:54:49.433Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "IGECMemberService.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Services\\IService\\IGECMemberService.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Services\\IService\\IGECMemberService.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Services\\IService\\IGECMemberService.cs",
+              "RelativeToolTip": "GCI_Admin\\Services\\IService\\IGECMemberService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAA9AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T19:37:49.44Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "GECMemberService.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Services\\Service\\GECMemberService.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Services\\Service\\GECMemberService.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Services\\Service\\GECMemberService.cs",
+              "RelativeToolTip": "GCI_Admin\\Services\\Service\\GECMemberService.cs",
+              "ViewState": "AgIAADsAAAAAAAAAAAA9wEQAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T19:38:23.601Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "SystemConfigRepository.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\DBOperations\\Repositories\\SystemConfigRepository.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\DBOperations\\Repositories\\SystemConfigRepository.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\DBOperations\\Repositories\\SystemConfigRepository.cs",
+              "RelativeToolTip": "GCI_Admin\\DBOperations\\Repositories\\SystemConfigRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T20:23:05.972Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "SystemConfig.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\SystemConfig.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Models\\SystemConfig.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\SystemConfig.cs",
+              "RelativeToolTip": "GCI_Admin\\Models\\SystemConfig.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T20:23:58.02Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "GECMemberDto.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\DTOs\\GECMemberDto.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Models\\DTOs\\GECMemberDto.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\DTOs\\GECMemberDto.cs",
+              "RelativeToolTip": "GCI_Admin\\Models\\DTOs\\GECMemberDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T19:35:15.425Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "SystemConfigDto.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\DTOs\\SystemConfigDto.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Models\\DTOs\\SystemConfigDto.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\DTOs\\SystemConfigDto.cs",
+              "RelativeToolTip": "GCI_Admin\\Models\\DTOs\\SystemConfigDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T20:25:38.615Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\GECMember\\Index.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\GECMember\\Index.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\GECMember\\Index.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\GECMember\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-15T19:40:32.209Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "SystemConfigHelper.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Utils\\SystemConfigHelper.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Utils\\SystemConfigHelper.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Utils\\SystemConfigHelper.cs",
+              "RelativeToolTip": "GCI_Admin\\Utils\\SystemConfigHelper.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T20:27:37.711Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "ImageHelper.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Utils\\ImageHelper.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Utils\\ImageHelper.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Utils\\ImageHelper.cs",
+              "RelativeToolTip": "GCI_Admin\\Utils\\ImageHelper.cs",
+              "ViewState": "AgIAACoAAAAAAAAAAAAwwEYAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T20:19:49.451Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "GECMemberRepository.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\DBOperations\\Repositories\\GECMemberRepository.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\DBOperations\\Repositories\\GECMemberRepository.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\DBOperations\\Repositories\\GECMemberRepository.cs",
+              "RelativeToolTip": "GCI_Admin\\DBOperations\\Repositories\\GECMemberRepository.cs",
+              "ViewState": "AgIAADEAAAAAAAAAAAAQwEwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T19:29:31.707Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "_GECMembersTable.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\GECMember\\_GECMembersTable.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\GECMember\\_GECMembersTable.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\GECMember\\_GECMembersTable.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\GECMember\\_GECMembersTable.cshtml",
+              "ViewState": "AgIAAHAAAAAAAAAAAAAcwJkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-15T19:26:18.397Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "Privacy.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Home\\Privacy.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\Home\\Privacy.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Home\\Privacy.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\Home\\Privacy.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-09T13:45:47.218Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 36,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Program.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Program.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Program.cs",
+              "RelativeToolTip": "GCI_Admin\\Program.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAwwBgAAAAOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T17:58:11.718Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "GECMember.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\GECMember.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Models\\GECMember.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\GECMember.cs",
+              "RelativeToolTip": "GCI_Admin\\Models\\GECMember.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T19:22:19.739Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
+              "Title": "AnnualEventCalendarDto.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\DTOs\\AnnualEventCalendarDto.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Models\\DTOs\\AnnualEventCalendarDto.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\DTOs\\AnnualEventCalendarDto.cs",
+              "RelativeToolTip": "GCI_Admin\\Models\\DTOs\\AnnualEventCalendarDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T19:18:32.623Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 38,
+              "Title": "AnnualEventCalendar.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\AnnualEventCalendar.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Models\\AnnualEventCalendar.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\AnnualEventCalendar.cs",
+              "RelativeToolTip": "GCI_Admin\\Models\\AnnualEventCalendar.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAywCcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T19:09:58.696Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 40,
+              "Title": "SettingsController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\SettingsController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\SettingsController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\SettingsController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\SettingsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:59:15.038Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 41,
+              "Title": "AuditLogsController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\AuditLogsController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\AuditLogsController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\AuditLogsController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\AuditLogsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:58:59.346Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 42,
+              "Title": "RolesController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\RolesController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\RolesController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\RolesController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\RolesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:58:40.706Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 43,
+              "Title": "NotificationsController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\NotificationsController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\NotificationsController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\NotificationsController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\NotificationsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:58:02.799Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 39,
+              "Title": "DashboardViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\DashboardViewModel.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Models\\DashboardViewModel.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\DashboardViewModel.cs",
+              "RelativeToolTip": "GCI_Admin\\Models\\DashboardViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAUAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-11T13:28:07.04Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 44,
+              "Title": "AnnouncementsController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\AnnouncementsController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\AnnouncementsController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\AnnouncementsController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\AnnouncementsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:57:36.15Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 45,
+              "Title": "MinistriesController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\MinistriesController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\MinistriesController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\MinistriesController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\MinistriesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:56:54.641Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 46,
+              "Title": "GrowthCenterLeadersController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\GrowthCenterLeadersController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\GrowthCenterLeadersController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\GrowthCenterLeadersController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\GrowthCenterLeadersController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:56:33.429Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 47,
+              "Title": "BranchLeadersController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\BranchLeadersController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\BranchLeadersController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\BranchLeadersController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\BranchLeadersController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:56:11.685Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 48,
+              "Title": "MinistryLeadersController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\MinistryLeadersController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\MinistryLeadersController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\MinistryLeadersController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\MinistryLeadersController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:55:55.007Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 49,
+              "Title": "DeaconsController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\DeaconsController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\DeaconsController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\DeaconsController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\DeaconsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:55:28.607Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 50,
+              "Title": "GrowthCentersController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\GrowthCentersController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\GrowthCentersController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\GrowthCentersController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\GrowthCentersController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:54:28.052Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 51,
+              "Title": "AssembliesController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\AssembliesController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\AssembliesController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\AssembliesController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\AssembliesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:54:07.911Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 52,
+              "Title": "BranchesController.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\BranchesController.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Controllers\\BranchesController.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Controllers\\BranchesController.cs",
+              "RelativeToolTip": "GCI_Admin\\Controllers\\BranchesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-15T18:44:38.84Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 55,
+              "Title": "ConnectionStringProvider.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Utils\\ConnectionStringProvider.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Utils\\ConnectionStringProvider.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Utils\\ConnectionStringProvider.cs",
+              "RelativeToolTip": "GCI_Admin\\Utils\\ConnectionStringProvider.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T18:14:37.918Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 54,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Event\\Index.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\Event\\Index.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Event\\Index.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\Event\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-09T18:50:43.477Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 53,
+              "Title": "_CreateEvent.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Event\\_CreateEvent.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\Event\\_CreateEvent.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Event\\_CreateEvent.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\Event\\_CreateEvent.cshtml",
+              "ViewState": "AgIAABMCAAAAAAAAAAAcwCoCAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-09T19:14:19.03Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 56,
+              "Title": "_MemberProfile.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Members\\_MemberProfile.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\Members\\_MemberProfile.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Members\\_MemberProfile.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\Members\\_MemberProfile.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-09T17:16:05.196Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 58,
+              "Title": "IMembersService.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Services\\IService\\IMembersService.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Services\\IService\\IMembersService.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Services\\IService\\IMembersService.cs",
+              "RelativeToolTip": "GCI_Admin\\Services\\IService\\IMembersService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-11T06:27:07.933Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 60,
+              "Title": "MemberDto.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\DTOs\\MemberDto.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Models\\DTOs\\MemberDto.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\DTOs\\MemberDto.cs",
+              "RelativeToolTip": "GCI_Admin\\Models\\DTOs\\MemberDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-11T06:19:30.142Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 57,
+              "Title": "_MemberForm.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Members\\_MemberForm.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\Members\\_MemberForm.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Members\\_MemberForm.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\Members\\_MemberForm.cshtml",
+              "ViewState": "AgIAABAAAAAAAAAAAAAAAB8AAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-09T17:15:02.702Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 61,
+              "Title": "EventsDTO.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\DTOs\\EventsDTO.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Models\\DTOs\\EventsDTO.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\DTOs\\EventsDTO.cs",
+              "RelativeToolTip": "GCI_Admin\\Models\\DTOs\\EventsDTO.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAQAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T18:19:18.666Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 59,
+              "Title": "Loggers.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Utils\\Loggers.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Utils\\Loggers.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Utils\\Loggers.cs",
+              "RelativeToolTip": "GCI_Admin\\Utils\\Loggers.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAqwCUAAABCAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T18:31:36.975Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 63,
+              "Title": "ApiResponses.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Utils\\ApiResponses.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Utils\\ApiResponses.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Utils\\ApiResponses.cs",
+              "RelativeToolTip": "GCI_Admin\\Utils\\ApiResponses.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T18:37:16.84Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 62,
+              "Title": "_EventsTable.cshtml",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Event\\_EventsTable.cshtml",
+              "RelativeDocumentMoniker": "GCI_Admin\\Views\\Event\\_EventsTable.cshtml",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Views\\Event\\_EventsTable.cshtml",
+              "RelativeToolTip": "GCI_Admin\\Views\\Event\\_EventsTable.cshtml",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAACgAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-02-09T18:57:35.164Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 64,
+              "Title": "JwtTokenService.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Utils\\JwtTokenService.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Utils\\JwtTokenService.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Utils\\JwtTokenService.cs",
+              "RelativeToolTip": "GCI_Admin\\Utils\\JwtTokenService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T18:03:38.846Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 65,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\appsettings.json",
+              "RelativeDocumentMoniker": "GCI_Admin\\appsettings.json",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\appsettings.json",
+              "RelativeToolTip": "GCI_Admin\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-02-09T17:57:26.05Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 66,
+              "Title": "GCI_Admin.csproj",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\GCI_Admin.csproj",
+              "RelativeDocumentMoniker": "GCI_Admin\\GCI_Admin.csproj",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\GCI_Admin.csproj",
+              "RelativeToolTip": "GCI_Admin\\GCI_Admin.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-02-09T17:49:45.362Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 67,
+              "Title": "MemberStatus.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\MemberStatus.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Models\\MemberStatus.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\MemberStatus.cs",
+              "RelativeToolTip": "GCI_Admin\\Models\\MemberStatus.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T14:26:38.07Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 68,
+              "Title": "ErrorViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\ErrorViewModel.cs",
+              "RelativeDocumentMoniker": "GCI_Admin\\Models\\ErrorViewModel.cs",
+              "ToolTip": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\Models\\ErrorViewModel.cs",
+              "RelativeToolTip": "GCI_Admin\\Models\\ErrorViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T13:45:51.069Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

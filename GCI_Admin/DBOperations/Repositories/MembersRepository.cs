@@ -8,6 +8,8 @@ namespace GCI_Admin.DBOperations.Repositories
     public class MembersRepository
     {
         private readonly AppDbContext _context;
+        private readonly Security _security = new Security();
+
 
         public MembersRepository(AppDbContext context)
         {
@@ -147,6 +149,64 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+
+        public async Task<DbResponse<Member>> CreateUserAsync(MemberDto dto)
+        {
+            try
+            {
+                bool exists = await _context.Members.AnyAsync(x =>
+                    x.Phone == dto.Phone || x.Email == dto.Email);
+
+                if (exists)
+                    return new DbResponse<Member>
+                    {
+                        Success = false,
+                        Message = "Phone or Email already exists."
+                    };
+
+                var user = new Member
+                {
+                    FirstName = dto.FirstName,
+                    OtherNames = dto.OtherNames,
+                    Phone = dto.Phone,
+                    Email = dto.Email,
+                    Gender = dto.Gender,
+                    Assembly = dto.Assembly,
+
+                    SocialMediaName = dto.SocialMediaName,
+                    ResidentialAddress = dto.ResidentialAddress,
+                    DateOfBirth = dto.DateOfBirth,
+                    MaritalStatus = dto.MaritalStatus,
+                    NumberOfChildren = dto.NumberOfChildren,
+                    SpouseName = dto.SpouseName,
+
+                    PasswordHash = _security.EncryptStringAES("Password1234", "GCI"),
+                    CreatedAt = DateTime.Now,
+                    StatusId = dto.StatusId
+                };
+
+
+                _context.Members.Add(user);
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<Member>
+                {
+                    Success = true,
+                    Message = "User created successfully.",
+                    Data = user
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs("UserRepository->CreateUserAsync->" + ex.Message);
+                return new DbResponse<Member>
+                {
+                    Success = false,
+                    Message = "An error occurred while creating the user."
+                };
+            }
+        }
+
 
     }
 }

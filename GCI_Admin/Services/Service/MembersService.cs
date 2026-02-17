@@ -96,5 +96,30 @@ namespace GCI_Admin.Services.Service
 
             return response;
         }
-    }
+
+        //add method for  Task<DbResponse<Member>> CreateUserAsync(MemberDto dto)
+         public async Task<ApiResponse<Member>> CreateUserAsync(MemberDto dto)
+        {
+            var response = new ApiResponse<Member>();
+            try
+            {
+                var result = await _membersRepository.CreateUserAsync(dto);
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message ?? "Failed to create member";
+                    return response;
+                }
+                response.Data = result.Data;
+                response.Message = "Member created successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
 }
