@@ -1,4 +1,5 @@
-﻿using GCI_Admin.Models;
+﻿using GCI_Admin.DBOperations.Repositories;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using GCI_Admin.Services.Service;
@@ -6,14 +7,17 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Utils;
 
 public class MembersController : Controller
 {
     private readonly IMembersService _membersService;
-    public MembersController(IMembersService membersService)
+    private readonly MembersRepository _memberRepository;
+    public MembersController(IMembersService membersService, MembersRepository memberRepository)
     {
         _membersService = membersService;
+        _memberRepository = memberRepository;
     }
 
 
@@ -82,15 +86,17 @@ public class MembersController : Controller
 
         return Ok(result);
     }
-    public IActionResult AddMembershipClassPartial(int memberId)
+    public async Task<IActionResult> AddMembershipClassPartial(int memberId)
     {
-        var model = new MembershipClassDto
-        {
-            MemberId = memberId,
-            MembershipYear = DateTime.Now.Year.ToString()
-        };
 
-        return PartialView("_AddMembershipClass", model);
+        var memberResponse = await _memberRepository.GetMemberByIdAsync(memberId);
+        if (!memberResponse.Success)
+        {
+            return PartialView("_Error", memberResponse.Message);
+        }
+        MembershipClass membershipClass = new MembershipClass();
+        membershipClass.Member = memberResponse.Data;
+        return PartialView("_AddMembershipClass", membershipClass);
     }
 
 
@@ -104,6 +110,7 @@ public class MembersController : Controller
 
         return Ok(result);
     }
+
 
 
     //    // EDIT

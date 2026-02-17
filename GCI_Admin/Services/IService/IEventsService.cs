@@ -16,5 +16,9 @@ namespace GCI_Admin.Services.IService
 
         Task<ApiResponse<bool>> DeleteEventAsync(int eventId);
         Task<ApiResponse<List<EventRegistration>>> GetEventRegistrationsAsync();
+        Task<ApiResponse<EventUploadResponse>> ProcessEventExcelUploadAsync(IFormFile file, string createdBy, string uploadOption);
+        Task<ApiResponse<bool>> ToggleEventStatusAsync(int eventId, bool isActive);
+
+
     }
 }

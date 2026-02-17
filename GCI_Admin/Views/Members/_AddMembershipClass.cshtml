@@ -1,5 +1,6 @@
 ﻿@model GCI_Admin.Models.MembershipClass
 
+
 <div class="membership-section mt-4">
     <h5 class="border-bottom pb-2 mb-3">Membership Class Information</h5>
 
@@ -14,7 +15,38 @@
             <small class="text-muted mt-1 d-block" id="membershipProgressText">0 of 20 fields completed</small>
         </div>
 
+        <div class="card border mb-4 shadow-sm">
+            <div class="card-body">
+
+                <div class="row">
+
+                    <!-- Member ID -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-muted">Member ID</label>
+                        <input type="text"
+                               class="form-control bg-light"
+                               value="@Model.Member.Id"
+                               readonly />
+                    </div>
+
+                    <!-- Member Name -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-muted">Member Name</label>
+                        <input type="text"
+                               class="form-control bg-light"
+                               value="@Model.Member.FirstName @Model.Member.OtherNames"
+                               readonly />
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+
         <div class="row g-4">
+            
             <!-- Basic Membership Information -->
             <div class="col-12">
                 <h6 class="section-title d-flex align-items-center">
@@ -432,12 +464,12 @@
                 });
 
                 $.ajax({
-                    url: '/MembershipClasses/Create',
+                    url: '/Members/CreateMembershipClass',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(membershipData),
                     success: function(response) {
-                        if (response.success) {
+                        if (response.IsSuccess) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
@@ -468,4 +500,6 @@
             }
         });
     };
+
+
 </script>

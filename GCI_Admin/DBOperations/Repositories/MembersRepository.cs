@@ -210,6 +210,15 @@ namespace GCI_Admin.DBOperations.Repositories
         {
             try
             {
+                var member = await _context.Members.FindAsync(dto.MemberId);
+                if (member == null)
+                {
+                    return new DbResponse<MembershipClass>
+                    {
+                        Success = false,
+                        Message = "Member not found."
+                    };
+                }
                 // Prevent duplicate membership class for same member and year
                 bool exists = await _context.MembershipClasses.AnyAsync(x =>
                     x.MemberId == dto.MemberId &&
@@ -222,6 +231,8 @@ namespace GCI_Admin.DBOperations.Repositories
                         Success = false,
                         Message = "Membership class already exists for this member and year."
                     };
+                member.StatusId=2; 
+                await _context.SaveChangesAsync();
 
                 var membership = new MembershipClass
                 {

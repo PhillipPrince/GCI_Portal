@@ -262,3 +262,12 @@ C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\GCI_Admin.pdb
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\GCI_Admin.genruntimeconfig.cache
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\ref\GCI_Admin.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\bin\Debug\net8.0\ClosedXML.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\bin\Debug\net8.0\ClosedXML.Parser.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\bin\Debug\net8.0\DocumentFormat.OpenXml.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\bin\Debug\net8.0\DocumentFormat.OpenXml.Framework.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\bin\Debug\net8.0\ExcelNumberFormat.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\bin\Debug\net8.0\OfficeOpenXml.Core.ExcelPackage.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\bin\Debug\net8.0\RBush.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\bin\Debug\net8.0\SixLabors.Fonts.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\bin\Debug\net8.0\System.IO.Packaging.dll

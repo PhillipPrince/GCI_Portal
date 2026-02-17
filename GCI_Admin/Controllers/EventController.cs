@@ -33,6 +33,8 @@ namespace GCI_Admin.Controllers
             }
         }
 
+      
+
         [HttpGet]
         public async Task<IActionResult> EventsTable()
         {
@@ -177,6 +179,89 @@ namespace GCI_Admin.Controllers
             GetEventRegistrations();
              return View();
         }
-      
-    }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadEventsExcel(IFormFile file, string uploadOption)
+        {
+            try
+            {
+                if (file == null)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        IsSuccess = false,
+                        Code = "400",
+                        Message = "Please select a file to upload."
+                    });
+                }
+
+                string createdBy = User?.Identity?.Name ?? "System";
+
+                var response = await _eventsService.ProcessEventExcelUploadAsync(file, createdBy, uploadOption);
+
+                if (!response.IsSuccess)
+                    return BadRequest(response);
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    IsSuccess = false,
+                    Code = "500",
+                    Message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleStatus(int eventId, bool isActive)
+        {
+            try
+            {
+                var response = await _eventsService.ToggleEventStatusAsync(eventId, isActive);
+
+                if (!response.IsSuccess)
+                    return BadRequest(response);
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<bool>
+                {
+                    IsSuccess = false,
+                    Code = "500",
+                    Message = ex.Message
+                });
+            }
+        }
+        //add endpoint to delete
+        [HttpDelete]
+        public async Task<IActionResult> DeleteEvent(int eventId)
+        {
+            try
+            {
+                var response = await _eventsService.DeleteEventAsync(eventId);
+
+                if (!response.IsSuccess)
+                    return BadRequest(response);
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<bool>
+                {
+                    IsSuccess = false,
+                    Code = "500",
+                    Message = ex.Message
+                });
+            }
+        }
+
+
+
+        }
 }

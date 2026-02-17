@@ -1,0 +1,233 @@
+﻿@model GCI_Admin.Models.DTOs.CreateGECMemberDto
+
+@{
+    var isEdit = ViewBag.IsEdit ?? false;
+    var formId = isEdit ? "editMemberForm" : "createMemberForm";
+    var action = isEdit ? "UpdateGECMember" : "CreateGECMember";
+}
+
+<form asp-action="@action" asp-controller="GECMember" method="post" id="@formId">
+    @Html.AntiForgeryToken()
+
+    @if (isEdit)
+    {
+        <input type="hidden" asp-for="GECMember.GECId" id="gecId" />
+    }
+
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <label class="form-label fw-bold">Select Member <span class="text-danger">*</span></label>
+            <select asp-for="GECMember.MemberId" class="form-select" id="memberSelect" required style="width: 100%;" disabled="@(isEdit ? "disabled" : null)">
+                <option value="">Search and select a member...</option>
+                @if (Model?.Members != null)
+                {
+                    foreach (var member in Model.Members)
+                    {
+                        var fullName = $"{member.FirstName} {member.OtherNames}".Trim();
+                        <option value="@member.Id"
+                                data-fullname="@fullName"
+                                data-email="@member.Email"
+                                data-phone="@member.Phone"
+                                data-gender="@member.Gender">
+                            @fullName - @member.Email
+                        </option>
+                    }
+                }
+            </select>
+            <small class="text-muted">Start typing to search for members by name, email, or phone</small>
+            <span asp-validation-for="GECMember.MemberId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Full Name</label>
+            <input type="text" class="form-control" id="fullName" readonly disabled>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Email</label>
+            <input type="email" class="form-control" id="email" readonly disabled>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Phone</label>
+            <input type="tel" class="form-control" id="phone" readonly disabled>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Gender</label>
+            <input type="text" class="form-control" id="gender" readonly disabled>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Position Title <span class="text-danger">*</span></label>
+            <input asp-for="GECMember.PositionTitle" class="form-control" required maxlength="100" placeholder="e.g., Chairman, Secretary, Treasurer">
+            <span asp-validation-for="GECMember.PositionTitle" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Bio</label>
+            <textarea asp-for="GECMember.Bio" class="form-control" rows="3" maxlength="500" placeholder="Brief biography or qualifications"></textarea>
+            <span asp-validation-for="GECMember.Bio" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Start Date <span class="text-danger">*</span></label>
+            <input asp-for="GECMember.StartDate" type="date" class="form-control" required value="@(Model?.GECMember?.StartDate.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))">
+            <span asp-validation-for="GECMember.StartDate" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">End Date</label>
+            <input asp-for="GECMember.EndDate" type="date" class="form-control" value="@(Model?.GECMember?.EndDate?.ToString("yyyy-MM-dd"))">
+            <span asp-validation-for="GECMember.EndDate" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="form-check form-switch mt-4">
+                <input asp-for="GECMember.IsActive" class="form-check-input" type="checkbox" checked="@(Model?.GECMember?.IsActive ?? true)">
+                <label class="form-check-label fw-bold" asp-for="GECMember.IsActive">Active Member</label>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    // Initialize Select2 when partial is loaded
+    $(document).ready(function() {
+        initializeMemberSelect();
+    });
+
+    function initializeMemberSelect() {
+        // Destroy existing Select2 instance if it exists
+        if ($('#memberSelect').hasClass('select2-hidden-accessible')) {
+            $('#memberSelect').select2('destroy');
+        }
+
+        $('#memberSelect').select2({
+            placeholder: 'Search for a member by name, email, or phone...',
+            allowClear: true,
+            dropdownParent: $('#memberModal'),
+            matcher: function(params, data) {
+                // If there's no search term, return all results
+                if ($.trim(params.term) === '') {
+                    return data;
+                }
+
+                // Get the search term in lowercase
+                const term = params.term.toLowerCase();
+
+                // Get the data attributes from the option
+                const fullName = $(data.element).data('fullname') || '';
+                const email = $(data.element).data('email') || '';
+                const phone = $(data.element).data('phone') || '';
+
+                // Combine all searchable fields and convert to lowercase
+                const searchableText = (fullName + ' ' + email + ' ' + phone).toLowerCase();
+
+                // Check if the search term appears in any of the fields
+                return searchableText.includes(term) ? data : null;
+            },
+            templateResult: formatMemberOption,
+            templateSelection: formatMemberSelection
+        }).on('select2:select', function(e) {
+            // Handle selection - this ensures the fields are populated when an item is selected
+            const selectedData = e.params.data;
+            const fullName = $(selectedData.element).data('fullname');
+            const email = $(selectedData.element).data('email');
+            const phone = $(selectedData.element).data('phone');
+            const gender = $(selectedData.element).data('gender');
+
+            $('#fullName').val(fullName || '');
+            $('#email').val(email || '');
+            $('#phone').val(phone || '');
+            $('#gender').val(gender || '');
+        }).on('select2:clear', function() {
+            // Handle clear selection
+            $('#fullName').val('');
+            $('#email').val('');
+            $('#phone').val('');
+            $('#gender').val('');
+        });
+
+        // If in edit mode and member is pre-selected, populate the fields
+        @if (isEdit && Model?.GECMember?.MemberId > 0)
+        {
+                <text>
+                setTimeout(function() {
+                    const selectedOption = $('#memberSelect option[value="@Model.GECMember.MemberId"]');
+                    if (selectedOption.length) {
+                        $('#memberSelect').val("@Model.GECMember.MemberId").trigger('change');
+
+                        // Manually populate fields for edit mode
+                        $('#fullName').val(selectedOption.data('fullname'));
+                        $('#email').val(selectedOption.data('email'));
+                        $('#phone').val(selectedOption.data('phone'));
+                        $('#gender').val(selectedOption.data('gender'));
+                    }
+                }, 500);
+                </text>
+        }
+    }
+
+    function formatMemberOption(member) {
+        // Check if it's the placeholder
+        if (!member.id) {
+            return member.text;
+        }
+
+        // Get the data attributes
+        const fullName = $(member.element).data('fullname') || '';
+        const email = $(member.element).data('email') || '';
+        const phone = $(member.element).data('phone') || '';
+
+        // Create a rich display for the dropdown
+        const $option = $(
+            '<div class="member-option">' +
+                '<strong>' + escapeHtml(fullName) + '</strong>' +
+                '<small><i class="fa fa-envelope me-1"></i>' + escapeHtml(email) + '</small>' +
+                (phone ? '<small><i class="fa fa-phone me-1"></i>' + escapeHtml(phone) + '</small>' : '') +
+            '</div>'
+        );
+
+        return $option;
+    }
+
+    function formatMemberSelection(member) {
+        // Check if it's the placeholder
+        if (!member.id) {
+            return member.text;
+        }
+
+        // Get the data attributes
+        const fullName = $(member.element).data('fullname') || '';
+        const email = $(member.element).data('email') || '';
+
+        // Display simple format in the selection box
+        return fullName + (email ? ' (' + email + ')' : '');
+    }
+
+    // Helper function to escape HTML and prevent XSS
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(text));
+        return div.innerHTML;
+    }
+
+    // Make sure the modal is properly initialized
+    $(document).on('shown.bs.modal', '#memberModal', function() {
+        // Reinitialize Select2 when modal is shown (fixes any rendering issues)
+        if ($('#memberSelect').hasClass('select2-hidden-accessible')) {
+            $('#memberSelect').select2('destroy');
+        }
+        initializeMemberSelect();
+    });
+</script>
