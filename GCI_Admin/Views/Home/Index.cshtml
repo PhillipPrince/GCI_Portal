@@ -373,6 +373,21 @@
     </div>
 </div>
 
+<!-- Dynamic Modal -->
+<div class="modal fade" id="membershipClassModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Membership Class Registration</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="membershipClassModalBody">
+                <!-- Partial loads here -->
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Required CSS (add to your stylesheet) -->
 <style>
     /* Gradient background utility */
@@ -705,26 +720,46 @@
         });
 
         // SweetAlert2 functions
-        function joinMembershipClass(memberId) {
+                function joinMembershipClass(memberId) {
+
             Swal.fire({
                 title: 'Confirm Action',
-                text: 'Send this member to membership class?',
+                text: 'Register this member for membership class?',
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#0d6efd',
+                confirmButtonColor: '#0b5394',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, proceed',
+                confirmButtonText: 'Yes, continue',
                 cancelButtonText: 'Cancel'
             }).then((result) => {
+
                 if (result.isConfirmed) {
-                    $.post('/Members/JoinMembershipClass', { id: memberId }, function() {
+
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Preparing form',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.get('/Members/AddMembershipClassPartial', { memberId: memberId }, function (data) {
+
+                        Swal.close();
+
+                        $('#membershipClassModalBody').html(data);
+
+                        // Open modal
+                        const modal = new bootstrap.Modal(document.getElementById('membershipClassModal'));
+                        modal.show();
+                    })
+                    .fail(function () {
                         Swal.fire({
-                            title: 'Success!',
-                            text: 'Member moved to membership class',
-                            icon: 'success',
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => location.reload());
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to load membership form.'
+                        });
                     });
                 }
             });

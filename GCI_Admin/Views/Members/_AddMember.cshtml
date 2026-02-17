@@ -79,7 +79,6 @@
                     <option value="">Select gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
-                    <option value="Other">Other</option>
                 </select>
                 <label for="gender">Gender</label>
             </div>
@@ -286,41 +285,105 @@
         // Initial call to set proper state
         toggleSpouseField();
 
-        // Override submitMember function to include validation
-        window.submitMember = function() {
-            const form = document.getElementById('addMemberForm');
+            window.submitMember = function () {
+        const form = document.getElementById('addMemberForm');
 
-            // Validate form
-            if (!form.checkValidity()) {
-                form.classList.add('was-validated');
-                return;
-            }
+        // Bootstrap validation
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
 
-            // Validate married fields
-            if (!validateMarriedFields()) {
-                alert('Please enter spouse name for married members');
-                return;
-            }
+        if (!validateMarriedFields()) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Missing Spouse Name',
+                text: 'Please enter spouse name for married members'
+            });
+            return;
+        }
 
-            // Disable submit button and show loading
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
-
-            // Simulate API call (replace with actual submission)
-            setTimeout(() => {
-                // Show success message
-                alert('Member saved successfully!');
-
-                // Reset button
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="bi bi-check-lg me-2"></i>Save Member';
-
-                // Close modal (if using Bootstrap)
-                const modal = bootstrap.Modal.getInstance(document.getElementById('addMemberModal'));
-                if (modal) modal.hide();
-            }, 2000);
+        // Collect form data
+        const memberData = {
+            FirstName: $('#firstName').val(),
+            OtherNames: $('#otherNames').val(),
+            Phone: $('#phone').val(),
+            Email: $('#email').val(),
+            ResidentialAddress: $('#address').val(),
+            Gender: $('#gender').val(),
+            DateOfBirth: $('#dob').val(),
+            Assembly: $('#assembly').val(),
+            MaritalStatus: $('#maritalStatus').val(),
+            SpouseName: $('#spouseName').val(),
+            NumberOfChildren: $('#childrenCount').val(),
+            SocialMediaName: $('#socialMedia').val(),
+            Password: "Default@123" // You can change this logic
         };
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to save this member?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#0b5394',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Save'
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                Swal.fire({
+                    title: 'Saving...',
+                    text: 'Please wait',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    url: '/Members/CreateUser',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(memberData),
+                    success: function (response) {
+
+                        if (response.success) {
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.message
+                            });
+
+                            // Reset form
+                            form.reset();
+                            form.classList.remove('was-validated');
+
+                            // Close modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('addMemberModal'));
+                            if (modal) modal.hide();
+                        }
+                        else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Server Error',
+                            text: 'Something went wrong. Please try again.'
+                        });
+                    }
+                });
+            }
+        });
+    };
+
 
         // Reset form when modal is closed
         document.addEventListener('hidden.bs.modal', function(event) {

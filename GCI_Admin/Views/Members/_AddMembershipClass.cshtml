@@ -1,0 +1,471 @@
+﻿@model GCI_Admin.Models.MembershipClass
+
+<div class="membership-section mt-4">
+    <h5 class="border-bottom pb-2 mb-3">Membership Class Information</h5>
+
+    <form id="membershipClassForm" class="needs-validation" novalidate>
+        <input type="hidden" asp-for="MemberId" id="memberId" />
+
+        <!-- Progress Indicator for Membership Section -->
+        <div class="form-progress mb-4">
+            <div class="progress" style="height: 4px;">
+                <div class="progress-bar bg-info" role="progressbar" style="width: 0%;" id="membershipProgress"></div>
+            </div>
+            <small class="text-muted mt-1 d-block" id="membershipProgressText">0 of 20 fields completed</small>
+        </div>
+
+        <div class="row g-4">
+            <!-- Basic Membership Information -->
+            <div class="col-12">
+                <h6 class="section-title d-flex align-items-center">
+                    <span class="badge bg-info me-2 rounded-circle p-2">1</span>
+                    Membership Details
+                </h6>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-floating">
+                    <input asp-for="MembershipYear" type="number" class="form-control" placeholder="Membership Year" id="membershipYear" required min="2000" max="@DateTime.Now.Year" />
+                    <label for="membershipYear">Membership Year <span class="text-danger">*</span></label>
+                    <div class="invalid-feedback">Membership year is required</div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-floating">
+                    <input asp-for="Cohort" class="form-control" placeholder="Cohort" id="cohort" required />
+                    <label for="cohort">Cohort <span class="text-danger">*</span></label>
+                    <div class="invalid-feedback">Cohort is required</div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-floating">
+                    <input asp-for="DateBeganAttendingGCI" type="date" class="form-control" id="dateBeganAttending" required />
+                    <label for="dateBeganAttending">Date Began Attending GCI <span class="text-danger">*</span></label>
+                    <div class="invalid-feedback">Please provide the date they began attending</div>
+                </div>
+            </div>
+
+            <!-- Previous Church Information -->
+            <div class="col-12 mt-3">
+                <h6 class="section-title d-flex align-items-center">
+                    <span class="badge bg-info me-2 rounded-circle p-2">2</span>
+                    Previous Church Information
+                </h6>
+            </div>
+
+            <div class="col-md-12">
+                <div class="form-check form-switch mb-3">
+                    <input asp-for="IsMemberOfAnotherChurch" class="form-check-input" type="checkbox" id="isMemberOfAnotherChurch">
+                    <label class="form-check-label" for="isMemberOfAnotherChurch">Was a member of another church?</label>
+                </div>
+            </div>
+
+            <div class="col-md-6" id="formerChurchField" style="display: none;">
+                <div class="form-floating">
+                    <input asp-for="FormerChurchName" class="form-control" placeholder="Former Church Name" id="formerChurchName" />
+                    <label for="formerChurchName">Former Church Name</label>
+                </div>
+            </div>
+
+            <div class="col-md-6" id="reasonForLeavingField" style="display: none;">
+                <div class="form-floating">
+                    <textarea asp-for="ReasonForLeavingFormerChurch" class="form-control" placeholder="Reason for Leaving" id="reasonForLeaving" style="height: 100px;"></textarea>
+                    <label for="reasonForLeaving">Reason for Leaving Former Church</label>
+                </div>
+            </div>
+
+            <!-- Spiritual Status -->
+            <div class="col-12 mt-3">
+                <h6 class="section-title d-flex align-items-center">
+                    <span class="badge bg-info me-2 rounded-circle p-2">3</span>
+                    Spiritual Status
+                </h6>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-check form-switch">
+                    <input asp-for="SeekingMembership" class="form-check-input" type="checkbox" id="seekingMembership">
+                    <label class="form-check-label" for="seekingMembership">Seeking Membership?</label>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-check form-switch">
+                    <input asp-for="IsBornAgain" class="form-check-input" type="checkbox" id="isBornAgain">
+                    <label class="form-check-label" for="isBornAgain">Born Again?</label>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-check form-switch">
+                    <input asp-for="HasEternalLifeAssurance" class="form-check-input" type="checkbox" id="hasEternalLifeAssurance">
+                    <label class="form-check-label" for="hasEternalLifeAssurance">Has Eternal Life Assurance?</label>
+                </div>
+            </div>
+
+            <!-- Born Again Details -->
+            <div class="col-12 mt-3" id="bornAgainDetails" style="display: none;">
+                <h6 class="section-title d-flex align-items-center">
+                    <span class="badge bg-info me-2 rounded-circle p-2">4</span>
+                    Conversion Details
+                </h6>
+            </div>
+
+            <div class="col-md-6" id="conversionDateField" style="display: none;">
+                <div class="form-floating">
+                    <input asp-for="DateOfConversion" type="date" class="form-control" id="dateOfConversion" />
+                    <label for="dateOfConversion">Date of Conversion</label>
+                </div>
+            </div>
+
+            <div class="col-md-6" id="conversionPlaceField" style="display: none;">
+                <div class="form-floating">
+                    <input asp-for="PlaceOfConversion" class="form-control" placeholder="Place of Conversion" id="placeOfConversion" />
+                    <label for="placeOfConversion">Place of Conversion</label>
+                </div>
+            </div>
+
+            <!-- Theological Understanding -->
+            <div class="col-12 mt-3">
+                <h6 class="section-title d-flex align-items-center">
+                    <span class="badge bg-info me-2 rounded-circle p-2">5</span>
+                    Theological Understanding
+                </h6>
+            </div>
+
+            <div class="col-md-12">
+                <div class="form-floating mb-3">
+                    <textarea asp-for="HeavenReason" class="form-control" placeholder="Why should you go to heaven?" id="heavenReason" style="height: 100px;" required></textarea>
+                    <label for="heavenReason">Why should you go to heaven? <span class="text-danger">*</span></label>
+                    <div class="invalid-feedback">Please provide their understanding of salvation</div>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="form-floating">
+                    <textarea asp-for="MeaningOfChristsDeath" class="form-control" placeholder="What is the meaning of Christ's death?" id="meaningOfChristsDeath" style="height: 100px;" required></textarea>
+                    <label for="meaningOfChristsDeath">What is the meaning of Christ's death? <span class="text-danger">*</span></label>
+                    <div class="invalid-feedback">Please provide their understanding of Christ's death</div>
+                </div>
+            </div>
+
+            <!-- Baptism Information -->
+            <div class="col-12 mt-3">
+                <h6 class="section-title d-flex align-items-center">
+                    <span class="badge bg-info me-2 rounded-circle p-2">6</span>
+                    Baptism Information
+                </h6>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-check form-switch">
+                    <input asp-for="IsBaptizedByImmersion" class="form-check-input" type="checkbox" id="isBaptizedByImmersion">
+                    <label class="form-check-label" for="isBaptizedByImmersion">Baptized by Immersion?</label>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-check form-switch">
+                    <input asp-for="WillingToBeBaptizedAtGCI" class="form-check-input" type="checkbox" id="willingToBeBaptized">
+                    <label class="form-check-label" for="willingToBeBaptized">Willing to be Baptized at GCI?</label>
+                </div>
+            </div>
+
+            <!-- Baptism Details -->
+            <div class="col-md-6" id="baptismDateField" style="display: none;">
+                <div class="form-floating">
+                    <input asp-for="BaptismDate" type="date" class="form-control" id="baptismDate" />
+                    <label for="baptismDate">Baptism Date</label>
+                </div>
+            </div>
+
+            <div class="col-md-6" id="baptismPlaceField" style="display: none;">
+                <div class="form-floating">
+                    <input asp-for="BaptismPlace" class="form-control" placeholder="Baptism Place" id="baptismPlace" />
+                    <label for="baptismPlace">Baptism Place</label>
+                </div>
+            </div>
+
+            <!-- Ministry Experience -->
+            <div class="col-12 mt-3">
+                <h6 class="section-title d-flex align-items-center">
+                    <span class="badge bg-info me-2 rounded-circle p-2">7</span>
+                    Ministry & Service
+                </h6>
+            </div>
+
+            <div class="col-md-12">
+                <div class="form-floating mb-3">
+                    <textarea asp-for="PreviousMinistryExperience" class="form-control" placeholder="Previous Ministry Experience" id="previousMinistryExperience" style="height: 100px;"></textarea>
+                    <label for="previousMinistryExperience">Previous Ministry Experience</label>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="form-floating">
+                    <textarea asp-for="SpecialGiftsOrServiceInterest" class="form-control" placeholder="Special Gifts or Service Interest" id="specialGifts" style="height: 100px;"></textarea>
+                    <label for="specialGifts">Special Gifts or Service Interest</label>
+                    <small class="text-muted">What areas would they like to serve in?</small>
+                </div>
+            </div>
+
+            <!-- Confirmation -->
+            <div class="col-12 mt-3">
+                <div class="form-check">
+                    <input asp-for="IsInformationConfirmed" class="form-check-input" type="checkbox" id="isInformationConfirmed" required>
+                    <label class="form-check-label" for="isInformationConfirmed">
+                        I confirm that all information provided is accurate <span class="text-danger">*</span>
+                    </label>
+                    <div class="invalid-feedback">You must confirm the information</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
+            <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">
+                <i class="bi bi-x-lg me-2"></i>Cancel
+            </button>
+            <button type="button" class="btn btn-info px-5 text-white" onclick="submitMembershipClass()" id="submitMembershipBtn">
+                <i class="bi bi-check-lg me-2"></i>Save Membership Info
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    (function() {
+        // DOM Elements
+        const isMemberOfAnotherChurch = document.getElementById('isMemberOfAnotherChurch');
+        const formerChurchField = document.getElementById('formerChurchField');
+        const reasonForLeavingField = document.getElementById('reasonForLeavingField');
+        const isBornAgain = document.getElementById('isBornAgain');
+        const bornAgainDetails = document.getElementById('bornAgainDetails');
+        const conversionDateField = document.getElementById('conversionDateField');
+        const conversionPlaceField = document.getElementById('conversionPlaceField');
+        const isBaptizedByImmersion = document.getElementById('isBaptizedByImmersion');
+        const baptismDateField = document.getElementById('baptismDateField');
+        const baptismPlaceField = document.getElementById('baptismPlaceField');
+
+        // Form fields for progress tracking
+        const membershipFormFields = [
+            'membershipYear', 'cohort', 'dateBeganAttending',
+            'heavenReason', 'meaningOfChristsDeath', 'isInformationConfirmed'
+        ];
+
+        // Toggle former church fields
+        function toggleFormerChurchFields() {
+            if (isMemberOfAnotherChurch.checked) {
+                formerChurchField.style.display = 'block';
+                reasonForLeavingField.style.display = 'block';
+                document.getElementById('formerChurchName').required = true;
+                document.getElementById('reasonForLeaving').required = true;
+            } else {
+                formerChurchField.style.display = 'none';
+                reasonForLeavingField.style.display = 'none';
+                document.getElementById('formerChurchName').required = false;
+                document.getElementById('reasonForLeaving').required = false;
+                document.getElementById('formerChurchName').value = '';
+                document.getElementById('reasonForLeaving').value = '';
+            }
+            updateMembershipProgress();
+        }
+
+        // Toggle born again details
+        function toggleBornAgainDetails() {
+            if (isBornAgain.checked) {
+                bornAgainDetails.style.display = 'block';
+                conversionDateField.style.display = 'block';
+                conversionPlaceField.style.display = 'block';
+
+                // Add to progress tracking
+                if (!membershipFormFields.includes('dateOfConversion')) {
+                    membershipFormFields.push('dateOfConversion', 'placeOfConversion');
+                }
+            } else {
+                bornAgainDetails.style.display = 'none';
+                conversionDateField.style.display = 'none';
+                conversionPlaceField.style.display = 'none';
+                document.getElementById('dateOfConversion').value = '';
+                document.getElementById('placeOfConversion').value = '';
+            }
+            updateMembershipProgress();
+        }
+
+        // Toggle baptism fields
+        function toggleBaptismFields() {
+            if (isBaptizedByImmersion.checked) {
+                baptismDateField.style.display = 'block';
+                baptismPlaceField.style.display = 'block';
+
+                // Add to progress tracking
+                if (!membershipFormFields.includes('baptismDate')) {
+                    membershipFormFields.push('baptismDate', 'baptismPlace');
+                }
+            } else {
+                baptismDateField.style.display = 'none';
+                baptismPlaceField.style.display = 'none';
+                document.getElementById('baptismDate').value = '';
+                document.getElementById('baptismPlace').value = '';
+            }
+            updateMembershipProgress();
+        }
+
+        // Update membership progress
+        function updateMembershipProgress() {
+            let completedFields = 0;
+            let totalVisibleFields = 0;
+
+            membershipFormFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    // Check if field is visible
+                    const parentField = field.closest('[id$="Field"], [id$="Details"]');
+                    const isVisible = parentField ? parentField.style.display !== 'none' : true;
+
+                    if (isVisible) {
+                        totalVisibleFields++;
+
+                        if (field.type === 'checkbox') {
+                            if (field.checked) completedFields++;
+                        } else {
+                            if (field.value && field.value.trim() !== '') {
+                                completedFields++;
+                            }
+                        }
+                    }
+                }
+            });
+
+            const percentage = totalVisibleFields > 0 ? (completedFields / totalVisibleFields) * 100 : 0;
+
+            const progressBar = document.getElementById('membershipProgress');
+            const progressText = document.getElementById('membershipProgressText');
+
+            if (progressBar && progressText) {
+                progressBar.style.width = percentage + '%';
+                progressText.textContent = `${completedFields} of ${totalVisibleFields} fields completed`;
+            }
+        }
+
+        // Event listeners
+        isMemberOfAnotherChurch.addEventListener('change', toggleFormerChurchFields);
+        isBornAgain.addEventListener('change', toggleBornAgainDetails);
+        isBaptizedByImmersion.addEventListener('change', toggleBaptismFields);
+
+        // Add input listeners for progress tracking
+        membershipFormFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', updateMembershipProgress);
+                field.addEventListener('change', updateMembershipProgress);
+            }
+        });
+
+        // Initial calls
+        toggleFormerChurchFields();
+        toggleBornAgainDetails();
+        toggleBaptismFields();
+        updateMembershipProgress();
+
+        // Set MemberId from parent if available
+        const urlParams = new URLSearchParams(window.location.search);
+        const memberId = urlParams.get('memberId');
+        if (memberId) {
+            document.getElementById('memberId').value = memberId;
+        }
+    })();
+
+    // Submit function
+    window.submitMembershipClass = function() {
+        const form = document.getElementById('membershipClassForm');
+
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+
+        const membershipData = {
+            MemberId: $('#memberId').val(),
+            MembershipYear: $('#membershipYear').val(),
+            Cohort: $('#cohort').val(),
+            IsMemberOfAnotherChurch: $('#isMemberOfAnotherChurch').is(':checked'),
+            FormerChurchName: $('#formerChurchName').val(),
+            ReasonForLeavingFormerChurch: $('#reasonForLeaving').val(),
+            DateBeganAttendingGCI: $('#dateBeganAttending').val(),
+            SeekingMembership: $('#seekingMembership').is(':checked'),
+            IsBornAgain: $('#isBornAgain').is(':checked'),
+            DateOfConversion: $('#dateOfConversion').val(),
+            PlaceOfConversion: $('#placeOfConversion').val(),
+            HasEternalLifeAssurance: $('#hasEternalLifeAssurance').is(':checked'),
+            HeavenReason: $('#heavenReason').val(),
+            MeaningOfChristsDeath: $('#meaningOfChristsDeath').val(),
+            IsBaptizedByImmersion: $('#isBaptizedByImmersion').is(':checked'),
+            BaptismDate: $('#baptismDate').val(),
+            BaptismPlace: $('#baptismPlace').val(),
+            WillingToBeBaptizedAtGCI: $('#willingToBeBaptized').is(':checked'),
+            PreviousMinistryExperience: $('#previousMinistryExperience').val(),
+            SpecialGiftsOrServiceInterest: $('#specialGifts').val(),
+            IsInformationConfirmed: $('#isInformationConfirmed').is(':checked'),
+            IsActive: true
+        };
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to save this membership information?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#0b5394',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Save'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Saving...',
+                    text: 'Please wait',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    url: '/MembershipClasses/Create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(membershipData),
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.message
+                            });
+
+                            form.reset();
+                            form.classList.remove('was-validated');
+
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('membershipClassModal'));
+                            if (modal) modal.hide();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Server Error',
+                            text: 'Something went wrong. Please try again.'
+                        });
+                    }
+                });
+            }
+        });
+    };
+</script>

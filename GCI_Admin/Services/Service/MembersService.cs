@@ -98,7 +98,7 @@ namespace GCI_Admin.Services.Service
         }
 
         //add method for  Task<DbResponse<Member>> CreateUserAsync(MemberDto dto)
-         public async Task<ApiResponse<Member>> CreateUserAsync(MemberDto dto)
+        public async Task<ApiResponse<Member>> CreateUserAsync(MemberDto dto)
         {
             var response = new ApiResponse<Member>();
             try
@@ -122,4 +122,35 @@ namespace GCI_Admin.Services.Service
             }
             return response;
         }
+
+        public async Task<ApiResponse<MembershipClass>> CreateMembershipClassAsync(MembershipClassDto dto)
+        {
+            var response = new ApiResponse<MembershipClass>();
+
+            try
+            {
+                var result = await _membersRepository.CreateMembershipClassAsync(dto);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message ?? "Failed to create membership class";
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "Membership class created successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+    }
 }

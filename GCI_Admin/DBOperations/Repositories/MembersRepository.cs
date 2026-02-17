@@ -182,7 +182,7 @@ namespace GCI_Admin.DBOperations.Repositories
 
                     PasswordHash = _security.EncryptStringAES("Password1234", "GCI"),
                     CreatedAt = DateTime.Now,
-                    StatusId = dto.StatusId
+                    StatusId = 3
                 };
 
 
@@ -206,6 +206,73 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+        public async Task<DbResponse<MembershipClass>> CreateMembershipClassAsync(MembershipClassDto dto)
+        {
+            try
+            {
+                // Prevent duplicate membership class for same member and year
+                bool exists = await _context.MembershipClasses.AnyAsync(x =>
+                    x.MemberId == dto.MemberId &&
+                    x.MembershipYear == dto.MembershipYear &&
+                    x.IsActive);
+
+                if (exists)
+                    return new DbResponse<MembershipClass>
+                    {
+                        Success = false,
+                        Message = "Membership class already exists for this member and year."
+                    };
+
+                var membership = new MembershipClass
+                {
+                    MemberId = dto.MemberId,
+                    MembershipYear = dto.MembershipYear,
+                    Cohort = dto.Cohort,
+                    IsMemberOfAnotherChurch = dto.IsMemberOfAnotherChurch,
+                    FormerChurchName = dto.FormerChurchName,
+                    ReasonForLeavingFormerChurch = dto.ReasonForLeavingFormerChurch,
+                    DateBeganAttendingGCI = dto.DateBeganAttendingGCI,
+                    SeekingMembership = dto.SeekingMembership,
+                    IsBornAgain = dto.IsBornAgain,
+                    DateOfConversion = dto.DateOfConversion,
+                    PlaceOfConversion = dto.PlaceOfConversion,
+                    HasEternalLifeAssurance = dto.HasEternalLifeAssurance,
+                    HeavenReason = dto.HeavenReason,
+                    MeaningOfChristsDeath = dto.MeaningOfChristsDeath,
+                    IsBaptizedByImmersion = dto.IsBaptizedByImmersion,
+                    BaptismDate = dto.BaptismDate,
+                    BaptismPlace = dto.BaptismPlace,
+                    WillingToBeBaptizedAtGCI = dto.WillingToBeBaptizedAtGCI,
+                    PreviousMinistryExperience = dto.PreviousMinistryExperience,
+                    SpecialGiftsOrServiceInterest = dto.SpecialGiftsOrServiceInterest,
+                    IsInformationConfirmed = dto.IsInformationConfirmed,
+
+                    CreatedAt = DateTime.Now,
+                    IsActive = true
+                };
+
+                _context.MembershipClasses.Add(membership);
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<MembershipClass>
+                {
+                    Success = true,
+                    Message = "Membership class created successfully.",
+                    Data = membership
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs("MembershipClassRepository->CreateMembershipClassAsync->" + ex.Message);
+
+                return new DbResponse<MembershipClass>
+                {
+                    Success = false,
+                    Message = "An error occurred while creating the membership class."
+                };
+            }
+        }
+
 
 
     }

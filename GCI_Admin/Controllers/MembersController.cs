@@ -1,5 +1,7 @@
 ﻿using GCI_Admin.Models;
+using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
+using GCI_Admin.Services.Service;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -67,9 +69,42 @@ public class MembersController : Controller
     {
         return PartialView("_AddMember");
     }
+  
 
 
-    
+    [HttpPost]
+    public async Task<IActionResult> CreateUser([FromBody] MemberDto dto)
+    {
+        var result = await _membersService.CreateUserAsync(dto);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+    public IActionResult AddMembershipClassPartial(int memberId)
+    {
+        var model = new MembershipClassDto
+        {
+            MemberId = memberId,
+            MembershipYear = DateTime.Now.Year.ToString()
+        };
+
+        return PartialView("_AddMembershipClass", model);
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> CreateMembershipClass([FromBody] MembershipClassDto dto)
+    {
+        var result = await _membersService.CreateMembershipClassAsync(dto);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
 
     //    // EDIT
     //    public IActionResult Edit(int id)
