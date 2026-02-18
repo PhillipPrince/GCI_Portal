@@ -1,0 +1,75 @@
+﻿@model List<GCI_Admin.Models.Assembly>
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="assembliesTable" class="table table-striped table-hover align-middle datatable">
+
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Contact Phone</th>
+                    <th>Contact Email</th>
+                    <th>Created At</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+
+                <!-- Search Row -->
+                <tr>
+                    <th>
+                        <input type="text" placeholder="Search Name" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Location" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Phone" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Email" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="date" class="form-control form-control-sm" />
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var assembly in Model)
+                {
+                    <tr>
+                        <td>@assembly.Name</td>
+                        <td>@assembly.Location</td>
+                        <td>@assembly.ContactPhone</td>
+                        <td>@assembly.ContactEmail</td>
+                        <td>@assembly.CreatedAt.ToString("dd MMM yyyy")</td>
+
+                        <td class="text-end">
+
+                            <!-- View -->
+                            <button class="btn btn-sm btn-outline-info"
+                                    onclick="openAssemblyModal('@Url.Action("Details", "Assemblies", new { id = assembly.Id })')">
+                                <i class="fa fa-eye"></i>
+                            </button>
+
+                            <!-- Edit -->
+                            <button class="btn btn-sm btn-outline-warning"
+                                    onclick="openAssemblyModal('@Url.Action("Edit", "Assemblies", new { id = assembly.Id })')">
+                                <i class="fa fa-edit"></i>
+                            </button>
+
+                            <!-- Delete -->
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteAssembly(@assembly.Id)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>

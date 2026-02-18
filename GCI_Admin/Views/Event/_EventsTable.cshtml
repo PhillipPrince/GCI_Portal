@@ -2,7 +2,7 @@
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
-        <table id="eventsTable" class="table table-striped table-hover align-middle">
+        <table id="eventsTable" class="table table-striped table-hover align-middle datatable">
             <thead class="table-light">
                 <tr>
                     <th>Title</th>
@@ -69,7 +69,7 @@
 
                         <!-- Price -->
                         <td>
-                            @(e.Price.HasValue? e.Price.Value.ToString("C") : "-")
+                            @(e.Price.HasValue? e.Price.Value.ToString("N2") : "-")
                         </td>
 
                         <!-- Active Status -->

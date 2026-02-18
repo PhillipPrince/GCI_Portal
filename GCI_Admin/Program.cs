@@ -22,10 +22,12 @@ builder.Services.Configure<JwtSettings>(jwtSettings);
 builder.Services.AddScoped<IEventsService, EventsService>();
 builder.Services.AddScoped<IMembersService, MembersService>();
 builder.Services.AddScoped<IGECMemberService,GECMemberService>();
+builder.Services.AddScoped<IAssembliesService, AssembliesService>();
 //Repositories
 builder.Services.AddScoped<EventsRepository>();
 builder.Services.AddScoped<MembersRepository>();
 builder.Services.AddScoped<GECMemberRepository>();
+builder.Services.AddScoped<AssembliesRepository>();
 
 
 builder.Services.AddDbContext<AppDbContext>(x => x.UseSqlServer(connectionString));

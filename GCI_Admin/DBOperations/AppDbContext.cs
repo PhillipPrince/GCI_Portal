@@ -22,7 +22,7 @@ namespace GCI_Admin.DBOperations
         public DbSet<GECMember> GECMembers { get; set; }
         public DbSet<SystemConfig> SystemConfig { get; set; }
         public DbSet<EventRegistration> EventRegistrations { get; set; }
-        public DbSet<MembershipClass> MembershipClasses { get; set; }   
-        //public DbSet<Assembly> Assemblies { get; set; }
+        public DbSet<MembershipClass> MembershipClasses { get; set; }
+        public DbSet<Assembly> Assemblies { get; set; }
     }
 }
