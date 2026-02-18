@@ -25,16 +25,21 @@ namespace GCI_Admin.Controllers
         // ✅ INDEX
         public async Task<IActionResult> Index()
         {
-            GetMembersTable();
-            return View();
+            var response = await _gecMemberService.GetGECMembersAsync();
+            var members = (response != null && response.IsSuccess && response.Data != null)
+                ? response.Data.ToList()
+                : new List<GECMember>();
+
+            return View(members); 
         }
 
-        // ✅ PARTIAL TABLE REFRESH
-        public async Task<IActionResult> GetMembersTable()
-        {
-            var response = await _gecMemberService.GetGECMembersAsync();
-            return PartialView("_GECMembersTable", response.Data);
-        }
+        //public async Task<IActionResult> Index()
+        //{
+        //    return View();
+        //}
+
+        
+
 
         public async Task<IActionResult> AddNewGecMember()
         {

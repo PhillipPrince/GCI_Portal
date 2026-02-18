@@ -16,14 +16,15 @@ namespace GCI_Admin.Services.Service
         private readonly AppDbContext _context;
         private readonly string _imageBasePath = "";
         private readonly SystemConfigRepository _systemConfig;
+        private readonly MembersRepository _membersRepository;
 
 
-        public GECMemberService(GECMemberRepository gecMemberRepository, AppDbContext context)
+        public GECMemberService(GECMemberRepository gecMemberRepository, AppDbContext context, MembersRepository membersRepository)
         {
             _gecMemberRepository = gecMemberRepository;
             _context = context;
             _imageBasePath = SystemConfigHelper.GetImageBasePathAsync(_systemConfig).GetAwaiter().GetResult();
-
+            _membersRepository = membersRepository;
         }
 
         // ✅ CREATE
@@ -66,14 +67,7 @@ namespace GCI_Admin.Services.Service
                 var dbResponse = await _gecMemberRepository.GetGECMembersAsync();
                 foreach (var gecMember in dbResponse.Data)
                 {
-                    var member = _context.Members.FirstOrDefault(m => m.Id == gecMember.MemberId);
-                    if (member != null)
-                    {
-                        gecMember.Photo = ImageHelper.ReadImage(_imageBasePath, gecMember.MemberId.ToString());
-                        gecMember.FullName = $"{member.FirstName} {member.OtherNames}";
-                        gecMember.Phone = member.Phone;
-                        gecMember.Email = member.Email;
-                    }
+                    gecMember.Photo = ImageHelper.ReadImage(_imageBasePath, gecMember.MemberId.ToString());
                 }
 
                 response.IsSuccess = dbResponse.Success;

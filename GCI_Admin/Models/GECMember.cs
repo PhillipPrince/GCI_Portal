@@ -14,16 +14,11 @@ namespace GCI_Admin.Models
         public DateTime? EndDate { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
+        [ForeignKey("MemberId")]
+        public Member Member { get; set; }
 
         [NotMapped]
         public byte[]? Photo { get; set; }
-        [NotMapped]
-        public string FullName { get; set; }
-        [NotMapped]
-        public string Phone { get; set; }
-        [NotMapped]
-        public string Email { get; set; }
-        [NotMapped]
-        public string Gender { get; set; }
+       
     }
 }

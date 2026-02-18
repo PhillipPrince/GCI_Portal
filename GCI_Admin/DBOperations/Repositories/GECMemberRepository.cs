@@ -57,6 +57,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 var gecMembers = await _context.GECMembers
                     .Where(g => g.IsActive)
                     .OrderBy(g => g.GECId)
+                    .Include(g=>g.Member)
                     .ToListAsync();
 
                 return new DbResponse<List<GECMember>>
