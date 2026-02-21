@@ -1,0 +1,59 @@
+﻿@model List<GCI_Admin.Models.GrowthCenter>
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="centersTable" class="table table-striped table-hover align-middle datatable">
+            <thead class="table-light">
+                <tr>
+                    <th>Center Name</th>
+                    <th>Location</th>
+                    <th>Description</th>
+                    <th>Created At</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+
+                <!-- Search Row -->
+                <tr>
+                    <th><input type="text" placeholder="Search Name" class="form-control form-control-sm" /></th>
+                    <th><input type="text" placeholder="Search Location" class="form-control form-control-sm" /></th>
+                    <th><input type="text" placeholder="Search Description" class="form-control form-control-sm" /></th>
+                    <th><input type="date" class="form-control form-control-sm" /></th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var center in Model)
+                {
+                    <tr>
+                        <td>@center.CenterName</td>
+                        <td>@center.Location</td>
+                        <td>@center.Description</td>
+                        <td>@center.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td class="text-end">
+
+                            <!-- View -->
+                            <button class="btn btn-sm btn-outline-info"
+                                    onclick="openCenterModal('@Url.Action("Details", "GrowthCenters", new { id = center.GrowthCenterId })')">
+                                <i class="fa fa-eye"></i>
+                            </button>
+
+                            <!-- Edit -->
+                            <button class="btn btn-sm btn-outline-warning"
+                                    onclick="openCenterModal('@Url.Action("Edit", "GrowthCenters", new { id = center.GrowthCenterId })')">
+                                <i class="fa fa-edit"></i>
+                            </button>
+
+                            <!-- Delete -->
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteCenter(@center.GrowthCenterId)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,52 +1,103 @@
 ﻿@model List<GCI_Admin.Models.GECMember>
 
-
 @{
-    ViewData["Title"] = "GEC Members";
+    ViewData["Title"] = "GEC Members Management";
 }
 
-<!-- Page Header with Stats -->
+<!-- Page Header -->
 <div class="row mb-4">
     <div class="col-md-8">
         <h2 class="fw-bold mb-1">GEC Members</h2>
-        <p class="text-muted mb-0">Manage General Executive Council</p>
+        <p class="text-muted mb-0">Manage General Executive Council members</p>
     </div>
-    <div class="col-md-4 text-end">
-        <button class="btn btn-primary btn-lg" onclick="showCreateModal()">
+    <div class="col-md-4 d-flex justify-content-end">
+        <button class="btn btn-primary btn-lg" id="openAddMemberModalBtn">
             <i class="fa fa-plus-circle me-2"></i>Add New Member
         </button>
     </div>
 </div>
 
-<!-- Quick Stats Cards (same as before) -->
+<!-- Quick Stats for Members -->
 <div class="row g-3 mb-4">
-    <!-- ... stats cards ... -->
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Total Members</h6>
+                <h3 class="fw-bold mb-0">@Model?.Count ?? 0</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Active Members</h6>
+                <h3 class="fw-bold mb-0 text-success">@Model?.Count(m => m.IsActive) ?? 0</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Positions</h6>
+                <h3 class="fw-bold mb-0">@Model?.Select(m => m.PositionTitle).Distinct().Count() ?? 0</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">New This Month</h6>
+                <h3 class="fw-bold mb-0">@Model?.Count(m => m.CreatedAt >= DateTime.Now.AddDays(-30)) ?? 0</h3>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Filter Bar (same as before) -->
+<!-- Filter Bar -->
 <div class="card border-0 shadow-sm mb-4">
-    <!-- ... filter bar ... -->
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0">
+                        <i class="fa fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" id="memberSearch" placeholder="Search members...">
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-outline-secondary me-2" onclick="clearMemberFilters()">
+                    <i class="fa fa-times me-1"></i>Clear
+                </button>
+                <button class="btn btn-primary" onclick="applyMemberFilters()">
+                    <i class="fa fa-filter me-1"></i>Apply
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Members Container -->
+<!-- Members Table -->
 <div id="gecMembersTableContainer">
     @await Html.PartialAsync("_GECMembersTable", Model)
-
 </div>
 
-<!-- Modal Container -->
+<!-- Member Modal -->
 <div class="modal fade" id="memberModal" tabindex="-1" aria-labelledby="memberModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="memberModalLabel">
-                    <i class="fa fa-user-plus me-2"></i><span id="modalTitle">Add New GEC Member</span>
+                    <i class="fa fa-user-plus me-2"></i>
+                    <span id="modalTitleMember">Add New Member</span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="modalBody">
-                <!-- Partial view will be loaded here -->
-                <div class="text-center p-4">
+            <div class="modal-body" id="memberModalBody">
+                <div class="text-center p-4 d-none" id="memberLoading">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
@@ -54,7 +105,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="submitMemberForm()" id="saveBtn">
+                <button type="button" class="btn btn-primary" onclick="submitMemberForm()" id="saveMemberBtn">
                     <i class="fa fa-save me-1"></i>Save Member
                 </button>
             </div>
@@ -62,321 +113,66 @@
     </div>
 </div>
 
-<!-- Success Toast Notification -->
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                <i class="fa fa-check-circle me-2"></i>
-                <span id="toastMessage">Operation completed successfully</span>
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-</div>
-
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Open Add Member Modal
+            $('#openAddMemberModalBtn').on('click', function () {
+                $('#memberModal').modal('show');
+                $('#modalTitleMember').text('Add New Member');
+                $('#memberModalBody').html('<div class="text-center p-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+                $('#saveMemberBtn').prop('disabled', false);
 
-    <!-- Select2 for searchable dropdown -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-
-    <style>
-        .stat-card {
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-        }
-
-            .stat-card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important;
-            }
-
-        .action-btn {
-            width: 32px;
-            height: 32px;
-            padding: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-
-            .action-btn:hover {
-                transform: translateY(-2px);
-            }
-
-        .select2-container--default .select2-selection--single {
-            height: 38px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-        }
-
-            .select2-container--default .select2-selection--single .select2-selection__rendered {
-                line-height: 36px;
-            }
-
-            .select2-container--default .select2-selection--single .select2-selection__arrow {
-                height: 36px;
-            }
-
-        .member-option {
-            padding: 8px 12px;
-        }
-
-            .member-option strong {
-                font-size: 14px;
-            }
-
-            .member-option small {
-                display: block;
-                color: #6c757d;
-                font-size: 12px;
-            }
-    </style>
-
-<script>
-    // URLs for AJAX calls
-    const getMembersUrl = '@Url.Action("GetMembersTable", "GECMember")';
-    const loadCreateFormUrl = '@Url.Action("LoadCreateForm", "GECMember")';
-    const loadEditFormUrl = '@Url.Action("LoadEditForm", "GECMember")';
-    const deleteMemberUrl = '@Url.Action("Delete", "GECMember")';
-    const getStatsUrl = '@Url.Action("GetStats", "GECMember")';
-
-    $(document).ready(function() {
-        console.log("Document ready fired");
-
-        // Load the GEC Members table on page load
-        loadGECTable();
-
-        // Load stats
-        loadStats();
-    });
-
-    // Function to load the GEC Members table
-    function loadGECTable() {
-        $('#gecMembersContainer').load(getMembersUrl, function(response, status, xhr) {
-            console.log("AJAX load callback fired. Status:", status);
-
-            if (status === "success") {
-                const rowCount = $('#gecMembersTable tbody tr').length;
-                alert(`Rows loaded: ${rowCount}`); // debug alert
-
-                initializeDataTable();
-                attachExpandRowListeners();
-            } else {
-                alert(`Failed to load table. Status: ${status}, Error: ${xhr.statusText}`);
-            }
-        });
-    }
-
-    // Initialize DataTable
-    function initializeDataTable() {
-        if ($.fn.DataTable.isDataTable('#gecMembersTable')) {
-            $('#gecMembersTable').DataTable().destroy();
-        }
-
-        $('#gecMembersTable').DataTable({
-            pageLength: 10,
-            responsive: true,
-            columnDefs: [
-                { targets: -1, orderable: false, searchable: false } // Actions column
-            ],
-            language: {
-                search: "Search members:",
-                lengthMenu: "Show _MENU_ members",
-                info: "Showing _START_ to _END_ of _TOTAL_ members",
-                emptyTable: "No members available",
-                zeroRecords: "No matching members found"
-            }
-        });
-    }
-
-    // Show create modal
-    function showCreateModal() {
-        $('#modalTitle').text('Add New GEC Member');
-        $('#modalBody').html('<div class="text-center p-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
-        $('#memberModal').modal('show');
-
-        $.get(loadCreateFormUrl, function(data) {
-            $('#modalBody').html(data);
-        }).fail(function() {
-            $('#modalBody').html('<div class="alert alert-danger">Failed to load form. Please try again.</div>');
-        });
-    }
-
-    // Show edit modal
-    function showEditModal(id) {
-        $('#modalTitle').text('Edit GEC Member');
-        $('#modalBody').html('<div class="text-center p-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
-        $('#memberModal').modal('show');
-
-        $.get(loadEditFormUrl, { id: id }, function(data) {
-            $('#modalBody').html(data);
-        }).fail(function() {
-            $('#modalBody').html('<div class="alert alert-danger">Failed to load form. Please try again.</div>');
-        });
-    }
-
-    // Submit form inside modal
-    function submitMemberForm() {
-        let form = $('#createMemberForm');
-        let isCreate = form.length > 0;
-
-        if (!isCreate) form = $('#editMemberForm');
-        if (form.length === 0) {
-            showToast('Form not found', 'error');
-            return;
-        }
-
-        if (!form[0].checkValidity()) {
-            form[0].reportValidity();
-            return;
-        }
-
-        $('#saveBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i>Saving...');
-
-        $.ajax({
-            url: form.attr('action'),
-            type: 'POST',
-            data: form.serialize(),
-            success: function(response) {
-                if (response.success) {
-                    $('#memberModal').modal('hide');
-                    showToast(response.message || (isCreate ? 'Member created successfully' : 'Member updated successfully'));
-                    loadGECTable();
-                    loadStats();
-                } else {
-                    if (response.errors) {
-                        showToast(response.errors.join(', '), 'error');
-                    } else {
-                        showToast(response.message || 'Operation failed', 'error');
-                    }
-                }
-            },
-            error: function(xhr) {
-                let message = 'An error occurred';
-                if (xhr.responseJSON && xhr.responseJSON.message) message = xhr.responseJSON.message;
-                showToast(message, 'error');
-            },
-            complete: function() {
-                $('#saveBtn').prop('disabled', false).html('<i class="fa fa-save me-1"></i>Save Member');
-            }
-        });
-    }
-
-    // Delete member
-    function deleteGECMember(id) {
-        Swal.fire({
-            title: 'Delete Member',
-            text: 'Are you sure you want to delete this member? This action cannot be undone.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, delete it',
-            cancelButtonText: 'Cancel',
-            showLoaderOnConfirm: true,
-            preConfirm: () => {
-                const token = $('input[name="__RequestVerificationToken"]').val();
-                return $.ajax({
-                    url: deleteMemberUrl,
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ id: id }),
-                    headers: { 'RequestVerificationToken': token },
-                    dataType: 'json'
-                }).then(response => {
-                    if (!response.success) throw new Error(response.message || 'Delete failed');
-                    return response;
-                }).catch(error => {
-                    Swal.showValidationMessage(`Request failed: ${error.message}`);
+                $.get('@Url.Action("LoadCreateForm", "GECMember")', function (data) {
+                    $('#memberModalBody').html(data);
+                }).fail(function () {
+                    $('#memberModalBody').html('<div class="alert alert-danger">Failed to load form. Please try again.</div>');
                 });
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                showToast(result.value.message || 'Member deleted successfully');
-                loadGECTable();
-                loadStats();
-            }
+            });
         });
-    }
 
-    // Load statistics
-    function loadStats() {
-        $.get(getStatsUrl, function(data) {
-            $('#totalMembers').text(data.totalMembers || 0);
-            $('#activeMembers').text(data.activeMembers || 0);
-            $('#totalPositions').text(data.totalPositions || 0);
-            $('#newThisMonth').text(data.newThisMonth || 0);
-        }).fail(function() {
-            console.error('Failed to load stats');
-        });
-    }
-
-    // Toast notifications
-    function showToast(message, type = 'success') {
-        const toast = $('#successToast');
-        toast.removeClass('bg-success bg-danger bg-warning');
-
-        if (type === 'success') {
-            toast.addClass('bg-success');
-            toast.find('i').removeClass().addClass('fa fa-check-circle me-2');
-        } else if (type === 'error') {
-            toast.addClass('bg-danger');
-            toast.find('i').removeClass().addClass('fa fa-exclamation-circle me-2');
-        } else if (type === 'warning') {
-            toast.addClass('bg-warning');
-            toast.find('i').removeClass().addClass('fa fa-exclamation-triangle me-2');
+        function applyMemberFilters() {
+            const search = $('#memberSearch').val();
+            const table = $('#gecMembersTable').DataTable();
+            table.search(search).draw();
         }
 
-        $('#toastMessage').text(message);
-        const bsToast = new bootstrap.Toast(toast[0], { delay: 3000 });
-        bsToast.show();
-    }
-
-    // Attach expand row listeners (if needed)
-    function attachExpandRowListeners() {
-        document.querySelectorAll('.expand-row').forEach(function(iconCell) {
-            iconCell.removeEventListener('click', toggleChildRow);
-            iconCell.addEventListener('click', toggleChildRow);
-        });
-    }
-
-    function toggleChildRow() {
-        const currentRow = this.closest('tr');
-        const nextRow = currentRow.nextElementSibling;
-        const isChildRow = nextRow && nextRow.classList.contains('child-row');
-
-        if (isChildRow) {
-            nextRow.style.display = nextRow.style.display === 'none' ? '' : 'none';
-            this.querySelector('i').classList.toggle('fa-chevron-right');
-            this.querySelector('i').classList.toggle('fa-chevron-down');
-        } else {
-            const childContent = currentRow.getAttribute('data-child');
-            if (childContent) {
-                const newRow = document.createElement('tr');
-                newRow.className = 'child-row';
-                newRow.innerHTML = `<td colspan="${currentRow.children.length}">${childContent}</td>`;
-                currentRow.parentNode.insertBefore(newRow, currentRow.nextSibling);
-                this.querySelector('i').classList.remove('fa-chevron-right');
-                this.querySelector('i').classList.add('fa-chevron-down');
-            }
+        function clearMemberFilters() {
+            $('#memberSearch').val('');
+            const table = $('#gecMembersTable').DataTable();
+            table.search('').draw();
         }
-    }
 
-    // Make functions globally accessible
-    window.showCreateModal = showCreateModal;
-    window.showEditModal = showEditModal;
-    window.submitMemberForm = submitMemberForm;
-    window.deleteGECMember = deleteGECMember;
-</script>
+        function submitMemberForm() {
+            const form = $('#createMemberForm, #editMemberForm').first();
+            if (!form.length) return;
+
+            if (!form[0].checkValidity()) { form[0].reportValidity(); return; }
+
+            $('#saveMemberBtn').prop('disabled', true);
+            $('#memberLoading').removeClass('d-none');
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+                success: function (response) {
+                    $('#memberLoading').addClass('d-none');
+                    $('#saveMemberBtn').prop('disabled', false);
+
+                    if (response.success) {
+                        $('#memberModal').modal('hide');
+                        location.reload();
+                    } else {
+                        Swal.fire('Error', response.message || 'Failed to save member.', 'error');
+                    }
+                },
+                error: function () {
+                    $('#memberLoading').addClass('d-none');
+                    $('#saveMemberBtn').prop('disabled', false);
+                    Swal.fire('Error', 'An unexpected error occurred.', 'error');
+                }
+            });
+        }
+    </script>
 }
-

@@ -175,13 +175,13 @@ namespace GCI_Admin.Services.Service
                 }
                 else
                 {
-                    foreach (var registration in result.Data)
-                    {
-                        var eventResult = await _eventsRepository.GetEventByIdAsync(registration.EventId);
-                        var userResult = await _membersRepository.GetMemberByIdAsync(registration.UserId);
-                        registration.Event = eventResult.Data;
-                        registration.User = userResult.Data;
-                    }
+                    //foreach (var registration in result.Data)
+                    //{
+                    //    var eventResult = await _eventsRepository.GetEventByIdAsync(registration.EventId);
+                    //    var userResult = await _membersRepository.GetMemberByIdAsync(registration.UserId);
+                    //    registration.Event = eventResult.Data;
+                    //    registration.User = userResult.Data;
+                    //}
                     response.Data = result.Data;
                     response.Message = "Event registrations retrieved successfully";
                 }

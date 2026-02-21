@@ -14,7 +14,7 @@ namespace GCI_Admin.DBOperations
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
-            
+
         }
         public DbSet<Member> Members { get; set; }
         public DbSet<Event> Events { get; set; }
@@ -24,5 +24,10 @@ namespace GCI_Admin.DBOperations
         public DbSet<EventRegistration> EventRegistrations { get; set; }
         public DbSet<MembershipClass> MembershipClasses { get; set; }
         public DbSet<Assembly> Assemblies { get; set; }
+        public DbSet<AssemblyLeader> AssembliesLeaders { get; set; }
+        public DbSet<Ministry> Ministries { get; set; }
+        public DbSet<MinistryLeader> MinistryLeaders { get; set;}
+        public DbSet<GrowthCenter> GrowthCenters { get; set; }
+        public DbSet<GrowthCenterLeader> GrowthCenterLeaders { get; set; }
     }
 }

@@ -15,15 +15,26 @@ namespace GCI_Admin.Controllers
             _assembliesService = assembliesService;
         }
 
+        // Index view
         public async Task<IActionResult> Index()
         {
             try
             {
-                ApiResponse<List<Assembly>> response = await _assembliesService.GetAllAssembliesAsync();
-                if (!response.IsSuccess)
-                    return View(new List<Assembly>());
+                AssembliesData assembliesData= new AssembliesData();
+               var assemblyRes = await _assembliesService.GetAllAssembliesAsync();
+                var leaderRes=await _assembliesService.GetAllAssemblyLeadersAsync();
 
-                return View(response.Data);
+                if (assemblyRes != null)
+                {
+                    assembliesData.Assembly = assemblyRes.Data;
+                }
+                if (leaderRes != null)
+                {
+                    assembliesData.AssemblyLeader = leaderRes.Data;
+                }
+               
+
+                return View(assembliesData);
             }
             catch
             {

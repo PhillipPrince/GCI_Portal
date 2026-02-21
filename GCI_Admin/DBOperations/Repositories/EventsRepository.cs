@@ -365,20 +365,65 @@ namespace GCI_Admin.DBOperations.Repositories
         //    }
         //}
 
+        //public async Task<DbResponse<List<EventRegistration>>> GetEventRegistrationsAsync()
+        //{
+        //    try
+        //    {
+        //        var data = await _context.EventRegistrations
+        //            //.Include(r => r.Event)
+        //            //.Include(r => r.User)
+        //            .OrderByDescending(r => r.RegistrationDate)
+        //            .ToListAsync();
+
+        //        return new DbResponse<List<EventRegistration>>
+        //        {
+        //            Success = true,
+        //            Data = data
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new DbResponse<List<EventRegistration>>
+        //        {
+        //            Success = false,
+        //            Message = $"Error fetching event registrations: {ex.Message}"
+        //        };
+        //    }
+        //}
         public async Task<DbResponse<List<EventRegistration>>> GetEventRegistrationsAsync()
         {
             try
             {
-                var data = await _context.EventRegistrations
-                    .Include(r => r.Event)
-                    .Include(r => r.User)
-                    .OrderByDescending(r => r.RegistrationDate)
-                    .ToListAsync();
+                // Ensure _context is not disposed
+                if (_context == null)
+                {
+                    return new DbResponse<List<EventRegistration>>
+                    {
+                        Success = false,
+                        Message = "Database context is not initialized"
+                    };
+                }
 
+                var eventRegistrations = await _context.EventRegistrations
+    .AsNoTracking()
+    .Where(r => r.Event.IsActive)  
+    .OrderByDescending(r => r.RegistrationDate)
+    .Include(r => r.Member)
+    .Include(r => r.Event)
+    .ToListAsync();
                 return new DbResponse<List<EventRegistration>>
                 {
                     Success = true,
-                    Data = data
+                    Data = eventRegistrations
+                };
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("closed"))
+            {
+                // Specific handling for closed reader/connection
+                return new DbResponse<List<EventRegistration>>
+                {
+                    Success = false,
+                    Message = "Database connection was closed. Please try again."
                 };
             }
             catch (Exception ex)
@@ -390,7 +435,6 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
-
 
     }
 }

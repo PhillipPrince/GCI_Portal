@@ -1,0 +1,210 @@
+﻿@model List<GCI_Admin.Models.AssemblyLeader>
+
+@{
+    ViewData["Title"] = "Assembly Leaders";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="assemblyLeadersTable" class="table table-striped table-hover align-middle datatable">
+
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Member</th>
+                    <th>Assembly</th>
+                    <th>Bio</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+
+                <!-- Filter Row -->
+                <tr>
+                    <th></th>
+                    <th>
+                        <input type="text" placeholder="Search Member" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Assembly" class="form-control form-control-sm" />
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    int count = 1;
+                    foreach (var leader in Model)
+                    {
+                        <tr>
+                            <td>@count</td>
+
+                            <td>@(leader.Member.FirstName+" "+leader.Member.OtherNames) @* You may want to display member name if Member navigation property exists *@</td>
+                            <td>@(leader.Assembly.Name) @* You may want to display assembly name if Assembly navigation property exists *@</td>
+
+                            <td>
+                                @if (!string.IsNullOrEmpty(leader.Bio) && leader.Bio.Length > 50)
+                                {
+                                    <span title="@leader.Bio">@leader.Bio.Substring(0, 50)...</span>
+                                }
+                                else
+                                {
+                                    <span>@leader.Bio</span>
+                                }
+                            </td>
+
+                            <td>@leader.StartDate.ToString("dd MMM yyyy")</td>
+
+                            <td>
+                                @if (leader.EndDate.HasValue)
+                                {
+                                    @leader.EndDate.Value.ToString("dd MMM yyyy")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Ongoing</span>
+                                }
+                            </td>
+
+                            <!-- Status Badge -->
+                            <td>
+                                @if (leader.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactive</span>
+                                }
+                            </td>
+
+                            <td>@leader.CreatedAt.ToString("dd MMM yyyy")</td>
+
+                            <!-- Actions -->
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+
+                                    <!-- View/Edit -->
+                                    <button class="btn btn-outline-primary"
+                                            title="View/Edit"
+                                            onclick="editLeader(@leader.AssemblyLeaderId)">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+
+                                    <!-- Toggle Status -->
+                                    @if (leader.IsActive)
+                                    {
+                                        <button class="btn btn-outline-warning"
+                                                title="Deactivate"
+                                                onclick="toggleLeaderStatus(@leader.AssemblyLeaderId, false)">
+                                            <i class="fa fa-ban"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline-success"
+                                                title="Activate"
+                                                onclick="toggleLeaderStatus(@leader.AssemblyLeaderId, true)">
+                                            <i class="fa fa-check-circle"></i>
+                                        </button>
+                                    }
+
+                                    <!-- Delete -->
+                                    <button class="btn btn-outline-danger"
+                                            title="Delete"
+                                            onclick="deleteLeader(@leader.AssemblyLeaderId)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+
+                                </div>
+                            </td>
+                        </tr>
+                        count++;
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td  class="text-center text-muted py-4">
+                            No assembly leaders found
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // EDIT LEADER
+        function editLeader(id) {
+            // Redirect to edit page or open modal
+            window.location.href = '@Url.Action("Edit", "AssemblyLeader")/' + id;
+        }
+
+        // TOGGLE LEADER STATUS (Activate/Deactivate)
+        async function toggleLeaderStatus(id, setActive) {
+            var action = setActive ? 'activate' : 'deactivate';
+            if (!confirm(`Are you sure you want to ${action} this assembly leader?`)) return;
+
+            const response = await fetch('@Url.Action("ToggleStatus", "AssemblyLeader")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify({
+                    id: id,
+                    isActive: setActive
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                location.reload();
+            } else {
+                alert(result.message || `Failed to ${action} leader.`);
+            }
+        }
+
+        // DELETE LEADER
+        async function deleteLeader(id) {
+            if (!confirm("Are you sure you want to delete this assembly leader? This action cannot be undone.")) return;
+
+            const response = await fetch('@Url.Action("Delete", "AssemblyLeader")/' + id, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                }
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                const result = await response.json();
+                alert(result.message || "Failed to delete assembly leader.");
+            }
+        }
+
+     
+    </script>
+}

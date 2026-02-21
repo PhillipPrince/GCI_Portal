@@ -16,5 +16,6 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<bool>> DeleteAssemblyAsync(int assemblyId);
 
         Task<ApiResponse<bool>> ToggleAssemblyStatusAsync(int assemblyId, bool isActive);
+        Task<ApiResponse<List<AssemblyLeader>>> GetAllAssemblyLeadersAsync();
     }
 }

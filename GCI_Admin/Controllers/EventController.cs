@@ -150,34 +150,15 @@ namespace GCI_Admin.Controllers
         }
 
         // add method for         Task<ApiResponse<List<EventRegistration>>> GetEventRegistrationsAsync();
-        [HttpGet]
-        public async Task<IActionResult> GetEventRegistrations()
-        {
-            try
-            {
-                ApiResponse<List<EventRegistration>> response = await _eventsService.GetEventRegistrationsAsync();
-
-                if (!response.IsSuccess)
-                    return BadRequest(response);
-
-                return PartialView("_EventRegistrationsTable", new List<EventRegistration>());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ApiResponse<List<EventRegistration>>
-                {
-                    IsSuccess = false,
-                    Code = "500",
-                    Message = ex.Message
-                });
-            }
-        }
+      
         //create view for the above method and add a link to it in the index view
          [HttpGet]
-         public IActionResult EventRegistrations()
+         public async Task<IActionResult> EventRegistrations()
          {
-            GetEventRegistrations();
-             return View();
+            ApiResponse<List<EventRegistration>> response = await _eventsService.GetEventRegistrationsAsync();
+            if (!response.IsSuccess)
+                return BadRequest(response);
+            return View(response.Data);
         }
 
         [HttpPost]

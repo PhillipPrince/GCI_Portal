@@ -1,0 +1,353 @@
+﻿@model GCI_Admin.Models.MinistriesData
+
+@{
+    ViewData["Title"] = "Ministries Management";
+}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Church Ministries</h2>
+        <p class="text-muted mb-0">Manage church ministries and ministry leadership</p>
+    </div>
+    <div class="col-md-4 d-flex justify-content-end">
+        <button class="btn btn-primary btn-lg" id="openAddMinistryModalBtn">
+            <i class="fa fa-plus-circle me-2"></i>Create New Ministry
+        </button>
+    </div>
+</div>
+
+<!-- Tabs Navigation -->
+<ul class="nav nav-tabs mb-4" id="ministryTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="ministries-tab" data-bs-toggle="tab" data-bs-target="#ministries" type="button" role="tab" aria-controls="ministries" aria-selected="true">
+            <i class="fa fa-sitemap me-2"></i>Ministries
+            <span class="badge bg-primary ms-2" id="ministriesCount">@Model.Ministries?.Count</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="ministryLeaders-tab" data-bs-toggle="tab" data-bs-target="#ministryLeaders" type="button" role="tab" aria-controls="ministryLeaders" aria-selected="false">
+            <i class="fa fa-users me-2"></i>Ministry Leaders
+            <span class="badge bg-primary ms-2" id="ministryLeadersCount">@Model.MinistryLeaders?.Count</span>
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="ministryTabsContent">
+
+    <!-- Ministries Tab -->
+    <div class="tab-pane fade show active" id="ministries" role="tabpanel" aria-labelledby="ministries-tab">
+
+        <!-- Quick Stats for Ministries -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4 col-6">
+                <div class="card border-0 shadow-sm stat-card">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-sitemap text-primary fa-2x"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Total Ministries</h6>
+                            <h3 class="fw-bold mb-0" id="totalMinistries">@Model.Ministries?.Count</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-6">
+                <div class="card border-0 shadow-sm stat-card">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-users text-success fa-2x"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Active Leaders</h6>
+                            <h3 class="fw-bold mb-0" id="activeMinistryLeaders">@Model.MinistryLeaders?.Count(l => l.IsActive) ?? 0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-6">
+                <div class="card border-0 shadow-sm stat-card">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-calendar text-info fa-2x"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Recently Added</h6>
+                            <h3 class="fw-bold mb-0" id="recentMinistries">@(Model.Ministries?.OrderByDescending(m => m.CreatedAt).Take(5).Count() ?? 0)</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar for Ministries -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-end-0">
+                                <i class="fa fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0" id="ministrySearch" placeholder="Search ministries...">
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <button class="btn btn-outline-secondary me-2" onclick="clearMinistryFilters()">
+                            <i class="fa fa-times me-1"></i>Clear
+                        </button>
+                        <button class="btn btn-primary" onclick="applyMinistryFilters()">
+                            <i class="fa fa-filter me-1"></i>Apply
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ministries Table -->
+        <div id="ministriesTableContainer">
+            @await Html.PartialAsync("_MinistriesTable", Model.Ministries)
+        </div>
+    </div>
+
+    <!-- Ministry Leaders Tab -->
+    <div class="tab-pane fade" id="ministryLeaders" role="tabpanel" aria-labelledby="ministryLeaders-tab">
+
+        <!-- Quick Stats for Leaders -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm stat-card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Total Leaders</h6>
+                        <h3 class="fw-bold mb-0" id="totalMinistryLeaders">@Model.MinistryLeaders?.Count</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm stat-card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Active</h6>
+                        <h3 class="fw-bold mb-0 text-success" id="activeMinistryLeadersCount">@Model.MinistryLeaders?.Count(l => l.IsActive) ?? 0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm stat-card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Inactive</h6>
+                        <h3 class="fw-bold mb-0 text-secondary" id="inactiveMinistryLeadersCount">@Model.MinistryLeaders?.Count(l => !l.IsActive) ?? 0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm stat-card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Ministries</h6>
+                        <h3 class="fw-bold mb-0" id="totalMinistriesForLeaders">@Model.Ministries?.Count</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaders Table -->
+        <div id="ministryLeadersTableContainer">
+            @await Html.PartialAsync("_MinistryLeadersTable", Model.MinistryLeaders)
+        </div>
+    </div>
+</div>
+
+<!-- Ministry Modal -->
+<div class="modal fade" id="ministryModal" tabindex="-1" aria-labelledby="ministryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ministryModalLabel">
+                    <i class="fa fa-sitemap me-2"></i>
+                    <span id="modalTitleMinistry">Add New Ministry</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="ministryModalBody">
+                <form id="ministryForm">
+                    <div class="mb-3">
+                        <label for="ministryName" class="form-label">Ministry Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="ministryName" name="MinistryName" placeholder="Enter ministry name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ministryDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="ministryDescription" name="Description" rows="3" placeholder="Optional description"></textarea>
+                    </div>
+                </form>
+                <div class="text-center p-4 d-none" id="ministryLoading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitMinistryForm()" id="saveMinistryBtn">
+                    <i class="fa fa-save me-1"></i>Save Ministry
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let ministries = [];
+        let ministryLeaders = [];
+
+        $(document).ready(function () {
+            // Load data and initialize tables
+            loadMinistryData();
+            initializeMinistryTables();
+            setupMinistryEventHandlers();
+
+            $('#ministryTabs button').on('shown.bs.tab', function (e) {
+                const tabId = $(e.target).attr('id');
+                if (tabId === 'ministryLeaders-tab') {
+                    if ($.fn.DataTable.isDataTable('#ministryLeadersTable')) {
+                        $('#ministryLeadersTable').DataTable().columns.adjust().draw();
+                    }
+                } else if (tabId === 'ministries-tab') {
+                    if ($.fn.DataTable.isDataTable('#ministriesTable')) {
+                        $('#ministriesTable').DataTable().columns.adjust().draw();
+                    }
+                }
+            });
+        });
+
+        function setupMinistryEventHandlers() {
+            $('#openAddMinistryModalBtn').on('click', function (e) {
+                e.preventDefault();
+                $('#ministryModal').modal('show');
+                $('#ministryForm')[0].reset();
+                $('#ministryLoading').addClass('d-none');
+                $('#saveMinistryBtn').prop('disabled', false);
+                $('#modalTitleMinistry').text('Add New Ministry');
+            });
+        }
+
+        function initializeMinistryTables() {
+            if ($.fn.DataTable.isDataTable('#ministriesTable')) {
+                $('#ministriesTable').DataTable().destroy();
+            }
+
+            $('#ministriesTable').DataTable({
+                pageLength: 10,
+                language: {
+                    search: "Search ministries:",
+                    lengthMenu: "Show _MENU_ ministries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ ministries",
+                    emptyTable: "No ministries available"
+                },
+                columnDefs: [
+                    { targets: -1, orderable: false, searchable: false }
+                ]
+            });
+
+            if ($.fn.DataTable.isDataTable('#ministryLeadersTable')) {
+                $('#ministryLeadersTable').DataTable().destroy();
+            }
+
+            $('#ministryLeadersTable').DataTable({
+                pageLength: 10,
+                language: {
+                    search: "Search leaders:",
+                    lengthMenu: "Show _MENU_ leaders",
+                    info: "Showing _START_ to _END_ of _TOTAL_ leaders",
+                    emptyTable: "No ministry leaders found"
+                },
+                columnDefs: [
+                    { targets: -1, orderable: false, searchable: false }
+                ]
+            });
+        }
+
+        function applyMinistryFilters() {
+            const search = $('#ministrySearch').val();
+            const table = $('#ministriesTable').DataTable();
+            table.search(search).draw();
+        }
+
+        function clearMinistryFilters() {
+            $('#ministrySearch').val('');
+            const table = $('#ministriesTable').DataTable();
+            table.search('').draw();
+        }
+
+        function submitMinistryForm(e) {
+            if (e) e.preventDefault();
+            const form = document.getElementById('ministryForm');
+            if (!form.checkValidity()) { form.reportValidity(); return; }
+
+            const dto = {
+                MinistryName: $('#ministryName').val()?.trim() || "",
+                Description: $('#ministryDescription').val()?.trim() || null
+            };
+
+            $('#saveMinistryBtn').prop('disabled', true);
+            $('#ministryLoading').removeClass('d-none');
+
+            $.ajax({
+                url: '/Ministries/SubmitNewMinistry',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify(dto),
+                success: function (response) {
+                    $('#ministryLoading').addClass('d-none');
+                    $('#saveMinistryBtn').prop('disabled', false);
+
+                    if (response.isSuccess) {
+                        Swal.fire({ icon: 'success', title: 'Success', text: 'Ministry created successfully!' })
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', response.message || 'Failed to create ministry.', 'error');
+                    }
+                },
+                error: function (xhr) {
+                    $('#ministryLoading').addClass('d-none');
+                    $('#saveMinistryBtn').prop('disabled', false);
+                    let message = "An unexpected error occurred.";
+                    if (xhr.responseJSON && xhr.responseJSON.message) { message = xhr.responseJSON.message; }
+                    Swal.fire('Error', message, 'error');
+                }
+            });
+        }
+    </script>
+
+    <style>
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important;
+            }
+
+        .nav-tabs .nav-link {
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+        }
+
+            .nav-tabs .nav-link.active {
+                border-bottom: 3px solid #0d6efd;
+            }
+
+        .badge {
+            font-size: 0.75rem;
+        }
+    </style>
+}

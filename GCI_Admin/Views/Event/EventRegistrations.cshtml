@@ -4,8 +4,1131 @@
     ViewData["Title"] = "Event Registrations";
 }
 
-<h1 class="mb-4">@ViewData["Title"]</h1>
+<!-- Page Header with Stats -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Event Registrations</h2>
+        <p class="text-muted mb-0">View and manage all event registrations from the database</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-outline-primary me-2" onclick="refreshData()">
+            <i class="fa fa-sync-alt me-2"></i>Refresh
+        </button>
+        <button class="btn btn-success" onclick="exportRegistrations()">
+            <i class="fa fa-file-excel me-2"></i>Export to Excel
+        </button>
+    </div>
+</div>
 
-<div id="event-registrations">
+<!-- Quick Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card" onclick="filterByStatus('all')">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-users text-primary fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Registrations</h6>
+                        <h3 class="fw-bold mb-0" id="totalRegistrations">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card" onclick="filterByStatus('unread')">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-envelope text-warning fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Unread</h6>
+                        <h3 class="fw-bold mb-0" id="unreadRegistrations">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card" onclick="filterByStatus('read')">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-envelope-open text-success fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Read</h6>
+                        <h3 class="fw-bold mb-0" id="readRegistrations">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card" onclick="filterByStatus('recent')">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-clock text-info fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Last 7 Days</h6>
+                        <h3 class="fw-bold mb-0" id="recentRegistrations">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0">
+                        <i class="fa fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" id="registrationSearch" placeholder="Search by name, email, event...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="eventFilter">
+                    <option value="">All Events</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="readStatusFilter">
+                    <option value="">All Status</option>
+                    <option value="unread">Unread</option>
+                    <option value="read">Read</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="paymentFilter">
+                    <option value="">Payment Status</option>
+                    <option value="paid">Paid</option>
+                    <option value="unpaid">Unpaid</option>
+                    <option value="partial">Partial</option>
+                </select>
+            </div>
+            <div class="col-md-3 text-end">
+                <button class="btn btn-outline-secondary me-2" onclick="clearFilters()">
+                    <i class="fa fa-times me-1"></i>Clear
+                </button>
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fa fa-filter me-1"></i>Apply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Actions Bar -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="btn-group" role="group">
+        <button class="btn btn-outline-secondary" onclick="markSelectedAsRead()" id="markReadBtn" disabled>
+            <i class="fa fa-envelope-open me-1"></i>Mark as Read
+        </button>
+        <button class="btn btn-outline-secondary" onclick="markSelectedAsUnread()" id="markUnreadBtn" disabled>
+            <i class="fa fa-envelope me-1"></i>Mark as Unread
+        </button>
+        <button class="btn btn-outline-secondary" onclick="exportSelected()" id="exportSelectedBtn" disabled>
+            <i class="fa fa-file-excel me-1"></i>Export Selected
+        </button>
+    </div>
+    <div>
+        <span class="text-muted me-3" id="selectedCount">0 selected</span>
+        <button class="btn btn-outline-primary" onclick="toggleView('table')">
+            <i class="fa fa-table me-1"></i>Table
+        </button>
+        <button class="btn btn-outline-primary" onclick="toggleView('grid')">
+            <i class="fa fa-th me-1"></i>Grid
+        </button>
+        <button class="btn btn-outline-primary" onclick="toggleView('details')">
+            <i class="fa fa-list me-1"></i>Details
+        </button>
+    </div>
+</div>
+
+<!-- Registrations Container -->
+<div id="registrationsTableContainer">
     @await Html.PartialAsync("_EventRegistrationsTable", Model)
 </div>
+
+<!-- Grid View (Hidden by default) -->
+<div id="gridView" style="display: none;">
+    <div class="row g-4" id="registrationsGrid"></div>
+</div>
+
+<!-- Details View (Hidden by default) -->
+<div id="detailsView" style="display: none;">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="detailsTable">
+                    <thead>
+                        <tr>
+                            <th width="40px">
+                                <input type="checkbox" id="selectAllDetails" onchange="toggleAllDetails()">
+                            </th>
+                            <th>Event</th>
+                            <th>Registrant</th>
+                            <th>Contact</th>
+                            <th>Registered On</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Registration Details Modal -->
+<div class="modal fade" id="registrationModal" tabindex="-1" aria-labelledby="registrationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registrationModalLabel">
+                    <i class="fa fa-user me-2"></i>Registration Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Registration ID</label>
+                            <p class="fw-bold" id="modalRegistrationId"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Event</label>
+                            <p class="fw-bold" id="modalEventName"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Full Name</label>
+                            <p class="fw-bold" id="modalFullName"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Email</label>
+                            <p id="modalEmail"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Phone</label>
+                            <p id="modalPhone"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Registration Date</label>
+                            <p id="modalRegistrationDate"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Read Status</label>
+                            <p id="modalReadStatus"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Payment Status</label>
+                            <p id="modalPaymentStatus"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Amount</label>
+                            <p id="modalAmount"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Number of Guests</label>
+                            <p id="modalGuests"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Special Requirements</label>
+                    <p id="modalRequirements" class="border rounded p-3 bg-light"></p>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <h6>Actions</h6>
+                        <button class="btn btn-outline-warning btn-sm me-2" onclick="toggleReadFromModal()" id="modalToggleReadBtn">
+                            <i class="fa fa-envelope me-1"></i>Toggle Read Status
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" onclick="sendEmailFromModal()">
+                            <i class="fa fa-envelope me-1"></i>Send Email
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Toast Notification -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fa fa-check-circle me-2"></i>
+                <span id="toastMessage">Operation completed successfully</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- SheetJS for Excel handling -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+    <!-- SweetAlert2 for better confirmations -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Moment.js for date handling -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+    <style>
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important;
+            }
+
+        .registration-card {
+            transition: all 0.3s;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+            .registration-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            }
+
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .btn-group .btn.active {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+
+        .unread-row {
+            background-color: rgba(255, 193, 7, 0.05);
+            font-weight: 500;
+        }
+
+        .unread-indicator {
+            width: 10px;
+            height: 10px;
+            background-color: #ffc107;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+            .action-btn:hover {
+                transform: translateY(-2px);
+            }
+
+        #detailsTable tbody tr {
+            cursor: pointer;
+        }
+
+            #detailsTable tbody tr:hover {
+                background-color: rgba(13, 110, 253, 0.05);
+            }
+
+        .bulk-checkbox {
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        // Global variables
+        let currentView = 'table';
+        let registrations = @Html.Raw(Json.Serialize(Model));
+        let events = [];
+        let selectedIds = new Set();
+
+        $(document).ready(function() {
+            loadEvents();
+            updateStats();
+            initializeDataTable();
+            populateEventFilter();
+
+            // Check for success message from TempData
+            @if (TempData["SuccessMessage"] != null)
+            {
+                    <text>
+                    showToast('@TempData["SuccessMessage"]', 'success');
+                    </text>
+            }
+        });
+
+        // Load events for filter
+        function loadEvents() {
+            $.get('@Url.Action("GetEvents", "Event")', function(data) {
+                events = data;
+                populateEventFilter();
+            }).fail(function() {
+                console.error('Failed to load events');
+            });
+        }
+
+        // Populate event filter dropdown
+        function populateEventFilter() {
+            const select = $('#eventFilter');
+            const currentValue = select.val();
+
+            select.empty().append('<option value="">All Events</option>');
+
+            events.forEach(event => {
+                select.append(`<option value="${event.eventId}">${escapeHtml(event.title)}</option>`);
+            });
+
+            if (currentValue) {
+                select.val(currentValue);
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = registrations.length;
+            const unread = registrations.filter(r => !r.isRead).length;
+            const read = registrations.filter(r => r.isRead).length;
+
+            const sevenDaysAgo = moment().subtract(7, 'days').toDate();
+            const recent = registrations.filter(r => new Date(r.registrationDate) >= sevenDaysAgo).length;
+
+            $('#totalRegistrations').text(total);
+            $('#unreadRegistrations').text(unread);
+            $('#readRegistrations').text(read);
+            $('#recentRegistrations').text(recent);
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = $('#successToast');
+            toast.removeClass('bg-success bg-danger bg-warning');
+
+            if (type === 'success') {
+                toast.addClass('bg-success');
+            } else if (type === 'error') {
+                toast.addClass('bg-danger');
+            } else if (type === 'warning') {
+                toast.addClass('bg-warning');
+            }
+
+            $('#toastMessage').text(message);
+            const bsToast = new bootstrap.Toast(toast[0], { delay: 3000 });
+            bsToast.show();
+        }
+
+        // Refresh data from server
+        function refreshData() {
+            Swal.fire({
+                title: 'Refreshing...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.get('@Url.Action("GetRegistrations", "Event")', function(data) {
+                registrations = data;
+                updateStats();
+
+                if (currentView === 'table') {
+                    reloadRegistrationsTable();
+                } else if (currentView === 'grid') {
+                    renderGridView();
+                } else if (currentView === 'details') {
+                    renderDetailsView();
+                }
+
+                Swal.close();
+                showToast('Data refreshed successfully');
+            }).fail(function() {
+                Swal.close();
+                showToast('Failed to refresh data', 'error');
+            });
+        }
+
+        // Toggle between views
+        function toggleView(view) {
+            currentView = view;
+
+            // Update button states
+            $('.btn-group .btn').removeClass('active');
+            $(`.btn-group .btn:contains('${view.charAt(0).toUpperCase() + view.slice(1)}')`).addClass('active');
+
+            // Hide all views
+            $('#registrationsTableContainer').hide();
+            $('#gridView').hide();
+            $('#detailsView').hide();
+
+            // Show selected view
+            if (view === 'table') {
+                $('#registrationsTableContainer').show();
+                reloadRegistrationsTable();
+            } else if (view === 'grid') {
+                $('#gridView').show();
+                renderGridView();
+            } else if (view === 'details') {
+                $('#detailsView').show();
+                renderDetailsView();
+            }
+        }
+
+        // Render grid view
+        function renderGridView() {
+            const grid = $('#registrationsGrid');
+            grid.empty();
+
+            if (registrations.length === 0) {
+                grid.html(`
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="fa fa-users-slash fa-4x text-muted mb-3"></i>
+                            <h5>No Registrations Found</h5>
+                            <p class="text-muted">No registrations match your criteria</p>
+                        </div>
+                    </div>
+                `);
+                return;
+            }
+
+            registrations.forEach(reg => {
+                const regDate = moment(reg.registrationDate);
+                const event = events.find(e => e.eventId === reg.eventId) || { title: 'Unknown Event' };
+
+                const isUnread = !reg.isRead;
+
+                grid.append(`
+                    <div class="col-md-4">
+                        <div class="card registration-card border-0 shadow-sm h-100 ${isUnread ? 'border-warning border-start border-4' : ''}">
+                            <div class="card-body">
+                                ${isUnread ? '<div class="status-badge"><span class="badge bg-warning">New</span></div>' : ''}
+
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                                            <i class="fa fa-user text-primary fa-2x"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="card-title mb-1">${escapeHtml(reg.firstName)} ${escapeHtml(reg.lastName)}</h5>
+                                        <p class="text-muted small mb-0">
+                                            <i class="fa fa-calendar me-1"></i>${escapeHtml(event.title)}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <p class="small text-muted mb-2">
+                                        <i class="fa fa-envelope me-2"></i>${escapeHtml(reg.email || 'N/A')}<br>
+                                        <i class="fa fa-phone me-2"></i>${escapeHtml(reg.phone || 'N/A')}<br>
+                                        <i class="fa fa-calendar-day me-2"></i>Registered: ${regDate.format('MMM D, YYYY')}
+                                    </p>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge ${reg.isRead ? 'bg-secondary' : 'bg-warning'}">
+                                            <i class="fa ${reg.isRead ? 'fa-envelope-open' : 'fa-envelope'} me-1"></i>
+                                            ${reg.isRead ? 'Read' : 'Unread'}
+                                        </span>
+                                        <span class="badge ${reg.paymentStatus === 'Paid' ? 'bg-success' : reg.paymentStatus === 'Partial' ? 'bg-warning' : 'bg-danger'}">
+                                            ${escapeHtml(reg.paymentStatus || 'Unpaid')}
+                                        </span>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between small">
+                                        <span>Amount: $${(reg.amount || 0).toFixed(2)}</span>
+                                        <span>Paid: $${(reg.amountPaid || 0).toFixed(2)}</span>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input bulk-checkbox" type="checkbox" value="${reg.registrationId}" onchange="toggleSelection(${reg.registrationId}, this.checked)">
+                                    </div>
+                                    <div>
+                                        <button class="action-btn btn btn-sm btn-outline-info me-1" onclick="viewRegistration(${reg.registrationId})" title="View Details">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn btn btn-sm btn-outline-warning me-1" onclick="toggleReadStatus(${reg.registrationId})" title="Toggle Read Status">
+                                            <i class="fa ${reg.isRead ? 'fa-envelope' : 'fa-envelope-open'}"></i>
+                                        </button>
+                                        <button class="action-btn btn btn-sm btn-outline-primary" onclick="sendEmail(${reg.registrationId}, '${escapeHtml(reg.email)}')" title="Send Email">
+                                            <i class="fa fa-envelope"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            });
+        }
+
+        // Render details view
+        function renderDetailsView() {
+            const tbody = $('#detailsTableBody');
+            tbody.empty();
+
+            if (registrations.length === 0) {
+                tbody.html(`
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <i class="fa fa-users-slash fa-3x text-muted mb-3"></i>
+                            <h5>No Registrations Found</h5>
+                        </td>
+                    </tr>
+                `);
+                return;
+            }
+
+            registrations.forEach(reg => {
+                const event = events.find(e => e.eventId === reg.eventId) || { title: 'Unknown Event' };
+                const regDate = moment(reg.registrationDate).format('MMM D, YYYY h:mm A');
+                const isUnread = !reg.isRead;
+
+                tbody.append(`
+                    <tr class="${isUnread ? 'unread-row' : ''}" onclick="viewRegistration(${reg.registrationId})">
+                        <td onclick="event.stopPropagation()">
+                            <input type="checkbox" class="bulk-checkbox" value="${reg.registrationId}" onchange="toggleSelection(${reg.registrationId}, this.checked)">
+                        </td>
+                        <td>
+                            ${isUnread ? '<span class="unread-indicator"></span>' : ''}
+                            ${escapeHtml(event.title)}
+                        </td>
+                        <td><strong>${escapeHtml(reg.firstName)} ${escapeHtml(reg.lastName)}</strong></td>
+                        <td>
+                            ${escapeHtml(reg.email || '')}<br>
+                            <small class="text-muted">${escapeHtml(reg.phone || '')}</small>
+                        </td>
+                        <td>${regDate}</td>
+                        <td>
+                            <span class="badge ${reg.isRead ? 'bg-secondary' : 'bg-warning'}">
+                                ${reg.isRead ? 'Read' : 'Unread'}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge ${reg.paymentStatus === 'Paid' ? 'bg-success' : reg.paymentStatus === 'Partial' ? 'bg-warning' : 'bg-danger'}">
+                                ${escapeHtml(reg.paymentStatus || 'Unpaid')}
+                            </span>
+                        </td>
+                        <td onclick="event.stopPropagation()">
+                            <button class="action-btn btn btn-sm btn-outline-info" onclick="viewRegistration(${reg.registrationId})" title="View Details">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                            <button class="action-btn btn btn-sm btn-outline-warning" onclick="toggleReadStatus(${reg.registrationId})" title="Toggle Read Status">
+                                <i class="fa ${reg.isRead ? 'fa-envelope' : 'fa-envelope-open'}"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+
+        // View registration details in modal
+        function viewRegistration(id) {
+            const reg = registrations.find(r => r.registrationId === id);
+            if (!reg) return;
+
+            const event = events.find(e => e.eventId === reg.eventId) || { title: 'Unknown Event' };
+
+            $('#modalRegistrationId').text(reg.registrationId);
+            $('#modalEventName').text(event.title);
+            $('#modalFullName').text(`${reg.firstName} ${reg.lastName}`);
+            $('#modalEmail').text(reg.email || 'N/A');
+            $('#modalPhone').text(reg.phone || 'N/A');
+            $('#modalRegistrationDate').text(moment(reg.registrationDate).format('MMMM D, YYYY h:mm A'));
+
+            const readStatus = reg.isRead ?
+                '<span class="badge bg-secondary">Read</span>' :
+                '<span class="badge bg-warning">Unread</span>';
+            $('#modalReadStatus').html(readStatus);
+
+            const paymentStatus = reg.paymentStatus || 'Unpaid';
+            const paymentClass = paymentStatus === 'Paid' ? 'success' : paymentStatus === 'Partial' ? 'warning' : 'danger';
+            $('#modalPaymentStatus').html(`<span class="badge bg-${paymentClass}">${paymentStatus}</span>`);
+
+            $('#modalAmount').text(`$${(reg.amount || 0).toFixed(2)} (Paid: $${(reg.amountPaid || 0).toFixed(2)})`);
+            $('#modalGuests').text(reg.numberOfGuests || '0');
+            $('#modalRequirements').text(reg.specialRequirements || 'No special requirements');
+
+            // Store current ID for modal actions
+            $('#modalToggleReadBtn').data('id', id);
+            $('#modalToggleReadBtn').data('isRead', reg.isRead);
+
+            $('#registrationModal').modal('show');
+        }
+
+        // Toggle read status from modal
+        function toggleReadFromModal() {
+            const id = $('#modalToggleReadBtn').data('id');
+            toggleReadStatus(id, true);
+        }
+
+        // Toggle read status
+        function toggleReadStatus(id, closeModal = false) {
+            const reg = registrations.find(r => r.registrationId === id);
+            if (!reg) return;
+
+            const newStatus = !reg.isRead;
+
+            Swal.fire({
+                title: 'Updating...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("ToggleRegistrationReadStatus", "Event")',
+                type: 'POST',
+                data: { registrationId: id, isRead: newStatus },
+                success: function(response) {
+                    // Update local data
+                    reg.isRead = newStatus;
+                    updateStats();
+
+                    // Refresh current view
+                    if (currentView === 'table') {
+                        reloadRegistrationsTable();
+                    } else if (currentView === 'grid') {
+                        renderGridView();
+                    } else if (currentView === 'details') {
+                        renderDetailsView();
+                    }
+
+                    if (closeModal) {
+                        $('#registrationModal').modal('hide');
+                    }
+
+                    Swal.close();
+                    showToast(`Registration marked as ${newStatus ? 'read' : 'unread'}`);
+                },
+                error: function(xhr) {
+                    Swal.close();
+                    showToast('Failed to update status', 'error');
+                }
+            });
+        }
+
+        // Toggle selection for bulk actions
+        function toggleSelection(id, selected) {
+            if (selected) {
+                selectedIds.add(id);
+            } else {
+                selectedIds.delete(id);
+            }
+            updateBulkActionButtons();
+        }
+
+        // Toggle all in details view
+        function toggleAllDetails() {
+            const checkboxes = $('#detailsTableBody .bulk-checkbox');
+            const allChecked = $('#selectAllDetails').is(':checked');
+
+            checkboxes.each(function() {
+                $(this).prop('checked', allChecked);
+                const id = parseInt($(this).val());
+                toggleSelection(id, allChecked);
+            });
+        }
+
+        // Update bulk action buttons state
+        function updateBulkActionButtons() {
+            const count = selectedIds.size;
+            $('#selectedCount').text(count + ' selected');
+
+            $('#markReadBtn, #markUnreadBtn, #exportSelectedBtn').prop('disabled', count === 0);
+        }
+
+        // Mark selected as read
+        function markSelectedAsRead() {
+            if (selectedIds.size === 0) return;
+
+            Swal.fire({
+                title: 'Mark as Read',
+                text: `Mark ${selectedIds.size} registration(s) as read?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, mark as read'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    updateBulkReadStatus(Array.from(selectedIds), true);
+                }
+            });
+        }
+
+        // Mark selected as unread
+        function markSelectedAsUnread() {
+            if (selectedIds.size === 0) return;
+
+            Swal.fire({
+                title: 'Mark as Unread',
+                text: `Mark ${selectedIds.size} registration(s) as unread?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, mark as unread'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    updateBulkReadStatus(Array.from(selectedIds), false);
+                }
+            });
+        }
+
+        // Update bulk read status
+        function updateBulkReadStatus(ids, isRead) {
+            Swal.fire({
+                title: 'Updating...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("BulkUpdateRegistrationReadStatus", "Event")',
+                type: 'POST',
+                data: {
+                    registrationIds: ids,
+                    isRead: isRead
+                },
+                traditional: true,
+                success: function(response) {
+                    // Update local data
+                    registrations.forEach(reg => {
+                        if (ids.includes(reg.registrationId)) {
+                            reg.isRead = isRead;
+                        }
+                    });
+
+                    updateStats();
+
+                    // Refresh current view
+                    if (currentView === 'table') {
+                        reloadRegistrationsTable();
+                    } else if (currentView === 'grid') {
+                        renderGridView();
+                    } else if (currentView === 'details') {
+                        renderDetailsView();
+                    }
+
+                    // Clear selections
+                    selectedIds.clear();
+                    updateBulkActionButtons();
+                    $('#selectAllDetails').prop('checked', false);
+
+                    Swal.close();
+                    showToast(`Updated ${ids.length} registration(s)`);
+                },
+                error: function(xhr) {
+                    Swal.close();
+                    showToast('Failed to update registrations', 'error');
+                }
+            });
+        }
+
+        // Send email to registrant
+        function sendEmail(id, email) {
+            if (!email || email === 'N/A') {
+                showToast('No email address available', 'warning');
+                return;
+            }
+
+            window.location.href = `mailto:${email}`;
+        }
+
+        // Send email from modal
+        function sendEmailFromModal() {
+            const email = $('#modalEmail').text();
+            if (email && email !== 'N/A') {
+                window.location.href = `mailto:${email}`;
+            } else {
+                showToast('No email address available', 'warning');
+            }
+        }
+
+        // Filter by status (called from stat cards)
+        function filterByStatus(type) {
+            $('#readStatusFilter').val('');
+
+            if (type === 'unread') {
+                $('#readStatusFilter').val('unread');
+            } else if (type === 'read') {
+                $('#readStatusFilter').val('read');
+            } else if (type === 'recent') {
+                // Handle recent filter - this would need custom implementation
+                showToast('Recent filter applied', 'info');
+            }
+
+            applyFilters();
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const search = $('#registrationSearch').val().toLowerCase();
+            const eventId = $('#eventFilter').val();
+            const readStatus = $('#readStatusFilter').val();
+            const paymentStatus = $('#paymentFilter').val();
+
+            // Filter the data
+            const filtered = registrations.filter(reg => {
+                let matches = true;
+
+                if (search) {
+                    const event = events.find(e => e.eventId === reg.eventId) || { title: '' };
+                    matches = matches && (
+                        (reg.firstName && reg.firstName.toLowerCase().includes(search)) ||
+                        (reg.lastName && reg.lastName.toLowerCase().includes(search)) ||
+                        (reg.email && reg.email.toLowerCase().includes(search)) ||
+                        (event.title && event.title.toLowerCase().includes(search))
+                    );
+                }
+
+                if (eventId) {
+                    matches = matches && reg.eventId == eventId;
+                }
+
+                if (readStatus) {
+                    if (readStatus === 'read') {
+                        matches = matches && reg.isRead === true;
+                    } else if (readStatus === 'unread') {
+                        matches = matches && reg.isRead === false;
+                    }
+                }
+
+                if (paymentStatus) {
+                    const regPayment = (reg.paymentStatus || 'unpaid').toLowerCase();
+                    matches = matches && regPayment === paymentStatus.toLowerCase();
+                }
+
+                return matches;
+            });
+
+            // Update current view with filtered data
+            if (currentView === 'table') {
+                // For table view, we'll use DataTable search
+                const table = $('#registrationsTable').DataTable();
+                table.search(search).draw();
+            } else if (currentView === 'grid') {
+                renderFilteredGridView(filtered);
+            } else if (currentView === 'details') {
+                renderFilteredDetailsView(filtered);
+            }
+        }
+
+        // Render filtered grid view
+        function renderFilteredGridView(filteredRegistrations) {
+            const original = registrations;
+            registrations = filteredRegistrations;
+            renderGridView();
+            registrations = original;
+        }
+
+        // Render filtered details view
+        function renderFilteredDetailsView(filteredRegistrations) {
+            const original = registrations;
+            registrations = filteredRegistrations;
+            renderDetailsView();
+            registrations = original;
+        }
+
+        // Clear filters
+        function clearFilters() {
+            $('#registrationSearch').val('');
+            $('#eventFilter').val('');
+            $('#readStatusFilter').val('');
+            $('#paymentFilter').val('');
+
+            if (currentView === 'table') {
+                const table = $('#registrationsTable').DataTable();
+                table.search('').columns().search('').draw();
+            } else if (currentView === 'grid') {
+                renderGridView();
+            } else if (currentView === 'details') {
+                renderDetailsView();
+            }
+        }
+
+        // Export registrations to Excel
+        function exportRegistrations() {
+            exportData(registrations);
+        }
+
+        // Export selected registrations
+        function exportSelected() {
+            if (selectedIds.size === 0) {
+                showToast('No items selected', 'warning');
+                return;
+            }
+
+            const selected = registrations.filter(r => selectedIds.has(r.registrationId));
+            exportData(selected);
+        }
+
+        // Export data to Excel
+        function exportData(data) {
+            const exportData = data.map(reg => {
+                const event = events.find(e => e.eventId === reg.eventId) || { title: 'Unknown' };
+
+                return {
+                    'Registration ID': reg.registrationId,
+                    'Event': event.title,
+                    'First Name': reg.firstName,
+                    'Last Name': reg.lastName,
+                    'Email': reg.email,
+                    'Phone': reg.phone,
+                    'Registration Date': moment(reg.registrationDate).format('YYYY-MM-DD HH:mm:ss'),
+                    'Read Status': reg.isRead ? 'Read' : 'Unread',
+                    'Payment Status': reg.paymentStatus || 'Unpaid',
+                    'Amount': reg.amount || 0,
+                    'Amount Paid': reg.amountPaid || 0,
+                    'Balance': (reg.amount || 0) - (reg.amountPaid || 0),
+                    'Guests': reg.numberOfGuests || 0,
+                    'Special Requirements': reg.specialRequirements || ''
+                };
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(exportData);
+
+            // Set column widths
+            ws['!cols'] = [
+                { wch: 15 },  // Registration ID
+                { wch: 30 },  // Event
+                { wch: 15 },  // First Name
+                { wch: 15 },  // Last Name
+                { wch: 30 },  // Email
+                { wch: 20 },  // Phone
+                { wch: 20 },  // Registration Date
+                { wch: 12 },  // Read Status
+                { wch: 15 },  // Payment Status
+                { wch: 10 },  // Amount
+                { wch: 12 },  // Amount Paid
+                { wch: 10 },  // Balance
+                { wch: 8 },   // Guests
+                { wch: 40 }   // Special Requirements
+            ];
+
+            XLSX.utils.book_append_sheet(wb, ws, 'Registrations');
+            XLSX.writeFile(wb, `Registrations_Export_${moment().format('YYYY-MM-DD')}.xlsx`);
+
+            showToast('Registrations exported successfully');
+        }
+
+        // Reload registrations table
+        function reloadRegistrationsTable() {
+            $('#registrationsTableContainer').load('@Url.Action("RegistrationsTable", "Event")', function() {
+                initializeDataTable();
+            });
+        }
+
+        // Initialize DataTable
+        function initializeDataTable() {
+            if ($.fn.DataTable.isDataTable('#registrationsTable')) {
+                $('#registrationsTable').DataTable().destroy();
+            }
+
+            $('#registrationsTable').DataTable({
+                pageLength: 10,
+                language: {
+                    search: "Search registrations:",
+                    lengthMenu: "Show _MENU_ registrations",
+                    info: "Showing _START_ to _END_ of _TOTAL_ registrations",
+                    emptyTable: "No registrations available",
+                    zeroRecords: "No matching registrations found"
+                },
+                columnDefs: [
+                    {
+                        targets: -1,
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                rowCallback: function(row, data) {
+                    // Check if this row is unread and add class
+                    const isRead = data[5] && data[5].includes('Read') ? true : false;
+                    if (!isRead) {
+                        $(row).addClass('unread-row');
+                    }
+                },
+                initComplete: function() {
+                    $('#registrationsTable .btn-group .btn').addClass('action-btn');
+                }
+            });
+        }
+
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(text));
+            return div.innerHTML;
+        }
+
+        // Expose functions to global scope
+        window.refreshData = refreshData;
+        window.toggleView = toggleView;
+        window.viewRegistration = viewRegistration;
+        window.toggleReadStatus = toggleReadStatus;
+        window.toggleReadFromModal = toggleReadFromModal;
+        window.sendEmail = sendEmail;
+        window.sendEmailFromModal = sendEmailFromModal;
+        window.filterByStatus = filterByStatus;
+        window.applyFilters = applyFilters;
+        window.clearFilters = clearFilters;
+        window.exportRegistrations = exportRegistrations;
+        window.exportSelected = exportSelected;
+        window.markSelectedAsRead = markSelectedAsRead;
+        window.markSelectedAsUnread = markSelectedAsUnread;
+        window.toggleSelection = toggleSelection;
+        window.toggleAllDetails = toggleAllDetails;
+    </script>
+}

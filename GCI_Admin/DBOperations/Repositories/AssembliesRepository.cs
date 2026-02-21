@@ -182,5 +182,52 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+
+        public async Task<DbResponse<List<AssemblyLeader>>> GetAssemblyLeadersAsync()
+        {
+            try
+            {
+                if (_context == null)
+                {
+                    return new DbResponse<List<AssemblyLeader>>
+                    {
+                        Success = false,
+                        Message = "Database context is not initialized"
+                    };
+                }
+
+                var leaders = await _context.AssembliesLeaders
+                    .AsNoTracking()
+                    .Where(l => l.IsActive)  
+                    .Include(l => l.Member)   
+                    .Include(l => l.Assembly) 
+                    .OrderByDescending(l => l.StartDate)
+                    .ToListAsync();
+
+                return new DbResponse<List<AssemblyLeader>>
+                {
+                    Success = true,
+                    Data = leaders
+                };
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("closed"))
+            {
+                Loggers.DoLogs(ex.Message);
+                return new DbResponse<List<AssemblyLeader>>
+                {
+                    Success = false,
+                    Message = "Database connection was closed. Please try again."
+                };
+            }
+            catch (Exception ex)
+            {
+                //Loggers.DoLogs()
+                return new DbResponse<List<AssemblyLeader>>
+                {
+                    Success = false,
+                    Message = $"Error fetching assembly leaders: {ex.Message}"
+                };
+            }
+        }
     }
 }

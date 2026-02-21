@@ -1,0 +1,273 @@
+﻿@model GCI_Admin.Models.GrowthCentersData
+
+@{
+    ViewData["Title"] = "Growth Centers Management";
+}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Growth Centers</h2>
+        <p class="text-muted mb-0">Manage growth centers and their leadership</p>
+    </div>
+    <div class="col-md-4 d-flex justify-content-end">
+        <button class="btn btn-primary btn-lg" id="openAddCenterModalBtn">
+            <i class="fa fa-plus-circle me-2"></i>Create New Center
+        </button>
+    </div>
+</div>
+
+<!-- Tabs Navigation -->
+<ul class="nav nav-tabs mb-4" id="growthCenterTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="centers-tab" data-bs-toggle="tab" data-bs-target="#centers" type="button" role="tab" aria-controls="centers" aria-selected="true">
+            <i class="fa fa-building me-2"></i>Growth Centers
+            <span class="badge bg-primary ms-2" id="centersCount">@Model.GrowthCenters?.Count</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="centerLeaders-tab" data-bs-toggle="tab" data-bs-target="#centerLeaders" type="button" role="tab" aria-controls="centerLeaders" aria-selected="false">
+            <i class="fa fa-users me-2"></i>Center Leaders
+            <span class="badge bg-primary ms-2" id="centerLeadersCount">@Model.GrowthCenterLeaders?.Count</span>
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="growthCenterTabsContent">
+
+    <!-- Growth Centers Tab -->
+    <div class="tab-pane fade show active" id="centers" role="tabpanel" aria-labelledby="centers-tab">
+
+        <!-- Quick Stats for Centers -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4 col-6">
+                <div class="card border-0 shadow-sm stat-card">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-building text-primary fa-2x"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Total Centers</h6>
+                            <h3 class="fw-bold mb-0">@Model.GrowthCenters?.Count</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-6">
+                <div class="card border-0 shadow-sm stat-card">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-users text-success fa-2x"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Active Leaders</h6>
+                            <h3 class="fw-bold mb-0">@Model.GrowthCenterLeaders?.Count(l => l.IsActive) ?? 0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-6">
+                <div class="card border-0 shadow-sm stat-card">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-calendar text-info fa-2x"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="text-muted mb-1">Recently Added</h6>
+                            <h3 class="fw-bold mb-0">@(Model.GrowthCenters?.OrderByDescending(c => c.CreatedAt).Take(5).Count() ?? 0)</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar for Centers -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-end-0">
+                                <i class="fa fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0" id="centerSearch" placeholder="Search centers...">
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <button class="btn btn-outline-secondary me-2" onclick="clearCenterFilters()">
+                            <i class="fa fa-times me-1"></i>Clear
+                        </button>
+                        <button class="btn btn-primary" onclick="applyCenterFilters()">
+                            <i class="fa fa-filter me-1"></i>Apply
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Growth Centers Table -->
+        <div id="centersTableContainer">
+            @await Html.PartialAsync("_GrowthCentersTable", Model.GrowthCenters)
+        </div>
+    </div>
+
+    <!-- Growth Center Leaders Tab -->
+    <div class="tab-pane fade" id="centerLeaders" role="tabpanel" aria-labelledby="centerLeaders-tab">
+
+        <!-- Quick Stats for Leaders -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm stat-card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Total Leaders</h6>
+                        <h3 class="fw-bold mb-0">@Model.GrowthCenterLeaders?.Count</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm stat-card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Active</h6>
+                        <h3 class="fw-bold mb-0 text-success">@Model.GrowthCenterLeaders?.Count(l => l.IsActive) ?? 0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm stat-card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Inactive</h6>
+                        <h3 class="fw-bold mb-0 text-secondary">@Model.GrowthCenterLeaders?.Count(l => !l.IsActive) ?? 0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm stat-card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Centers</h6>
+                        <h3 class="fw-bold mb-0">@Model.GrowthCenters?.Count</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaders Table -->
+        <div id="centerLeadersTableContainer">
+            @await Html.PartialAsync("_GrowthCenterLeadersTable", Model.GrowthCenterLeaders)
+        </div>
+    </div>
+</div>
+
+<!-- Growth Center Modal -->
+<div class="modal fade" id="centerModal" tabindex="-1" aria-labelledby="centerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="centerModalLabel">
+                    <i class="fa fa-building me-2"></i>
+                    <span id="modalTitleCenter">Add New Center</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="centerModalBody">
+                <form id="centerForm">
+                    <div class="mb-3">
+                        <label for="centerName" class="form-label">Center Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="centerName" name="CenterName" placeholder="Enter center name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="centerLocation" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="centerLocation" name="Location" placeholder="Optional location">
+                    </div>
+                    <div class="mb-3">
+                        <label for="centerDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="centerDescription" name="Description" rows="3" placeholder="Optional description"></textarea>
+                    </div>
+                </form>
+                <div class="text-center p-4 d-none" id="centerLoading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitCenterForm()" id="saveCenterBtn">
+                    <i class="fa fa-save me-1"></i>Save Center
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#openAddCenterModalBtn').on('click', function () {
+                $('#centerModal').modal('show');
+                $('#centerForm')[0].reset();
+                $('#centerLoading').addClass('d-none');
+                $('#saveCenterBtn').prop('disabled', false);
+                $('#modalTitleCenter').text('Add New Center');
+            });
+        });
+
+        function applyCenterFilters() {
+            const search = $('#centerSearch').val();
+            const table = $('#centersTable').DataTable();
+            table.search(search).draw();
+        }
+
+        function clearCenterFilters() {
+            $('#centerSearch').val('');
+            const table = $('#centersTable').DataTable();
+            table.search('').draw();
+        }
+
+        function submitCenterForm(e) {
+            if (e) e.preventDefault();
+            const form = document.getElementById('centerForm');
+            if (!form.checkValidity()) { form.reportValidity(); return; }
+
+            const dto = {
+                CenterName: $('#centerName').val()?.trim() || "",
+                Location: $('#centerLocation').val()?.trim() || null,
+                Description: $('#centerDescription').val()?.trim() || null
+            };
+
+            $('#saveCenterBtn').prop('disabled', true);
+            $('#centerLoading').removeClass('d-none');
+
+            $.ajax({
+                url: '/GrowthCenters/SubmitNewCenter',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify(dto),
+                success: function (response) {
+                    $('#centerLoading').addClass('d-none');
+                    $('#saveCenterBtn').prop('disabled', false);
+
+                    if (response.isSuccess) {
+                        Swal.fire({ icon: 'success', title: 'Success', text: 'Center created successfully!' })
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', response.message || 'Failed to create center.', 'error');
+                    }
+                },
+                error: function (xhr) {
+                    $('#centerLoading').addClass('d-none');
+                    $('#saveCenterBtn').prop('disabled', false);
+                    let message = "An unexpected error occurred.";
+                    if (xhr.responseJSON && xhr.responseJSON.message) { message = xhr.responseJSON.message; }
+                    Swal.fire('Error', message, 'error');
+                }
+            });
+        }
+    </script>
+}

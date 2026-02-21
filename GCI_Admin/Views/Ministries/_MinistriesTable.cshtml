@@ -1,0 +1,83 @@
+﻿@model List<GCI_Admin.Models.Ministry>
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="ministriesTable" class="table table-striped table-hover align-middle datatable">
+
+            <thead class="table-light">
+                <tr>
+                    <th>Ministry Name</th>
+                    <th>Description</th>
+                    <th>Is Active</th>
+                    <th>Created At</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+
+                <!-- Search Row -->
+                <tr>
+                    <th>
+                        <input type="text" placeholder="Search Name" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Description" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <select class="form-control form-control-sm">
+                            <option value="">All</option>
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+                    </th>
+                    <th>
+                        <input type="date" class="form-control form-control-sm" />
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var ministry in Model)
+                {
+                    <tr>
+                        <td>@ministry.MinistryName</td>
+                        <td>@ministry.Description</td>
+                        <td>
+                            @if (ministry.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactive</span>
+                            }
+                        </td>
+                        <td>@ministry.CreatedAt.ToString("dd MMM yyyy")</td>
+
+                        <td class="text-end">
+
+                            <!-- View -->
+                            <button class="btn btn-sm btn-outline-info"
+                                    onclick="openMinistryModal('@Url.Action("Details", "Ministries", new { id = ministry.MinistryId })')">
+                                <i class="fa fa-eye"></i>
+                            </button>
+
+                            <!-- Edit -->
+                            <button class="btn btn-sm btn-outline-warning"
+                                    onclick="openMinistryModal('@Url.Action("Edit", "Ministries", new { id = ministry.MinistryId })')">
+                                <i class="fa fa-edit"></i>
+                            </button>
+
+                            <!-- Delete -->
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteMinistry(@ministry.MinistryId)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>

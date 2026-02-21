@@ -5,39 +5,42 @@ using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using Microsoft.EntityFrameworkCore;
 using Utils;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GCI_Admin.Services.Service
 {
-    public class AssembliesService : IAssembliesService
+    public class MinistriesService : IMinistriesService
     {
-        private readonly AssembliesRepository _assembliesRepository;
+        private readonly MinistriesRepository _ministriesRepository;
         private readonly AppDbContext _context;
 
-        public AssembliesService(AssembliesRepository assembliesRepository, AppDbContext context)
+        public MinistriesService(MinistriesRepository ministriesRepository, AppDbContext context)
         {
-            _assembliesRepository = assembliesRepository;
+            _ministriesRepository = ministriesRepository;
             _context = context;
         }
 
-        // ✅ CREATE ASSEMBLY
-        public async Task<ApiResponse<Assembly>> CreateAssemblyAsync(AssemblyDto dto)
+        // ✅ CREATE MINISTRY
+        public async Task<ApiResponse<Ministry>> CreateMinistryAsync(MinistryDto dto)
         {
-            var response = new ApiResponse<Assembly>();
+            var response = new ApiResponse<Ministry>();
 
             try
             {
-                var result = await _assembliesRepository.CreateAssemblyAsync(dto);
+                var result = await _ministriesRepository.CreateMinistryAsync(dto);
 
                 if (!result.Success)
                 {
                     response.IsSuccess = false;
                     response.Code = "400";
-                    response.Message = "Failed to create assembly";
+                    response.Message = "Failed to create ministry";
                     return response;
                 }
 
                 response.Data = result.Data;
-                response.Message = "Assembly created successfully";
+                response.Message = "Ministry created successfully";
             }
             catch (Exception ex)
             {
@@ -49,17 +52,17 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-        // ✅ GET ALL ASSEMBLIES
-        public async Task<ApiResponse<List<Assembly>>> GetAllAssembliesAsync()
+        // ✅ GET ALL MINISTRIES
+        public async Task<ApiResponse<List<Ministry>>> GetAllMinistriesAsync()
         {
-            var response = new ApiResponse<List<Assembly>>();
+            var response = new ApiResponse<List<Ministry>>();
 
             try
             {
-                var result = await _assembliesRepository.GetAllAssembliesAsync();
+                var result = await _ministriesRepository.GetAllMinistriesAsync();
 
                 response.Data = result.Data;
-                response.Message = "Assemblies retrieved successfully";
+                response.Message = "Ministries retrieved successfully";
             }
             catch (Exception ex)
             {
@@ -71,25 +74,25 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-        // ✅ GET ASSEMBLY BY ID
-        public async Task<ApiResponse<Assembly>> GetAssemblyByIdAsync(int assemblyId)
+        // ✅ GET MINISTRY BY ID
+        public async Task<ApiResponse<Ministry>> GetMinistryByIdAsync(int ministryId)
         {
-            var response = new ApiResponse<Assembly>();
+            var response = new ApiResponse<Ministry>();
 
             try
             {
-                var result = await _assembliesRepository.GetAssemblyByIdAsync(assemblyId);
+                var result = await _ministriesRepository.GetMinistryByIdAsync(ministryId);
 
                 if (result.Data == null)
                 {
                     response.IsSuccess = false;
                     response.Code = "404";
-                    response.Message = "Assembly not found";
+                    response.Message = "Ministry not found";
                     return response;
                 }
 
                 response.Data = result.Data;
-                response.Message = "Assembly retrieved successfully";
+                response.Message = "Ministry retrieved successfully";
             }
             catch (Exception ex)
             {
@@ -101,25 +104,25 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-        // ✅ UPDATE ASSEMBLY
-        public async Task<ApiResponse<Assembly>> UpdateAssemblyAsync(int assemblyId, AssemblyDto dto)
+        // ✅ UPDATE MINISTRY
+        public async Task<ApiResponse<Ministry>> UpdateMinistryAsync(int ministryId, MinistryDto dto)
         {
-            var response = new ApiResponse<Assembly>();
+            var response = new ApiResponse<Ministry>();
 
             try
             {
-                var result = await _assembliesRepository.UpdateAssemblyAsync(assemblyId, dto);
+                var result = await _ministriesRepository.UpdateMinistryAsync(ministryId, dto);
 
                 if (!result.Success)
                 {
                     response.IsSuccess = false;
                     response.Code = "404";
-                    response.Message = "Assembly not found or update failed";
+                    response.Message = "Ministry not found or update failed";
                     return response;
                 }
 
                 response.Data = result.Data;
-                response.Message = "Assembly updated successfully";
+                response.Message = "Ministry updated successfully";
             }
             catch (Exception ex)
             {
@@ -131,20 +134,20 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-        // ✅ DELETE ASSEMBLY (soft-delete)
-        public async Task<ApiResponse<bool>> DeleteAssemblyAsync(int assemblyId)
+        // ✅ DELETE MINISTRY (soft-delete)
+        public async Task<ApiResponse<bool>> DeleteMinistryAsync(int ministryId)
         {
             var response = new ApiResponse<bool>();
 
             try
             {
-                var result = await _assembliesRepository.DeleteAssemblyAsync(assemblyId);
+                var result = await _ministriesRepository.DeleteMinistryAsync(ministryId);
 
                 if (!result.Data)
                 {
                     response.IsSuccess = false;
                     response.Code = "404";
-                    response.Message = "Assembly not found or delete failed";
+                    response.Message = "Ministry not found or delete failed";
                     return response;
                 }
 
@@ -162,22 +165,22 @@ namespace GCI_Admin.Services.Service
         }
 
         // ✅ TOGGLE ACTIVE STATUS
-        public async Task<ApiResponse<bool>> ToggleAssemblyStatusAsync(int assemblyId, bool isActive)
+        public async Task<ApiResponse<bool>> ToggleMinistryStatusAsync(int ministryId, bool isActive)
         {
-            var assembly = await _context.Assemblies.FindAsync(assemblyId);
+            var ministry = await _context.Ministries.FindAsync(ministryId);
 
-            if (assembly == null)
+            if (ministry == null)
             {
                 return new ApiResponse<bool>
                 {
                     IsSuccess = false,
                     Code = "404",
-                    Message = "Assembly not found"
+                    Message = "Ministry not found"
                 };
             }
 
-            //assembly.IsActive = isActive;
-            //assembly.UpdatedAt = DateTime.Now;
+            ministry.IsActive = isActive;
+            ministry.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
@@ -185,30 +188,30 @@ namespace GCI_Admin.Services.Service
             {
                 IsSuccess = true,
                 Code = "200",
-                Message = isActive ? "Assembly activated successfully." : "Assembly deactivated successfully.",
+                Message = isActive ? "Ministry activated successfully." : "Ministry deactivated successfully.",
                 Data = true
             };
         }
 
-        // ✅ GET ALL ACTIVE ASSEMBLY LEADERS
-        public async Task<ApiResponse<List<AssemblyLeader>>> GetAllAssemblyLeadersAsync()
+        // ✅ GET ALL MINISTRY LEADERS
+        public async Task<ApiResponse<List<MinistryLeader>>> GetAllMinistryLeadersAsync()
         {
-            var response = new ApiResponse<List<AssemblyLeader>>();
+            var response = new ApiResponse<List<MinistryLeader>>();
 
             try
             {
-                var result = await _assembliesRepository.GetAssemblyLeadersAsync();
+                var result = await _ministriesRepository.GetMinistryLeadersAsync();
 
                 if (!result.Success)
                 {
                     response.IsSuccess = false;
                     response.Code = "400";
-                    response.Message = "Failed to retrieve assembly leaders";
+                    response.Message = "Failed to retrieve ministry leaders";
                     return response;
                 }
 
                 response.Data = result.Data;
-                response.Message = "Assembly leaders retrieved successfully";
+                response.Message = "Ministry leaders retrieved successfully";
             }
             catch (Exception ex)
             {

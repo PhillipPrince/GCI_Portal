@@ -11,7 +11,7 @@ namespace GCI_Admin.Models
 
         public int EventId { get; set; }
 
-        public int UserId { get; set; }
+        public int MemberId { get; set; }
 
         public DateTime RegistrationDate { get; set; }
 
@@ -21,9 +21,10 @@ namespace GCI_Admin.Models
 
         public bool? HasAttended { get; set; }
 
-
+        [ForeignKey("EventId")]
        public Event Event { get; set; }
-        public Member User { get; set; }
+        [ForeignKey("MemberId")]
+        public Member Member { get; set; }
 
 
 

@@ -4,40 +4,43 @@ using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Utils;
 
 namespace GCI_Admin.Services.Service
 {
-    public class AssembliesService : IAssembliesService
+    public class GrowthCentersService : IGrowthCentersService
     {
-        private readonly AssembliesRepository _assembliesRepository;
+        private readonly GrowthCentersRepository _repository;
         private readonly AppDbContext _context;
 
-        public AssembliesService(AssembliesRepository assembliesRepository, AppDbContext context)
+        public GrowthCentersService(GrowthCentersRepository repository, AppDbContext context)
         {
-            _assembliesRepository = assembliesRepository;
+            _repository = repository;
             _context = context;
         }
 
-        // ✅ CREATE ASSEMBLY
-        public async Task<ApiResponse<Assembly>> CreateAssemblyAsync(AssemblyDto dto)
+        // ✅ CREATE GROWTH CENTER
+        public async Task<ApiResponse<GrowthCenter>> CreateGrowthCenterAsync(GrowthCenterDto dto)
         {
-            var response = new ApiResponse<Assembly>();
+            var response = new ApiResponse<GrowthCenter>();
 
             try
             {
-                var result = await _assembliesRepository.CreateAssemblyAsync(dto);
+                var result = await _repository.CreateGrowthCenterAsync(dto);
 
                 if (!result.Success)
                 {
                     response.IsSuccess = false;
                     response.Code = "400";
-                    response.Message = "Failed to create assembly";
+                    response.Message = "Failed to create growth center";
                     return response;
                 }
 
                 response.Data = result.Data;
-                response.Message = "Assembly created successfully";
+                response.Message = "Growth center created successfully";
             }
             catch (Exception ex)
             {
@@ -49,17 +52,17 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-        // ✅ GET ALL ASSEMBLIES
-        public async Task<ApiResponse<List<Assembly>>> GetAllAssembliesAsync()
+        // ✅ GET ALL GROWTH CENTERS
+        public async Task<ApiResponse<List<GrowthCenter>>> GetAllGrowthCentersAsync()
         {
-            var response = new ApiResponse<List<Assembly>>();
+            var response = new ApiResponse<List<GrowthCenter>>();
 
             try
             {
-                var result = await _assembliesRepository.GetAllAssembliesAsync();
+                var result = await _repository.GetAllGrowthCentersAsync();
 
                 response.Data = result.Data;
-                response.Message = "Assemblies retrieved successfully";
+                response.Message = "Growth centers retrieved successfully";
             }
             catch (Exception ex)
             {
@@ -71,25 +74,25 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-        // ✅ GET ASSEMBLY BY ID
-        public async Task<ApiResponse<Assembly>> GetAssemblyByIdAsync(int assemblyId)
+        // ✅ GET GROWTH CENTER BY ID
+        public async Task<ApiResponse<GrowthCenter>> GetGrowthCenterByIdAsync(int id)
         {
-            var response = new ApiResponse<Assembly>();
+            var response = new ApiResponse<GrowthCenter>();
 
             try
             {
-                var result = await _assembliesRepository.GetAssemblyByIdAsync(assemblyId);
+                var result = await _repository.GetGrowthCenterByIdAsync(id);
 
                 if (result.Data == null)
                 {
                     response.IsSuccess = false;
                     response.Code = "404";
-                    response.Message = "Assembly not found";
+                    response.Message = "Growth center not found";
                     return response;
                 }
 
                 response.Data = result.Data;
-                response.Message = "Assembly retrieved successfully";
+                response.Message = "Growth center retrieved successfully";
             }
             catch (Exception ex)
             {
@@ -101,25 +104,25 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-        // ✅ UPDATE ASSEMBLY
-        public async Task<ApiResponse<Assembly>> UpdateAssemblyAsync(int assemblyId, AssemblyDto dto)
+        // ✅ UPDATE GROWTH CENTER
+        public async Task<ApiResponse<GrowthCenter>> UpdateGrowthCenterAsync(int id, GrowthCenterDto dto)
         {
-            var response = new ApiResponse<Assembly>();
+            var response = new ApiResponse<GrowthCenter>();
 
             try
             {
-                var result = await _assembliesRepository.UpdateAssemblyAsync(assemblyId, dto);
+                var result = await _repository.UpdateGrowthCenterAsync(id, dto);
 
                 if (!result.Success)
                 {
                     response.IsSuccess = false;
                     response.Code = "404";
-                    response.Message = "Assembly not found or update failed";
+                    response.Message = "Growth center not found or update failed";
                     return response;
                 }
 
                 response.Data = result.Data;
-                response.Message = "Assembly updated successfully";
+                response.Message = "Growth center updated successfully";
             }
             catch (Exception ex)
             {
@@ -131,20 +134,20 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-        // ✅ DELETE ASSEMBLY (soft-delete)
-        public async Task<ApiResponse<bool>> DeleteAssemblyAsync(int assemblyId)
+        // ✅ DELETE GROWTH CENTER
+        public async Task<ApiResponse<bool>> DeleteGrowthCenterAsync(int id)
         {
             var response = new ApiResponse<bool>();
 
             try
             {
-                var result = await _assembliesRepository.DeleteAssemblyAsync(assemblyId);
+                var result = await _repository.DeleteGrowthCenterAsync(id);
 
                 if (!result.Data)
                 {
                     response.IsSuccess = false;
                     response.Code = "404";
-                    response.Message = "Assembly not found or delete failed";
+                    response.Message = "Growth center not found or delete failed";
                     return response;
                 }
 
@@ -162,22 +165,22 @@ namespace GCI_Admin.Services.Service
         }
 
         // ✅ TOGGLE ACTIVE STATUS
-        public async Task<ApiResponse<bool>> ToggleAssemblyStatusAsync(int assemblyId, bool isActive)
+        public async Task<ApiResponse<bool>> ToggleGrowthCenterStatusAsync(int id, bool isActive)
         {
-            var assembly = await _context.Assemblies.FindAsync(assemblyId);
+            var center = await _context.GrowthCenters.FindAsync(id);
 
-            if (assembly == null)
+            if (center == null)
             {
                 return new ApiResponse<bool>
                 {
                     IsSuccess = false,
                     Code = "404",
-                    Message = "Assembly not found"
+                    Message = "Growth center not found"
                 };
             }
 
-            //assembly.IsActive = isActive;
-            //assembly.UpdatedAt = DateTime.Now;
+            center.IsActive = isActive;
+            center.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
@@ -185,30 +188,30 @@ namespace GCI_Admin.Services.Service
             {
                 IsSuccess = true,
                 Code = "200",
-                Message = isActive ? "Assembly activated successfully." : "Assembly deactivated successfully.",
+                Message = isActive ? "Growth center activated successfully." : "Growth center deactivated successfully.",
                 Data = true
             };
         }
 
-        // ✅ GET ALL ACTIVE ASSEMBLY LEADERS
-        public async Task<ApiResponse<List<AssemblyLeader>>> GetAllAssemblyLeadersAsync()
+        // ✅ GET ALL GROWTH CENTER LEADERS
+        public async Task<ApiResponse<List<GrowthCenterLeader>>> GetAllGrowthCenterLeadersAsync()
         {
-            var response = new ApiResponse<List<AssemblyLeader>>();
+            var response = new ApiResponse<List<GrowthCenterLeader>>();
 
             try
             {
-                var result = await _assembliesRepository.GetAssemblyLeadersAsync();
+                var result = await _repository.GetGrowthCenterLeadersAsync();
 
                 if (!result.Success)
                 {
                     response.IsSuccess = false;
                     response.Code = "400";
-                    response.Message = "Failed to retrieve assembly leaders";
+                    response.Message = "Failed to retrieve growth center leaders";
                     return response;
                 }
 
                 response.Data = result.Data;
-                response.Message = "Assembly leaders retrieved successfully";
+                response.Message = "Growth center leaders retrieved successfully";
             }
             catch (Exception ex)
             {

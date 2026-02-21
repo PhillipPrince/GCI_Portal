@@ -1,0 +1,98 @@
+﻿@model List<GCI_Admin.Models.MinistryLeader>
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="ministryLeadersTable" class="table table-striped table-hover align-middle datatable">
+
+            <thead class="table-light">
+                <tr>
+                    <th>Leader Name</th>
+                    <th>Ministry</th>
+                    <th>Position Title</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+
+                <!-- Search Row -->
+                <tr>
+                    <th>
+                        <input type="text" placeholder="Search Leader" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Ministry" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Position" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="date" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="date" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <select class="form-control form-control-sm">
+                            <option value="">All</option>
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var leader in Model)
+                {
+                    <tr>
+                        <td>@(leader.Member.FirstName + " " + leader.Member.OtherNames)</td>
+                        <td>@leader.Ministry.MinistryName</td>
+                        <td>@leader.PositionTitle</td>
+                        <td>@leader.StartDate?.ToString("dd MMM yyyy")</td>
+                        <td>@leader.EndDate?.ToString("dd MMM yyyy")</td>
+                        <td>
+                            @if (leader.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactive</span>
+                            }
+                        </td>
+                        <td class="text-end">
+
+                            <!-- View -->
+                            <button class="btn btn-sm btn-outline-info"
+                                    onclick="viewMinistryLeader(@leader.MinistryLeaderId)">
+                                <i class="fa fa-eye"></i>
+                            </button>
+
+                            <!-- Edit -->
+                            <button class="btn btn-sm btn-outline-warning"
+                                    onclick="editMinistryLeader(@leader.MinistryLeaderId)">
+                                <i class="fa fa-edit"></i>
+                            </button>
+
+                            <!-- Toggle Status -->
+                            <button class="btn btn-sm btn-outline-secondary"
+                                    onclick="toggleMinistryLeaderStatus(@leader.MinistryLeaderId, @(!leader.IsActive).ToString().ToLower())">
+                                <i class="fa fa-toggle-on"></i>
+                            </button>
+
+                            <!-- Delete -->
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteMinistryLeader(@leader.MinistryLeaderId)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>
