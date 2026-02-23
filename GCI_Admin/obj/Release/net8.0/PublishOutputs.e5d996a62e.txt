@@ -7,6 +7,11 @@ C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\GCI_Admin.pdb
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\Azure.Core.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\Azure.Identity.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\ClosedXML.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\ClosedXML.Parser.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\DocumentFormat.OpenXml.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\DocumentFormat.OpenXml.Framework.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\ExcelNumberFormat.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\Humanizer.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\Microsoft.AspNetCore.Razor.Language.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\Microsoft.Bcl.AsyncInterfaces.dll
@@ -68,6 +73,9 @@ C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\NuGet.ProjectModel.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\NuGet.Protocol.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\NuGet.Versioning.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\OfficeOpenXml.Core.ExcelPackage.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\RBush.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\SixLabors.Fonts.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\System.ClientModel.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\System.CodeDom.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\System.Composition.AttributedModel.dll
@@ -79,6 +87,7 @@ C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\System.Diagnostics.DiagnosticSource.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\System.Formats.Asn1.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\System.IO.Packaging.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\System.IO.Pipelines.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\System.Memory.Data.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Release\net8.0\PubTmp\Out\System.Reflection.MetadataLoadContext.dll

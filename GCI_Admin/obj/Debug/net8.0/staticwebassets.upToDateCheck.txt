@@ -2,6 +2,7 @@ wwwroot\css\site.css
 wwwroot\favicon.ico
 wwwroot\images\church-logo.png
 wwwroot\js\datatables-global.js
+wwwroot\js\global-utils.js
 wwwroot\js\jquery-4.0.0.min.js
 wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css

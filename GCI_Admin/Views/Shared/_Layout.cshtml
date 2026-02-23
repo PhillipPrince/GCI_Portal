@@ -33,11 +33,11 @@
         <a data-bs-toggle="collapse" href="#membersMenu">
             <i class="fa fa-users me-2"></i> Members
         </a>
-        <div id="membersMenu" class="collapse submenu">
+        @* <div id="membersMenu" class="collapse submenu">
             <a href="@Url.Action("Index", "Members")">All Members</a>
             <a href="@Url.Action("Approvals", "Members")">Certification Approvals</a>
             <a href="@Url.Action("PrivacyRequests", "Members")">Privacy Requests</a>
-        </div>
+        </div> *@
 
         <!-- CHURCH STRUCTURE -->
         <a data-bs-toggle="collapse" href="#churchMenu">
@@ -184,6 +184,7 @@
 
     <!-- Global DataTables Init -->
     <script src="~/js/datatables-global.js"></script>
+    <script src="~/js/global-utils.js"></script>
 
     <!-- Custom JS -->
     <script src="~/js/site.js" asp-append-version="true"></script>

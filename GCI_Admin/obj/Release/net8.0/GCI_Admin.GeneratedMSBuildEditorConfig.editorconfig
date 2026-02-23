@@ -28,6 +28,22 @@ build_property._RazorSourceGeneratorDebug =
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Assemblies/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXNzZW1ibGllc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Assemblies/_AssembliesTable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXNzZW1ibGllc1xfQXNzZW1ibGllc1RhYmxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Assemblies/_AssemblLeadersTable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXNzZW1ibGllc1xfQXNzZW1ibExlYWRlcnNUYWJsZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Event/EventRegistrations.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXZlbnRcRXZlbnRSZWdpc3RyYXRpb25zLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Event/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXZlbnRcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -36,8 +52,40 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXZlbnRcX0NyZWF0ZUV2ZW50LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Event/_EventRegistrationsTable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXZlbnRcX0V2ZW50UmVnaXN0cmF0aW9uc1RhYmxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Event/_EventsTable.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXZlbnRcX0V2ZW50c1RhYmxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/GECMember/AddNewGecMember.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR0VDTWVtYmVyXEFkZE5ld0dlY01lbWJlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/GECMember/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR0VDTWVtYmVyXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/GECMember/_CreateGECMemberPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR0VDTWVtYmVyXF9DcmVhdGVHRUNNZW1iZXJQYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/GECMember/_GECMembersTable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR0VDTWVtYmVyXF9HRUNNZW1iZXJzVGFibGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/GrowthCenters/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR3Jvd3RoQ2VudGVyc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/GrowthCenters/_GrowthCenterLeadersTable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR3Jvd3RoQ2VudGVyc1xfR3Jvd3RoQ2VudGVyTGVhZGVyc1RhYmxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/GrowthCenters/_GrowthCentersTable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR3Jvd3RoQ2VudGVyc1xfR3Jvd3RoQ2VudGVyc1RhYmxlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Home/Index.cshtml]
@@ -56,12 +104,32 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYmVyc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Members/_AddMember.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYmVyc1xfQWRkTWVtYmVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Members/_AddMembershipClass.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYmVyc1xfQWRkTWVtYmVyc2hpcENsYXNzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Members/_MemberForm.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYmVyc1xfTWVtYmVyRm9ybS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Members/_MemberProfile.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYmVyc1xfTWVtYmVyUHJvZmlsZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Ministries/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWluaXN0cmllc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Ministries/_MinistriesTable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWluaXN0cmllc1xfTWluaXN0cmllc1RhYmxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Ministries/_MinistryLeadersTable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWluaXN0cmllc1xfTWluaXN0cnlMZWFkZXJzVGFibGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/psimiyu/Desktop/Simiyu/Gospel Center International/GCI_Admin/GCI_Admin/Views/Shared/Error.cshtml]

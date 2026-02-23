@@ -5,6 +5,7 @@ using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
+using GCI_Admin.Utils;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Utils;
@@ -436,6 +437,42 @@ namespace GCI_Admin.Services.Service
             return cell?.GetValue<string>()?.Trim();
         }
 
+        public async Task<ApiResponse<AnnualTheme>> GetCurrentYearThemeAsync()
+        {
+            var response = new ApiResponse<AnnualTheme>();
+
+            try
+            {
+                DateTime currentYear = DateTime.Now;
+
+
+                var result = await _eventsRepository.GetThemeForCurrentYearAsync(currentYear);
+
+                if (result == null || result.Data == null)
+                {
+
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = "No theme found for the current year";
+                    return response;
+                }
+
+                result.Data.YearThemeImage = ImageHelper.ReadImage(@"C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\Images", currentYear.Year.ToString());
+
+                response.IsSuccess = true;
+                response.Code = "200";
+                response.Data = result.Data;
+                response.Message = "Current year theme retrieved successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = $"Error fetching theme: {ex.Message}";
+            }
+
+            return response;
+        }
 
 
     }

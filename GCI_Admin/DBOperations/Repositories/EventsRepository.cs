@@ -436,5 +436,41 @@ namespace GCI_Admin.DBOperations.Repositories
             }
         }
 
+        public async Task<DbResponse<AnnualTheme>> GetThemeForCurrentYearAsync(DateTime currentYear)
+        {
+            try
+            {
+
+                var theme = await _context.AnnualThemes
+                    .Where(t => t.IsActive && t.Year == currentYear.Year)
+                    .OrderByDescending(t => t.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                if (theme == null)
+                {
+                    return new DbResponse<AnnualTheme>
+                    {
+                        Success = false,
+                        Message = "No active theme found for the current year."
+                    };
+                }
+
+                return new DbResponse<AnnualTheme>
+                {
+                    Success = true,
+                    Data = theme
+                };
+            }
+            catch (Exception ex)
+            {
+                return new DbResponse<AnnualTheme>
+                {
+                    Success = false,
+                    Message = $"Error fetching theme for current year: {ex.Message}"
+                };
+            }
+        }
+
+
     }
 }

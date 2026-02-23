@@ -243,6 +243,16 @@ namespace GCI_Admin.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> GetCurrentYearTheme()
+        {
+            var result = await _eventsService.GetCurrentYearThemeAsync();
 
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
         }
+
+    }
 }

@@ -21,5 +21,7 @@ namespace GCI_Admin.Models.DTOs
 
         [Range(0, 1000000)]
         public decimal? Price { get; set; }
+        public bool RequireRegistration { get; set; }
+        public bool AllowWalkIns { get;set; }
     }
 }

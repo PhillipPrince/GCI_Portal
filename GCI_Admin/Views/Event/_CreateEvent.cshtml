@@ -4,7 +4,6 @@
     ViewData["Title"] = "Create New Event";
 }
 
-<!-- Page Header with Breadcrumb -->
 <div class="row mb-4">
     <div class="col-md-8">
         <h2 class="fw-bold mb-1">Create New Event</h2>
@@ -17,7 +16,6 @@
     </div>
 </div>
 
-<!-- Validation Summary -->
 @if (!ViewData.ModelState.IsValid)
 {
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -28,7 +26,6 @@
     </div>
 }
 
-<!-- Create Event Form -->
 <div class="row">
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm">
@@ -355,23 +352,7 @@
             });
 
             // Form submission with validation
-            $('#eventForm').on('submit', function(e) {
-                e.preventDefault();
-
-                if (!$(this).valid()) {
-                    showToast('Please correct the errors in the form', 'error');
-                    return;
-                }
-
-                const submitBtn = $('#saveButton');
-                const originalText = submitBtn.html();
-
-                // Show loading state
-                submitBtn.html('<i class="fa fa-spinner fa-spin me-2"></i>Creating...').prop('disabled', true);
-
-                // Submit the form
-                this.submit();
-            });
+           
 
             // Check for query parameters (pre-filled date)
             const urlParams = new URLSearchParams(window.location.search);
@@ -496,6 +477,100 @@
                 e.preventDefault();
             }
         });
+
+
+                   function submitNewEvent() {
+
+            // Build DTO matching EventDto exactly
+            let eventData = {
+                Title: $('#Title').val(),
+                Description: $('#Description').val(),
+                EventDate: $('#EventDate').val(),
+                Location: $('#Location').val(),
+                IsPaid: $('#isPaidYes').is(':checked'),
+                Price: $('#isPaidYes').is(':checked')
+                    ? parseFloat($('#Price').val() || 0)
+                    : null,
+                RequireRegistration: $('#RequireRegistration').is(':checked'),
+                AllowWalkIns: $('#AllowWalkIns').is(':checked')
+            };
+
+        alert("Event Title: " + $('#Title').val());
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You are about to create this event.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Yes, create it"
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    Swal.fire({
+                        title: "Processing...",
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        url: '/Event/SubmitNewEvent',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(eventData),
+                        headers: {
+                            'RequestVerificationToken':
+                                $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (response) {
+
+                            if (!response.isSuccess) {
+                                Swal.fire("Error",
+                                    response.message || "Failed to create event.",
+                                    "error");
+                                return;
+                            }
+
+                            Swal.fire("Success",
+                                response.message || "Event created successfully.",
+                                "success")
+                                .then(() => {
+                                    window.location.href = '/Event/Index';
+                                });
+                        },
+                        error: function (xhr) {
+
+                            let message = "Operation failed.";
+
+                            if (xhr.responseJSON && xhr.responseJSON.message)
+                                message = xhr.responseJSON.message;
+
+                            Swal.fire("Error", message, "error");
+                        }
+                    });
+                }
+            });
+        }
+
+        // Attach function to form submit
+        $('#eventForm').on('submit', function(e) {
+            e.preventDefault();
+
+            if (!$(this).valid()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'Please correct the errors in the form'
+                });
+                return;
+            }
+
+            submitNewEvent();
+        });
+
+
     </script>
 
     <style>

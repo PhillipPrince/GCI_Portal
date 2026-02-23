@@ -192,46 +192,44 @@
             </div>
         </div>
     </div>
-
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="fw-bold mb-0">⏳ Pending Approvals</h6>
-                    <span class="badge bg-danger">10 Total</span>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="list-group list-group-flush">
-                    <div class="list-group-item px-0 border-0 d-flex justify-content-between align-items-center">
-                        <div>
-                            <i class="fa fa-certificate text-primary me-2"></i>
-                            <span>Member Certifications</span>
-                        </div>
-                        <span class="badge bg-primary rounded-pill">5</span>
-                    </div>
-                    <div class="list-group-item px-0 border-0 d-flex justify-content-between align-items-center">
-                        <div>
-                            <i class="fa fa-hand-holding-heart text-success me-2"></i>
-                            <span>Ministry Join Requests</span>
-                        </div>
-                        <span class="badge bg-success rounded-pill">3</span>
-                    </div>
-                    <div class="list-group-item px-0 border-0 d-flex justify-content-between align-items-center">
-                        <div>
-                            <i class="fa fa-ticket-alt text-warning me-2"></i>
-                            <span>Event Registrations</span>
-                        </div>
-                        <span class="badge bg-warning rounded-pill">2</span>
+        <div class="card border-0 shadow-sm h-100 overflow-hidden">
+            <div class="row g-0 h-100">
+
+                <!-- Left Image Section -->
+                <div class="col-md-5">
+                    <div class="h-100">
+                        <img id="yearThemeImage"
+                             alt="Theme of the Year"
+                             class="img-fluid h-100 w-100"
+                             style="object-fit: cover;">
                     </div>
                 </div>
-                <hr class="my-3">
-                <a href="@Url.Action("Approvals", "Admin")" class="btn btn-outline-primary w-100">
-                    <i class="fa fa-check-circle me-2"></i>Review All Approvals
-                </a>
+
+                <!-- Right Content Section -->
+                <div class="col-md-7">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center h-100">
+
+                        <h6 class="fw-bold text-primary mb-2" id="themeYearTitle">
+                            Theme of the Year
+                        </h6>
+
+                        <h5 class="fw-bold mb-3" id="themeTitle">
+                            Loading...
+                        </h5>
+
+                        <p class="text-muted mb-1 fw-semibold" id="themeVerse"></p>
+
+                        <p class="text-muted mb-0" id="themeDescription"></p>
+
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
+
+
 
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100">
@@ -253,7 +251,7 @@
                     </a>
 
 
-                    <a href="@Url.Action("Create", "Events")" class="btn btn-success text-start d-flex align-items-center">
+                    <a href="@Url.Action("CreateEvent", "Event")" class="btn btn-success text-start d-flex align-items-center">
                         <i class="fa fa-calendar-plus me-3"></i>
                         <div>
                             <strong>Create Event</strong><br>
@@ -610,6 +608,11 @@
     </style>
 
     <script>
+
+         $(document).ready(function () {
+            loadCurrentYearTheme();
+        });
+
         // Enhanced charts with better styling
         new Chart(document.getElementById('membersChart'), {
             type: 'line',
@@ -718,6 +721,41 @@
             // Custom search functionality
             $('#membersTable_filter input').addClass('form-control form-control-sm');
         });
+                function loadCurrentYearTheme() {
+
+            $.ajax({
+                url: '/Event/GetCurrentYearTheme',
+                type: 'GET',
+                success: function (response) {
+
+                    if (!response.isSuccess) {
+                        console.error(response.message);
+                        return;
+                    }
+
+                    var theme = response.data;
+
+                    // Set Year
+                    $("#themeYearTitle").text("Theme of the Year " + theme.year);
+
+                    // Set Theme
+                    $("#themeTitle").text(theme.theme);
+
+                    // Set Verse
+                    $("#themeVerse").text(theme.verse);
+
+                    // Set Description
+                    $("#themeDescription").text(theme.description);
+
+                    // Set Image
+                    setBase64Image("yearThemeImage", theme.yearThemeImage);
+                },
+                error: function (err) {
+                    console.error("Error loading theme:", err);
+                }
+            });
+        }
+
 
         // SweetAlert2 functions
         function joinMembershipClass(memberId) {

@@ -29,5 +29,7 @@ namespace GCI_Admin.DBOperations
         public DbSet<MinistryLeader> MinistryLeaders { get; set;}
         public DbSet<GrowthCenter> GrowthCenters { get; set; }
         public DbSet<GrowthCenterLeader> GrowthCenterLeaders { get; set; }
+        public DbSet<AnnualTheme> AnnualThemes { get; set; }
+
     }
 }
