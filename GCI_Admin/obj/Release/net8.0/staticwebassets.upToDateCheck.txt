@@ -61,3 +61,4 @@ wwwroot\lib\jquery\dist\jquery.min.map
 wwwroot\lib\jquery\LICENSE.txt
 wwwroot\js\datatables-global.js
 wwwroot\js\jquery-4.0.0.min.js
+wwwroot\js\global-utils.js

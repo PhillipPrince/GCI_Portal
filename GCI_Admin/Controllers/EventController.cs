@@ -58,7 +58,7 @@ namespace GCI_Admin.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> SubmitNewEvent(EventDto dto)
+        public async Task<IActionResult> SubmitNewEvent([FromBody] EventDto dto)
         {
             try
             {

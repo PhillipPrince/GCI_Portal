@@ -262,14 +262,52 @@
         }
 
         // Add validation for spouse field when married
-        function validateMarriedFields() {
-            if (maritalStatus.value === 'Married' && !spouseInput.value.trim()) {
-                spouseInput.classList.add('is-invalid');
-                return false;
-            }
-            return true;
+         function submitForm() {
+        const formData = {
+            firstName: document.getElementById('firstName').value,
+            otherNames: document.getElementById('otherNames').value,
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            gender: document.getElementById('gender').value,
+            assembly: document.getElementById('assembly').value,
+            statusId: document.getElementById('statusId').value,
+            socialMediaName: document.getElementById('socialMediaName').value,
+            residentialAddress: document.getElementById('residentialAddress').value,
+            dateOfBirth: document.getElementById('dateOfBirth').value,
+            maritalStatus: document.getElementById('maritalStatus').value,
+            numberOfChildren: document.getElementById('numberOfChildren').value,
+            spouseName: document.getElementById('spouseInput').value  // ← Changed to spouseName
+        };
+
+        // Validate married fields
+        if (!validateMarriedFields()) {
+            return;
         }
 
+        console.log('Sending data:', formData);
+
+        fetch('/Members/CreateUser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => console.log('Success:', data))
+        .catch(error => console.error('Error:', error));
+    }
+
+    function validateMarriedFields() {
+        const maritalStatus = document.getElementById('maritalStatus');
+        const spouseInput = document.getElementById('spouseInput');
+
+        if (maritalStatus.value === 'Married' && !spouseInput.value.trim()) {
+            spouseInput.classList.add('is-invalid');
+            return false;
+        }
+        return true;
+    }
         // Event listeners
         maritalStatus.addEventListener('change', toggleSpouseField);
 
@@ -317,8 +355,9 @@
             SpouseName: $('#spouseName').val(),
             NumberOfChildren: $('#childrenCount').val(),
             SocialMediaName: $('#socialMedia').val(),
-            Password: "Default@123" // You can change this logic
         };
+
+        alert('Member data to be submitted: ' + JSON.stringify(memberData)); 
 
         Swal.fire({
             title: 'Are you sure?',

@@ -14,7 +14,7 @@
 
         public string PasswordHash { get; set; }
 
-        public string Assembly { get; set; }
+        public string? Assembly { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

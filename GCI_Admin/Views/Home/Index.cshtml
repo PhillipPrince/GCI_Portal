@@ -955,42 +955,7 @@
         // Initial call to set proper state
         toggleSpouseField();
 
-        // Override submitMember function to include validation
-        window.submitMember = function() {
-            const form = document.getElementById('addMemberForm');
-
-            // Validate form
-            if (!form.checkValidity()) {
-                form.classList.add('was-validated');
-                return;
-            }
-
-            // Validate married fields
-            if (!validateMarriedFields()) {
-                alert('Please enter spouse name for married members');
-                return;
-            }
-
-            // Disable submit button and show loading
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
-
-            // Simulate API call (replace with actual submission)
-            setTimeout(() => {
-                // Show success message
-                alert('Member saved successfully!');
-
-                // Reset button
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="bi bi-check-lg me-2"></i>Save Member';
-
-                // Close modal (if using Bootstrap)
-                const modal = bootstrap.Modal.getInstance(document.getElementById('addMemberModal'));
-                if (modal) modal.hide();
-            }, 2000);
-        };
-
+       
         // Reset form when modal is closed
         document.addEventListener('hidden.bs.modal', function(event) {
             if (event.target.id === 'addMemberModal') {

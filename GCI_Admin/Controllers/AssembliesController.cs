@@ -67,7 +67,7 @@ namespace GCI_Admin.Controllers
 
         // Submit new assembly
         [HttpPost]
-        public async Task<IActionResult> SubmitNewAssembly(AssemblyDto dto)
+        public async Task<IActionResult> SubmitNewAssembly([FromBody] AssemblyDto dto)
         {
             try
             {

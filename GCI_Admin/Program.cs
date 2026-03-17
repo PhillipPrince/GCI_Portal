@@ -32,6 +32,7 @@ builder.Services.AddScoped<GECMemberRepository>();
 builder.Services.AddScoped<AssembliesRepository>();
 builder.Services.AddScoped<MinistriesRepository>();
 builder.Services.AddScoped<GrowthCentersRepository>();
+builder.Services.AddScoped<AnnouncementsRepository>();
 
 // Services (Scoped)
 builder.Services.AddScoped<IEventsService, EventsService>();
@@ -40,6 +41,7 @@ builder.Services.AddScoped<IGECMemberService, GECMemberService>();
 builder.Services.AddScoped<IAssembliesService, AssembliesService>();
 builder.Services.AddScoped<IMinistriesService, MinistriesService>();
 builder.Services.AddScoped<IGrowthCentersService, GrowthCentersService>();
+builder.Services.AddScoped<IAnnouncementsService, AnnouncementsService>();
 
 var app = builder.Build();
 

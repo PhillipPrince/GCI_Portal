@@ -172,15 +172,13 @@ namespace GCI_Admin.DBOperations.Repositories
                     Email = dto.Email,
                     Gender = dto.Gender,
                     Assembly = dto.Assembly,
-
                     SocialMediaName = dto.SocialMediaName,
                     ResidentialAddress = dto.ResidentialAddress,
                     DateOfBirth = dto.DateOfBirth,
                     MaritalStatus = dto.MaritalStatus,
                     NumberOfChildren = dto.NumberOfChildren,
                     SpouseName = dto.SpouseName,
-
-                    PasswordHash = _security.EncryptStringAES("Password1234", "GCI"),
+                    PasswordHash = _security.EncryptStringAES("Password@1234", "GCI"),
                     CreatedAt = DateTime.Now,
                     StatusId = 3
                 };

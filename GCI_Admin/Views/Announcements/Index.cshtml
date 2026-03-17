@@ -1,0 +1,266 @@
+@model List<GCI_Admin.Models.Notification>
+
+@{
+    ViewData["Title"] = "Announcements Management";
+}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Announcements</h2>
+        <p class="text-muted mb-0">Create and manage church announcements</p>
+    </div>
+    <div class="col-md-4 d-flex justify-content-end">
+        <button class="btn btn-primary btn-lg" id="openCreateAnnouncementBtn">
+            <i class="fa fa-plus-circle me-2"></i>New Announcement
+        </button>
+    </div>
+</div>
+
+<!-- Filter / Actions -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0">
+                        <i class="fa fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" id="announcementSearch" placeholder="Search announcements...">
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-outline-secondary me-2" id="clearAnnouncementsFilter">
+                    <i class="fa fa-times me-1"></i>Clear
+                </button>
+                <button class="btn btn-primary" id="applyAnnouncementsFilter">
+                    <i class="fa fa-filter me-1"></i>Apply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Announcements Table -->
+<div id="announcementsTableContainer">
+    @await Html.PartialAsync("_AnnouncementsTable", Model ?? new List<GCI_Admin.Models.Notification>())
+</div>
+
+@await Html.PartialAsync("_CreateAnnouncement", new GCI_Admin.Models.DTOs.NotificationDto())
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            initializeAnnouncementsTable();
+
+            $('#openCreateAnnouncementBtn').on('click', function () {
+                $('#createAnnouncementModal').modal('show');
+                $('#createAnnouncementForm')[0].reset();
+            });
+
+            $('#applyAnnouncementsFilter').on('click', function () {
+                const table = $('#announcementsTable').DataTable();
+                table.search($('#announcementSearch').val()).draw();
+            });
+
+            $('#clearAnnouncementsFilter').on('click', function () {
+                $('#announcementSearch').val('');
+                const table = $('#announcementsTable').DataTable();
+                table.search('').draw();
+            });
+        });
+
+        function initializeAnnouncementsTable() {
+            if ($.fn.DataTable.isDataTable('#announcementsTable')) {
+                $('#announcementsTable').DataTable().destroy();
+            }
+
+            $('#announcementsTable').DataTable({
+                pageLength: 10,
+                language: {
+                    search: "Search announcements:",
+                    lengthMenu: "Show _MENU_ announcements",
+                    info: "Showing _START_ to _END_ of _TOTAL_ announcements",
+                    emptyTable: "No announcements available"
+                },
+                columnDefs: [
+                    { targets: -1, orderable: false, searchable: false }
+                ]
+            });
+        }
+
+        function submitCreateAnnouncement() {
+            const form = document.getElementById('createAnnouncementForm');
+
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const dto = {
+                Title: $('#annTitle').val().trim(),
+                Message: $('#annMessage').val().trim(),
+                CreatedById: $('#annCreatedById').val() || null,
+                IsChurchWide: $('#annIsChurchWide').is(':checked'),
+                MinistryId: $('#annMinistryId').val() || null,
+                NotificationTime: $('#annNotificationTime').val(),
+                ExpiryTime: $('#annExpiryTime').val() || null,
+                RequiresReminder: $('#annRequiresReminder').is(':checked'),
+                SendSMS: $('#annSendSMS').is(':checked'),
+                SendEmail: $('#annSendEmail').is(':checked'),
+                IsActive: $('#annIsActive').is(':checked')
+            };
+
+            $('#createAnnouncementModal .modal-footer button').prop('disabled', true);
+
+            $.ajax({
+                url: '/Announcements/SubmitNewAnnouncement',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify(dto),
+                success: function (response) {
+                    $('#createAnnouncementModal .modal-footer button').prop('disabled', false);
+                    if (response.isSuccess) {
+                        Swal.fire({ icon: 'success', title: 'Created', text: 'Announcement created successfully.' })
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', response.message || 'Failed to create announcement', 'error');
+                    }
+                },
+                error: function (xhr) {
+                    $('#createAnnouncementModal .modal-footer button').prop('disabled', false);
+                    let msg = 'An unexpected error occurred';
+                    if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                    Swal.fire('Error', msg, 'error');
+                }
+            });
+        }
+
+        function editAnnouncement(id) {
+            $.get('/Announcements/GetById', { notificationId: id }, function (res) {
+                if (!res.isSuccess) {
+                    Swal.fire('Error', res.message || 'Failed to load announcement', 'error');
+                    return;
+                }
+
+                const a = res.data;
+                $('#annEditId').val(a.notificationId);
+                $('#annTitle').val(a.title);
+                $('#annMessage').val(a.message);
+                $('#annCreatedById').val(a.createdById || '');
+                $('#annIsChurchWide').prop('checked', a.isChurchWide);
+                $('#annMinistryId').val(a.ministryId || '');
+                if (a.notificationTime) $('#annNotificationTime').val((new Date(a.notificationTime)).toISOString().slice(0,16));
+                if (a.expiryTime) $('#annExpiryTime').val((new Date(a.expiryTime)).toISOString().slice(0,16));
+                $('#annRequiresReminder').prop('checked', a.requiresReminder);
+                $('#annSendSMS').prop('checked', a.sendSMS);
+                $('#annSendEmail').prop('checked', a.sendEmail);
+                $('#annIsActive').prop('checked', a.isActive);
+
+                $('#createAnnouncementModal').modal('show');
+            });
+        }
+
+        function submitUpdateAnnouncement() {
+            const id = $('#annEditId').val();
+            if (!id) return submitCreateAnnouncement();
+
+            const dto = {
+                Title: $('#annTitle').val().trim(),
+                Message: $('#annMessage').val().trim(),
+                CreatedById: $('#annCreatedById').val() || null,
+                IsChurchWide: $('#annIsChurchWide').is(':checked'),
+                MinistryId: $('#annMinistryId').val() || null,
+                NotificationTime: $('#annNotificationTime').val(),
+                ExpiryTime: $('#annExpiryTime').val() || null,
+                RequiresReminder: $('#annRequiresReminder').is(':checked'),
+                SendSMS: $('#annSendSMS').is(':checked'),
+                SendEmail: $('#annSendEmail').is(':checked'),
+                IsActive: $('#annIsActive').is(':checked')
+            };
+
+            $.ajax({
+                url: '/Announcements/Update?notificationId=' + id,
+                type: 'PUT',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify(dto),
+                success: function (response) {
+                    if (response.isSuccess) {
+                        Swal.fire({ icon: 'success', title: 'Updated', text: 'Announcement updated.' })
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', response.message || 'Failed to update', 'error');
+                    }
+                },
+                error: function (xhr) {
+                    let msg = 'An unexpected error occurred';
+                    if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                    Swal.fire('Error', msg, 'error');
+                }
+            });
+        }
+
+        function deleteAnnouncement(id) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This will delete the announcement.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete",
+                confirmButtonColor: "#d33"
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+                $.ajax({
+                    url: '/Announcements/Delete',
+                    type: 'DELETE',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: JSON.stringify({ notificationId: id }),
+                    success: function (res) {
+                        if (res.isSuccess) {
+                            Swal.fire('Deleted', 'Announcement removed', 'success')
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', res.message || 'Failed to delete', 'error');
+                        }
+                    },
+                    error: function (xhr) {
+                        let msg = 'An unexpected error occurred';
+                        if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                        Swal.fire('Error', msg, 'error');
+                    }
+                });
+            });
+        }
+
+        function toggleAnnouncementStatus(id, checkbox) {
+            const isActive = checkbox.checked;
+            $.post({
+                url: '/Announcements/ToggleStatus',
+                data: JSON.stringify({ notificationId: id, isActive: isActive }),
+                contentType: 'application/json; charset=utf-8',
+                success: function (res) {
+                    if (!res.isSuccess) {
+                        Swal.fire('Error', res.message || 'Failed to change status', 'error');
+                        checkbox.checked = !isActive;
+                    }
+                }
+            });
+        }
+
+        // Expose globally if needed
+        window.editAnnouncement = editAnnouncement;
+        window.deleteAnnouncement = deleteAnnouncement;
+        window.toggleAnnouncementStatus = toggleAnnouncementStatus;
+        window.submitCreateAnnouncement = submitCreateAnnouncement;
+        window.submitUpdateAnnouncement = submitUpdateAnnouncement;
+    </script>
+
+    <style>
+        .stat-card { transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important; }
+        .badge { font-size: 0.75rem; }
+    </style>
+}

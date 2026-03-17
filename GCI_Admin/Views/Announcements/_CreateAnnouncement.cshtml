@@ -1,0 +1,88 @@
+@model GCI_Admin.Models.DTOs.NotificationDto
+
+<div class="modal fade" id="createAnnouncementModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<form id="createAnnouncementForm" onsubmit="event.preventDefault(); const id = $('#annEditId').val(); if (id) submitUpdateAnnouncement(); else submitCreateAnnouncement();">
+				<div class="modal-header">
+					<h5 class="modal-title">Announcement</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" id="annEditId" />
+
+					<div class="mb-3">
+						<label class="form-label">Title <span class="text-danger">*</span></label>
+						<input id="annTitle" name="Title" class="form-control" required />
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Message <span class="text-danger">*</span></label>
+						<textarea id="annMessage" name="Message" class="form-control" rows="4" required></textarea>
+					</div>
+
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Notification Time</label>
+							<input id="annNotificationTime" type="datetime-local" name="NotificationTime" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+						</div>
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Expiry Time</label>
+							<input id="annExpiryTime" type="datetime-local" name="ExpiryTime" class="form-control" />
+						</div>
+					</div>
+
+					<div class="row g-2">
+						<div class="col-md-4">
+							<div class="form-check">
+								<input id="annIsChurchWide" class="form-check-input" type="checkbox" />
+								<label class="form-check-label">Is Church Wide</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-check">
+								<input id="annRequiresReminder" class="form-check-input" type="checkbox" />
+								<label class="form-check-label">Requires Reminder</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-check">
+								<input id="annIsActive" class="form-check-input" type="checkbox" checked />
+								<label class="form-check-label">Active</label>
+							</div>
+						</div>
+					</div>
+
+					<hr />
+
+					<div class="row g-2">
+						<div class="col-md-4">
+							<label class="form-label">Send SMS</label>
+							<div class="form-check">
+								<input id="annSendSMS" class="form-check-input" type="checkbox" />
+								<label class="form-check-label">Yes</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<label class="form-label">Send Email</label>
+							<div class="form-check">
+								<input id="annSendEmail" class="form-check-input" type="checkbox" />
+								<label class="form-check-label">Yes</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<label class="form-label">Ministry (optional)</label>
+							<input id="annMinistryId" class="form-control" type="number" />
+						</div>
+					</div>
+
+					<input type="hidden" id="annCreatedById" />
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+					<button class="btn btn-primary" type="submit"><i class="fa fa-save me-1"></i>Save</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

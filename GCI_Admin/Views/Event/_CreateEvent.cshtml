@@ -85,8 +85,7 @@
                                         <i class="fa fa-calendar text-muted"></i>
                                     </span>
                                     <input asp-for="EventDate" type="datetime-local" class="form-control border-start-0"
-                                           value="@(Model?.EventDate.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.AddDays(7).ToString("yyyy-MM-ddTHH:mm"))"
-                                           required />
+                                           value="@((Model?.EventDate ?? DateTime.Now.AddDays(7)).ToString("yyyy-MM-ddTHH:mm"))" required />
                                 </div>
                                 <span asp-validation-for="EventDate" class="text-danger small"></span>
                             </div>

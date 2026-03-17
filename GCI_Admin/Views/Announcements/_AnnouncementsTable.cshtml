@@ -1,0 +1,34 @@
+@model List<GCI_Admin.Models.Notification>
+
+<table id="announcementsTable" class="table table-striped table-hover align-middle datatable">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Message</th>
+            <th>When</th>
+            <th>Expiry</th>
+            <th>ChurchWide</th>
+            <th>Active</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <td>@a.Title</td>
+                <td class="text-truncate" style="max-width:400px;">@a.Message</td>
+                <td>@(a.NotificationTime.ToString("g"))</td>
+                <td>@(a.ExpiryTime.HasValue ? a.ExpiryTime.Value.ToString("g") : "-")</td>
+                <td>@(a.IsChurchWide ? "Yes" : "No")</td>
+                <td>
+                    <input type="checkbox" @(a.IsActive ? "checked" : "") onchange="toggleAnnouncementStatus(@a.NotificationId, this)" />
+                </td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-secondary me-2" onclick="editAnnouncement(@a.NotificationId)"><i class="fa fa-edit"></i></button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteAnnouncement(@a.NotificationId)"><i class="fa fa-trash"></i></button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
