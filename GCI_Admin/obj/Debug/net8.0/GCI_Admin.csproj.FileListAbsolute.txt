@@ -264,7 +264,6 @@ C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\GCI_Admin.csproj.Up2Date
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\GCI_Admin.dll
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\refint\GCI_Admin.dll

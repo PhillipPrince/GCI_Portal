@@ -1,0 +1,678 @@
+﻿@model GCI_Admin.Models.Finance
+
+@{
+    ViewData["Title"] = "Finance Dashboard";
+}
+
+<!-- Page Header with Stats -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Finance Dashboard</h2>
+        <p class="text-muted mb-0">Track and manage all church giving and contributions</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-success btn-lg me-2" onclick="exportGivings()">
+            <i class="fa fa-download me-2"></i>Export Report
+        </button>
+        <button class="btn btn-primary btn-lg" onclick="showPaymentModal()">
+            <i class="fa fa-plus-circle me-2"></i>Record Payment
+        </button>
+    </div>
+</div>
+
+<!-- Account Reference Summary Widgets -->
+<div class="row g-3 mb-4">
+    @if (Model.AccountReferenceSummaries != null && Model.AccountReferenceSummaries.Any())
+    {
+        var colors = new[] { "#667eea", "#764ba2", "#f59e0b", "#10b981", "#ef4444", "#3b82f6", "#8b5cf6", "#ec4899" };
+        var index = 0;
+
+        foreach (var summary in Model.AccountReferenceSummaries.OrderByDescending(s => s.TotalAmount))
+        {
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm account-widget"
+                     style="background: linear-gradient(135deg, @colors[index % colors.Length] 0%, @colors[(index + 1) % colors.Length] 100%);"
+                     onclick="filterByAccount('@summary.AccountReference')">
+                    <div class="card-body text-white">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0 text-white opacity-75">@summary.AccountReference</h6>
+                            <span class="badge bg-white text-dark">@summary.TransactionCount txns</span>
+                        </div>
+                        <div class="amount mb-1">KES @summary.TotalAmount.ToString("N0")</div>
+                        <div class="d-flex justify-content-between">
+                            <small class="opacity-75">Avg: KES @((summary.TotalAmount / summary.TransactionCount).ToString("N0"))</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            index++;
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fa fa-info-circle me-2"></i>No payment summaries available
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Financial Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card" onclick="filterByDate('today')">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-calendar-day text-primary fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Today's Giving</h6>
+                        <h3 class="fw-bold mb-0" id="todayTotal">KES 0</h3>
+                        <small class="text-muted" id="todayCount">0 transactions</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card" onclick="filterByDate('week')">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-calendar-week text-success fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">This Week</h6>
+                        <h3 class="fw-bold mb-0" id="weekTotal">KES 0</h3>
+                        <small class="text-muted" id="weekCount">0 transactions</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card" onclick="filterByDate('month')">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-calendar-alt text-warning fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">This Month</h6>
+                        <h3 class="fw-bold mb-0" id="monthTotal">KES 0</h3>
+                        <small class="text-muted" id="monthCount">0 transactions</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card" onclick="filterByDate('year')">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-calendar text-info fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">This Year</h6>
+                        <h3 class="fw-bold mb-0" id="yearTotal">KES 0</h3>
+                        <small class="text-muted" id="yearCount">0 transactions</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0">
+                        <i class="fa fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" id="givingSearch" placeholder="Search by phone, receipt...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="accountReference">
+                    <option value="">All Accounts</option>
+                    @if (Model.AccountReferenceSummaries != null)
+                    {
+                        foreach (var summary in Model.AccountReferenceSummaries)
+                        {
+                            <option value="@summary.AccountReference">@summary.AccountReference</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="dateRange">
+                    <option value="all">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                    <option value="thisweek">This Week</option>
+                    <option value="thismonth">This Month</option>
+                    <option value="lastmonth">Last Month</option>
+                    <option value="thisyear">This Year</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="paymentStatus">
+                    <option value="">All Status</option>
+                    <option value="1">Pending</option>
+                    <option value="2">Success</option>
+                    <option value="3">Failed</option>
+                </select>
+            </div>
+            <div class="col-md-3 text-end">
+                <button class="btn btn-outline-secondary me-2" onclick="clearFilters()">
+                    <i class="fa fa-times me-1"></i>Clear
+                </button>
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fa fa-filter me-1"></i>Apply
+                </button>
+            </div>
+        </div>
+
+        <!-- Custom Date Range (Hidden by default) -->
+        <div class="row mt-3" id="customDateRange" style="display: none;">
+            <div class="col-md-5">
+                <label class="form-label">From Date</label>
+                <input type="date" class="form-control" id="fromDate">
+            </div>
+            <div class="col-md-5">
+                <label class="form-label">To Date</label>
+                <input type="date" class="form-control" id="toDate">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-primary w-100" onclick="applyCustomDate()">Apply</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="givingsTableContainer">
+    @await Html.PartialAsync("_GivingsTablePartial", Model.Payments)
+</div>
+
+<!-- Record Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Record Manual Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="paymentForm">
+                    <div class="mb-3">
+                        <label class="form-label">Member ID</label>
+                        <input type="number" class="form-control" id="memberId" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="phoneNumber" placeholder="254XXXXXXXXX" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Account Reference</label>
+                        <select class="form-select" id="accountRef" required>
+                            <option value="">Select Account</option>
+                            @if (Model.AccountReferenceSummaries != null)
+                            {
+                                foreach (var summary in Model.AccountReferenceSummaries)
+                                {
+                                    <option value="@summary.AccountReference">@summary.AccountReference</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Amount (KES)</label>
+                        <input type="number" class="form-control" id="amount" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Transaction Date</label>
+                        <input type="datetime-local" class="form-control" id="transactionDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Receipt Number</label>
+                        <input type="text" class="form-control" id="receiptNumber" placeholder="Enter receipt number">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Payment Status</label>
+                        <select class="form-select" id="paymentStatusId" required>
+                            <option value="2">Success</option>
+                            <option value="1">Pending</option>
+                            <option value="3">Failed</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveManualPayment()">Save Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Toast Notification -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fa fa-check-circle me-2"></i>
+                <span id="toastMessage">Operation completed successfully</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <style>
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important;
+            }
+
+        .account-widget {
+            border-radius: 10px;
+            padding: 0;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+            .account-widget:hover {
+                transform: translateY(-5px);
+            }
+
+            .account-widget .card-body {
+                padding: 1.5rem;
+            }
+
+            .account-widget .amount {
+                font-size: 1.5rem;
+                font-weight: bold;
+            }
+
+        .btn-group .btn.active {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+
+        .dataTables_filter {
+            display: none;
+        }
+    </style>
+
+    <script>
+        // Global variables
+        let payments = @Html.Raw(Json.Serialize(Model.Payments));
+        let currentFilters = {};
+
+        $(document).ready(function() {
+            initializeDataTable();
+            updateStats();
+            initializeEventListeners();
+
+            // Check for success message from TempData
+            @if (TempData["SuccessMessage"] != null)
+            {
+                    <text>
+                    showToast('@TempData["SuccessMessage"]', 'success');
+                    </text>
+            }
+        });
+
+        function initializeEventListeners() {
+            $('#dateRange').on('change', function() {
+                if ($(this).val() === 'custom') {
+                    $('#customDateRange').slideDown();
+                } else {
+                    $('#customDateRange').slideUp();
+                    applyFilters();
+                }
+            });
+
+            // Individual column search
+            $('#paymentsTable thead tr:eq(1) th').each(function(i) {
+                $('input', this).on('keyup change', function() {
+                    if (window.paymentsTable) {
+                        window.paymentsTable.column(i).search(this.value).draw();
+                    }
+                });
+
+                $('select', this).on('change', function() {
+                    if (window.paymentsTable) {
+                        window.paymentsTable.column(i).search(this.value).draw();
+                    }
+                });
+            });
+        }
+
+        function initializeDataTable() {
+            if ($.fn.DataTable.isDataTable('#paymentsTable')) {
+                $('#paymentsTable').DataTable().destroy();
+            }
+
+            window.paymentsTable = $('#paymentsTable').DataTable({
+                pageLength: 10,
+                order: [[5, 'desc']], // Sort by Transaction Date descending
+                language: {
+                    search: "Search all:",
+                    lengthMenu: "Show _MENU_ payments",
+                    info: "Showing _START_ to _END_ of _TOTAL_ payments",
+                    emptyTable: "No payments available",
+                    zeroRecords: "No matching payments found"
+                },
+                initComplete: function() {
+                    // Update stats after table initialization
+                    updateStats();
+                }
+            });
+        }
+
+        function reloadPaymentsTable() {
+            const filters = getFilterParams();
+
+            $.get('@Url.Action("GetFilteredPayments", "Finance")', filters, function(data) {
+                $('#givingsTableContainer').html(data);
+                initializeDataTable();
+                updateStats();
+            }).fail(function() {
+                showToast('Failed to reload payments', 'error');
+            });
+        }
+
+        function getFilterParams() {
+            return {
+                search: $('#givingSearch').val(),
+                accountReference: $('#accountReference').val(),
+                dateRange: $('#dateRange').val(),
+                paymentStatus: $('#paymentStatus').val(),
+                fromDate: $('#fromDate').val(),
+                toDate: $('#toDate').val()
+            };
+        }
+
+        function updateStats() {
+            const now = moment();
+            const today = now.format('YYYY-MM-DD');
+            const weekStart = now.startOf('week').format('YYYY-MM-DD');
+            const monthStart = now.startOf('month').format('YYYY-MM-DD');
+            const yearStart = now.startOf('year').format('YYYY-MM-DD');
+
+            let todayTotal = 0, todayCount = 0;
+            let weekTotal = 0, weekCount = 0;
+            let monthTotal = 0, monthCount = 0;
+            let yearTotal = 0, yearCount = 0;
+
+            payments.forEach(p => {
+                if (p.transactionDate) {
+                    const date = moment(p.transactionDate).format('YYYY-MM-DD');
+
+                    if (date === today && p.paymentStatusId === 2) {
+                        todayTotal += p.amount;
+                        todayCount++;
+                    }
+                    if (date >= weekStart && p.paymentStatusId === 2) {
+                        weekTotal += p.amount;
+                        weekCount++;
+                    }
+                    if (date >= monthStart && p.paymentStatusId === 2) {
+                        monthTotal += p.amount;
+                        monthCount++;
+                    }
+                    if (date >= yearStart && p.paymentStatusId === 2) {
+                        yearTotal += p.amount;
+                        yearCount++;
+                    }
+                }
+            });
+
+            $('#todayTotal').text('KES ' + formatNumber(todayTotal));
+            $('#todayCount').text(todayCount + ' transactions');
+            $('#weekTotal').text('KES ' + formatNumber(weekTotal));
+            $('#weekCount').text(weekCount + ' transactions');
+            $('#monthTotal').text('KES ' + formatNumber(monthTotal));
+            $('#monthCount').text(monthCount + ' transactions');
+            $('#yearTotal').text('KES ' + formatNumber(yearTotal));
+            $('#yearCount').text(yearCount + ' transactions');
+        }
+
+        function applyFilters() {
+            reloadPaymentsTable();
+        }
+
+        function clearFilters() {
+            $('#givingSearch').val('');
+            $('#accountReference').val('');
+            $('#dateRange').val('all');
+            $('#paymentStatus').val('');
+            $('#customDateRange').hide();
+
+            // Clear DataTable column searches
+            if (window.paymentsTable) {
+                window.paymentsTable.search('').columns().search('').draw();
+            }
+
+            reloadPaymentsTable();
+        }
+
+        function applyCustomDate() {
+            const fromDate = $('#fromDate').val();
+            const toDate = $('#toDate').val();
+
+            if (!fromDate || !toDate) {
+                showToast('Please select both from and to dates', 'warning');
+                return;
+            }
+
+            applyFilters();
+        }
+
+        function filterByDate(period) {
+            $('#dateRange').val(period);
+            applyFilters();
+        }
+
+        function filterByAccount(account) {
+            $('#accountReference').val(account);
+            applyFilters();
+        }
+
+        function showPaymentModal() {
+            // Set default transaction date to now
+            $('#transactionDate').val(moment().format('YYYY-MM-DDTHH:mm'));
+            $('#paymentModal').modal('show');
+        }
+
+        function saveManualPayment() {
+            // Validate form
+            if (!$('#paymentForm')[0].checkValidity()) {
+                $('#paymentForm')[0].reportValidity();
+                return;
+            }
+
+            const paymentData = {
+                memberId: parseInt($('#memberId').val()),
+                phoneNumber: $('#phoneNumber').val(),
+                accountReference: $('#accountRef').val(),
+                amount: parseFloat($('#amount').val()),
+                transactionDate: $('#transactionDate').val(),
+                mpesaReceiptNumber: $('#receiptNumber').val() || 'MANUAL-' + Date.now(),
+                paymentStatusId: parseInt($('#paymentStatusId').val()),
+                createdAt: new Date().toISOString()
+            };
+
+            Swal.fire({
+                title: 'Processing...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("SaveManualPayment", "Finance")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(paymentData),
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Payment recorded successfully'
+                    }).then(() => {
+                        $('#paymentModal').modal('hide');
+                        $('#paymentForm')[0].reset();
+                        reloadPaymentsTable();
+                    });
+                },
+                error: function(xhr) {
+                    let message = 'Failed to save payment';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Error', message, 'error');
+                }
+            });
+        }
+
+        function openPaymentModal(url) {
+            window.location.href = url;
+        }
+
+        function retryPayment(id) {
+            Swal.fire({
+                title: 'Retry Payment',
+                text: 'Are you sure you want to retry this payment?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, retry'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('@Url.Action("RetryPayment", "Finance")/' + id, function() {
+                        showToast('Payment retry initiated');
+                        reloadPaymentsTable();
+                    }).fail(function() {
+                        showToast('Failed to retry payment', 'error');
+                    });
+                }
+            });
+        }
+
+        function exportGivings() {
+            const filters = getFilterParams();
+
+            Swal.fire({
+                title: 'Exporting...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.get('@Url.Action("ExportGivings", "Finance")', filters, function(data) {
+                const wb = XLSX.utils.book_new();
+
+                // Format data for export
+                const exportData = data.map(p => ({
+                    'Member ID': p.memberId,
+                    'Phone Number': p.phoneNumber,
+                    'Amount (KES)': p.amount,
+                    'Receipt Number': p.mpesaReceiptNumber || '-',
+                    'Account Reference': p.accountReference,
+                    'Status': p.paymentStatusId === 1 ? 'Pending' : p.paymentStatusId === 2 ? 'Success' : 'Failed',
+                    'Transaction Date': p.transactionDate ? moment(p.transactionDate).format('DD/MM/YYYY HH:mm') : '-',
+                    'Created At': moment(p.createdAt).format('DD/MM/YYYY HH:mm')
+                }));
+
+                const ws = XLSX.utils.json_to_sheet(exportData);
+
+                // Set column widths
+                ws['!cols'] = [
+                    { wch: 10 }, // Member ID
+                    { wch: 15 }, // Phone
+                    { wch: 15 }, // Amount
+                    { wch: 20 }, // Receipt
+                    { wch: 20 }, // Account
+                    { wch: 10 }, // Status
+                    { wch: 20 }, // Transaction Date
+                    { wch: 20 }  // Created At
+                ];
+
+                XLSX.utils.book_append_sheet(wb, ws, 'Givings');
+                XLSX.writeFile(wb, `Givings_Export_${moment().format('YYYY-MM-DD')}.xlsx`);
+
+                Swal.close();
+                showToast('Export completed successfully');
+            }).fail(() => {
+                Swal.fire('Error', 'Failed to export data', 'error');
+            });
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = $('#successToast');
+            toast.removeClass('bg-success bg-danger bg-warning');
+
+            if (type === 'success') {
+                toast.addClass('bg-success');
+                toast.find('i').removeClass().addClass('fa fa-check-circle me-2');
+            } else if (type === 'error') {
+                toast.addClass('bg-danger');
+                toast.find('i').removeClass().addClass('fa fa-exclamation-circle me-2');
+            } else if (type === 'warning') {
+                toast.addClass('bg-warning');
+                toast.find('i').removeClass().addClass('fa fa-exclamation-triangle me-2');
+            }
+
+            $('#toastMessage').text(message);
+            const bsToast = new bootstrap.Toast(toast[0], { delay: 3000 });
+            bsToast.show();
+        }
+
+        function formatNumber(num) {
+            return (num || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+    </script>
+}

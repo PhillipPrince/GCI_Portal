@@ -31,6 +31,7 @@ namespace GCI_Admin.DBOperations
         public DbSet<GrowthCenterLeader> GrowthCenterLeaders { get; set; }
         public DbSet<AnnualTheme> AnnualThemes { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
     }
 }
