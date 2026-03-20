@@ -11495,23 +11495,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\psimiyu\\.nuget\\packages\\": {},
+    "C:\\Users\\phill\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\GCI_Admin.csproj",
+      "projectUniqueName": "D:\\GCI\\GCI_Portal\\GCI_Admin\\GCI_Admin.csproj",
       "projectName": "GCI_Admin",
-      "projectPath": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\GCI_Admin.csproj",
-      "packagesPath": "C:\\Users\\psimiyu\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\psimiyu\\Desktop\\Simiyu\\Gospel Center International\\GCI_Admin\\GCI_Admin\\obj\\",
+      "projectPath": "D:\\GCI\\GCI_Portal\\GCI_Admin\\GCI_Admin.csproj",
+      "packagesPath": "C:\\Users\\phill\\.nuget\\packages\\",
+      "outputPath": "D:\\GCI\\GCI_Portal\\GCI_Admin\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\psimiyu\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\phill\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -11539,7 +11539,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net8.0": {
@@ -11593,7 +11593,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

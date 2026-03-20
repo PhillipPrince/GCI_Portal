@@ -1,0 +1,144 @@
+﻿@model List<GCI_Admin.Models.BenevolenceBeneficiary>
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="beneficiariesTable" class="table table-striped table-hover align-middle datatable">
+            <thead class="table-light">
+                <tr>
+                    <th>Full Name</th>
+                    <th>Date of Birth</th>
+                    <th>Age</th>
+                    <th>National ID</th>
+                    <th>Gender</th>
+                    <th>Relationship</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                <tr>
+                    <th>
+                        <input type="text" placeholder="Search Name" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="date" class="form-control form-control-sm" />
+                    </th>
+                    <th></th>
+                    <th>
+                        <input type="text" placeholder="Search National ID" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="Spouse">Spouse</option>
+                            <option value="Child">Child</option>
+                            <option value="Parent">Parent</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="True">Active</option>
+                            <option value="False">Inactive</option>
+                        </select>
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var b in Model)
+                {
+                    <tr>
+                        <!-- Full Name -->
+                        <td>@b.FullName</td>
+
+                        <!-- Date of Birth -->
+                        <td>@b.DateOfBirth.ToString("dd MMM yyyy")</td>
+
+                        <!-- Age -->
+                        <td>
+                            @{
+                                var today = DateTime.Today;
+                                var age = today.Year - b.DateOfBirth.Year;
+                                if (b.DateOfBirth.Date > today.AddYears(-age)) age--;
+                            }
+                            @age
+                        </td>
+
+                        <!-- National ID -->
+                        <td>@b.NationalId</td>
+
+                        <!-- Gender -->
+                        <td>@b.Gender</td>
+
+                        <!-- Relationship -->
+                        <td>@b.Relationship</td>
+
+                        <!-- Active Status -->
+                        <td>
+                            @if (b.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactive</span>
+                            }
+                        </td>
+
+                        <!-- Created At -->
+                        <td>@b.CreatedAt.ToString("dd MMM yyyy")</td>
+
+                        <!-- Actions -->
+                        <td class="text-end">
+                            <!-- View -->
+                            <button class="btn btn-sm btn-outline-info"
+                                    onclick="openBeneficiaryModal('@Url.Action("Details", new { id = b.Id })')">
+                                <i class="fa fa-eye"></i>
+                            </button>
+
+                            <!-- Edit -->
+                            <button class="btn btn-sm btn-outline-warning"
+                                    onclick="openBeneficiaryModal('@Url.Action("Edit", new { id = b.Id })')">
+                                <i class="fa fa-edit"></i>
+                            </button>
+
+                            <!-- Activate / Deactivate -->
+                            @if (b.IsActive)
+                            {
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        onclick="toggleBeneficiaryStatus(@b.Id, false)">
+                                    <i class="fa fa-ban"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-outline-success"
+                                        onclick="toggleBeneficiaryStatus(@b.Id, true)">
+                                    <i class="fa fa-check"></i>
+                                </button>
+                            }
+
+                            <!-- Delete -->
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteBeneficiary(@b.Id)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

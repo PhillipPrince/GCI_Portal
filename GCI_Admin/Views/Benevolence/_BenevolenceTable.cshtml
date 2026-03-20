@@ -1,0 +1,160 @@
+﻿@model List<GCI_Admin.Models.BenevolenceMember>
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="benevolenceTable" class="table table-striped table-hover align-middle datatable">
+            <thead class="table-light">
+                <tr>
+                    <th>Member Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>National ID</th>
+                    <th>Preferred Cover</th>
+                    <th>Next of Kin</th>
+                    <th>Next of Kin Phone</th>
+                    <th>Dependants</th>
+                    <th>Amount Paid</th>
+                    <th>Balance</th>
+                    <th>Total Due</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                <tr>
+                    <th>
+                        <input type="text" placeholder="Search Name" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Phone" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Email" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search National ID" class="form-control form-control-sm" />
+                    </th>
+                    <th></th>
+                    <th>
+                        <input type="text" placeholder="Search Next of Kin" class="form-control form-control-sm" />
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="True">Active</option>
+                            <option value="False">Inactive</option>
+                        </select>
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var b in Model)
+                {
+                    <tr>
+                        <!-- Member Name (combining FirstName and OtherNames) -->
+                        <td>
+                            @(b.Member != null ? $"{b.Member.FirstName} {b.Member.OtherNames}" : "-")
+                        </td>
+
+                        <!-- Phone -->
+                        <td>
+                            @(b.Member?.Phone ?? "-")
+                        </td>
+
+                        <!-- Email -->
+                        <td>
+                            @(b.Member?.Email ?? "-")
+                        </td>
+
+                        <!-- National ID -->
+                        <td>@b.NationalId</td>
+
+                        <!-- Preferred Cover Amount -->
+                        <td>@b.PreferredCoverAmount.ToString("N2")</td>
+
+                        <!-- Next of Kin Name -->
+                        <td>@b.NextOfKinName</td>
+
+                        <!-- Next of Kin Phone -->
+                        <td>@b.NextOfKinPhone</td>
+
+                        <!-- Number of Dependants -->
+                        <td>@b.NumberOfDependants</td>
+
+                        <!-- Amount Paid -->
+                        <td>@b.AmountPaid.ToString("N2")</td>
+
+                        <!-- Balance -->
+                        <td>@b.BalanceAmount.ToString("N2")</td>
+
+                        <!-- Total Amount Due -->
+                        <td>@b.TotalAmountDue.ToString("N2")</td>
+
+                        <!-- Active Status -->
+                        <td>
+                            @if (b.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactive</span>
+                            }
+                        </td>
+
+                        <td>@b.CreatedAt.ToString("dd MMM yyyy")</td>
+
+                        <!-- Actions -->
+                        <td class="text-end">
+                            <!-- View - Using anchor tag -->
+                            <a href="@Url.Action("MemberDetails", "Benevolence", new { id = b.Id })"
+                               class="btn btn-sm btn-outline-info"
+                               title="View Details">
+                                <i class="fa fa-eye"></i>
+                            </a>
+
+                            <!-- Edit - Using anchor tag -->
+                            <a href="@Url.Action("Edit", "Benevolence", new { id = b.Id })"
+                               class="btn btn-sm btn-outline-warning"
+                               title="Edit Member">
+                                <i class="fa fa-edit"></i>
+                            </a>
+
+                            <!-- Activate / Deactivate - Keep as button since it needs JavaScript -->
+                            @if (b.IsActive)
+                            {
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        onclick="toggleBenevolenceStatus(@b.Id, false)"
+                                        title="Deactivate Member">
+                                    <i class="fa fa-ban"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-outline-success"
+                                        onclick="toggleBenevolenceStatus(@b.Id, true)"
+                                        title="Activate Member">
+                                    <i class="fa fa-check"></i>
+                                </button>
+                            }
+
+                            <!-- Delete - Keep as button since it needs JavaScript confirmation -->
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteBenevolence(@b.Id)"
+                                    title="Delete Member">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

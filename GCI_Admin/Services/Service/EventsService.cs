@@ -456,8 +456,8 @@ namespace GCI_Admin.Services.Service
                     response.Message = "No theme found for the current year";
                     return response;
                 }
-
-                result.Data.YearThemeImage = ImageHelper.ReadImage(@"C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\Images", currentYear.Year.ToString());
+                //to be changed to use config
+                result.Data.YearThemeImage = ImageHelper.ReadImage(@"C:\Images\Images", currentYear.Year.ToString());
 
                 response.IsSuccess = true;
                 response.Code = "200";
