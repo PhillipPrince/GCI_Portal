@@ -204,38 +204,37 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
-        public async Task<DbResponse<MembershipClass>> CreateMembershipClassAsync(MembershipClassDto dto)
+    
+        public async Task<DbResponse<MemberAdditionalInformation>> CreateAdditionalInfoAsync(CreateMemberAdditionalInformationDto dto)
         {
             try
             {
                 var member = await _context.Members.FindAsync(dto.MemberId);
                 if (member == null)
                 {
-                    return new DbResponse<MembershipClass>
+                    return new DbResponse<MemberAdditionalInformation>
                     {
                         Success = false,
                         Message = "Member not found."
                     };
                 }
-                // Prevent duplicate membership class for same member and year
-                bool exists = await _context.MembershipClasses.AnyAsync(x =>
-                    x.MemberId == dto.MemberId &&
-                    x.MembershipYear == dto.MembershipYear &&
-                    x.IsActive);
+
+                bool exists = await _context.MemberAdditionalInformations
+                    .AnyAsync(x => x.MemberId == dto.MemberId && x.IsActive);
 
                 if (exists)
-                    return new DbResponse<MembershipClass>
+                    return new DbResponse<MemberAdditionalInformation>
                     {
                         Success = false,
-                        Message = "Membership class already exists for this member and year."
+                        Message = "Additional information already exists for this member."
                     };
-                member.StatusId=2; 
-                await _context.SaveChangesAsync();
 
-                var membership = new MembershipClass
+                member.StatusId = 2;
+
+                var entity = new MemberAdditionalInformation
                 {
                     MemberId = dto.MemberId,
-                    MembershipYear = dto.MembershipYear,
+                    MembershipYear =int.Parse(dto.MembershipYear.ToString()),
                     Cohort = dto.Cohort,
                     IsMemberOfAnotherChurch = dto.IsMemberOfAnotherChurch,
                     FormerChurchName = dto.FormerChurchName,
@@ -255,34 +254,98 @@ namespace GCI_Admin.DBOperations.Repositories
                     PreviousMinistryExperience = dto.PreviousMinistryExperience,
                     SpecialGiftsOrServiceInterest = dto.SpecialGiftsOrServiceInterest,
                     IsInformationConfirmed = dto.IsInformationConfirmed,
-
                     CreatedAt = DateTime.Now,
                     IsActive = true
                 };
 
-                _context.MembershipClasses.Add(membership);
+                _context.MemberAdditionalInformations.Add(entity);
                 await _context.SaveChangesAsync();
 
-                return new DbResponse<MembershipClass>
+                return new DbResponse<MemberAdditionalInformation>
                 {
                     Success = true,
-                    Message = "Membership class created successfully.",
-                    Data = membership
+                    Message = "Created successfully",
+                    Data = entity
                 };
             }
             catch (Exception ex)
             {
-                Loggers.DoLogs("MembershipClassRepository->CreateMembershipClassAsync->" + ex.Message);
+                Loggers.DoLogs("CreateAdditionalInfoAsync -> " + ex.Message);
 
-                return new DbResponse<MembershipClass>
+                return new DbResponse<MemberAdditionalInformation>
                 {
                     Success = false,
-                    Message = "An error occurred while creating the membership class."
+                    Message = "Error creating record"
                 };
             }
         }
+        public async Task<DbResponse<MemberAdditionalInformation>> GetAdditionalInfoByMemberIdAsync(int memberId)
+        {
+            try
+            {
+                var data = await _context.MemberAdditionalInformations
+                    .FirstOrDefaultAsync(x => x.MemberId == memberId);
 
+                if (data == null)
+                    return new DbResponse<MemberAdditionalInformation>
+                    {
+                        Success = false,
+                        Message = "Record not found"
+                    };
 
+                return new DbResponse<MemberAdditionalInformation>
+                {
+                    Success = true,
+                    Data = data
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs("GetAdditionalInfoByMemberIdAsync -> " + ex.Message);
+
+                return new DbResponse<MemberAdditionalInformation>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+        public async Task<DbResponse<MemberAdditionalInformation>> UpdateAdditionalInfoAsync(int id, MemberAdditionalInformationDto dto)
+        {
+            try
+            {
+                var existing = await _context.MemberAdditionalInformations.FindAsync(id);
+
+                if (existing == null)
+                    return new DbResponse<MemberAdditionalInformation>
+                    {
+                        Success = false,
+                        Message = "Record not found"
+                    };
+
+                _context.Entry(existing).CurrentValues.SetValues(dto);
+                existing.UpdatedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<MemberAdditionalInformation>
+                {
+                    Success = true,
+                    Message = "Updated successfully",
+                    Data = existing
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs("UpdateAdditionalInfoAsync -> " + ex.Message);
+
+                return new DbResponse<MemberAdditionalInformation>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
 
     }
 }

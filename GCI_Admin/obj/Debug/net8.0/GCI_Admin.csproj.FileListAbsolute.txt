@@ -537,6 +537,7 @@ D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\staticwebassets\msbuild.build.GCI_A
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.GCI_Admin.props
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.GCI_Admin.props
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\staticwebassets.pack.json
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.csproj.Up2Date
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.dll
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\refint\GCI_Admin.dll

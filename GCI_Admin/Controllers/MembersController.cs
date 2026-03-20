@@ -4,77 +4,68 @@ using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using GCI_Admin.Services.Service;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Utils;
 
 public class MembersController : Controller
 {
     private readonly IMembersService _membersService;
     private readonly MembersRepository _memberRepository;
+
     public MembersController(IMembersService membersService, MembersRepository memberRepository)
     {
         _membersService = membersService;
         _memberRepository = memberRepository;
     }
 
+    // =========================================================
+    // ✅ MEMBERS
+    // =========================================================
 
-
-
-    public async Task<IActionResult> Index(string search)
+    public async Task<IActionResult> index()
     {
-        var members = await GetMembers();
 
-        if (!string.IsNullOrWhiteSpace(search))
+        MembersListViewModel membersListViewModel = new MembersListViewModel();
+
+        var allMembers = await _membersService.GetAllMembersAsync();
+
+
+        membersListViewModel.ActiveMembers = allMembers.Data.Where(m => m.StatusId == 1).ToList();
+        membersListViewModel.MembershipClassMembers = allMembers.Data.Where(m => m.StatusId == 2).ToList();
+        membersListViewModel.NonMembers = allMembers.Data.Where(m => m.StatusId == 3).ToList();
+        membersListViewModel.TotalMembers = allMembers.Data.Count;
+
+        
+
+        return View(membersListViewModel);
+    }
+
+    
+
+    public async Task<IActionResult> MemberDetails(int memberId)
+    {
+        if (memberId <= 0)
+            return BadRequest("Invalid member ID");
+
+        var memberResponse = await _memberRepository.GetMemberByIdAsync(memberId);
+
+        if (!memberResponse.Success || memberResponse.Data == null)
+            return NotFound("Member not found");
+
+        var additionalInfoResponse = await _memberRepository.GetAdditionalInfoByMemberIdAsync(memberId);
+
+        var model = new MemberDetailsViewModel
         {
-            search = search.Trim();
+            Member = memberResponse.Data,
+            AdditionalInformation = additionalInfoResponse.Data 
+        };
 
-            members = members.Where(x =>
-                (!string.IsNullOrEmpty(x.FirstName) && x.FirstName.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
-                (!string.IsNullOrEmpty(x.OtherNames) && x.OtherNames.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
-                (!string.IsNullOrEmpty(x.Phone) && x.Phone.Contains(search)) ||
-                (!string.IsNullOrEmpty(x.Email) && x.Email.Contains(search, StringComparison.OrdinalIgnoreCase))
-            ).ToList();
-        }
-
-        var result = members
-            .OrderByDescending(x => x.CreatedAt)
-            .ToList();
-
-        return View(result);
+        return View(model);
     }
 
-
-    private async Task<List<Member>> GetMembers()
-    {
-        var response = await _membersService.GetAllMembersAsync();
-
-        if (response == null || response.Data == null)
-            return new List<Member>();
-
-        return response.Data
-                       .OrderBy(m => m.Id)
-                       .ToList();
-    }
-
-
-
-    //    // VIEW PROFILE
-    //    public IActionResult Profile(int id)
-    //    {
-    //        var member = Members.FirstOrDefault(x => x.Id == id);
-    //        return PartialView("_Profile", member);
-    //    }
-
-    // CREATE
     public IActionResult AddMemberPartial()
     {
         return PartialView("_AddMember");
     }
-  
-
 
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] MemberDto dto)
@@ -86,24 +77,15 @@ public class MembersController : Controller
 
         return Ok(result);
     }
-    public async Task<IActionResult> AddMembershipClassPartial(int memberId)
-    {
 
-        var memberResponse = await _memberRepository.GetMemberByIdAsync(memberId);
-        if (!memberResponse.Success)
-        {
-            return PartialView("_Error", memberResponse.Message);
-        }
-        MembershipClass membershipClass = new MembershipClass();
-        membershipClass.Member = memberResponse.Data;
-        return PartialView("_AddMembershipClass", membershipClass);
-    }
+   
+    
 
-
+    // CREATE
     [HttpPost]
-    public async Task<IActionResult> CreateMembershipClass([FromBody] MembershipClassDto dto)
+    public async Task<IActionResult> CreateAdditionalInfo([FromBody] MemberAdditionalInformationDto dto)
     {
-        var result = await _membersService.CreateMembershipClassAsync(dto);
+        var result = await _membersService.CreateAdditionalInfoAsync(dto);
 
         if (!result.IsSuccess)
             return BadRequest(result);
@@ -111,41 +93,29 @@ public class MembersController : Controller
         return Ok(result);
     }
 
+    // GET BY MEMBER
+    [HttpGet]
+    public async Task<IActionResult> GetAdditionalInfo(int memberId)
+    {
+        var result = await _membersService.GetAdditionalInfoByMemberIdAsync(memberId);
 
+        if (!result.IsSuccess)
+            return NotFound(result);
 
-    //    // EDIT
-    //    public IActionResult Edit(int id)
-    //    {
-    //        var member = Members.FirstOrDefault(x => x.Id == id);
-    //        return PartialView("_CreateEdit", member);
-    //    }
+        return Ok(result);
+    }
 
-    //    [HttpPost]
-    //    public IActionResult Edit(Member model)
-    //    {
-    //        var member = Members.FirstOrDefault(x => x.Id == model.Id);
+    // UPDATE
+    [HttpPut]
+    public async Task<IActionResult> UpdateAdditionalInfo(int id, [FromBody] MemberAdditionalInformationDto dto)
+    {
+        var result = await _membersService.UpdateAdditionalInfoAsync(id, dto);
 
-    //        if (member != null)
-    //        {
-    //            member.FirstName = model.FirstName;
-    //            member.OtherNames = model.OtherNames;
-    //            member.Phone = model.Phone;
-    //            member.Email = model.Email;
-    //            member.Gender = model.Gender;
-    //            member.Assembly = model.Assembly;
-    //\        }
+        if (!result.IsSuccess)
+            return BadRequest(result);
 
-    //        return Json(new { success = true });
-    //    }
+        return Ok(result);
+    }
 
-    //    // DELETE
-    //    [HttpPost]
-    //    public IActionResult Delete(int id)
-    //    {
-    //        var member = Members.FirstOrDefault(x => x.Id == id);
-    //        if (member != null)
-    //            Members.Remove(member);
-
-    //        return Json(new { success = true });
-    //    }
+   
 }

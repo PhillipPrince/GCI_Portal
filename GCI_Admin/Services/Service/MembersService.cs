@@ -36,6 +36,30 @@ namespace GCI_Admin.Services.Service
 
             return response;
         }
+        public async Task<ApiResponse<Member>> GetMemberByIdAsync(int id)
+        {
+            var response = new ApiResponse<Member>();
+            try
+            {
+                var result = await _membersRepository.GetMemberByIdAsync(id);
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = result.Message ?? "Member not found";
+                    return response;
+                }
+                response.Data = result.Data;
+                response.Message = "Member retrieved successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
 
         // ✅ UPDATE MEMBER
         public async Task<ApiResponse<Member>> UpdateMemberAsync(int id, MemberDto dto)
@@ -76,7 +100,7 @@ namespace GCI_Admin.Services.Service
             {
                 var result = await _membersRepository.DeleteMemberAsync(id);
 
-                if (!result.Data)
+                if (!result.Success || !result.Data)
                 {
                     response.IsSuccess = false;
                     response.Code = "404";
@@ -97,13 +121,15 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-        //add method for  Task<DbResponse<Member>> CreateUserAsync(MemberDto dto)
+        // ✅ CREATE MEMBER
         public async Task<ApiResponse<Member>> CreateUserAsync(MemberDto dto)
         {
             var response = new ApiResponse<Member>();
+
             try
             {
                 var result = await _membersRepository.CreateUserAsync(dto);
+
                 if (!result.Success)
                 {
                     response.IsSuccess = false;
@@ -111,6 +137,7 @@ namespace GCI_Admin.Services.Service
                     response.Message = result.Message ?? "Failed to create member";
                     return response;
                 }
+
                 response.Data = result.Data;
                 response.Message = "Member created successfully";
             }
@@ -120,27 +147,33 @@ namespace GCI_Admin.Services.Service
                 response.Code = "500";
                 response.Message = ex.Message;
             }
+
             return response;
         }
 
-        public async Task<ApiResponse<MembershipClass>> CreateMembershipClassAsync(MembershipClassDto dto)
+        // =========================================================
+        // 🔥 MEMBER ADDITIONAL INFORMATION (REPLACES MEMBERSHIP CLASS)
+        // =========================================================
+
+        // ✅ CREATE
+        public async Task<ApiResponse<MemberAdditionalInformation>> CreateAdditionalInfoAsync(MemberAdditionalInformationDto dto)
         {
-            var response = new ApiResponse<MembershipClass>();
+            var response = new ApiResponse<MemberAdditionalInformation>();
 
             try
             {
-                var result = await _membersRepository.CreateMembershipClassAsync(dto);
+                var result = await _membersRepository.CreateAdditionalInfoAsync(dto);
 
                 if (!result.Success)
                 {
                     response.IsSuccess = false;
                     response.Code = "400";
-                    response.Message = result.Message ?? "Failed to create membership class";
+                    response.Message = result.Message ?? "Failed to create additional info";
                     return response;
                 }
 
                 response.Data = result.Data;
-                response.Message = "Membership class created successfully";
+                response.Message = "Additional information created successfully";
             }
             catch (Exception ex)
             {
@@ -152,5 +185,66 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
+      
+        public async Task<ApiResponse<MemberAdditionalInformation>> GetAdditionalInfoByMemberIdAsync(int memberId)
+        {
+            var response = new ApiResponse<MemberAdditionalInformation>();
+
+            try
+            {
+                var result = await _membersRepository.GetAdditionalInfoByMemberIdAsync(memberId);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "Record retrieved successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        // ✅ UPDATE
+        public async Task<ApiResponse<MemberAdditionalInformation>> UpdateAdditionalInfoAsync(int id, MemberAdditionalInformationDto dto)
+        {
+            var response = new ApiResponse<MemberAdditionalInformation>();
+
+            try
+            {
+                var result = await _membersRepository.UpdateAdditionalInfoAsync(id, dto);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message ?? "Update failed";
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "Updated successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+       
     }
 }

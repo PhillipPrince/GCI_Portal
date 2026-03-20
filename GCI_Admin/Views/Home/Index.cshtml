@@ -308,13 +308,14 @@
         <!-- TAB CONTENT -->
         <div class="tab-content" id="memberTabsContent">
             <div class="tab-pane fade show active" id="activeMembers" role="tabpanel">
-                @await Html.PartialAsync("_MembersTablePartial", Model.ActiveMembers)
+                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.ActiveMembers)
+
             </div>
             <div class="tab-pane fade" id="membershipClass" role="tabpanel">
-                @await Html.PartialAsync("_MembersTablePartial", Model.MembershipClassMembers)
+                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MembershipClassMembers)
             </div>
             <div class="tab-pane fade" id="nonMembers" role="tabpanel">
-                @await Html.PartialAsync("_MembersTablePartial", Model.NonMembers)
+                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.NonMembers)
             </div>
         </div>
     </div>

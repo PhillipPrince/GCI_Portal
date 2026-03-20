@@ -1,0 +1,924 @@
+﻿@model GCI_Admin.Models.MemberDetailsViewModel
+
+@{
+    ViewData["Title"] = "Member Details";
+    var member = Model.Member;
+    var additionalInfo = Model.AdditionalInformation;
+}
+
+<!-- Page Header with Back Button -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="d-flex align-items-center">
+            <a href="@Url.Action("Index", "Members")" class="btn btn-outline-secondary me-3">
+                <i class="fa fa-arrow-left me-2"></i>Back to List
+            </a>
+            <div>
+                <h2 class="fw-bold mb-1">Member Details</h2>
+                <p class="text-muted mb-0">View and edit comprehensive member information</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 text-end">
+        <div id="editModeButtons">
+            <button class="btn btn-warning btn-lg me-2" id="enableEditMode">
+                <i class="fa fa-edit me-2"></i>Edit Mode
+            </button>
+            @if (additionalInfo != null)
+            {
+                <button class="btn btn-primary btn-lg" id="editAdditionalInfoBtn">
+                    <i class="fa fa-info-circle me-2"></i>Edit Additional Info
+                </button>
+            }
+            else
+            {
+                <a href="@Url.Action("AddAdditionalInfo", "Members", new { memberId = member.Id })" class="btn btn-primary btn-lg">
+                    <i class="fa fa-plus-circle me-2"></i>Add Additional Info
+                </a>
+            }
+        </div>
+        <div id="saveCancelButtons" style="display: none;">
+            <button class="btn btn-success btn-lg me-2" id="saveChanges">
+                <i class="fa fa-save me-2"></i>Save Changes
+            </button>
+            <button class="btn btn-secondary btn-lg" id="cancelEdit">
+                <i class="fa fa-times me-2"></i>Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Main Member Details Card -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-gradient-primary text-white border-0">
+                <h5 class="mb-0">
+                    <i class="fa fa-user-circle me-2"></i>Member Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Personal Information Section -->
+                    <div class="col-md-6">
+                        <div class="info-section mb-4">
+                            <h6 class="text-primary mb-3 border-bottom pb-2">
+                                <i class="fa fa-user me-2"></i>Personal Details
+                            </h6>
+                            <table class="table table-borderless table-hover">
+                                <tr>
+                                    <td class="text-muted" style="width: 40%"><strong>Full Name:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="fullName">@($"{member.FirstName} {member.OtherNames}")</span>
+                                        <input type="text" class="form-control edit-field" data-field="fullName" style="display: none;" value="@($"{member.FirstName} {member.OtherNames}")">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Gender:</strong></td>
+                                    <td>
+                                        <span class="display-value" data-field="gender">
+                                            @if (member.Gender == "Male")
+                                            {
+                                                <span class="badge bg-info">Male</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning">Female</span>
+                                            }
+                                        </span>
+                                        <select class="form-select edit-field" data-field="gender" style="display: none;">
+                                            <option value="Male" selected="@(member.Gender == "Male")">Male</option>
+                                            <option value="Female" selected="@(member.Gender == "Female")">Female</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Date of Birth:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="dateOfBirth">@(member.DateOfBirth?.ToString("yyyy-MM-dd") ?? "Not specified")</span>
+                                        <input type="date" class="form-control edit-field" data-field="dateOfBirth" style="display: none;" value="@(member.DateOfBirth?.ToString("yyyy-MM-dd") ?? "")">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Age:</strong></td>
+                                    <td class="fw-bold">
+                                        <span id="ageDisplay">
+                                            @if (member.DateOfBirth.HasValue)
+                                            {
+                                                var age = DateTime.Today.Year - member.DateOfBirth.Value.Year;
+                                                if (member.DateOfBirth.Value.Date > DateTime.Today.AddYears(-age)) age--;
+                                                @($"{age} years")
+                                            }
+                                            else
+                                            {
+                                                <span>Not specified</span>
+                                            }
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Marital Status:</strong></td>
+                                    <td>
+                                        <span class="display-value" data-field="maritalStatus">@(member.MaritalStatus ?? "Not specified")</span>
+                                        <select class="form-select edit-field" data-field="maritalStatus" style="display: none;">
+                                            <option value="">Select Status</option>
+                                            <option value="Single" selected="@(member.MaritalStatus == "Single")">Single</option>
+                                            <option value="Married" selected="@(member.MaritalStatus == "Married")">Married</option>
+                                            <option value="Divorced" selected="@(member.MaritalStatus == "Divorced")">Divorced</option>
+                                            <option value="Widowed" selected="@(member.MaritalStatus == "Widowed")">Widowed</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Spouse Name:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="spouseName">@(member.SpouseName ?? "Not specified")</span>
+                                        <input type="text" class="form-control edit-field" data-field="spouseName" style="display: none;" value="@(member.SpouseName ?? "")">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Number of Children:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="numberOfChildren">@(member.NumberOfChildren?.ToString() ?? "0")</span>
+                                        <input type="number" class="form-control edit-field" data-field="numberOfChildren" style="display: none;" value="@(member.NumberOfChildren ?? 0)" min="0">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Contact Information Section -->
+                        <div class="info-section mb-4">
+                            <h6 class="text-success mb-3 border-bottom pb-2">
+                                <i class="fa fa-phone me-2"></i>Contact Information
+                            </h6>
+                            <table class="table table-borderless table-hover">
+                                <tr>
+                                    <td class="text-muted" style="width: 40%"><strong>Phone Number:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="phone">
+                                            <a href="tel:@member.Phone" class="text-decoration-none">
+                                                <i class="fa fa-phone me-1"></i>@member.Phone
+                                            </a>
+                                        </span>
+                                        <input type="tel" class="form-control edit-field" data-field="phone" style="display: none;" value="@member.Phone">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Email Address:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="email">
+                                            <a href="mailto:@member.Email" class="text-decoration-none">
+                                                <i class="fa fa-envelope me-1"></i>@member.Email
+                                            </a>
+                                        </span>
+                                        <input type="email" class="form-control edit-field" data-field="email" style="display: none;" value="@member.Email">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Residential Address:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="residentialAddress">@(member.ResidentialAddress ?? "Not specified")</span>
+                                        <textarea class="form-control edit-field" data-field="residentialAddress" rows="2" style="display: none;">@(member.ResidentialAddress ?? "")</textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Assembly:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="assembly">@(member.Assembly ?? "Not specified")</span>
+                                        <input type="text" class="form-control edit-field" data-field="assembly" style="display: none;" value="@(member.Assembly ?? "")">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Social Media:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="socialMediaName">@(member.SocialMediaName ?? "Not specified")</span>
+                                        <input type="text" class="form-control edit-field" data-field="socialMediaName" style="display: none;" value="@(member.SocialMediaName ?? "")">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Church Information Section -->
+                    <div class="col-md-6">
+                        <div class="info-section mb-4">
+                            <h6 class="text-info mb-3 border-bottom pb-2">
+                                <i class="fa fa-church me-2"></i>Church Information
+                            </h6>
+                            <table class="table table-borderless table-hover">
+                                <tr>
+                                    <td class="text-muted" style="width: 45%"><strong>Member Since:</strong></td>
+                                    <td class="fw-bold">@member.CreatedAt.ToString("dd MMM yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Membership Year:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="membershipYear">@(additionalInfo?.MembershipYear?.ToString() ?? "Not specified")</span>
+                                        <input type="number" class="form-control edit-field" data-field="membershipYear" style="display: none;" value="@(additionalInfo?.MembershipYear)" placeholder="Year">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Cohort:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="cohort">@(additionalInfo?.Cohort ?? "Not specified")</span>
+                                        <input type="text" class="form-control edit-field" data-field="cohort" style="display: none;" value="@(additionalInfo?.Cohort ?? "")">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Member of Another Church:</strong></td>
+                                    <td>
+                                        <span class="display-value" data-field="isMemberOfAnotherChurch">
+                                            @if (additionalInfo?.IsMemberOfAnotherChurch == true)
+                                            {
+                                                <span class="badge bg-warning">Yes</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">No</span>
+                                            }
+                                        </span>
+                                        <select class="form-select edit-field" data-field="isMemberOfAnotherChurch" style="display: none;">
+                                            <option value="false" selected="@(additionalInfo?.IsMemberOfAnotherChurch == false)">No</option>
+                                            <option value="true" selected="@(additionalInfo?.IsMemberOfAnotherChurch == true)">Yes</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                @if (additionalInfo?.IsMemberOfAnotherChurch == true)
+                                {
+                                    <tr class="former-church-fields">
+                                        <td class="text-muted"><strong>Former Church:</strong></td>
+                                        <td class="fw-bold">
+                                            <span class="display-value" data-field="formerChurchName">@(additionalInfo?.FormerChurchName ?? "Not specified")</span>
+                                            <input type="text" class="form-control edit-field" data-field="formerChurchName" style="display: none;" value="@(additionalInfo?.FormerChurchName ?? "")">
+                                        </td>
+                                    </tr>
+                                    <tr class="former-church-fields">
+                                        <td class="text-muted"><strong>Reason for Leaving:</strong></td>
+                                        <td class="fw-bold">
+                                            <span class="display-value" data-field="reasonForLeavingFormerChurch">@(additionalInfo?.ReasonForLeavingFormerChurch ?? "Not specified")</span>
+                                            <textarea class="form-control edit-field" data-field="reasonForLeavingFormerChurch" rows="2" style="display: none;">@(additionalInfo?.ReasonForLeavingFormerChurch ?? "")</textarea>
+                                        </td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td class="text-muted"><strong>Date Began Attending GCI:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="dateBeganAttendingGCI">@(additionalInfo?.DateBeganAttendingGCI?.ToString("yyyy-MM-dd") ?? "Not specified")</span>
+                                        <input type="date" class="form-control edit-field" data-field="dateBeganAttendingGCI" style="display: none;" value="@(additionalInfo?.DateBeganAttendingGCI?.ToString("yyyy-MM-dd") ?? "")">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Seeking Membership:</strong></td>
+                                    <td>
+                                        <span class="display-value" data-field="seekingMembership">
+                                            @if (additionalInfo?.SeekingMembership == true)
+                                            {
+                                                <span class="badge bg-primary">Yes</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">No</span>
+                                            }
+                                        </span>
+                                        <select class="form-select edit-field" data-field="seekingMembership" style="display: none;">
+                                            <option value="false" selected="@(additionalInfo?.SeekingMembership == false)">No</option>
+                                            <option value="true" selected="@(additionalInfo?.SeekingMembership == true)">Yes</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Spiritual Information Section -->
+                        <div class="info-section mb-4">
+                            <h6 class="text-warning mb-3 border-bottom pb-2">
+                                <i class="fa fa-cross me-2"></i>Spiritual Information
+                            </h6>
+                            <table class="table table-borderless table-hover">
+                                <tr>
+                                    <td class="text-muted" style="width: 45%"><strong>Born Again:</strong></td>
+                                    <td>
+                                        <span class="display-value" data-field="isBornAgain">
+                                            @if (additionalInfo?.IsBornAgain == true)
+                                            {
+                                                <span class="badge bg-success">Yes</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">No</span>
+                                            }
+                                        </span>
+                                        <select class="form-select edit-field" data-field="isBornAgain" style="display: none;">
+                                            <option value="false" selected="@(additionalInfo?.IsBornAgain == false)">No</option>
+                                            <option value="true" selected="@(additionalInfo?.IsBornAgain == true)">Yes</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                @if (additionalInfo?.IsBornAgain == true)
+                                {
+                                    <tr class="born-again-fields">
+                                        <td class="text-muted"><strong>Date of Conversion:</strong></td>
+                                        <td class="fw-bold">
+                                            <span class="display-value" data-field="dateOfConversion">@(additionalInfo?.DateOfConversion?.ToString("yyyy-MM-dd") ?? "Not specified")</span>
+                                            <input type="date" class="form-control edit-field" data-field="dateOfConversion" style="display: none;" value="@(additionalInfo?.DateOfConversion?.ToString("yyyy-MM-dd") ?? "")">
+                                        </td>
+                                    </tr>
+                                    <tr class="born-again-fields">
+                                        <td class="text-muted"><strong>Place of Conversion:</strong></td>
+                                        <td class="fw-bold">
+                                            <span class="display-value" data-field="placeOfConversion">@(additionalInfo?.PlaceOfConversion ?? "Not specified")</span>
+                                            <input type="text" class="form-control edit-field" data-field="placeOfConversion" style="display: none;" value="@(additionalInfo?.PlaceOfConversion ?? "")">
+                                        </td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td class="text-muted"><strong>Eternal Life Assurance:</strong></td>
+                                    <td>
+                                        <span class="display-value" data-field="hasEternalLifeAssurance">
+                                            @if (additionalInfo?.HasEternalLifeAssurance == true)
+                                            {
+                                                <span class="badge bg-success">Yes</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">No</span>
+                                            }
+                                        </span>
+                                        <select class="form-select edit-field" data-field="hasEternalLifeAssurance" style="display: none;">
+                                            <option value="false" selected="@(additionalInfo?.HasEternalLifeAssurance == false)">No</option>
+                                            <option value="true" selected="@(additionalInfo?.HasEternalLifeAssurance == true)">Yes</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                @if (additionalInfo?.HasEternalLifeAssurance == true)
+                                {
+                                    <tr class="eternal-life-fields">
+                                        <td class="text-muted"><strong>Reason for Assurance:</strong></td>
+                                        <td class="fw-bold">
+                                            <span class="display-value" data-field="heavenReason">@(additionalInfo?.HeavenReason ?? "Not specified")</span>
+                                            <textarea class="form-control edit-field" data-field="heavenReason" rows="2" style="display: none;">@(additionalInfo?.HeavenReason ?? "")</textarea>
+                                        </td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td class="text-muted"><strong>Meaning of Christ's Death:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="meaningOfChristsDeath">@(additionalInfo?.MeaningOfChristsDeath ?? "Not specified")</span>
+                                        <textarea class="form-control edit-field" data-field="meaningOfChristsDeath" rows="2" style="display: none;">@(additionalInfo?.MeaningOfChristsDeath ?? "")</textarea>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Baptism Information Section -->
+                    <div class="col-md-6">
+                        <div class="info-section mb-4">
+                            <h6 class="text-info mb-3 border-bottom pb-2">
+                                <i class="fa fa-water me-2"></i>Baptism Information
+                            </h6>
+                            <table class="table table-borderless table-hover">
+                                <tr>
+                                    <td class="text-muted" style="width: 45%"><strong>Baptized by Immersion:</strong></td>
+                                    <td>
+                                        <span class="display-value" data-field="isBaptizedByImmersion">
+                                            @if (additionalInfo?.IsBaptizedByImmersion == true)
+                                            {
+                                                <span class="badge bg-success">Yes</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">No</span>
+                                            }
+                                        </span>
+                                        <select class="form-select edit-field" data-field="isBaptizedByImmersion" style="display: none;">
+                                            <option value="false" selected="@(additionalInfo?.IsBaptizedByImmersion == false)">No</option>
+                                            <option value="true" selected="@(additionalInfo?.IsBaptizedByImmersion == true)">Yes</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                @if (additionalInfo?.IsBaptizedByImmersion == true)
+                                {
+                                    <tr class="baptism-fields">
+                                        <td class="text-muted"><strong>Baptism Date:</strong></td>
+                                        <td class="fw-bold">
+                                            <span class="display-value" data-field="baptismDate">@(additionalInfo?.BaptismDate?.ToString("yyyy-MM-dd") ?? "Not specified")</span>
+                                            <input type="date" class="form-control edit-field" data-field="baptismDate" style="display: none;" value="@(additionalInfo?.BaptismDate?.ToString("yyyy-MM-dd") ?? "")">
+                                        </td>
+                                    </tr>
+                                    <tr class="baptism-fields">
+                                        <td class="text-muted"><strong>Baptism Place:</strong></td>
+                                        <td class="fw-bold">
+                                            <span class="display-value" data-field="baptismPlace">@(additionalInfo?.BaptismPlace ?? "Not specified")</span>
+                                            <input type="text" class="form-control edit-field" data-field="baptismPlace" style="display: none;" value="@(additionalInfo?.BaptismPlace ?? "")">
+                                        </td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td class="text-muted"><strong>Willing to be Baptized at GCI:</strong></td>
+                                    <td>
+                                        <span class="display-value" data-field="willingToBeBaptizedAtGCI">
+                                            @if (additionalInfo?.WillingToBeBaptizedAtGCI == true)
+                                            {
+                                                <span class="badge bg-primary">Yes</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">No</span>
+                                            }
+                                        </span>
+                                        <select class="form-select edit-field" data-field="willingToBeBaptizedAtGCI" style="display: none;">
+                                            <option value="false" selected="@(additionalInfo?.WillingToBeBaptizedAtGCI == false)">No</option>
+                                            <option value="true" selected="@(additionalInfo?.WillingToBeBaptizedAtGCI == true)">Yes</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Ministry & Service Section -->
+                    <div class="col-md-6">
+                        <div class="info-section mb-4">
+                            <h6 class="text-success mb-3 border-bottom pb-2">
+                                <i class="fa fa-hand-peace-o me-2"></i>Ministry & Service
+                            </h6>
+                            <table class="table table-borderless table-hover">
+                                <tr>
+                                    <td class="text-muted" style="width: 45%"><strong>Previous Ministry Experience:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="previousMinistryExperience">@(additionalInfo?.PreviousMinistryExperience ?? "Not specified")</span>
+                                        <textarea class="form-control edit-field" data-field="previousMinistryExperience" rows="2" style="display: none;">@(additionalInfo?.PreviousMinistryExperience ?? "")</textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Special Gifts/Service Interest:</strong></td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="specialGiftsOrServiceInterest">@(additionalInfo?.SpecialGiftsOrServiceInterest ?? "Not specified")</span>
+                                        <textarea class="form-control edit-field" data-field="specialGiftsOrServiceInterest" rows="2" style="display: none;">@(additionalInfo?.SpecialGiftsOrServiceInterest ?? "")</textarea>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- System Information Section -->
+                        <div class="info-section mb-4">
+                            <h6 class="text-secondary mb-3 border-bottom pb-2">
+                                <i class="fa fa-clock-o me-2"></i>System Information
+                            </h6>
+                            <table class="table table-borderless table-hover">
+                                <tr>
+                                    <td class="text-muted" style="width: 45%"><strong>Member ID:</strong></td>
+                                    <td class="fw-bold">#@member.Id</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Status:</strong></td>
+                                    <td>
+                                        <span class="display-value" data-field="statusId">
+                                            @if (member.StatusId == 1)
+                                            {
+                                                <span class="badge bg-success">Active</span>
+                                            }
+                                            else if (member.StatusId == 2)
+                                            {
+                                                <span class="badge bg-warning">Inactive</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Pending</span>
+                                            }
+                                        </span>
+                                        <select class="form-select edit-field" data-field="statusId" style="display: none;">
+                                            <option value="1" selected="@(member.StatusId == 1)">Active</option>
+                                            <option value="2" selected="@(member.StatusId == 2)">Inactive</option>
+                                            <option value="3" selected="@(member.StatusId == 3)">Pending</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Information Confirmed:</strong></td>
+                                    <td>
+                                        <span class="display-value" data-field="isInformationConfirmed">
+                                            @if (additionalInfo?.IsInformationConfirmed == true)
+                                            {
+                                                <span class="badge bg-success">Confirmed</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning">Pending</span>
+                                            }
+                                        </span>
+                                        <select class="form-select edit-field" data-field="isInformationConfirmed" style="display: none;">
+                                            <option value="false" selected="@(additionalInfo?.IsInformationConfirmed == false)">Pending</option>
+                                            <option value="true" selected="@(additionalInfo?.IsInformationConfirmed == true)">Confirmed</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted"><strong>Profile Created:</strong></td>
+                                    <td class="fw-bold">@member.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+                                </tr>
+                                @if (additionalInfo?.UpdatedAt.HasValue == true)
+                                {
+                                    <tr>
+                                        <td class="text-muted"><strong>Last Updated:</strong></td>
+                                        <td class="fw-bold">@additionalInfo.UpdatedAt.Value.ToString("dd MMM yyyy HH:mm")</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td class="text-muted"><strong>Profile Active:</strong></td>
+                                    <td>
+                                        <span class="display-value" data-field="isActive">
+                                            @if (additionalInfo?.IsActive == true)
+                                            {
+                                                <span class="badge bg-success">Active</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Inactive</span>
+                                            }
+                                        </span>
+                                        <select class="form-select edit-field" data-field="isActive" style="display: none;">
+                                            <option value="false" selected="@(additionalInfo?.IsActive == false)">Inactive</option>
+                                            <option value="true" selected="@(additionalInfo?.IsActive == true)">Active</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        let isEditMode = false;
+        let originalData = {};
+
+        $(document).ready(function() {
+            // Store original data
+            storeOriginalData();
+
+            // Enable edit mode
+            $('#enableEditMode').click(function() {
+                enableEditMode();
+            });
+
+            // Save changes
+            $('#saveChanges').click(function() {
+                saveChanges();
+            });
+
+            // Cancel edit
+            $('#cancelEdit').click(function() {
+                cancelEdit();
+            });
+
+            // Edit additional info button
+            $('#editAdditionalInfoBtn').click(function() {
+                window.location.href = '@Url.Action("EditAdditionalInfo", "Members", new { id = additionalInfo?.Id })';
+            });
+
+            // Handle conditional field visibility
+            $('[data-field="isMemberOfAnotherChurch"] select').change(function() {
+                toggleFormerChurchFields($(this).val() === 'true');
+            });
+
+            $('[data-field="isBornAgain"] select').change(function() {
+                toggleBornAgainFields($(this).val() === 'true');
+            });
+
+            $('[data-field="hasEternalLifeAssurance"] select').change(function() {
+                toggleEternalLifeFields($(this).val() === 'true');
+            });
+
+            $('[data-field="isBaptizedByImmersion"] select').change(function() {
+                toggleBaptismFields($(this).val() === 'true');
+            });
+        });
+
+        function storeOriginalData() {
+            $('.display-value').each(function() {
+                const field = $(this).data('field');
+                originalData[field] = $(this).text().trim();
+            });
+        }
+
+        function enableEditMode() {
+            isEditMode = true;
+
+            // Hide display values, show edit fields
+            $('.display-value').hide();
+            $('.edit-field').show();
+
+            // Toggle buttons
+            $('#editModeButtons').hide();
+            $('#saveCancelButtons').show();
+
+            // Show SweetAlert notification
+            Swal.fire({
+                icon: 'info',
+                title: 'Edit Mode Enabled',
+                text: 'You can now edit member information. Click Save when done.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+
+        function saveChanges() {
+            // Collect all edited data
+            const memberData = {
+                Id: @member.Id,
+                FirstName: '',
+                OtherNames: '',
+                Phone: '',
+                Email: '',
+                Gender: '',
+                DateOfBirth: null,
+                MaritalStatus: '',
+                SpouseName: '',
+                NumberOfChildren: 0,
+                ResidentialAddress: '',
+                Assembly: '',
+                SocialMediaName: '',
+                StatusId: 1
+            };
+
+            const additionalData = {
+                MemberId: @member.Id,
+                MembershipYear: null,
+                Cohort: '',
+                IsMemberOfAnotherChurch: false,
+                FormerChurchName: '',
+                ReasonForLeavingFormerChurch: '',
+                DateBeganAttendingGCI: null,
+                SeekingMembership: false,
+                IsBornAgain: false,
+                DateOfConversion: null,
+                PlaceOfConversion: '',
+                HasEternalLifeAssurance: false,
+                HeavenReason: '',
+                MeaningOfChristsDeath: '',
+                IsBaptizedByImmersion: false,
+                BaptismDate: null,
+                BaptismPlace: '',
+                WillingToBeBaptizedAtGCI: false,
+                PreviousMinistryExperience: '',
+                SpecialGiftsOrServiceInterest: '',
+                IsInformationConfirmed: false,
+                IsActive: true
+            };
+
+            // Process member fields
+            const fullName = $('[data-field="fullName"] input').val();
+            if (fullName) {
+                const nameParts = fullName.trim().split(' ');
+                memberData.FirstName = nameParts[0];
+                memberData.OtherNames = nameParts.slice(1).join(' ');
+            }
+
+            memberData.Phone = $('[data-field="phone"] input').val();
+            memberData.Email = $('[data-field="email"] input').val();
+            memberData.Gender = $('[data-field="gender"] select').val();
+            const dobValue = $('[data-field="dateOfBirth"] input').val();
+            if (dobValue) {
+                memberData.DateOfBirth = dobValue;
+            }
+            memberData.MaritalStatus = $('[data-field="maritalStatus"] select').val();
+            memberData.SpouseName = $('[data-field="spouseName"] input').val();
+            memberData.NumberOfChildren = parseInt($('[data-field="numberOfChildren"] input').val()) || 0;
+            memberData.ResidentialAddress = $('[data-field="residentialAddress"] textarea').val();
+            memberData.Assembly = $('[data-field="assembly"] input').val();
+            memberData.SocialMediaName = $('[data-field="socialMediaName"] input').val();
+            memberData.StatusId = parseInt($('[data-field="statusId"] select').val());
+
+            // Process additional info fields
+            const membershipYearValue = $('[data-field="membershipYear"] input').val();
+            if (membershipYearValue) {
+                additionalData.MembershipYear = parseInt(membershipYearValue);
+            }
+            additionalData.Cohort = $('[data-field="cohort"] input').val();
+            additionalData.IsMemberOfAnotherChurch = $('[data-field="isMemberOfAnotherChurch"] select').val() === 'true';
+            additionalData.FormerChurchName = $('[data-field="formerChurchName"] input').val();
+            additionalData.ReasonForLeavingFormerChurch = $('[data-field="reasonForLeavingFormerChurch"] textarea').val();
+            const attendingDateValue = $('[data-field="dateBeganAttendingGCI"] input').val();
+            if (attendingDateValue) {
+                additionalData.DateBeganAttendingGCI = attendingDateValue;
+            }
+            additionalData.SeekingMembership = $('[data-field="seekingMembership"] select').val() === 'true';
+            additionalData.IsBornAgain = $('[data-field="isBornAgain"] select').val() === 'true';
+            const conversionDateValue = $('[data-field="dateOfConversion"] input').val();
+            if (conversionDateValue) {
+                additionalData.DateOfConversion = conversionDateValue;
+            }
+            additionalData.PlaceOfConversion = $('[data-field="placeOfConversion"] input').val();
+            additionalData.HasEternalLifeAssurance = $('[data-field="hasEternalLifeAssurance"] select').val() === 'true';
+            additionalData.HeavenReason = $('[data-field="heavenReason"] textarea').val();
+            additionalData.MeaningOfChristsDeath = $('[data-field="meaningOfChristsDeath"] textarea').val();
+            additionalData.IsBaptizedByImmersion = $('[data-field="isBaptizedByImmersion"] select').val() === 'true';
+            const baptismDateValue = $('[data-field="baptismDate"] input').val();
+            if (baptismDateValue) {
+                additionalData.BaptismDate = baptismDateValue;
+            }
+            additionalData.BaptismPlace = $('[data-field="baptismPlace"] input').val();
+            additionalData.WillingToBeBaptizedAtGCI = $('[data-field="willingToBeBaptizedAtGCI"] select').val() === 'true';
+            additionalData.PreviousMinistryExperience = $('[data-field="previousMinistryExperience"] textarea').val();
+            additionalData.SpecialGiftsOrServiceInterest = $('[data-field="specialGiftsOrServiceInterest"] textarea').val();
+            additionalData.IsInformationConfirmed = $('[data-field="isInformationConfirmed"] select').val() === 'true';
+            additionalData.IsActive = $('[data-field="isActive"] select').val() === 'true';
+
+            // Validate required fields
+            if (!memberData.FirstName || !memberData.Phone || !memberData.Email) {
+                Swal.fire('Validation Error', 'First Name, Phone, and Email are required fields.', 'error');
+                return;
+            }
+
+            // Show loading state
+            Swal.fire({
+                title: 'Saving Changes...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Send update request
+            $.ajax({
+                url: '/Members/UpdateMemberWithAdditionalInfo',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    Member: memberData,
+                    AdditionalInformation: additionalData
+                }),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Member information updated successfully.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', response.message || 'Failed to update member.', 'error');
+                    }
+                },
+                error: function(xhr) {
+                    let errorMessage = 'An error occurred while updating the member.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Error', errorMessage, 'error');
+                }
+            });
+        }
+
+        function cancelEdit() {
+            // Restore original data
+            $('.display-value').each(function() {
+                const field = $(this).data('field');
+                if (originalData[field]) {
+                    $(this).html(originalData[field]);
+                }
+            });
+
+            // Hide edit fields, show display values
+            $('.edit-field').hide();
+            $('.display-value').show();
+
+            // Toggle buttons
+            $('#editModeButtons').show();
+            $('#saveCancelButtons').hide();
+
+            isEditMode = false;
+
+            Swal.fire({
+                icon: 'info',
+                title: 'Edit Cancelled',
+                text: 'No changes were saved.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+
+        function toggleFormerChurchFields(show) {
+            if (show) {
+                $('.former-church-fields').show();
+            } else {
+                $('.former-church-fields').hide();
+            }
+        }
+
+        function toggleBornAgainFields(show) {
+            if (show) {
+                $('.born-again-fields').show();
+            } else {
+                $('.born-again-fields').hide();
+            }
+        }
+
+        function toggleEternalLifeFields(show) {
+            if (show) {
+                $('.eternal-life-fields').show();
+            } else {
+                $('.eternal-life-fields').hide();
+            }
+        }
+
+        function toggleBaptismFields(show) {
+            if (show) {
+                $('.baptism-fields').show();
+            } else {
+                $('.baptism-fields').hide();
+            }
+        }
+
+        // Update age when date of birth changes
+        $('[data-field="dateOfBirth"] input').on('change', function() {
+            const dob = new Date($(this).val());
+            if (dob) {
+                const today = new Date();
+                let age = today.getFullYear() - dob.getFullYear();
+                const monthDiff = today.getMonth() - dob.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+                $('#ageDisplay').text(age + ' years');
+            }
+        });
+    </script>
+}
+
+<style>
+    .info-section {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        transition: all 0.3s ease;
+    }
+
+        .info-section:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,0.02);
+    }
+
+    .border-bottom {
+        border-bottom: 2px solid #e0e0e0 !important;
+    }
+
+    .fa, .fas, .far {
+        margin-right: 5px;
+    }
+
+    .badge {
+        padding: 6px 12px;
+        font-weight: 500;
+    }
+
+    .table td {
+        padding: 8px 0;
+        border: none;
+    }
+
+    .table tr:last-child td {
+        padding-bottom: 0;
+    }
+
+    .edit-field {
+        margin: 0;
+        padding: 6px 12px;
+    }
+
+    textarea.edit-field {
+        min-height: 60px;
+    }
+
+    .btn-lg {
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+
+    .former-church-fields,
+    .born-again-fields,
+    .eternal-life-fields,
+    .baptism-fields {
+        transition: all 0.3s ease;
+    }
+</style>

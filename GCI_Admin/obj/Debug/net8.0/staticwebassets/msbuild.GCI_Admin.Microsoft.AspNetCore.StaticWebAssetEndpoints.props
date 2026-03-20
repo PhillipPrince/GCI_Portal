@@ -28,13 +28,13 @@
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\GCI_Admin.3qqwqodlfe.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"3qqwqodlfe"},{"Name":"integrity","Value":"sha256-SxnncMP9\u002BTU6LdiPqLUnEf9vfm4dgIycT0vWTfUFHf4="},{"Name":"label","Value":"_content/GCI_Admin/GCI_Admin.bundle.scp.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1127"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022SxnncMP9\u002BTU6LdiPqLUnEf9vfm4dgIycT0vWTfUFHf4=\u0022"},{"Name":"Last-Modified","Value":"Fri, 20 Mar 2026 01:15:29 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1127"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022SxnncMP9\u002BTU6LdiPqLUnEf9vfm4dgIycT0vWTfUFHf4=\u0022"},{"Name":"Last-Modified","Value":"Fri, 20 Mar 2026 17:48:09 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GCI_Admin/GCI_Admin.bundle.scp.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\GCI_Admin.3qqwqodlfe.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-SxnncMP9\u002BTU6LdiPqLUnEf9vfm4dgIycT0vWTfUFHf4="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1127"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022SxnncMP9\u002BTU6LdiPqLUnEf9vfm4dgIycT0vWTfUFHf4=\u0022"},{"Name":"Last-Modified","Value":"Fri, 20 Mar 2026 01:15:29 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1127"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022SxnncMP9\u002BTU6LdiPqLUnEf9vfm4dgIycT0vWTfUFHf4=\u0022"},{"Name":"Last-Modified","Value":"Fri, 20 Mar 2026 17:48:09 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GCI_Admin/images/church-logo.8z9gbbf79d.png">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\church-logo.png'))</AssetFile>

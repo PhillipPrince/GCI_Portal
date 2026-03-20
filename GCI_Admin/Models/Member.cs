@@ -31,4 +31,20 @@
 
         public string? SpouseName { get; set; }
     }
+
+    public class MembersListViewModel
+    {
+        public int TotalMembers { get; set; }
+
+        public List<Member> ActiveMembers { get; set; } = new();
+        public List<Member> MembershipClassMembers { get; set; } = new();
+        public List<Member> NonMembers { get; set; } = new();
+        public List<Member> Members { get; set; }
+    }
+
+    public class MemberDetailsViewModel
+    {
+        public Member Member { get; set; }
+        public MemberAdditionalInformation AdditionalInformation { get; set; }
+    }
 }
