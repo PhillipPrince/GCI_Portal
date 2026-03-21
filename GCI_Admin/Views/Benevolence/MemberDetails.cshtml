@@ -67,157 +67,165 @@
                 <div class="row">
                     <!-- Personal Information Section -->
                     <div class="col-md-6">
-                        <h6 class="text-primary mb-3"><i class="fa fa-user me-2"></i>Personal Details</h6>
-                        <table class="table table-borderless">
-                            <tr>
-                                <td class="text-muted" style="width: 40%">Full Name:</td>
-                                <td class="fw-bold">
-                                    <span class="display-value" data-field="fullName">@(member.Member != null ? $"{member.Member.FirstName} {member.Member.OtherNames}" : "-")</span>
-                                    <input type="text" class="form-control edit-field" data-field="fullName" style="display: none;" value="@(member.Member != null ? $"{member.Member.FirstName} {member.Member.OtherNames}" : "")">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">Phone Number:</td>
-                                <td class="fw-bold">
-                                    <span class="display-value" data-field="phone">@(member.Member?.Phone ?? "-")</span>
-                                    <input type="tel" class="form-control edit-field" data-field="phone" style="display: none;" value="@(member.Member?.Phone ?? "")">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">Email Address:</td>
-                                <td class="fw-bold">
-                                    <span class="display-value" data-field="email">@(member.Member?.Email ?? "-")</span>
-                                    <input type="email" class="form-control edit-field" data-field="email" style="display: none;" value="@(member.Member?.Email ?? "")">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">National ID:</td>
-                                <td class="fw-bold">
-                                    <span class="display-value" data-field="nationalId">@member.NationalId</span>
-                                    <input type="text" class="form-control edit-field" data-field="nationalId" style="display: none;" value="@member.NationalId">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">Registration No:</td>
-                                <td class="fw-bold">
-                                    <span class="display-value" data-field="regNo">@member.RegNo</span>
-                                    <input type="text" class="form-control edit-field" data-field="regNo" style="display: none;" value="@member.RegNo">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">Member ID:</td>
-                                <td class="fw-bold">@member.Id</td>
-                            </tr>
-                        </table>
+                        <div class="info-section mb-4">
+                            <h6 class="text-primary mb-3"><i class="fa fa-user me-2"></i>Personal Details</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="text-muted" style="width: 40%">Full Name:</td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="fullName">@(member.Member != null ? $"{member.Member.FirstName} {member.Member.OtherNames}" : "-")</span>
+                                        <input type="text" class="form-control edit-field" data-field="fullName" style="display: none;" value="@(member.Member != null ? $"{member.Member.FirstName} {member.Member.OtherNames}" : "")">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Phone Number:</td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="phone">@(member.Member?.Phone ?? "-")</span>
+                                        <input type="tel" class="form-control edit-field" data-field="phone" style="display: none;" value="@(member.Member?.Phone ?? "")">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Email Address:</td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="email">@(member.Member?.Email ?? "-")</span>
+                                        <input type="email" class="form-control edit-field" data-field="email" style="display: none;" value="@(member.Member?.Email ?? "")">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">National ID:</td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="nationalId">@member.NationalId</span>
+                                        <input type="text" class="form-control edit-field" data-field="nationalId" style="display: none;" value="@member.NationalId">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Registration No:</td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="regNo">@member.RegNo</span>
+                                        <input type="text" class="form-control edit-field" data-field="regNo" style="display: none;" value="@member.RegNo">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Member ID:</td>
+                                    <td class="fw-bold">@member.Id</td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- Financial Information Section -->
                     <div class="col-md-6">
-                        <h6 class="text-success mb-3"><i class="fa fa-credit-card me-2"></i>Financial Details</h6>
-                        <table class="table table-borderless">
-                            <tr>
-                                <td class="text-muted" style="width: 40%">Preferred Cover Amount:</td>
-                                <td class="fw-bold">
-                                    <span class="display-value" data-field="preferredCoverAmount">Ksh @member.PreferredCoverAmount.ToString("N2")</span>
-                                    <input type="number" step="0.01" class="form-control edit-field" data-field="preferredCoverAmount" style="display: none;" value="@member.PreferredCoverAmount">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">Total Amount Due:</td>
-                                <td class="fw-bold">
-                                    <span class="display-value" data-field="totalAmountDue">Ksh @member.TotalAmountDue.ToString("N2")</span>
-                                    <input type="number" step="0.01" class="form-control edit-field" data-field="totalAmountDue" style="display: none;" value="@member.TotalAmountDue">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">Amount Paid:</td>
-                                <td class="fw-bold">
-                                    <span class="display-value" data-field="amountPaid">Ksh @member.AmountPaid.ToString("N2")</span>
-                                    <input type="number" step="0.01" class="form-control edit-field" data-field="amountPaid" style="display: none;" value="@member.AmountPaid">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">Balance Amount:</td>
-                                <td class="fw-bold">
-                                    <span class="display-value" data-field="balanceAmount">
-                                        <span class="@(member.BalanceAmount > 0 ? "text-danger" : "text-success")">
-                                            Ksh @member.BalanceAmount.ToString("N2")
+                        <div class="info-section mb-4">
+                            <h6 class="text-success mb-3"><i class="fa fa-credit-card me-2"></i>Financial Details</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="text-muted" style="width: 40%">Preferred Cover Amount:</td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="preferredCoverAmount">Ksh @member.PreferredCoverAmount.ToString("N2")</span>
+                                        <input type="number" step="0.01" class="form-control edit-field" data-field="preferredCoverAmount" style="display: none;" value="@member.PreferredCoverAmount">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Total Amount Due:</td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="totalAmountDue">Ksh @member.TotalAmountDue.ToString("N2")</span>
+                                        <input type="number" step="0.01" class="form-control edit-field" data-field="totalAmountDue" style="display: none;" value="@member.TotalAmountDue">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Amount Paid:</td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="amountPaid">Ksh @member.AmountPaid.ToString("N2")</span>
+                                        <input type="number" step="0.01" class="form-control edit-field" data-field="amountPaid" style="display: none;" value="@member.AmountPaid">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Balance Amount:</td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="balanceAmount">
+                                            <span class="@(member.BalanceAmount > 0 ? "text-danger" : "text-success")">
+                                                Ksh @member.BalanceAmount.ToString("N2")
+                                            </span>
                                         </span>
-                                    </span>
-                                    <input type="number" step="0.01" class="form-control edit-field" data-field="balanceAmount" style="display: none;" value="@member.BalanceAmount">
-                                </td>
-                            </tr>
-                        </table>
+                                        <input type="number" step="0.01" class="form-control edit-field" data-field="balanceAmount" style="display: none;" value="@member.BalanceAmount">
+                                    </td>
+                                </tr>
+                            </table>
 
-                        <!-- Payment Progress Bar -->
-                        @{
-                            var paymentPercentage = member.TotalAmountDue > 0
-                            ? (member.AmountPaid / member.TotalAmountDue) * 100
-                            : 0;
-                        }
-                        <div class="mt-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted small">Payment Progress</span>
-                                <span class="text-muted small" id="paymentPercentage">@paymentPercentage.ToString("F0")%</span>
-                            </div>
-                            <div class="progress" style="height: 10px;">
-                                <div class="progress-bar bg-success" role="progressbar"
-                                     id="paymentProgressBar"
-                                     style="width: @paymentPercentage%"
-                                     aria-valuenow="@paymentPercentage"
-                                     aria-valuemin="0"
-                                     aria-valuemax="100">
+                            <!-- Payment Progress Bar -->
+                            @{
+                                var paymentPercentage = member.TotalAmountDue > 0
+                                ? (member.AmountPaid / member.TotalAmountDue) * 100
+                                : 0;
+                            }
+                            <div class="mt-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-muted small">Payment Progress</span>
+                                    <span class="text-muted small" id="paymentPercentage">@paymentPercentage.ToString("F0")%</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                         id="paymentProgressBar"
+                                         style="width: @paymentPercentage%"
+                                         aria-valuenow="@paymentPercentage"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100">
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Next of Kin Information Section -->
-                    <div class="col-md-6 mt-4">
-                        <h6 class="text-info mb-3"><i class="fa fa-users me-2"></i>Next of Kin Details</h6>
-                        <table class="table table-borderless">
-                            <tr>
-                                <td class="text-muted" style="width: 40%">Next of Kin Name:</td>
-                                <td class="fw-bold">
-                                    <span class="display-value" data-field="nextOfKinName">@member.NextOfKinName</span>
-                                    <input type="text" class="form-control edit-field" data-field="nextOfKinName" style="display: none;" value="@member.NextOfKinName">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">Next of Kin Phone:</td>
-                                <td class="fw-bold">
-                                    <span class="display-value" data-field="nextOfKinPhone">@member.NextOfKinPhone</span>
-                                    <input type="tel" class="form-control edit-field" data-field="nextOfKinPhone" style="display: none;" value="@member.NextOfKinPhone">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">Number of Dependants:</td>
-                                <td class="fw-bold">
-                                    <span class="display-value" data-field="numberOfDependants">
-                                        <span class="badge bg-info">@member.NumberOfDependants</span>
-                                    </span>
-                                    <input type="number" class="form-control edit-field" data-field="numberOfDependants" style="display: none;" value="@member.NumberOfDependants" min="0">
-                                </td>
-                            </tr>
-                        </table>
+                    <div class="col-md-6">
+                        <div class="info-section mb-4">
+                            <h6 class="text-info mb-3"><i class="fa fa-users me-2"></i>Next of Kin Details</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="text-muted" style="width: 40%">Next of Kin Name:</td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="nextOfKinName">@member.NextOfKinName</span>
+                                        <input type="text" class="form-control edit-field" data-field="nextOfKinName" style="display: none;" value="@member.NextOfKinName">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Next of Kin Phone:</td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="nextOfKinPhone">@member.NextOfKinPhone</span>
+                                        <input type="tel" class="form-control edit-field" data-field="nextOfKinPhone" style="display: none;" value="@member.NextOfKinPhone">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Number of Dependants:</td>
+                                    <td class="fw-bold">
+                                        <span class="display-value" data-field="numberOfDependants">
+                                            <span class="badge bg-info">@member.NumberOfDependants</span>
+                                        </span>
+                                        <input type="number" class="form-control edit-field" data-field="numberOfDependants" style="display: none;" value="@member.NumberOfDependants" min="0">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- System Information Section -->
-                    <div class="col-md-6 mt-4">
-                        <h6 class="text-secondary mb-3"><i class="fa fa-clock-o me-2"></i>System Information</h6>
-                        <table class="table table-borderless">
-                            <tr>
-                                <td class="text-muted" style="width: 40%">Created At:</td>
-                                <td class="fw-bold">@member.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
-                            </tr>
-                            @if (member.UpdatedAt.HasValue)
-                            {
+                    <div class="col-md-6">
+                        <div class="info-section mb-4">
+                            <h6 class="text-secondary mb-3"><i class="fa fa-clock-o me-2"></i>System Information</h6>
+                            <table class="table table-borderless">
                                 <tr>
-                                    <td class="text-muted">Last Updated:</td>
-                                    <td class="fw-bold">@member.UpdatedAt.Value.ToString("dd MMM yyyy HH:mm")</td>
+                                    <td class="text-muted" style="width: 40%">Created At:</td>
+                                    <td class="fw-bold">@member.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
                                 </tr>
-                            }
-                        </table>
+                                @if (member.UpdatedAt.HasValue)
+                                {
+                                    <tr>
+                                        <td class="text-muted">Last Updated:</td>
+                                        <td class="fw-bold">@member.UpdatedAt.Value.ToString("dd MMM yyyy HH:mm")</td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -846,60 +854,3 @@
         window.deleteBeneficiary = deleteBeneficiary;
     </script>
 }
-
-<style>
-    .info-section {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 15px;
-        transition: all 0.3s ease;
-    }
-
-        .info-section:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: rgba(0,0,0,0.02);
-    }
-
-    .border-bottom {
-        border-bottom: 2px solid #e0e0e0 !important;
-    }
-
-    .fa, .fas, .far {
-        margin-right: 5px;
-    }
-
-    .badge {
-        padding: 6px 12px;
-        font-weight: 500;
-    }
-
-    .table td {
-        padding: 8px 0;
-        border: none;
-    }
-
-    .table tr:last-child td {
-        padding-bottom: 0;
-    }
-
-    .edit-field {
-        margin: 0;
-        padding: 6px 12px;
-    }
-
-    textarea.edit-field {
-        min-height: 60px;
-    }
-
-    .btn-lg {
-        padding: 10px 20px;
-        font-size: 1rem;
-    }
-</style>

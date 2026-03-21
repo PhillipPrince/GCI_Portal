@@ -132,6 +132,22 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/GCI/GCI_Portal/GCI_Admin/Views/Leadership/DeaconDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVhZGVyc2hpcFxEZWFjb25EZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/GCI/GCI_Portal/GCI_Admin/Views/Leadership/Deacons.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVhZGVyc2hpcFxEZWFjb25zLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/GCI/GCI_Portal/GCI_Admin/Views/Leadership/_AddDeacon.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVhZGVyc2hpcFxfQWRkRGVhY29uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/GCI/GCI_Portal/GCI_Admin/Views/Leadership/_DeaconsTable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVhZGVyc2hpcFxfRGVhY29uc1RhYmxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/GCI/GCI_Portal/GCI_Admin/Views/Members/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYmVyc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

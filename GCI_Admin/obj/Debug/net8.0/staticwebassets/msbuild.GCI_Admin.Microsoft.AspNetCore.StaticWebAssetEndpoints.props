@@ -1,16 +1,16 @@
 ﻿<Project>
   <ItemGroup>
-    <StaticWebAssetEndpoint Include="_content/GCI_Admin/css/site.054vmyamm3.css">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"054vmyamm3"},{"Name":"integrity","Value":"sha256-tOQ1I9oOyg9pUIRngL4IMIH0LTgzQ0dNvTgu8qxNEhA="},{"Name":"label","Value":"_content/GCI_Admin/css/site.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"7488"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022tOQ1I9oOyg9pUIRngL4IMIH0LTgzQ0dNvTgu8qxNEhA=\u0022"},{"Name":"Last-Modified","Value":"Thu, 19 Mar 2026 11:53:38 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GCI_Admin/css/site.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-tOQ1I9oOyg9pUIRngL4IMIH0LTgzQ0dNvTgu8qxNEhA="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"7488"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022tOQ1I9oOyg9pUIRngL4IMIH0LTgzQ0dNvTgu8qxNEhA=\u0022"},{"Name":"Last-Modified","Value":"Thu, 19 Mar 2026 11:53:38 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-NMNd5PvSLixI5AymMk88NQ7Wwm/x\u002B3K/VhDQZfHwqCc="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"17421"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022NMNd5PvSLixI5AymMk88NQ7Wwm/x\u002B3K/VhDQZfHwqCc=\u0022"},{"Name":"Last-Modified","Value":"Sat, 21 Mar 2026 17:58:44 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/GCI_Admin/css/site.o3nlz25j6u.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"o3nlz25j6u"},{"Name":"integrity","Value":"sha256-NMNd5PvSLixI5AymMk88NQ7Wwm/x\u002B3K/VhDQZfHwqCc="},{"Name":"label","Value":"_content/GCI_Admin/css/site.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"17421"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022NMNd5PvSLixI5AymMk88NQ7Wwm/x\u002B3K/VhDQZfHwqCc=\u0022"},{"Name":"Last-Modified","Value":"Sat, 21 Mar 2026 17:58:44 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GCI_Admin/favicon.61n19gt1b8.ico">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\favicon.ico'))</AssetFile>
@@ -28,13 +28,13 @@
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\GCI_Admin.3qqwqodlfe.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"3qqwqodlfe"},{"Name":"integrity","Value":"sha256-SxnncMP9\u002BTU6LdiPqLUnEf9vfm4dgIycT0vWTfUFHf4="},{"Name":"label","Value":"_content/GCI_Admin/GCI_Admin.bundle.scp.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1127"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022SxnncMP9\u002BTU6LdiPqLUnEf9vfm4dgIycT0vWTfUFHf4=\u0022"},{"Name":"Last-Modified","Value":"Fri, 20 Mar 2026 17:48:09 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1127"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022SxnncMP9\u002BTU6LdiPqLUnEf9vfm4dgIycT0vWTfUFHf4=\u0022"},{"Name":"Last-Modified","Value":"Sat, 21 Mar 2026 14:46:48 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GCI_Admin/GCI_Admin.bundle.scp.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\GCI_Admin.3qqwqodlfe.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-SxnncMP9\u002BTU6LdiPqLUnEf9vfm4dgIycT0vWTfUFHf4="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1127"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022SxnncMP9\u002BTU6LdiPqLUnEf9vfm4dgIycT0vWTfUFHf4=\u0022"},{"Name":"Last-Modified","Value":"Fri, 20 Mar 2026 17:48:09 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1127"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022SxnncMP9\u002BTU6LdiPqLUnEf9vfm4dgIycT0vWTfUFHf4=\u0022"},{"Name":"Last-Modified","Value":"Sat, 21 Mar 2026 14:46:48 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GCI_Admin/images/church-logo.8z9gbbf79d.png">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\church-logo.png'))</AssetFile>

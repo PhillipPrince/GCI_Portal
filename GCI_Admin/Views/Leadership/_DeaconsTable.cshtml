@@ -1,0 +1,170 @@
+﻿@model List<GCI_Admin.Models.Deacon>
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="deaconsTable" class="table table-striped table-hover align-middle datatable">
+            <thead class="table-light">
+                <tr>
+                    <th>Deacon Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Ministry</th>
+                    <th>Bio</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                    <th>On Duty</th>
+                    <th>Created At</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                <tr>
+                    <th>
+                        <input type="text" placeholder="Search Name" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Phone" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Email" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Ministry" class="form-control form-control-sm" />
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="True">Active</option>
+                            <option value="False">Inactive</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="True">On Duty</option>
+                            <option value="False">Off Duty</option>
+                        </select>
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var d in Model)
+                {
+                    <tr>
+                        <!-- Deacon Name (combining FirstName and OtherNames from Member) -->
+                        <td>
+                            @(d.Member != null ? $"{d.Member.FirstName} {d.Member.OtherNames}" : "-")
+                        </td>
+
+                        <!-- Phone -->
+                        <td>
+                            @(d.Member?.Phone ?? "-")
+                        </td>
+
+                        <!-- Email -->
+                        <td>
+                            @(d.Member?.Email ?? "-")
+                        </td>
+
+                        <!-- Ministry -->
+                        <td>@d.Ministry</td>
+
+                        <!-- Bio (truncated if too long) -->
+                        <td>
+                            @if (!string.IsNullOrEmpty(d.Bio) && d.Bio.Length > 50)
+                            {
+                                <span title="@d.Bio">@d.Bio.Substring(0, 50)...</span>
+                            }
+                            else
+                            {
+                                @d.Bio
+                            }
+                        </td>
+
+                        <!-- Start Date -->
+                        <td>@d.StartDate.ToString("dd MMM yyyy")</td>
+
+                        <!-- End Date -->
+                        <td>
+                            @(d.EndDate.HasValue ? d.EndDate.Value.ToString("dd MMM yyyy") : "-")
+                        </td>
+
+                        <!-- Active Status -->
+                        <td>
+                            @if (d.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactive</span>
+                            }
+                        </td>
+
+                        <!-- On Duty Status -->
+                        <td>
+                            @if (d.OnDuty)
+                            {
+                                <span class="badge bg-primary">On Duty</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Off Duty</span>
+                            }
+                        </td>
+
+                        <!-- Created At -->
+                        <td>@d.CreatedAt.ToString("dd MMM yyyy")</td>
+
+                        <!-- Actions -->
+                        <td class="text-end">
+                            <!-- View - Using anchor tag -->
+                            <a href="@Url.Action("DeaconDetails", "Leadership", new { id = d.DeaconId })"
+                               class="btn btn-sm btn-outline-info"
+                               title="View Details">
+                                <i class="fa fa-eye"></i>
+                            </a>
+
+                            <!-- Edit - Using anchor tag -->
+                            <a href="@Url.Action("Edit", "Deacons", new { id = d.DeaconId })"
+                               class="btn btn-sm btn-outline-warning"
+                               title="Edit Deacon">
+                                <i class="fa fa-edit"></i>
+                            </a>
+
+                           
+                            <!-- Toggle On Duty - Additional button for duty status -->
+                            @if (d.OnDuty)
+                            {
+                                <button class="btn btn-sm btn-outline-warning"
+                                        onclick="toggleDeaconDuty(@d.DeaconId, false)"
+                                        title="Mark Off Duty">
+                                    <i class="fa fa-clock-o"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-outline-success"
+                                        onclick="toggleDeaconDuty(@d.DeaconId, true)"
+                                        title="Mark On Duty">
+                                    <i class="fa fa-check-circle"></i>
+                                </button>
+                            }
+
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteDeacon(@d.DeaconId)"
+                                    title="Delete Deacon">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

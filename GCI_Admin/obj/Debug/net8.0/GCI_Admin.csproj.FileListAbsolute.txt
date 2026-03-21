@@ -270,6 +270,15 @@ C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\GCI_Admin.pdb
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\GCI_Admin.genruntimeconfig.cache
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\ref\GCI_Admin.dll
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.csproj.AssemblyReference.cache
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.GeneratedMSBuildEditorConfig.editorconfig
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.AssemblyInfoInputs.cache
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.AssemblyInfo.cs
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.csproj.CoreCompileInputs.cache
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.MvcApplicationPartsAssemblyInfo.cache
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.RazorAssemblyInfo.cache
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.RazorAssemblyInfo.cs
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.sourcelink.json
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\appsettings.Development.json
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\appsettings.json
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\GCI_Admin.staticwebassets.runtime.json
@@ -516,15 +525,6 @@ D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\win-x64\native\Microsoft.D
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.csproj.AssemblyReference.cache
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.GeneratedMSBuildEditorConfig.editorconfig
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.AssemblyInfoInputs.cache
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.AssemblyInfo.cs
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.csproj.CoreCompileInputs.cache
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.MvcApplicationPartsAssemblyInfo.cache
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.RazorAssemblyInfo.cache
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.RazorAssemblyInfo.cs
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.sourcelink.json
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\scopedcss\bundle\GCI_Admin.styles.css
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\scopedcss\projectbundle\GCI_Admin.bundle.scp.css

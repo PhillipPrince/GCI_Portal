@@ -309,3 +309,515 @@ footer {
         border-color: var(--secondary-gray);
         color: var(--text-primary);
     }
+
+
+/* Deacon Details Page Specific Styles */
+.info-item {
+    transition: all 0.2s ease;
+}
+
+    .info-item:hover {
+        background-color: var(--bg-light);
+        padding-left: 8px !important;
+    }
+
+.info-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md) !important;
+    }
+
+.badge {
+    padding: 8px 16px;
+    font-weight: 500;
+}
+
+.btn-group .btn {
+    transition: all 0.2s;
+}
+
+    .btn-group .btn:hover {
+        transform: translateY(-1px);
+    }
+
+.info-content a {
+    text-decoration: none;
+    color: var(--primary-blue);
+}
+
+    .info-content a:hover {
+        text-decoration: underline;
+    }
+
+/* Info List Styles */
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+/* Duty Duration Badge */
+.duty-duration {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+/* Status Badge Enhancements */
+.badge.bg-primary {
+    background-color: var(--primary-blue) !important;
+}
+
+.badge.bg-success {
+    background-color: var(--success-green) !important;
+}
+
+.badge.bg-danger {
+    background-color: var(--danger-red) !important;
+}
+
+.badge.bg-warning {
+    background-color: var(--warning-yellow) !important;
+}
+
+.badge.bg-secondary {
+    background-color: var(--secondary-gray) !important;
+}
+
+/* Animation for duty status changes */
+@keyframes dutyPulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.duty-active {
+    animation: dutyPulse 0.5s ease;
+}
+
+/* Member Details Page Styles */
+.info-section {
+    background-color: var(--bg-light);
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+    .info-section:hover {
+        box-shadow: var(--shadow-sm);
+    }
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.border-bottom {
+    border-bottom: 2px solid var(--secondary-border) !important;
+}
+
+.fa, .fas, .far {
+    margin-right: 5px;
+}
+
+.badge {
+    padding: 6px 12px;
+    font-weight: 500;
+}
+
+.table td {
+    padding: 8px 0;
+    border: none;
+}
+
+.table tr:last-child td {
+    padding-bottom: 0;
+}
+
+.edit-field {
+    margin: 0;
+    padding: 6px 12px;
+}
+
+textarea.edit-field {
+    min-height: 60px;
+}
+
+.btn-lg {
+    padding: 10px 20px;
+    font-size: 1rem;
+}
+
+.former-church-fields,
+.born-again-fields,
+.eternal-life-fields,
+.baptism-fields {
+    transition: all 0.3s ease;
+}
+
+/* Member Details Specific */
+.info-section .text-primary {
+    color: var(--primary-blue) !important;
+}
+
+.info-section .text-success {
+    color: var(--success-green) !important;
+}
+
+.info-section .text-info {
+    color: var(--info-blue) !important;
+}
+
+.info-section .text-warning {
+    color: var(--warning-yellow) !important;
+}
+
+.info-section .text-secondary {
+    color: var(--secondary-gray) !important;
+}
+
+/* Badge variations */
+.badge.bg-info {
+    background-color: var(--info-blue) !important;
+}
+
+.badge.bg-warning {
+    background-color: var(--warning-yellow) !important;
+    color: var(--text-primary);
+}
+
+.badge.bg-success {
+    background-color: var(--success-green) !important;
+}
+
+.badge.bg-danger {
+    background-color: var(--danger-red) !important;
+}
+
+.badge.bg-primary {
+    background-color: var(--primary-blue) !important;
+}
+
+.badge.bg-secondary {
+    background-color: var(--secondary-gray) !important;
+}
+
+/* Card header styling */
+.card-header.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
+    color: var(--text-light);
+}
+
+    .card-header.bg-gradient-primary h5 {
+        color: var(--text-light);
+    }
+
+/* Animation for conditional fields */
+.former-church-fields,
+.born-again-fields,
+.eternal-life-fields,
+.baptism-fields {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Table hover effect */
+.table-hover tbody tr:hover {
+    background-color: var(--bg-light);
+    transition: background-color 0.2s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .info-section {
+        padding: 10px;
+    }
+
+    .table td {
+        display: block;
+        width: 100%;
+        padding: 5px 0;
+    }
+
+        .table td:first-child {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+    .btn-lg {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+}
+
+
+/* Benevolence Details Page Specific Styles */
+.info-section {
+    background-color: var(--bg-light);
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+    .info-section:hover {
+        box-shadow: var(--shadow-sm);
+    }
+
+/* Payment Progress Bar */
+.progress {
+    background-color: var(--secondary-border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+}
+
+    .progress-bar.bg-success {
+        background-color: var(--success-green) !important;
+    }
+
+/* Beneficiary Table Styles */
+#beneficiariesTable {
+    width: 100% !important;
+}
+
+    #beneficiariesTable th,
+    #beneficiariesTable td {
+        vertical-align: middle;
+        padding: 12px;
+    }
+
+    #beneficiariesTable .action-buttons {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+    }
+
+/* Modal Styles */
+.modal-content {
+    border: none;
+    border-radius: 12px;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
+    color: var(--text-light);
+    border-radius: 12px 12px 0 0;
+}
+
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+
+.modal-title {
+    color: var(--text-light);
+}
+
+/* Alert Styles */
+.alert-info {
+    background-color: var(--accent-blue-light);
+    border-color: var(--primary-blue);
+    color: var(--primary-dark-blue);
+}
+
+/* Table Hover Effect */
+.table-hover tbody tr:hover {
+    background-color: var(--bg-light);
+    transition: background-color 0.2s ease;
+}
+
+/* Badge Variations */
+.badge.bg-info {
+    background-color: var(--info-blue) !important;
+}
+
+.badge.bg-primary {
+    background-color: var(--primary-blue) !important;
+}
+
+.badge.bg-success {
+    background-color: var(--success-green) !important;
+}
+
+.badge.bg-danger {
+    background-color: var(--danger-red) !important;
+}
+
+/* Text Colors */
+.text-success {
+    color: var(--success-green) !important;
+}
+
+.text-danger {
+    color: var(--danger-red) !important;
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* Button Styles */
+.btn-outline-success {
+    border-color: var(--success-green);
+    color: var(--success-green);
+}
+
+    .btn-outline-success:hover {
+        background-color: var(--success-green);
+        border-color: var(--success-green);
+        color: var(--text-light);
+    }
+
+.btn-outline-primary {
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
+}
+
+    .btn-outline-primary:hover {
+        background-color: var(--primary-blue);
+        border-color: var(--primary-blue);
+        color: var(--text-light);
+    }
+
+/* Edit Mode Styles */
+.edit-field {
+    margin: 0;
+    padding: 6px 12px;
+    border: 1px solid var(--border-default);
+    border-radius: 4px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+    .edit-field:focus {
+        border-color: var(--border-focus);
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem var(--accent-blue-light);
+    }
+
+textarea.edit-field {
+    min-height: 60px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .info-section {
+        padding: 10px;
+    }
+
+    .table td {
+        display: block;
+        width: 100%;
+        padding: 5px 0;
+    }
+
+        .table td:first-child {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+    .btn-lg {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 10px;
+    }
+
+        .card-header > div:last-child {
+            align-self: flex-start;
+        }
+}
+
+/* Animation for conditional fields */
+.former-church-fields,
+.born-again-fields,
+.eternal-life-fields,
+.baptism-fields {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Payment Progress Label */
+.payment-progress-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Beneficiary Card Styles */
+.beneficiary-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+    .beneficiary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md) !important;
+    }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--secondary-border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-gray);
+    border-radius: 4px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-blue);
+    }

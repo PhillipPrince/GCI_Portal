@@ -1,0 +1,816 @@
+﻿@model GCI_Admin.Models.DeaconsData
+
+@{
+    ViewData["Title"] = "Church Deacons";
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Church Deacons</h2>
+        <p class="text-muted mb-0">Manage church deacons, their ministries, and service schedules</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-success btn-lg me-2" onclick="downloadTemplate()">
+            <i class="fa fa-download me-2"></i>Download Template
+        </button>
+        <button type="button" class="btn btn-primary btn-lg" onclick="openAddDeaconModal()">
+            <i class="fa fa-plus-circle me-2"></i>Add New Deacon
+        </button>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-users text-primary fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Deacons</h6>
+                        <h3 class="fw-bold mb-0" id="totalDeacons">@Model.TotalDeacons</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card duty-card">
+            <div class="card-body">
+                @if (Model.CurrentOnDutyDeacon != null)
+                {
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 p-3 rounded-circle pulse-animation">
+                                <i class="fa fa-user-circle text-success fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="fa fa-bell text-warning me-1"></i>
+                                Currently On Duty
+                            </h6>
+                            <h5 class="fw-bold mb-0 text-truncate" title="@Model.CurrentOnDutyDeacon.FullName">
+                                @Model.CurrentOnDutyDeacon.FullName
+                            </h5>
+                            <small class="text-muted">
+                                <i class="fa fa-building-o me-1"></i>@Model.CurrentOnDutyDeacon.Ministry
+                            </small>
+                            <div class="mt-1">
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fa fa-clock-o me-1"></i>
+                                    Since @Model.CurrentOnDutyDeacon.StartedAt.ToString("hh:mm tt")
+                                </span>
+                                <span class="badge bg-info text-dark ms-1">
+                                    <i class="fa fa-hourglass-half me-1"></i>
+                                    @Model.CurrentOnDutyDeacon.DutyDuration
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2 pt-2 border-top">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                @if (!string.IsNullOrEmpty(Model.CurrentOnDutyDeacon.Phone) && Model.CurrentOnDutyDeacon.Phone != "No phone")
+                                {
+                                    <i class="fa fa-phone text-muted small me-1"></i>
+                                    <small class="text-muted">@Model.CurrentOnDutyDeacon.Phone</small>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.CurrentOnDutyDeacon.Email) && Model.CurrentOnDutyDeacon.Email != "No email")
+                                {
+                                    <br />
+                                    <i class="fa fa-envelope text-muted small me-1"></i>
+                                    <small class="text-muted">@Model.CurrentOnDutyDeacon.Email</small>
+                                }
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewDeacon(@Model.CurrentOnDutyDeacon.DeaconId)" title="View Deacon Details">
+                                <i class="fa fa-eye"></i> View
+                            </button>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.CurrentOnDutyDeacon.Bio))
+                    {
+                        <div class="mt-2 small text-muted">
+                            <i class="fa fa-quote-left me-1"></i>
+                            @(Model.CurrentOnDutyDeacon.Bio.Length > 60 ? Model.CurrentOnDutyDeacon.Bio.Substring(0, 60) + "..." : Model.CurrentOnDutyDeacon.Bio)
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-secondary bg-opacity-10 p-3 rounded-circle">
+                                <i class="fa fa-clock-o text-secondary fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">No Deacon On Duty</h6>
+                            <p class="small text-muted mb-0">No deacon is currently assigned to duty</p>
+                            <button class="btn btn-sm btn-outline-warning mt-2" onclick="assignDuty()">
+                                <i class="fa fa-plus-circle me-1"></i>Assign Now
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0">
+                        <i class="fa fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" id="deaconSearch" placeholder="Search by name, phone, email or ministry...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="dutyFilter">
+                    <option value="">All Duty Status</option>
+                    <option value="true">On Duty</option>
+                    <option value="false">Off Duty</option>
+                </select>
+            </div>
+            <div class="col-md-3 text-end">
+                <button class="btn btn-outline-secondary me-2" onclick="clearFilters()">
+                    <i class="fa fa-times me-1"></i>Clear
+                </button>
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fa fa-filter me-1"></i>Apply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="btn-group" role="group">
+        <button class="btn btn-outline-primary active" onclick="toggleView('table')">
+            <i class="fa fa-table me-1"></i>Table View
+        </button>
+        <button class="btn btn-outline-primary" onclick="toggleView('grid')">
+            <i class="fa fa-th me-1"></i>Card View
+        </button>
+        <button class="btn btn-outline-primary" onclick="toggleView('summary')">
+            <i class="fa fa-chart-pie me-1"></i>Summary
+        </button>
+    </div>
+    <div>
+        <button class="btn btn-outline-secondary me-2" onclick="exportDeacons()">
+            <i class="fa fa-file-excel me-1"></i>Export to Excel
+        </button>
+        <button class="btn btn-outline-secondary" onclick="showUploadModal()">
+            <i class="fa fa-upload me-1"></i>Upload Deacons
+        </button>
+    </div>
+</div>
+
+<div id="deaconsTableContainer">
+    @await Html.PartialAsync("_DeaconsTable", Model.Deacons)
+</div>
+
+<div id="cardView" style="display: none;">
+    <div class="row g-4" id="deaconCards"></div>
+</div>
+
+<div id="summaryView" style="display: none;">
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">Deacons by Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">Deacons by Ministry</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="ministryChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">Deacons Service Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="serviceChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">
+                    <i class="fa fa-upload me-2"></i>Upload Deacons from Excel
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fa fa-info-circle me-2"></i>
+                    Please use the downloaded template format. The Excel file should match the template structure below.
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Upload Options</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="uploadOption" id="appendData" value="append" checked>
+                        <label class="form-check-label" for="appendData">Append to existing data</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="uploadOption" id="replaceData" value="replace">
+                        <label class="form-check-label" for="replaceData">Replace all data (clears existing)</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="uploadOption" id="updateData" value="update">
+                        <label class="form-check-label" for="updateData">Update existing records (based on Member ID)</label>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Choose File</label>
+                    <input type="file" class="form-control" id="excelFile" accept=".xlsx,.xls,.csv">
+                </div>
+                <div class="progress mb-3" style="display: none;" id="uploadProgress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%">0%</div>
+                </div>
+                <div id="uploadPreview" class="mb-3" style="display: none;">
+                    <h6>Preview:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead id="previewHeader"></thead>
+                            <tbody id="previewBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="uploadFile()" id="uploadBtn">
+                    <i class="fa fa-upload me-1"></i>Upload
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fa fa-check-circle me-2"></i>
+                <span id="toastMessage">Operation completed successfully</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<div id="addDeaconModalContainer"></div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important;
+            }
+
+        .duty-card {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border-left: 4px solid #28a745 !important;
+        }
+
+            .duty-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 0.5rem 1.5rem rgba(40, 167, 69, 0.15) !important;
+            }
+
+        .pulse-animation {
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+            }
+        }
+
+        .deacon-card {
+            transition: all 0.3s;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+            .deacon-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            }
+
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .btn-group .btn.active {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+            .action-btn:hover {
+                transform: translateY(-2px);
+            }
+
+            .action-btn.edit-btn:hover {
+                background-color: #0d6efd;
+                color: white;
+            }
+
+            .action-btn.delete-btn:hover {
+                background-color: #dc3545;
+                color: white;
+            }
+
+            .action-btn.view-btn:hover {
+                background-color: #6c757d;
+                color: white;
+            }
+
+            .action-btn.duty-btn:hover {
+                background-color: #ffc107;
+                color: white;
+            }
+
+        .ministry-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .stat-card.duty-card .btn-outline-primary,
+        .stat-card.duty-card .btn-outline-warning {
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+
+        .stat-card.duty-card .text-truncate {
+            max-width: 180px;
+        }
+
+        .stat-card.duty-card .badge {
+            font-size: 10px;
+            padding: 4px 8px;
+        }
+    </style>
+
+    <script>
+        let deacons = [];
+        let currentView = 'table';
+        let selectedFile = null;
+        let statusChart, ministryChart, serviceChart;
+
+        $(document).ready(function() {
+            initializeDataTable();
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>showToast('@TempData["SuccessMessage"]', 'success');</text>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>showToast('@TempData["ErrorMessage"]', 'error');</text>
+        }
+        });
+
+        function openAddDeaconModal() {
+            if ($('#addDeaconModal').length === 0) {
+                $.get('/Leadership/AddDeaconPartial', function(data) {
+                    $('#addDeaconModalContainer').html(data);
+                    $('#addDeaconModal').modal('show');
+                }).fail(function() {
+                    Swal.fire('Error', 'Failed to load add deacon form', 'error');
+                });
+            } else {
+                $('#addDeaconModal').modal('show');
+                if ($('#addDeaconForm').length) $('#addDeaconForm')[0].reset();
+                if ($.fn.select2) {
+                    $('.select2-member').val(null).trigger('change');
+                    $('.select2-ministry').val(null).trigger('change');
+                }
+                $('#memberPreview').hide();
+            }
+        }
+
+        function updateStats() {
+            const total = deacons.length;
+            const active = deacons.filter(d => d.isActive).length;
+            let totalYears = 0;
+            deacons.forEach(d => {
+                const startDate = moment(d.startDate);
+                const endDate = d.endDate ? moment(d.endDate) : moment();
+                totalYears += endDate.diff(startDate, 'years');
+            });
+            $('#totalDeacons').text(total);
+            $('#activeDeacons').text(active);
+            $('#totalServiceYears').text(totalYears);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = $('#successToast');
+            toast.removeClass('bg-success bg-danger bg-warning');
+            if (type === 'success') {
+                toast.addClass('bg-success');
+                toast.find('i').removeClass().addClass('fa fa-check-circle me-2');
+            } else if (type === 'error') {
+                toast.addClass('bg-danger');
+                toast.find('i').removeClass().addClass('fa fa-exclamation-circle me-2');
+            } else if (type === 'warning') {
+                toast.addClass('bg-warning');
+                toast.find('i').removeClass().addClass('fa fa-exclamation-triangle me-2');
+            }
+            $('#toastMessage').text(message);
+            const bsToast = new bootstrap.Toast(toast[0], { delay: 3000 });
+            bsToast.show();
+        }
+
+        function assignDuty() {
+            const availableDeacons = deacons.filter(d => d.isActive && !d.onDuty);
+            if (availableDeacons.length === 0) {
+                Swal.fire('No Available Deacons', 'All active deacons are currently on duty.', 'warning');
+                return;
+            }
+            Swal.fire({
+                title: 'Assign Deacon to Duty',
+                html: `
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-bold">Select Deacon</label>
+                        <select id="deaconSelect" class="form-select">
+                            <option value="">Choose a deacon...</option>
+                            ${availableDeacons.map(d => `<option value="${d.deaconId}">${d.member ? `${d.member.firstName} ${d.member.otherNames || ''}` : `Deacon ${d.deaconId}`} - ${d.ministry || 'No Ministry'}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-bold">Notes (Optional)</label>
+                        <textarea id="dutyNotes" class="form-control" rows="2" placeholder="Enter any notes..."></textarea>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Assign to Duty',
+                confirmButtonColor: '#28a745',
+                preConfirm: () => {
+                    const deaconId = document.getElementById('deaconSelect').value;
+                    if (!deaconId) {
+                        Swal.showValidationMessage('Please select a deacon');
+                        return false;
+                    }
+                    return { deaconId: parseInt(deaconId), notes: document.getElementById('dutyNotes').value };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Assigning...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    $.ajax({
+                        url: '/Deacons/AssignDuty',
+                        type: 'POST',
+                        data: { deaconId: result.value.deaconId, notes: result.value.notes },
+                        success: (response) => {
+                            if (response.success) {
+                                Swal.fire({ icon: 'success', title: 'Success!', text: response.message, timer: 2000, showConfirmButton: false }).then(() => location.reload());
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: () => Swal.fire('Error', 'Failed to assign deacon to duty', 'error')
+                    });
+                }
+            });
+        }
+
+        function downloadTemplate() {
+            const template = [{ 'MemberId': '1', 'FirstName': 'John', 'OtherNames': 'Doe', 'Phone': '0244123456', 'Email': 'john.doe@email.com', 'Ministry': 'Worship', 'Bio': 'Dedicated deacon', 'StartDate': '2024-01-01', 'EndDate': '', 'IsActive': 'TRUE', 'OnDuty': 'TRUE' }];
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(template);
+            ws['!cols'] = [{ wch: 12 }, { wch: 15 }, { wch: 20 }, { wch: 15 }, { wch: 25 }, { wch: 20 }, { wch: 50 }, { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 10 }];
+            const instructions = [
+                { 'Field': 'MemberId', 'Required': 'Yes', 'Description': 'Member ID from members table', 'Example': '1' },
+                { 'Field': 'FirstName', 'Required': 'Yes', 'Description': 'Member first name', 'Example': 'John' },
+                { 'Field': 'OtherNames', 'Required': 'No', 'Description': 'Member other names', 'Example': 'Doe' },
+                { 'Field': 'Phone', 'Required': 'Yes', 'Description': 'Contact phone number', 'Example': '0244123456' },
+                { 'Field': 'Email', 'Required': 'No', 'Description': 'Email address', 'Example': 'john.doe@email.com' },
+                { 'Field': 'Ministry', 'Required': 'Yes', 'Description': 'Ministry assigned to', 'Example': 'Worship' },
+                { 'Field': 'Bio', 'Required': 'No', 'Description': 'Brief biography', 'Example': 'Dedicated deacon' },
+                { 'Field': 'StartDate', 'Required': 'Yes', 'Description': 'Start date (YYYY-MM-DD)', 'Example': '2024-01-01' },
+                { 'Field': 'EndDate', 'Required': 'No', 'Description': 'End date if deacon service ended', 'Example': '2025-12-31' },
+                { 'Field': 'IsActive', 'Required': 'Yes', 'Description': 'TRUE / FALSE', 'Example': 'TRUE' },
+                { 'Field': 'OnDuty', 'Required': 'Yes', 'Description': 'TRUE / FALSE - Current duty status', 'Example': 'TRUE' }
+            ];
+            const wsInstructions = XLSX.utils.json_to_sheet(instructions);
+            wsInstructions['!cols'] = [{ wch: 18 }, { wch: 12 }, { wch: 60 }, { wch: 25 }];
+            XLSX.utils.book_append_sheet(wb, ws, 'Deacons');
+            XLSX.utils.book_append_sheet(wb, wsInstructions, 'Instructions');
+            XLSX.writeFile(wb, 'Deacons_Template.xlsx');
+            Swal.fire({ icon: 'success', title: 'Template Downloaded', text: 'Deacons Excel template downloaded successfully.', timer: 2000, showConfirmButton: false });
+        }
+
+        function showUploadModal() {
+            $('#uploadModal').modal('show');
+            $('#excelFile').val('');
+            $('#uploadPreview').hide();
+            $('#uploadProgress').hide();
+        }
+
+        $('#excelFile').on('change', function(e) {
+            selectedFile = e.target.files[0];
+            if (selectedFile) previewExcelFile(selectedFile);
+        });
+
+        function previewExcelFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    if (jsonData.length > 0) {
+                        const headers = jsonData[0];
+                        const previewRows = jsonData.slice(1, 6);
+                        let headerHtml = '耖<th>', bodyHtml = '';
+                        headers.forEach(header => headerHtml += `<th>${header}</th>`);
+                        headerHtml += '</tr>';
+                        previewRows.forEach(row => {
+                            bodyHtml += '耖';
+                            row.forEach(cell => bodyHtml += `<td>${cell || ''}</td>`);
+                            bodyHtml += '</tr>';
+                        });
+                        $('#previewHeader').html(headerHtml);
+                        $('#previewBody').html(bodyHtml);
+                        $('#uploadPreview').show();
+                    }
+                } catch (error) {
+                    showToast('Error previewing file. Please check the format.', 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function uploadFile() {
+            const fileInput = document.getElementById("excelFile");
+            const uploadOption = document.querySelector('input[name="uploadOption"]:checked').value;
+            const progressBar = document.getElementById("uploadProgress");
+            const progressBarInner = progressBar.querySelector(".progress-bar");
+            if (fileInput.files.length === 0) {
+                Swal.fire("Warning", "Please select an Excel file.", "warning");
+                return;
+            }
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            formData.append("uploadOption", uploadOption);
+            progressBar.style.display = "block";
+            progressBarInner.style.width = "0%";
+            progressBarInner.innerText = "0%";
+            $.ajax({
+                url: '/Deacons/UploadDeaconsExcel',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                xhr: function() {
+                    const xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", function(evt) {
+                        if (evt.lengthComputable) {
+                            const percentComplete = Math.round((evt.loaded / evt.total) * 100);
+                            progressBarInner.style.width = percentComplete + "%";
+                            progressBarInner.innerText = percentComplete + "%";
+                        }
+                    }, false);
+                    return xhr;
+                },
+                success: function(response) {
+                    progressBar.style.display = "none";
+                    Swal.fire({ icon: "success", title: "Upload Completed", html: `<b>Total:</b> ${response.data.totalRecords}<br/><b>Successful:</b> ${response.data.successfulRecords}<br/><b>Failed:</b> ${response.data.failedRecords}` }).then(() => location.reload());
+                },
+                error: function(xhr) {
+                    progressBar.style.display = "none";
+                    Swal.fire("Error", xhr.responseJSON?.message || "Upload failed.", "error");
+                }
+            });
+        }
+
+        function editDeacon(id) { window.location.href = '@Url.Action("Edit", "Deacons")/' + id; }
+        function viewDeacon(id) { window.location.href = '@Url.Action("DeaconDetails", "Leadership")/' + id; }
+
+        function deleteDeacon(id) {
+            Swal.fire({
+                title: 'Delete Deacon',
+                text: 'Are you sure you want to delete this deacon? This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Yes, delete it',
+                showLoaderOnConfirm: true,
+                preConfirm: () => $.ajax({ url: '@Url.Action("Delete", "Deacons")', type: 'POST', data: { id: id } }).then(response => {
+                    if (!response.success) throw new Error(response.message);
+                    return response;
+                }).catch(error => { Swal.showValidationMessage(`Request failed: ${error.message}`); })
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showToast('Deacon deleted successfully');
+                    reloadDeaconsTable();
+                }
+            });
+        }
+
+        function toggleDeaconStatus(id, activate) {
+            Swal.fire({
+                title: `Are you sure?`,
+                text: `You are about to ${activate ? "activate" : "deactivate"} this deacon.`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: `Yes, ${activate ? "activate" : "deactivate"}`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: "Processing...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    $.ajax({
+                        url: '/Deacons/ToggleStatus',
+                        type: 'POST',
+                        data: { id: id, isActive: activate },
+                        success: (response) => Swal.fire("Success", response.message, "success").then(() => location.reload()),
+                        error: (xhr) => Swal.fire("Error", xhr.responseJSON?.message || "Operation failed", "error")
+                    });
+                }
+            });
+        }
+
+        function toggleDeaconDuty(id, onDuty) {
+            Swal.fire({
+                title: `Are you sure?`,
+                text: `You are about to ${onDuty ? "mark on duty" : "mark off duty"} this deacon.`,
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: `Yes, ${onDuty ? "mark on duty" : "mark off duty"}`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: "Processing...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    $.ajax({
+                        url: '/Leadership/ToggleDutyStatus',
+                        type: 'POST',
+                        data: { id: id, onDuty: onDuty },
+                        success: (response) => Swal.fire("Success", response.message, "success").then(() => location.reload()),
+                        error: (xhr) => Swal.fire("Error", xhr.responseJSON?.message || "Operation failed", "error")
+                    });
+                }
+            });
+        }
+
+        function toggleView(view) {
+            currentView = view;
+            $('.btn-group .btn').removeClass('active');
+            $(`.btn-group .btn:eq(${view === 'table' ? 0 : view === 'grid' ? 1 : 2})`).addClass('active');
+            $('#deaconsTableContainer, #cardView, #summaryView').hide();
+            if (view === 'table') { $('#deaconsTableContainer').show(); reloadDeaconsTable(); }
+            else if (view === 'grid') { $('#cardView').show(); renderCardView(); }
+            else if (view === 'summary') { $('#summaryView').show(); renderSummaryView(); }
+        }
+
+        function renderCardView() {
+            const container = $('#deaconCards');
+            container.empty();
+            if (deacons.length === 0) {
+                container.html(`<div class="col-12 text-center py-5"><i class="fa fa-users fa-4x text-muted mb-3"></i><h5>No Deacons Found</h5><p class="text-muted">Add your first deacon to get started</p><a href="@Url.Action("CreateDeacon", "Deacons")" class="btn btn-primary mt-3"><i class="fa fa-plus-circle me-2"></i>Add New Deacon</a></div>`);
+                return;
+            }
+            deacons.forEach(deacon => {
+                const fullName = deacon.member ? `${deacon.member.firstName} ${deacon.member.otherNames || ''}` : `Deacon ${deacon.deaconId}`;
+                const startDate = moment(deacon.startDate);
+                const yearsOfService = startDate.diff(moment(), 'years') * -1;
+                container.append(`<div class="col-md-4 col-lg-3"><div class="card deacon-card border-0 shadow-sm h-100"><div class="status-badge">${deacon.isActive ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>'}${deacon.onDuty ? '<span class="badge bg-primary ms-1">On Duty</span>' : '<span class="badge bg-secondary ms-1">Off Duty</span>'}</div><div class="card-body"><div class="text-center mb-3"><div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block"><i class="fa fa-user-circle-o text-primary fa-3x"></i></div><h5 class="card-title mt-2 mb-1">${escapeHtml(fullName)}</h5><span class="ministry-badge"><i class="fa fa-building-o me-1"></i>${escapeHtml(deacon.ministry || 'Not Assigned')}</span></div><div class="mb-3"><p class="small text-muted mb-2"><i class="fa fa-phone me-2"></i>${escapeHtml(deacon.member?.phone || 'No phone')}<br><i class="fa fa-envelope me-2"></i>${escapeHtml(deacon.member?.email || 'No email')}<br><i class="fa fa-calendar me-2"></i>Started: ${startDate.format('MMM D, YYYY')}<br><i class="fa fa-clock-o me-2"></i>Service: ${yearsOfService} ${yearsOfService === 1 ? 'year' : 'years'}</p></div>${deacon.bio ? `<div class="small text-muted border-top pt-2 mt-2"><i class="fa fa-quote-left me-1"></i> ${escapeHtml(deacon.bio.substring(0, 80))}${deacon.bio.length > 80 ? '...' : ''}</div>` : ''}<div class="d-flex justify-content-between align-items-center mt-3"><span class="text-muted small"><i class="fa fa-clock-o me-1"></i>${moment(deacon.createdAt).format('MMM D, YYYY')}</span><div><button class="action-btn view-btn btn btn-sm btn-outline-secondary me-1" onclick="viewDeacon(${deacon.deaconId})" title="View Details"><i class="fa fa-eye"></i></button><button class="action-btn edit-btn btn btn-sm btn-outline-primary me-1" onclick="editDeacon(${deacon.deaconId})" title="Edit"><i class="fa fa-edit"></i></button><button class="action-btn duty-btn btn btn-sm btn-outline-warning me-1" onclick="toggleDeaconDuty(${deacon.deaconId}, ${!deacon.onDuty})" title="${deacon.onDuty ? 'Mark Off Duty' : 'Mark On Duty'}"><i class="fa ${deacon.onDuty ? 'fa-clock-o' : 'fa-check-circle'}"></i></button><button class="action-btn delete-btn btn btn-sm btn-outline-danger" onclick="deleteDeacon(${deacon.deaconId})" title="Delete"><i class="fa fa-trash"></i></button></div></div></div></div></div>`);
+            });
+        }
+
+        function renderSummaryView() {
+            if (statusChart) statusChart.destroy();
+            if (ministryChart) ministryChart.destroy();
+            if (serviceChart) serviceChart.destroy();
+            const activeCount = deacons.filter(d => d.isActive).length;
+            const inactiveCount = deacons.filter(d => !d.isActive).length;
+            statusChart = new Chart(document.getElementById('statusChart'), { type: 'pie', data: { labels: ['Active Deacons', 'Inactive Deacons'], datasets: [{ data: [activeCount, inactiveCount], backgroundColor: ['#28a745', '#dc3545'], borderWidth: 0 }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
+            const ministryCount = {};
+            deacons.forEach(d => { const ministry = d.ministry || 'Unassigned'; ministryCount[ministry] = (ministryCount[ministry] || 0) + 1; });
+            ministryChart = new Chart(document.getElementById('ministryChart'), { type: 'bar', data: { labels: Object.keys(ministryCount), datasets: [{ label: 'Number of Deacons', data: Object.values(ministryCount), backgroundColor: Object.keys(ministryCount).map(() => `hsl(${Math.random() * 360}, 70%, 50%)`), borderWidth: 0 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
+            const serviceYears = deacons.map(d => ({ name: d.member ? `${d.member.firstName} ${d.member.otherNames || ''}` : `Deacon ${d.deaconId}`, years: (d.endDate ? moment(d.endDate) : moment()).diff(moment(d.startDate), 'years', true) })).sort((a, b) => b.years - a.years).slice(0, 10);
+            serviceChart = new Chart(document.getElementById('serviceChart'), { type: 'bar', data: { labels: serviceYears.map(s => s.name), datasets: [{ label: 'Years of Service', data: serviceYears.map(s => s.years.toFixed(1)), backgroundColor: '#0d6efd', borderWidth: 0 }] }, options: { responsive: true, indexAxis: 'y', plugins: { tooltip: { callbacks: { label: (ctx) => `${ctx.raw} years` } } }, scales: { x: { title: { display: true, text: 'Years of Service' } } } } });
+        }
+
+        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.appendChild(document.createTextNode(text)); return div.innerHTML; }
+
+        function reloadDeaconsTable() { $('#deaconsTableContainer').load('@Url.Action("DeaconsTable", "Deacons")', function() { initializeDataTable(); }); }
+
+        function initializeDataTable() {
+            if ($.fn.DataTable.isDataTable('#deaconsTable')) $('#deaconsTable').DataTable().destroy();
+            $('#deaconsTable').DataTable({ pageLength: 10, language: { search: "Search deacons:", lengthMenu: "Show _MENU_ deacons", info: "Showing _START_ to _END_ of _TOTAL_ deacons", emptyTable: "No deacons available", zeroRecords: "No matching deacons found" }, columnDefs: [{ targets: -1, orderable: false, searchable: false }], initComplete: function() { $('#deaconsTable .btn-group .btn').addClass('action-btn'); } });
+        }
+
+        function applyFilters() {
+            const search = $('#deaconSearch').val();
+            const status = $('#statusFilter').val();
+            const duty = $('#dutyFilter').val();
+            if (currentView === 'table') $('#deaconsTable').DataTable().search(search).draw();
+            else if (currentView === 'grid') {
+                const filtered = deacons.filter(d => {
+                    let match = true;
+                    if (search) match = match && (d.member ? `${d.member.firstName} ${d.member.otherNames || ''} ${d.member.email || ''} ${d.member.phone || ''} ${d.ministry || ''}` : '').toLowerCase().includes(search.toLowerCase());
+                    if (status) match = match && d.isActive.toString() === status;
+                    if (duty) match = match && d.onDuty.toString() === duty;
+                    return match;
+                });
+                const temp = deacons;
+                deacons = filtered;
+                renderCardView();
+                deacons = temp;
+            }
+        }
+
+        function clearFilters() {
+            $('#deaconSearch, #statusFilter, #dutyFilter, #ministryFilter').val('');
+            if (currentView === 'table') $('#deaconsTable').DataTable().search('').columns().search('').draw();
+            else if (currentView === 'grid') renderCardView();
+        }
+
+        function exportDeacons() {
+            const exportData = deacons.map(d => ({ 'Deacon ID': d.deaconId, 'Full Name': d.member ? `${d.member.firstName} ${d.member.otherNames || ''}` : '', 'Phone': d.member?.phone || '', 'Email': d.member?.email || '', 'Ministry': d.ministry, 'Bio': d.bio, 'Start Date': moment(d.startDate).format('YYYY-MM-DD'), 'End Date': d.endDate ? moment(d.endDate).format('YYYY-MM-DD') : '', 'Status': d.isActive ? 'Active' : 'Inactive', 'On Duty': d.onDuty ? 'Yes' : 'No', 'Created At': moment(d.createdAt).format('YYYY-MM-DD HH:mm:ss') }));
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(exportData), 'Deacons');
+            XLSX.writeFile(wb, `Deacons_${moment().format('YYYY-MM-DD')}.xlsx`);
+            showToast('Deacons exported successfully', 'success');
+        }
+
+        window.deleteDeacon = deleteDeacon;
+        window.editDeacon = editDeacon;
+        window.viewDeacon = viewDeacon;
+        window.toggleDeaconStatus = toggleDeaconStatus;
+        window.toggleDeaconDuty = toggleDeaconDuty;
+        window.assignDuty = assignDuty;
+        window.openAddDeaconModal = openAddDeaconModal;
+    </script>
+}

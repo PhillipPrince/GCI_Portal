@@ -1,0 +1,306 @@
+﻿@model GCI_Admin.Models.NewDeacon
+
+@{
+    Layout = null;
+}
+
+<div class="modal fade deacon-modal" id="addDeaconModal" tabindex="-1" aria-labelledby="addDeaconModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDeaconModalLabel">
+                    <i class="fa fa-user-plus me-2"></i>Add New Deacon
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fa fa-info-circle me-2"></i>
+                    Select a church member to appoint as a deacon. Only active members who are not already deacons will appear in the list.
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">
+                        <i class="fa fa-user me-1 text-primary"></i>Select Member
+                        <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select select2-member" id="MemberId" required>
+                        <option value="">-- Search and select a member --</option>
+                        @foreach (var member in Model.MembersList)
+                        {
+                            <option value="@member.Value">@member.Text</option>
+                        }
+                    </select>
+                    <small class="text-muted">Start typing to search for a member by name</small>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="fa fa-building-o me-1 text-primary"></i>Ministry
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select select2-ministry" id="MinistryId" required>
+                            <option value="">-- Select Ministry --</option>
+                            @foreach (var ministry in Model.MinistriesList)
+                            {
+                                <option value="@ministry.Value">@ministry.Text</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="fa fa-calendar me-1 text-primary"></i>Start Date
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="date" class="form-control" id="StartDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="fa fa-align-left me-1 text-primary"></i>Biography
+                    </label>
+                    <textarea class="form-control" id="Bio" rows="4" placeholder="Enter deacon's biography, service history, and other relevant information..."></textarea>
+                    <small class="text-muted">Optional: Provide a brief biography of the deacon</small>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="IsActive" checked>
+                            <label class="form-check-label fw-bold" for="IsActive">
+                                <i class="fa fa-check-circle me-1 text-success"></i>Active Status
+                            </label>
+                        </div>
+                        <small class="text-muted">Deacon will be active immediately</small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="OnDuty">
+                            <label class="form-check-label fw-bold" for="OnDuty">
+                                <i class="fa fa-clock-o me-1 text-warning"></i>Mark On Duty
+                            </label>
+                        </div>
+                        <small class="text-muted">Mark deacon as currently on duty (only one deacon can be on duty at a time)</small>
+                    </div>
+                </div>
+
+                <div class="mt-4" id="memberPreview" style="display: none;">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3">
+                                <i class="fa fa-user-circle me-2 text-primary"></i>Selected Member Information
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fa fa-user text-muted me-2" style="width: 20px;"></i>
+                                        <span class="text-muted me-2">Name:</span>
+                                        <strong id="previewName" class="text-primary">-</strong>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fa fa-phone text-muted me-2" style="width: 20px;"></i>
+                                        <span class="text-muted me-2">Phone:</span>
+                                        <strong id="previewPhone">-</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fa fa-envelope text-muted me-2" style="width: 20px;"></i>
+                                        <span class="text-muted me-2">Email:</span>
+                                        <strong id="previewEmail">-</strong>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fa fa-calendar text-muted me-2" style="width: 20px;"></i>
+                                        <span class="text-muted me-2">Member Since:</span>
+                                        <strong id="previewMemberSince">-</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="submitBtn">
+                    <i class="fa fa-save me-1"></i>Save Deacon
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // Initialize everything when modal is loaded
+    (function() {
+        // Initialize Select2 when modal is shown
+        $('#addDeaconModal').on('shown.bs.modal', function() {
+            $('.select2-member').select2({
+                dropdownParent: $('#addDeaconModal'),
+                placeholder: '-- Search and select a member --',
+                allowClear: true,
+                width: '100%',
+                language: {
+                    noResults: function() {
+                        return "No members found. Only active members who are not already deacons are shown.";
+                    },
+                    searching: function() {
+                        return "Searching...";
+                    }
+                }
+            });
+
+            $('.select2-ministry').select2({
+                dropdownParent: $('#addDeaconModal'),
+                placeholder: '-- Select Ministry --',
+                allowClear: true,
+                width: '100%'
+            });
+        });
+
+        // Load member details when selected
+        $(document).on('change', '#MemberId', function() {
+            const memberId = $(this).val();
+            if (memberId) {
+                loadMemberDetails(memberId);
+            } else {
+                $('#memberPreview').hide();
+            }
+        });
+
+        // Handle submit button click
+        $(document).on('click', '#submitBtn', function() {
+            submitDeaconForm();
+        });
+    })();
+
+    function loadMemberDetails(memberId) {
+        $.ajax({
+            url: '/Members/MemberDetails',
+            type: 'GET',
+            data: { id: memberId },
+            success: function(member) {
+                if (member) {
+                    $('#previewName').text(member.fullName);
+                    $('#previewPhone').text(member.phone || 'Not provided');
+                    $('#previewEmail').text(member.email || 'Not provided');
+                    $('#previewMemberSince').text(member.memberSince || 'Not available');
+                    $('#memberPreview').fadeIn();
+                }
+            },
+            error: function() {
+                $('#memberPreview').hide();
+            }
+        });
+    }
+
+    function validateForm() {
+        const memberId = $('#MemberId').val();
+        const ministryId = $('#MinistryId').val();
+        const startDate = $('#StartDate').val();
+
+        if (!memberId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Validation Error',
+                text: 'Please select a member.'
+            });
+            $('#MemberId').focus();
+            return false;
+        }
+
+        if (!ministryId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Validation Error',
+                text: 'Please select a ministry.'
+            });
+            $('#MinistryId').focus();
+            return false;
+        }
+
+        if (!startDate) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Validation Error',
+                text: 'Please select a start date.'
+            });
+            $('#StartDate').focus();
+            return false;
+        }
+
+        return true;
+    }
+
+    function submitDeaconForm() {
+        if (!validateForm()) {
+            return;
+        }
+
+        const deaconData = {
+            MemberId: parseInt($('#MemberId').val()),
+            MinistryId: $('#MinistryId').val(),
+            Bio: $('#Bio').val(),
+            StartDate: $('#StartDate').val(),
+            EndDate: null,
+            OnDuty: $('#OnDuty').is(':checked')
+        };
+
+        Swal.fire({
+            title: 'Saving...',
+            text: 'Please wait while we add the new deacon.',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        $.ajax({
+            url: '/Leadership/CreateDeacon',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(deaconData),
+            success: function(response) {
+                if (response.isSuccess) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.message || 'Deacon added successfully.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        $('#addDeaconModal').modal('hide');
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Failed to add deacon.'
+                    });
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = 'An error occurred while adding the deacon.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage
+                });
+            }
+        });
+    }
+</script>

@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "v2jQtE77+JKteN8hFBsADZb9g2WBXwlh61pV3+qAll0=",
+  "Hash": "Xyj4foOnDdQzY/vTizbRsv2+wP4qjzDweUZJjEYkwmI=",
   "Source": "GCI_Admin",
   "BasePath": "_content/GCI_Admin",
   "Mode": "Default",
@@ -73,8 +73,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "054vmyamm3",
-      "Integrity": "tOQ1I9oOyg9pUIRngL4IMIH0LTgzQ0dNvTgu8qxNEhA=",
+      "Fingerprint": "o3nlz25j6u",
+      "Integrity": "NMNd5PvSLixI5AymMk88NQ7Wwm/x+3K/VhDQZfHwqCc=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\site.css"
@@ -1405,51 +1405,6 @@
   ],
   "Endpoints": [
     {
-      "Route": "css/site.054vmyamm3.css",
-      "AssetFile": "D:\\GCI\\GCI_Portal\\GCI_Admin\\wwwroot\\css\\site.css",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "7488"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"tOQ1I9oOyg9pUIRngL4IMIH0LTgzQ0dNvTgu8qxNEhA=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 19 Mar 2026 11:53:38 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "054vmyamm3"
-        },
-        {
-          "Name": "label",
-          "Value": "css/site.css"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-tOQ1I9oOyg9pUIRngL4IMIH0LTgzQ0dNvTgu8qxNEhA="
-        }
-      ]
-    },
-    {
       "Route": "css/site.css",
       "AssetFile": "D:\\GCI\\GCI_Portal\\GCI_Admin\\wwwroot\\css\\site.css",
       "Selectors": [],
@@ -1460,7 +1415,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "7488"
+          "Value": "17421"
         },
         {
           "Name": "Content-Type",
@@ -1468,11 +1423,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"tOQ1I9oOyg9pUIRngL4IMIH0LTgzQ0dNvTgu8qxNEhA=\""
+          "Value": "\"NMNd5PvSLixI5AymMk88NQ7Wwm/x+3K/VhDQZfHwqCc=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 19 Mar 2026 11:53:38 GMT"
+          "Value": "Sat, 21 Mar 2026 17:58:44 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1482,7 +1437,52 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-tOQ1I9oOyg9pUIRngL4IMIH0LTgzQ0dNvTgu8qxNEhA="
+          "Value": "sha256-NMNd5PvSLixI5AymMk88NQ7Wwm/x+3K/VhDQZfHwqCc="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.o3nlz25j6u.css",
+      "AssetFile": "D:\\GCI\\GCI_Portal\\GCI_Admin\\wwwroot\\css\\site.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "17421"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"NMNd5PvSLixI5AymMk88NQ7Wwm/x+3K/VhDQZfHwqCc=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 21 Mar 2026 17:58:44 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "o3nlz25j6u"
+        },
+        {
+          "Name": "label",
+          "Value": "css/site.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-NMNd5PvSLixI5AymMk88NQ7Wwm/x+3K/VhDQZfHwqCc="
         }
       ]
     },
@@ -1591,7 +1591,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 20 Mar 2026 17:48:09 GMT"
+          "Value": "Sat, 21 Mar 2026 14:46:48 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1636,7 +1636,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 20 Mar 2026 17:48:09 GMT"
+          "Value": "Sat, 21 Mar 2026 14:46:48 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1681,7 +1681,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 20 Mar 2026 17:48:09 GMT"
+          "Value": "Sat, 21 Mar 2026 14:46:48 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1718,7 +1718,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 20 Mar 2026 17:48:09 GMT"
+          "Value": "Sat, 21 Mar 2026 14:46:48 GMT"
         },
         {
           "Name": "Cache-Control",
