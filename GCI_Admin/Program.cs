@@ -5,6 +5,7 @@ using GCI_Admin.Services.IService;
 using GCI_Admin.Services.Service;
 using GCI_Admin.DBOperations.Repositories;
 using Repo_GCI;
+using GCI_Admin.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +38,7 @@ builder.Services.AddScoped<AnnouncementsRepository>();
 builder.Services.AddScoped<PaymentsRepository>();
 builder.Services.AddScoped<BenevolenceRepository>();
 builder.Services.AddScoped<LeadershipRepository>();
+builder.Services.AddScoped<SystemConfigRepository>();
 // Services (Scoped)
 builder.Services.AddScoped<IEventsService, EventsService>();
 builder.Services.AddScoped<IMembersService, MembersService>();
@@ -48,6 +50,8 @@ builder.Services.AddScoped<IAnnouncementsService, AnnouncementsService>();
 builder.Services.AddScoped<IPaymentsService, PaymentsService>();
 builder.Services.AddScoped<IBenevolenceService, BenevolenceService>();
 builder.Services.AddScoped<ILeadershipService, LeadershipService>();
+builder.Services.AddScoped<ISystemConfigService, SystemConfigService>();
+
 
 var app = builder.Build();
 

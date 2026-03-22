@@ -1,0 +1,887 @@
+﻿@model List<GCI_Admin.Models.SystemConfig>
+
+@{
+    ViewData["Title"] = "System Configuration";
+}
+
+<!-- Page Header with Stats -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">
+            <i class="fa fa-sliders-h me-2 text-primary"></i>System Configuration
+        </h2>
+        <p class="text-muted mb-0">Manage application settings, feature flags, and global system parameters</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-primary btn-lg" onclick="openCreateModal()">
+            <i class="fa fa-plus-circle me-2"></i>Add New Config
+        </button>
+    </div>
+</div>
+
+<!-- Quick Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-cog text-primary fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Configs</h6>
+                        <h3 class="fw-bold mb-0" id="totalConfigs">@Model.Count</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-check-circle text-success fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Active Configs</h6>
+                        <h3 class="fw-bold mb-0" id="activeConfigs">@Model.Count(c => c.IsActive)</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-edit text-warning fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Editable</h6>
+                        <h3 class="fw-bold mb-0" id="editableConfigs">@Model.Count(c => c.IsEditable)</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-lock text-info fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Read-Only</h6>
+                        <h3 class="fw-bold mb-0" id="readonlyConfigs">@Model.Count(c => !c.IsEditable)</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0">
+                        <i class="fa fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" id="configSearch" placeholder="Search by key, value or description...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="editableFilter">
+                    <option value="">All Editability</option>
+                    <option value="true">Editable</option>
+                    <option value="false">Read-Only</option>
+                </select>
+            </div>
+            <div class="col-md-2 text-end">
+                <button class="btn btn-outline-secondary me-2" onclick="clearFilters()">
+                    <i class="fa fa-times me-1"></i>Clear
+                </button>
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fa fa-filter me-1"></i>Apply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Config Table -->
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="configTable" class="table table-striped table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 5%">ID</th>
+                    <th style="width: 20%">Config Key</th>
+                    <th style="width: 20%">Config Value</th>
+                    <th style="width: 25%">Description</th>
+                    <th style="width: 10%">Editable</th>
+                    <th style="width: 10%">Status</th>
+                    <th style="width: 10%">Created At</th>
+                    <th style="width: 10%">Updated At</th>
+                    <th style="width: 10%" class="text-end">Actions</th>
+                </tr>
+                <!-- Filter Row -->
+                <tr class="filter-row">
+                    <th><input type="text" placeholder="ID" class="form-control form-control-sm" /></th>
+                    <th><input type="text" placeholder="Key" class="form-control form-control-sm" /></th>
+                    <th><input type="text" placeholder="Value" class="form-control form-control-sm" /></th>
+                    <th><input type="text" placeholder="Description" class="form-control form-control-sm" /></th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="true">Editable</option>
+                            <option value="false">Read-Only</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var config in Model)
+                    {
+                        <tr data-id="@config.Id">
+                            <td>@config.Id</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="config-icon me-2" style="width: 32px; height: 32px; background-color: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fa fa-key text-secondary"></i>
+                                    </div>
+                                    <code class="config-key">@config.ConfigKey</code>
+                                </div>
+                            </td>
+                            <td class="config-value-cell">
+                                <span class="config-value-display">@config.ConfigValue</span>
+                            </td>
+                            <td class="config-desc-cell">@(config.Description ?? "-")</td>
+                            <td class="config-editable-cell">
+                                @if (config.IsEditable)
+                                {
+                                    <span class="badge bg-info">
+                                        <i class="fa fa-pen me-1"></i>Editable
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        <i class="fa fa-lock me-1"></i>Read-Only
+                                    </span>
+                                }
+                            </td>
+                            <td class="config-status-cell">
+                                @if (config.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <div>@config.CreatedAt.ToString("dd MMM yyyy")</div>
+                                <div class="small text-muted">@config.CreatedAt.ToString("hh:mm tt")</div>
+                            </td>
+                            <td>
+                                <div>@config.UpdatedAt.ToString("dd MMM yyyy")</div>
+                                <div class="small text-muted">@config.UpdatedAt.ToString("hh:mm tt")</div>
+                            </td>
+                            <td class="text-end">
+                                @if (config.IsEditable)
+                                {
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editConfigInline(@config.Id)" title="Edit Value">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-secondary me-1" disabled title="Read-only config">
+                                        <i class="fa fa-lock"></i>
+                                    </button>
+                                }
+                                
+                                <button class="btn btn-sm btn-outline-warning me-1" onclick="toggleConfigStatus(@config.Id, @config.IsActive.ToString().ToLower())" title="@(config.IsActive ? "Deactivate" : "Activate")">
+                                    <i class="fa @(config.IsActive ? "fa-ban" : "fa-check-circle")"></i>
+                                </button>
+                                
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteConfig(@config.Id, '@config.ConfigKey')" title="Delete Config">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-5">
+                            <i class="fa fa-cog fa-3x mb-3 d-block"></i>
+                            <h5>No Configuration Settings Found</h5>
+                            <p class="mb-0">Start by adding a new configuration setting</p>
+                            <button class="btn btn-primary mt-3" onclick="openCreateModal()">
+                                <i class="fa fa-plus-circle me-2"></i>Add New Config
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create New Config Modal -->
+<div class="modal fade" id="createConfigModal" tabindex="-1" aria-labelledby="createConfigModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="createConfigModalLabel">
+                    <i class="fa fa-plus-circle me-2"></i>Create New Configuration
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Config Key <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="newConfigKey" placeholder="e.g., App.Title, Feature.NewDashboard, Email.SmtpServer" />
+                    <small class="text-muted">Use dot notation for better organization (e.g., Module.Setting)</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Config Value <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="newConfigValue" placeholder="Value for this configuration" />
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Description</label>
+                    <textarea class="form-control" id="newConfigDescription" rows="2" placeholder="What does this configuration control?"></textarea>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="newConfigEditable" checked />
+                            <label class="form-check-label" for="newConfigEditable">
+                                <i class="fa fa-pen me-1 text-info"></i>Editable
+                            </label>
+                            <div class="small text-muted">If unchecked, this config cannot be modified via UI</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="newConfigActive" checked />
+                            <label class="form-check-label" for="newConfigActive">
+                                <i class="fa fa-check-circle me-1 text-success"></i>Active
+                            </label>
+                            <div class="small text-muted">Inactive configs are ignored by the system</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="saveNewConfig()">
+                    <i class="fa fa-save me-1"></i>Create Configuration
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Toast Notification -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fa fa-check-circle me-2"></i>
+                <span id="toastMessage">Operation completed successfully</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" />
+    
+    <style>
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important;
+        }
+        
+        .config-key {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+        
+        .config-value-display {
+            font-family: 'Courier New', monospace;
+            background: #f1f3f5;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            font-size: 0.85rem;
+        }
+        
+        .inline-edit-input {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            width: 100%;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+        }
+        
+        .inline-save-btn {
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            margin-left: 5px;
+        }
+        
+        .btn-sm {
+            transition: all 0.2s ease;
+        }
+        
+        .btn-sm:hover {
+            transform: translateY(-1px);
+        }
+        
+        .badge {
+            font-weight: 500;
+            padding: 5px 10px;
+        }
+        
+        .table td {
+            vertical-align: middle;
+        }
+        
+        .form-control-sm, .form-select-sm {
+            font-size: 0.875rem;
+        }
+        
+        .config-icon {
+            transition: transform 0.2s ease;
+        }
+        
+        .config-icon:hover {
+            transform: scale(1.05);
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(0,0,0,0.02);
+            transition: background-color 0.2s ease;
+        }
+        
+        .filter-row th {
+            padding: 8px;
+        }
+        
+        .dataTables_filter {
+            display: none;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function() {
+            initializeDataTable();
+            updateStats();
+        });
+        
+        // Initialize DataTable with column filtering
+        function initializeDataTable() {
+            if ($.fn.DataTable.isDataTable('#configTable')) {
+                $('#configTable').DataTable().destroy();
+            }
+            
+            const table = $('#configTable').DataTable({
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                language: {
+                    search: "Search:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    emptyTable: "No configuration settings found",
+                    zeroRecords: "No matching configurations found"
+                },
+                columnDefs: [
+                    { targets: [0, 6, 7], orderable: true },
+                    { targets: [8], orderable: false, searchable: false }
+                ],
+                initComplete: function() {
+                    // Add filtering for select dropdowns in filter row
+                    $('#configTable thead tr:eq(1) th select').on('change', function() {
+                        const columnIndex = $(this).closest('th').index();
+                        const selectedValue = $(this).val();
+                        table.column(columnIndex).search(selectedValue).draw();
+                    });
+                    
+                    // Add filtering for text inputs in filter row
+                    $('#configTable thead tr:eq(1) th input').on('keyup', function() {
+                        const columnIndex = $(this).closest('th').index();
+                        const searchValue = $(this).val();
+                        table.column(columnIndex).search(searchValue).draw();
+                    });
+                }
+            });
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const total = $('#configTable tbody tr').length;
+            const active = $('#configTable tbody tr').filter(function() {
+                return $(this).find('.config-status-cell .badge').hasClass('bg-success');
+            }).length;
+            const editable = $('#configTable tbody tr').filter(function() {
+                return $(this).find('.config-editable-cell .badge').hasClass('bg-info');
+            }).length;
+            const readonly = total - editable;
+            
+            $('#totalConfigs').text(total);
+            $('#activeConfigs').text(active);
+            $('#editableConfigs').text(editable);
+            $('#readonlyConfigs').text(readonly);
+        }
+        
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = $('#successToast');
+            toast.removeClass('bg-success bg-danger bg-warning');
+            
+            if (type === 'success') {
+                toast.addClass('bg-success');
+                toast.find('i').removeClass().addClass('fa fa-check-circle me-2');
+            } else if (type === 'error') {
+                toast.addClass('bg-danger');
+                toast.find('i').removeClass().addClass('fa fa-exclamation-circle me-2');
+            } else if (type === 'warning') {
+                toast.addClass('bg-warning');
+                toast.find('i').removeClass().addClass('fa fa-exclamation-triangle me-2');
+            }
+            
+            $('#toastMessage').text(message);
+            const bsToast = new bootstrap.Toast(toast[0], { delay: 3000 });
+            bsToast.show();
+        }
+        
+        // ==================== CREATE NEW CONFIG ====================
+        function openCreateModal() {
+            $('#newConfigKey').val('');
+            $('#newConfigValue').val('');
+            $('#newConfigDescription').val('');
+            $('#newConfigEditable').prop('checked', true);
+            $('#newConfigActive').prop('checked', true);
+            $('#createConfigModal').modal('show');
+        }
+        
+        function saveNewConfig() {
+            const configKey = $('#newConfigKey').val().trim();
+            const configValue = $('#newConfigValue').val().trim();
+            const description = $('#newConfigDescription').val().trim();
+            const isEditable = $('#newConfigEditable').is(':checked');
+            const isActive = $('#newConfigActive').is(':checked');
+            
+            if (!configKey) {
+                showToast('Config Key is required', 'error');
+                $('#newConfigKey').focus();
+                return;
+            }
+            
+            if (!configValue) {
+                showToast('Config Value is required', 'error');
+                $('#newConfigValue').focus();
+                return;
+            }
+            
+            // Check for duplicate key
+            let isDuplicate = false;
+            $('#configTable tbody tr').each(function() {
+                const existingKey = $(this).find('.config-key').text().trim();
+                if (existingKey.toLowerCase() === configKey.toLowerCase()) {
+                    isDuplicate = true;
+                    return false;
+                }
+            });
+            
+            if (isDuplicate) {
+                showToast('Config Key already exists! Please use a unique key.', 'error');
+                return;
+            }
+            
+            const dto = {
+                ConfigKey: configKey,
+                ConfigValue: configValue,
+                Description: description,
+                IsEditable: isEditable,
+                IsActive: isActive
+            };
+            
+            Swal.fire({
+                title: 'Creating Configuration...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+            
+            $.ajax({
+                url: '@Url.Action("SubmitNewConfig", "SystemConfig")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(dto),
+                success: function(response) {
+                    if (response && response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Created!',
+                            text: `Configuration "${configKey}" has been created successfully.`,
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            $('#createConfigModal').modal('hide');
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', response?.message || 'Failed to create configuration', 'error');
+                    }
+                },
+                error: function(xhr) {
+                    let errorMsg = 'Failed to create configuration';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Error', errorMsg, 'error');
+                }
+            });
+        }
+        
+        // ==================== UPDATE CONFIG ====================
+        function getConfigDataFromRow(id) {
+            const row = $(`tr[data-id="${id}"]`);
+            
+            const configKey = row.find('td:eq(1) .config-key').text().trim();
+            const configValue = row.find('td:eq(2) .config-value-display').text().trim();
+            const description = row.find('td:eq(3)').text().trim();
+            const isEditable = row.find('td:eq(4) .badge').hasClass('bg-info');
+            const isActive = row.find('td:eq(5) .badge').hasClass('bg-success');
+            
+            return {
+                id: id,
+                configKey: configKey,
+                configValue: configValue,
+                description: description === '-' ? '' : description,
+                isEditable: isEditable,
+                isActive: isActive
+            };
+        }
+        
+        function editConfigInline(id) {
+            const row = $(`tr[data-id="${id}"]`);
+            const valueCell = row.find('td:eq(2)');
+            const currentValue = valueCell.find('.config-value-display').text().trim();
+            const isEditable = row.find('td:eq(4) .badge').hasClass('bg-info');
+            
+            if (!isEditable) {
+                showToast('This configuration is read-only and cannot be modified', 'error');
+                return;
+            }
+            
+            if (valueCell.find('.inline-edit-input').length > 0) return;
+            
+            const originalHtml = valueCell.html();
+            const inputHtml = `
+                <div class="d-flex align-items-center">
+                    <input type="text" class="inline-edit-input form-control form-control-sm" value="${escapeHtml(currentValue)}" />
+                    <button class="btn btn-sm btn-primary inline-save-btn" onclick="saveInlineUpdate(${id})">
+                        <i class="fa fa-check"></i>
+                    </button>
+                    <button class="btn btn-sm btn-secondary inline-save-btn" onclick="cancelInlineUpdate(${id}, \`${escapeHtml(originalHtml)}\`)">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            `;
+            valueCell.html(inputHtml);
+            valueCell.find('input').focus().select();
+        }
+        
+        function saveInlineUpdate(id) {
+            const row = $(`tr[data-id="${id}"]`);
+            const valueCell = row.find('td:eq(2)');
+            const newValue = valueCell.find('input').val().trim();
+            
+            if (newValue === '') {
+                showToast('Config value cannot be empty', 'error');
+                return;
+            }
+            
+            const configData = getConfigDataFromRow(id);
+            
+            if (!configData.isEditable) {
+                showToast('This configuration is read-only and cannot be modified', 'error');
+                cancelInlineUpdate(id, `<span class="config-value-display">${escapeHtml(configData.configValue)}</span>`);
+                return;
+            }
+            
+            const dto = {
+                ConfigKey: configData.configKey,
+                ConfigValue: newValue,
+                Description: configData.description,
+                IsEditable: configData.isEditable,
+                IsActive: configData.isActive
+            };
+            
+            Swal.fire({
+                title: 'Updating...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+            
+            $.ajax({
+                url: '@Url.Action("UpdateConfig", "SystemConfig")/' + id,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(dto),
+                success: function(response) {
+                    if (response && response.success) {
+                        valueCell.html(`<span class="config-value-display">${escapeHtml(newValue)}</span>`);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: 'Configuration value updated successfully',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        showToast('Configuration updated successfully');
+                        updateStats();
+                    } else {
+                        Swal.fire('Error', response?.message || 'Update failed', 'error');
+                        cancelInlineUpdate(id, `<span class="config-value-display">${escapeHtml(configData.configValue)}</span>`);
+                    }
+                },
+                error: function(xhr) {
+                    let errorMsg = 'Update failed';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Error', errorMsg, 'error');
+                    cancelInlineUpdate(id, `<span class="config-value-display">${escapeHtml(configData.configValue)}</span>`);
+                }
+            });
+        }
+        
+        function cancelInlineUpdate(id, originalHtml) {
+            const row = $(`tr[data-id="${id}"]`);
+            const valueCell = row.find('td:eq(2)');
+            valueCell.html(originalHtml);
+        }
+        
+        function toggleConfigStatus(id, isCurrentlyActive) {
+            const newStatus = !isCurrentlyActive;
+            const actionText = newStatus ? 'activate' : 'deactivate';
+            
+            Swal.fire({
+                title: `Are you sure?`,
+                text: `You are about to ${actionText} this configuration setting.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: `Yes, ${actionText}`,
+                confirmButtonColor: newStatus ? '#28a745' : '#dc3545',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const configData = getConfigDataFromRow(id);
+                    
+                    const dto = {
+                        ConfigKey: configData.configKey,
+                        ConfigValue: configData.configValue,
+                        Description: configData.description,
+                        IsEditable: configData.isEditable,
+                        IsActive: newStatus
+                    };
+                    
+                    Swal.fire({
+                        title: 'Processing...',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+                    
+                    $.ajax({
+                        url: '@Url.Action("UpdateConfig", "SystemConfig")/' + id,
+                        type: 'PUT',
+                        contentType: 'application/json',
+                        data: JSON.stringify(dto),
+                        success: function(response) {
+                            if (response && response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: `Configuration ${actionText}d successfully.`
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire('Error', response?.message || 'Operation failed', 'error');
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorMsg = 'Operation failed';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            }
+                            Swal.fire('Error', errorMsg, 'error');
+                        }
+                    });
+                }
+            });
+        }
+        
+        function deleteConfig(id, configKey) {
+            Swal.fire({
+                title: 'Delete Configuration',
+                text: `Are you sure you want to delete "${configKey}"? This action cannot be undone.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Deleting...',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+                    
+                    $.ajax({
+                        url: '@Url.Action("DeleteConfig", "SystemConfig")',
+                        type: 'DELETE',
+                        data: { id: id },
+                        success: function(response) {
+                            if (response && response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Configuration has been deleted successfully.'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire('Error', response?.message || 'Delete failed', 'error');
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorMsg = 'Delete failed';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            }
+                            Swal.fire('Error', errorMsg, 'error');
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Filter functions
+        function applyFilters() {
+            const searchTerm = $('#configSearch').val().toLowerCase();
+            const statusFilter = $('#statusFilter').val();
+            const editableFilter = $('#editableFilter').val();
+            
+            const table = $('#configTable').DataTable();
+            
+            if (searchTerm) {
+                table.search(searchTerm);
+            } else {
+                table.search('');
+            }
+            
+            if (statusFilter !== '') {
+                table.column(5).search(statusFilter);
+            } else {
+                table.column(5).search('');
+            }
+            
+            if (editableFilter !== '') {
+                table.column(4).search(editableFilter);
+            } else {
+                table.column(4).search('');
+            }
+            
+            table.draw();
+        }
+        
+        function clearFilters() {
+            $('#configSearch').val('');
+            $('#statusFilter').val('');
+            $('#editableFilter').val('');
+            
+            const table = $('#configTable').DataTable();
+            table.search('').columns().search('').draw();
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(text));
+            return div.innerHTML;
+        }
+        
+        // Make functions globally available
+        window.openCreateModal = openCreateModal;
+        window.saveNewConfig = saveNewConfig;
+        window.editConfigInline = editConfigInline;
+        window.saveInlineUpdate = saveInlineUpdate;
+        window.cancelInlineUpdate = cancelInlineUpdate;
+        window.toggleConfigStatus = toggleConfigStatus;
+        window.deleteConfig = deleteConfig;
+        window.applyFilters = applyFilters;
+        window.clearFilters = clearFilters;
+    </script>
+}
