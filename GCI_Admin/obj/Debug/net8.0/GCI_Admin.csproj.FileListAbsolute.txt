@@ -270,15 +270,20 @@ C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\GCI_Admin.pdb
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\GCI_Admin.genruntimeconfig.cache
 C:\Users\psimiyu\Desktop\Simiyu\Gospel Center International\GCI_Admin\GCI_Admin\obj\Debug\net8.0\ref\GCI_Admin.dll
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.csproj.AssemblyReference.cache
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.GeneratedMSBuildEditorConfig.editorconfig
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.AssemblyInfoInputs.cache
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.AssemblyInfo.cs
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.csproj.CoreCompileInputs.cache
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.MvcApplicationPartsAssemblyInfo.cache
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.RazorAssemblyInfo.cache
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.RazorAssemblyInfo.cs
-D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.sourcelink.json
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Newtonsoft.Json.dll
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.Scripting.resources.dll
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\appsettings.Development.json
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\appsettings.json
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\GCI_Admin.staticwebassets.runtime.json
@@ -332,7 +337,6 @@ D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.Identity.Client.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.Identity.Client.Extensions.Msal.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
-D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
@@ -346,7 +350,6 @@ D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.VisualStudio.Web.CodeGene
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.VisualStudio.Web.CodeGeneration.Utils.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.VisualStudio.Web.CodeGenerators.Mvc.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Mono.TextTemplating.dll
-D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Newtonsoft.Json.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\NuGet.Common.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\NuGet.Configuration.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\NuGet.DependencyResolver.Core.dll
@@ -494,7 +497,6 @@ D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Feat
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.Scripting.resources.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.Scripting.resources.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.Scripting.resources.dll
-D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.Scripting.resources.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.Scripting.resources.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.Scripting.resources.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.Scripting.resources.dll
@@ -508,23 +510,21 @@ D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.Workspace
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.Workspaces.resources.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.Workspaces.resources.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.Workspaces.resources.dll
-D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
-D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
-D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
-D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
-D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
-D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
-D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
-D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
-D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
-D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.csproj.AssemblyReference.cache
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.GeneratedMSBuildEditorConfig.editorconfig
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.AssemblyInfoInputs.cache
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.AssemblyInfo.cs
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.csproj.CoreCompileInputs.cache
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.MvcApplicationPartsAssemblyInfo.cache
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.RazorAssemblyInfo.cache
+D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.sourcelink.json
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\scopedcss\bundle\GCI_Admin.styles.css
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\scopedcss\projectbundle\GCI_Admin.bundle.scp.css

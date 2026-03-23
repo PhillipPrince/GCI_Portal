@@ -15,6 +15,7 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<MemberAdditionalInformation>> CreateAdditionalInfoAsync(MemberAdditionalInformationDto dto);
         Task<ApiResponse<MemberAdditionalInformation>> GetAdditionalInfoByMemberIdAsync(int memberId);
         Task<ApiResponse<MemberAdditionalInformation>> UpdateAdditionalInfoAsync(int id, MemberAdditionalInformationDto dto);
+        Task<ApiResponse<bool>> UpdateMemberRoleAsync(int memberId, int roleId);
 
     }
 }

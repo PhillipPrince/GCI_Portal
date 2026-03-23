@@ -244,7 +244,35 @@ namespace GCI_Admin.Services.Service
 
             return response;
         }
+        // ✅ UPDATE MEMBER ROLE
+        public async Task<ApiResponse<bool>> UpdateMemberRoleAsync(int memberId, int roleId)
+        {
+            var response = new ApiResponse<bool>();
 
-       
+            try
+            {
+                var result = await _membersRepository.UpdateMemberRoleAsync(memberId, roleId);
+
+                if (!result.Success || !result.Data)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = result.Message ?? "Member not found or role update failed";
+                    return response;
+                }
+
+                response.Data = true;
+                response.Message = "Member role updated successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }                                                                               
+
     }
 }

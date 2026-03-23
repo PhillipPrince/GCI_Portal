@@ -346,6 +346,43 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+        public async Task<DbResponse<bool>> UpdateMemberRoleAsync(int memberId, int roleId)
+        {
+            try
+            {
+                var member = await _context.Members.FindAsync(memberId);
+
+                if (member == null)
+                {
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Member not found"
+                    };
+                }
+
+                member.UserRole = roleId;
+
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<bool>
+                {
+                    Success = true,
+                    Message = "Role updated successfully",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error in UpdateMemberRoleAsync: {ex}");
+
+                return new DbResponse<bool>
+                {
+                    Success = false,
+                    Message = $"Error updating role: {ex.Message}"
+                };
+            }
+        }
 
     }
 }

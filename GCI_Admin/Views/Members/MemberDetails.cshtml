@@ -48,6 +48,62 @@
     </div>
 </div>
 
+<!-- Role Management Card -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-gradient-primary text-white border-0">
+                <h5 class="mb-0">
+                    <i class="fa fa-user-shield me-2"></i>Role Management
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <strong>Current Role:</strong>
+                                <span id="currentRoleDisplay" class="badge bg-primary ms-2 fs-6">
+                                    @member.RoleName
+                                </span>
+                            </div>
+                            <div id="roleEditMode" style="display: none;">
+                                <select id="roleSelect" class="form-select form-select-sm">
+                                    <option value="">Select Role</option>
+                                    @if (Model.UserRoles != null)
+                                    {
+                                        foreach (var role in Model.UserRoles)
+                                        {
+                                            <option value="@role.Value" selected="@(member.UserRole.ToString() == role.Value)">
+                                                @role.Text
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div id="roleEditButtons">
+                            <button class="btn btn-outline-primary btn-sm" id="enableRoleEdit">
+                                <i class="fa fa-edit me-1"></i>Change Role
+                            </button>
+                        </div>
+                        <div id="roleSaveCancelButtons" style="display: none;">
+                            <button class="btn btn-success btn-sm me-2" id="saveRoleChanges">
+                                <i class="fa fa-save me-1"></i>Save Role
+                            </button>
+                            <button class="btn btn-secondary btn-sm" id="cancelRoleEdit">
+                                <i class="fa fa-times me-1"></i>Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Main Member Details Card -->
 <div class="row">
     <div class="col-md-12">
@@ -558,27 +614,60 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <style>
+        .badge.fs-6 {
+            font-size: 1rem !important;
+            padding: 0.5rem 0.75rem;
+        }
+
+        #roleEditMode select {
+            min-width: 150px;
+        }
+
+        .btn-link {
+            text-decoration: none;
+        }
+
+            .btn-link:hover {
+                text-decoration: underline;
+            }
+    </style>
+
     <script>
         let isEditMode = false;
         let originalData = {};
+        let isRoleEditMode = false;
+        let originalRoleId = '@member.UserRole';
+        let originalRoleName = '@member.RoleName';
 
         $(document).ready(function() {
             // Store original data
             storeOriginalData();
 
-            // Enable edit mode
+            // Member edit mode handlers
             $('#enableEditMode').click(function() {
                 enableEditMode();
             });
 
-            // Save changes
             $('#saveChanges').click(function() {
                 saveChanges();
             });
 
-            // Cancel edit
             $('#cancelEdit').click(function() {
                 cancelEdit();
+            });
+
+            // Role edit mode handlers
+            $('#enableRoleEdit').click(function() {
+                enableRoleEditMode();
+            });
+
+            $('#saveRoleChanges').click(function() {
+                saveRoleChanges();
+            });
+
+            $('#cancelRoleEdit').click(function() {
+                cancelRoleEdit();
             });
 
             // Edit additional info button
@@ -601,6 +690,20 @@
 
             $('[data-field="isBaptizedByImmersion"] select').change(function() {
                 toggleBaptismFields($(this).val() === 'true');
+            });
+
+            // Update age when date of birth changes
+            $('[data-field="dateOfBirth"] input').on('change', function() {
+                const dob = new Date($(this).val());
+                if (dob) {
+                    const today = new Date();
+                    let age = today.getFullYear() - dob.getFullYear();
+                    const monthDiff = today.getMonth() - dob.getMonth();
+                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                        age--;
+                    }
+                    $('#ageDisplay').text(age + ' years');
+                }
             });
         });
 
@@ -811,6 +914,112 @@
             });
         }
 
+        function enableRoleEditMode() {
+            isRoleEditMode = true;
+
+            // Show role dropdown, hide display
+            $('#currentRoleDisplay').hide();
+            $('#roleEditMode').show();
+
+            // Toggle buttons
+            $('#roleEditButtons').hide();
+            $('#roleSaveCancelButtons').show();
+
+            // Set the dropdown to current role
+            $('#roleSelect').val(originalRoleId);
+        }
+
+        function saveRoleChanges() {
+            const selectedRoleId = $('#roleSelect').val();
+
+            if (!selectedRoleId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Role Selected',
+                    text: 'Please select a role for this member.',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            // Show loading state
+            Swal.fire({
+                title: 'Updating Role...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Send role update request
+            $.ajax({
+                url: '@Url.Action("UpdateUserRole", "Members")',
+                type: 'POST',
+                data: {
+                    memberId: @member.Id,
+                    roleId: parseInt(selectedRoleId)
+                },
+                success: function(response) {
+                    if (response.isSuccess) {
+                        // Update the original values
+                        originalRoleId = selectedRoleId;
+
+                        // Get the selected role name from dropdown
+                        const selectedRoleName = $('#roleSelect option:selected').text();
+                        originalRoleName = selectedRoleName;
+
+                        // Update the display
+                        $('#currentRoleDisplay').text(selectedRoleName);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Role Updated!',
+                            text: `Member role has been updated to "${selectedRoleName}"`,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        // Exit edit mode
+                        cancelRoleEdit();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Update Failed',
+                            text: response.message || 'Failed to update member role.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    let errorMessage = 'An error occurred while updating the member role.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        }
+
+        function cancelRoleEdit() {
+            // Reset dropdown to original role
+            $('#roleSelect').val(originalRoleId);
+
+            // Hide role edit mode, show display
+            $('#currentRoleDisplay').show();
+            $('#roleEditMode').hide();
+
+            // Toggle buttons
+            $('#roleEditButtons').show();
+            $('#roleSaveCancelButtons').hide();
+
+            isRoleEditMode = false;
+        }
+
         function toggleFormerChurchFields(show) {
             if (show) {
                 $('.former-church-fields').show();
@@ -842,19 +1051,5 @@
                 $('.baptism-fields').hide();
             }
         }
-
-        // Update age when date of birth changes
-        $('[data-field="dateOfBirth"] input').on('change', function() {
-            const dob = new Date($(this).val());
-            if (dob) {
-                const today = new Date();
-                let age = today.getFullYear() - dob.getFullYear();
-                const monthDiff = today.getMonth() - dob.getMonth();
-                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-                    age--;
-                }
-                $('#ageDisplay').text(age + ' years');
-            }
-        });
     </script>
 }

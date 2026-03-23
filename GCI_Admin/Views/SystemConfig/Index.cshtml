@@ -221,8 +221,8 @@
                                 <div class="small text-muted">@config.CreatedAt.ToString("hh:mm tt")</div>
                             </td>
                             <td>
-                                <div>@config.UpdatedAt.ToString("dd MMM yyyy")</div>
-                                <div class="small text-muted">@config.UpdatedAt.ToString("hh:mm tt")</div>
+                                <div>@config.UpdatedAt?.ToString("dd MMM yyyy")</div>
+                                <div class="small text-muted">@config.UpdatedAt?.ToString("hh:mm tt")</div>
                             </td>
                             <td class="text-end">
                                 @if (config.IsEditable)

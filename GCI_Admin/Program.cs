@@ -39,6 +39,7 @@ builder.Services.AddScoped<PaymentsRepository>();
 builder.Services.AddScoped<BenevolenceRepository>();
 builder.Services.AddScoped<LeadershipRepository>();
 builder.Services.AddScoped<SystemConfigRepository>();
+builder.Services.AddScoped<RolesRepository>();
 // Services (Scoped)
 builder.Services.AddScoped<IEventsService, EventsService>();
 builder.Services.AddScoped<IMembersService, MembersService>();
@@ -51,6 +52,7 @@ builder.Services.AddScoped<IPaymentsService, PaymentsService>();
 builder.Services.AddScoped<IBenevolenceService, BenevolenceService>();
 builder.Services.AddScoped<ILeadershipService, LeadershipService>();
 builder.Services.AddScoped<ISystemConfigService, SystemConfigService>();
+builder.Services.AddScoped<IRolesService,RolesService>();
 
 
 var app = builder.Build();

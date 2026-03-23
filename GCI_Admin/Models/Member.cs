@@ -1,4 +1,6 @@
-﻿namespace GCI_Admin.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GCI_Admin.Models
 {
     public class Member
     {
@@ -30,6 +32,9 @@
         public int? NumberOfChildren { get; set; }
 
         public string? SpouseName { get; set; }
+        public int UserRole { get; set; }
+        [NotMapped]
+        public string RoleName { get; set; }
     }
 
     public class MembersListViewModel
@@ -46,5 +51,6 @@
     {
         public Member Member { get; set; }
         public MemberAdditionalInformation AdditionalInformation { get; set; }
+        public List<DropdownItem> UserRoles { get; set; }
     }
 }

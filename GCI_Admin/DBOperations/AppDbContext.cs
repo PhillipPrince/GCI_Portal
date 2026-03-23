@@ -35,6 +35,7 @@ namespace GCI_Admin.DBOperations
         public DbSet<BenevolenceMember> BenevolenceMembers { get; set; }
         public DbSet<BenevolenceBeneficiary> BenevolenceBeneficiaries { get; set; }
         public DbSet<Deacon> Deacons { get; set; }
+        public DbSet<Role> Roles { get; set; }
 
     }
 }

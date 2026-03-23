@@ -10,11 +10,13 @@ public class MembersController : Controller
 {
     private readonly IMembersService _membersService;
     private readonly MembersRepository _memberRepository;
+    private readonly IRolesService _rolesService;
 
-    public MembersController(IMembersService membersService, MembersRepository memberRepository)
+    public MembersController(IMembersService membersService, MembersRepository memberRepository, IRolesService rolesService)
     {
         _membersService = membersService;
         _memberRepository = memberRepository;
+        _rolesService = rolesService;
     }
 
     // =========================================================
@@ -43,6 +45,7 @@ public class MembersController : Controller
 
     public async Task<IActionResult> MemberDetails(int memberId)
     {
+        Member member = new Member();
         if (memberId <= 0)
             return BadRequest("Invalid member ID");
 
@@ -50,12 +53,25 @@ public class MembersController : Controller
 
         if (!memberResponse.Success || memberResponse.Data == null)
             return NotFound("Member not found");
+        member = memberResponse.Data;
 
-        var additionalInfoResponse = await _memberRepository.GetAdditionalInfoByMemberIdAsync(memberId);
+        var additionalInfoResponse = await _memberRepository.GetAdditionalInfoByMemberIdAsync(member.Id);
+        var userRole = await _rolesService.GetRoleByIdAsync(member.UserRole);
+        member.RoleName = userRole.Data != null ? userRole.Data.RoleName : "Unknown Role";
+        var rolesResponse = await _rolesService.GetAllRolesAsync();
+        var roles = rolesResponse?.Data ?? new List<Role>();
 
+        List<DropdownItem> userRoles = roles
+            .Select(r => new DropdownItem
+            {
+                Value = r.RoleId.ToString(),
+                Text = r.RoleName
+            })
+            .ToList();
         var model = new MemberDetailsViewModel
         {
-            Member = memberResponse.Data,
+            Member = member,
+            UserRoles = userRoles,
             AdditionalInformation = additionalInfoResponse.Data 
         };
 
@@ -116,6 +132,40 @@ public class MembersController : Controller
 
         return Ok(result);
     }
+    [HttpPost("UpdateUserRole")]
+    public async Task<IActionResult> UpdateUserRole(int memberId, int roleId)
+    {
+        try
+        {
+            if (memberId <= 0 || roleId <= 0)
+            {
+                return BadRequest(new ApiResponse<bool>
+                {
+                    IsSuccess = false,
+                    Code = "400",
+                    Message = "Invalid memberId or roleId"
+                });
+            }
 
-   
+            var response = await _membersService.UpdateMemberRoleAsync(memberId, roleId);
+
+            if (!response.IsSuccess)
+            {
+                return StatusCode(int.Parse(response.Code ?? "500"), response);
+            }
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ApiResponse<bool>
+            {
+                IsSuccess = false,
+                Code = "500",
+                Message = ex.Message
+            });
+        }
+    }
+
+
 }
