@@ -1,0 +1,914 @@
+﻿@model List<GCI_Admin.Models.Elder>
+
+@{
+    ViewData["Title"] = "Church Elders";
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Church Elders</h2>
+        <p class="text-muted mb-0">Manage church elders, their ordination details, and service records</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-success btn-lg me-2" onclick="downloadTemplate()">
+            <i class="fa fa-download me-2"></i>Download Template
+        </button>
+        <button type="button" class="btn btn-primary btn-lg" onclick="openAddElderModal()">
+            <i class="fa fa-plus-circle me-2"></i>Add New Elder
+        </button>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-users text-primary fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Elders</h6>
+                        <h3 class="fw-bold mb-0" id="totalElders">@Model.Count</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-user-check text-success fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Active Elders</h6>
+                        <h3 class="fw-bold mb-0" id="activeElders">@Model.Count(e => e.IsActive)</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-calendar text-warning fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Service Years</h6>
+                        <h3 class="fw-bold mb-0" id="totalServiceYears">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-star text-info fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Longest Serving</h6>
+                        <h5 class="fw-bold mb-0 text-truncate" id="longestServing">-</h5>
+                        <small class="text-muted" id="longestServingYears"></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0">
+                        <i class="fa fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" id="elderSearch" placeholder="Search by name, phone, email...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-3 text-end">
+                <button class="btn btn-outline-secondary me-2" onclick="clearFilters()">
+                    <i class="fa fa-times me-1"></i>Clear
+                </button>
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fa fa-filter me-1"></i>Apply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="btn-group" role="group">
+        <button class="btn btn-outline-primary active" onclick="toggleView('table')">
+            <i class="fa fa-table me-1"></i>Table View
+        </button>
+        <button class="btn btn-outline-primary" onclick="toggleView('grid')">
+            <i class="fa fa-th me-1"></i>Card View
+        </button>
+        <button class="btn btn-outline-primary" onclick="toggleView('summary')">
+            <i class="fa fa-chart-pie me-1"></i>Summary
+        </button>
+    </div>
+    <div>
+        <button class="btn btn-outline-secondary me-2" onclick="exportElders()">
+            <i class="fa fa-file-excel me-1"></i>Export to Excel
+        </button>
+        <button class="btn btn-outline-secondary" onclick="showUploadModal()">
+            <i class="fa fa-upload me-1"></i>Upload Elders
+        </button>
+    </div>
+</div>
+
+<div id="eldersTableContainer">
+    @await Html.PartialAsync("_EldersTable", Model)
+</div>
+
+<div id="cardView" style="display: none;">
+    <div class="row g-4" id="elderCards"></div>
+</div>
+
+<div id="summaryView" style="display: none;">
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">Elders by Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">Elders Ordination Year Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="ordinationChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">Elders Service Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="serviceChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">
+                    <i class="fa fa-upload me-2"></i>Upload Elders from Excel
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fa fa-info-circle me-2"></i>
+                    Please use the downloaded template format. The Excel file should match the template structure below.
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Upload Options</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="uploadOption" id="appendData" value="append" checked>
+                        <label class="form-check-label" for="appendData">Append to existing data</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="uploadOption" id="replaceData" value="replace">
+                        <label class="form-check-label" for="replaceData">Replace all data (clears existing)</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="uploadOption" id="updateData" value="update">
+                        <label class="form-check-label" for="updateData">Update existing records (based on Member ID)</label>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Choose File</label>
+                    <input type="file" class="form-control" id="excelFile" accept=".xlsx,.xls,.csv">
+                </div>
+                <div class="progress mb-3" style="display: none;" id="uploadProgress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%">0%</div>
+                </div>
+                <div id="uploadPreview" class="mb-3" style="display: none;">
+                    <h6>Preview:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead id="previewHeader"></thead>
+                            <tbody id="previewBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="uploadFile()" id="uploadBtn">
+                    <i class="fa fa-upload me-1"></i>Upload
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fa fa-check-circle me-2"></i>
+                <span id="toastMessage">Operation completed successfully</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<div id="addElderModalContainer"></div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important;
+            }
+
+        .elder-card {
+            transition: all 0.3s;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+            .elder-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            }
+
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .btn-group .btn.active {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+            .action-btn:hover {
+                transform: translateY(-2px);
+            }
+
+            .action-btn.edit-btn:hover {
+                background-color: #0d6efd;
+                color: white;
+            }
+
+            .action-btn.delete-btn:hover {
+                background-color: #dc3545;
+                color: white;
+            }
+
+            .action-btn.view-btn:hover {
+                background-color: #6c757d;
+                color: white;
+            }
+
+        .ordination-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            background-color: #e9ecef;
+            color: #495057;
+        }
+    </style>
+
+    <script>
+        let elders = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+        let currentView = 'table';
+        let selectedFile = null;
+        let statusChart, ordinationChart, serviceChart;
+
+        $(document).ready(function() {
+            initializeDataTable();
+            updateStats();
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>showToast('@TempData["SuccessMessage"]', 'success');</text>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>showToast('@TempData["ErrorMessage"]', 'error');</text>
+        }
+        });
+
+        function updateStats() {
+            const total = elders.length;
+            const active = elders.filter(e => e.isActive).length;
+
+            let totalYears = 0;
+            elders.forEach(elder => {
+                if (elder.dateOrdained) {
+                    const ordinationDate = moment(elder.dateOrdained);
+                    totalYears += moment().diff(ordinationDate, 'years');
+                }
+            });
+
+            let longestServingElder = null;
+            let longestYears = 0;
+            elders.forEach(elder => {
+                if (elder.dateOrdained) {
+                    const years = moment().diff(moment(elder.dateOrdained), 'years');
+                    if (years > longestYears) {
+                        longestYears = years;
+                        longestServingElder = elder;
+                    }
+                }
+            });
+
+            $('#totalElders').text(total);
+            $('#activeElders').text(active);
+            $('#totalServiceYears').text(totalYears);
+
+            if (longestServingElder) {
+                const name = longestServingElder.member ?
+                    `${longestServingElder.member.firstName} ${longestServingElder.member.otherNames || ''}` :
+                    `Elder ${longestServingElder.elderId}`;
+                $('#longestServing').text(name);
+                $('#longestServingYears').text(`${longestYears} years`);
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = $('#successToast');
+            toast.removeClass('bg-success bg-danger bg-warning');
+            if (type === 'success') {
+                toast.addClass('bg-success');
+                toast.find('i').removeClass().addClass('fa fa-check-circle me-2');
+            } else if (type === 'error') {
+                toast.addClass('bg-danger');
+                toast.find('i').removeClass().addClass('fa fa-exclamation-circle me-2');
+            } else if (type === 'warning') {
+                toast.addClass('bg-warning');
+                toast.find('i').removeClass().addClass('fa fa-exclamation-triangle me-2');
+            }
+            $('#toastMessage').text(message);
+            const bsToast = new bootstrap.Toast(toast[0], { delay: 3000 });
+            bsToast.show();
+        }
+
+        function openAddElderModal() {
+            if ($('#addElderModal').length === 0) {
+                $.get('/Leadership/AddElderPartial', function(data) {
+                    $('#addElderModalContainer').html(data);
+                    $('#addElderModal').modal('show');
+                }).fail(function() {
+                    Swal.fire('Error', 'Failed to load add elder form', 'error');
+                });
+            } else {
+                $('#addElderModal').modal('show');
+                if ($('#addElderForm').length) $('#addElderForm')[0].reset();
+                if ($.fn.select2) {
+                    $('.select2-member').val(null).trigger('change');
+                }
+            }
+        }
+
+        function downloadTemplate() {
+            const template = [{
+                'MemberId': '1',
+                'FirstName': 'John',
+                'OtherNames': 'Doe',
+                'Phone': '0244123456',
+                'Email': 'john.doe@email.com',
+                'Description': 'Dedicated elder with years of service',
+                'DateOrdained': '2020-01-01',
+                'IsActive': 'TRUE'
+            }];
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(template);
+            ws['!cols'] = [{ wch: 12 }, { wch: 15 }, { wch: 20 }, { wch: 15 }, { wch: 25 }, { wch: 50 }, { wch: 12 }, { wch: 10 }];
+
+            const instructions = [
+                { 'Field': 'MemberId', 'Required': 'Yes', 'Description': 'Member ID from members table', 'Example': '1' },
+                { 'Field': 'FirstName', 'Required': 'Yes', 'Description': 'Member first name', 'Example': 'John' },
+                { 'Field': 'OtherNames', 'Required': 'No', 'Description': 'Member other names', 'Example': 'Doe' },
+                { 'Field': 'Phone', 'Required': 'Yes', 'Description': 'Contact phone number', 'Example': '0244123456' },
+                { 'Field': 'Email', 'Required': 'No', 'Description': 'Email address', 'Example': 'john.doe@email.com' },
+                { 'Field': 'Description', 'Required': 'No', 'Description': 'Brief description/bio', 'Example': 'Dedicated elder with years of service' },
+                { 'Field': 'DateOrdained', 'Required': 'Yes', 'Description': 'Ordination date (YYYY-MM-DD)', 'Example': '2020-01-01' },
+                { 'Field': 'IsActive', 'Required': 'Yes', 'Description': 'TRUE / FALSE', 'Example': 'TRUE' }
+            ];
+
+            const wsInstructions = XLSX.utils.json_to_sheet(instructions);
+            wsInstructions['!cols'] = [{ wch: 18 }, { wch: 12 }, { wch: 60 }, { wch: 25 }];
+
+            XLSX.utils.book_append_sheet(wb, ws, 'Elders');
+            XLSX.utils.book_append_sheet(wb, wsInstructions, 'Instructions');
+            XLSX.writeFile(wb, 'Elders_Template.xlsx');
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Template Downloaded',
+                text: 'Elders Excel template downloaded successfully.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+
+        function showUploadModal() {
+            $('#uploadModal').modal('show');
+            $('#excelFile').val('');
+            $('#uploadPreview').hide();
+            $('#uploadProgress').hide();
+        }
+
+        $('#excelFile').on('change', function(e) {
+            selectedFile = e.target.files[0];
+            if (selectedFile) previewExcelFile(selectedFile);
+        });
+
+        function previewExcelFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                    if (jsonData.length > 0) {
+                        const headers = jsonData[0];
+                        const previewRows = jsonData.slice(1, 6);
+                        let headerHtml = '<tr>', bodyHtml = '';
+                        headers.forEach(header => headerHtml += `<th>${header}</th>`);
+                        headerHtml += '</tr>';
+
+                        previewRows.forEach(row => {
+                            bodyHtml += '<tr>';
+                            row.forEach(cell => bodyHtml += `<td>${cell || ''}</td>`);
+                            bodyHtml += '</tr>';
+                        });
+
+                        $('#previewHeader').html(headerHtml);
+                        $('#previewBody').html(bodyHtml);
+                        $('#uploadPreview').show();
+                    }
+                } catch (error) {
+                    showToast('Error previewing file. Please check the format.', 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function uploadFile() {
+            const fileInput = document.getElementById("excelFile");
+            const uploadOption = document.querySelector('input[name="uploadOption"]:checked').value;
+            const progressBar = document.getElementById("uploadProgress");
+            const progressBarInner = progressBar.querySelector(".progress-bar");
+
+            if (fileInput.files.length === 0) {
+                Swal.fire("Warning", "Please select an Excel file.", "warning");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            formData.append("uploadOption", uploadOption);
+
+            progressBar.style.display = "block";
+            progressBarInner.style.width = "0%";
+            progressBarInner.innerText = "0%";
+
+            $.ajax({
+                url: '/Leadership/UploadEldersExcel',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                xhr: function() {
+                    const xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", function(evt) {
+                        if (evt.lengthComputable) {
+                            const percentComplete = Math.round((evt.loaded / evt.total) * 100);
+                            progressBarInner.style.width = percentComplete + "%";
+                            progressBarInner.innerText = percentComplete + "%";
+                        }
+                    }, false);
+                    return xhr;
+                },
+                success: function(response) {
+                    progressBar.style.display = "none";
+                    Swal.fire({
+                        icon: "success",
+                        title: "Upload Completed",
+                        html: `<b>Total:</b> ${response.data.totalRecords}<br/><b>Successful:</b> ${response.data.successfulRecords}<br/><b>Failed:</b> ${response.data.failedRecords}`
+                    }).then(() => location.reload());
+                },
+                error: function(xhr) {
+                    progressBar.style.display = "none";
+                    Swal.fire("Error", xhr.responseJSON?.message || "Upload failed.", "error");
+                }
+            });
+        }
+
+        function editElder(id) {
+            window.location.href = '@Url.Action("Edit", "Leadership")/' + id;
+        }
+
+        function viewElder(id) {
+            window.location.href = '@Url.Action("ElderDetails", "Leadership")/' + id;
+        }
+
+        function deleteElder(id) {
+            Swal.fire({
+                title: 'Delete Elder',
+                text: 'Are you sure you want to delete this elder? This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Yes, delete it',
+                showLoaderOnConfirm: true,
+                preConfirm: () => $.ajax({
+                    url: '@Url.Action("DeleteElder", "Leadership")',
+                    type: 'DELETE',
+                    data: { id: id }
+                }).then(response => {
+                    if (!response.isSuccess) throw new Error(response.message);
+                    return response;
+                }).catch(error => {
+                    Swal.showValidationMessage(`Request failed: ${error.message}`);
+                })
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showToast('Elder deleted successfully');
+                    location.reload();
+                }
+            });
+        }
+
+        function toggleElderStatus(id, activate) {
+            Swal.fire({
+                title: `Are you sure?`,
+                text: `You are about to ${activate ? "activate" : "deactivate"} this elder.`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: `Yes, ${activate ? "activate" : "deactivate"}`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: "Processing...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    $.ajax({
+                        url: '/Leadership/ToggleElderStatus',
+                        type: 'POST',
+                        data: { id: id, isActive: activate },
+                        success: (response) => Swal.fire("Success", response.message, "success").then(() => location.reload()),
+                        error: (xhr) => Swal.fire("Error", xhr.responseJSON?.message || "Operation failed", "error")
+                    });
+                }
+            });
+        }
+
+        function toggleView(view) {
+            currentView = view;
+            $('.btn-group .btn').removeClass('active');
+            $(`.btn-group .btn:eq(${view === 'table' ? 0 : view === 'grid' ? 1 : 2})`).addClass('active');
+            $('#eldersTableContainer, #cardView, #summaryView').hide();
+
+            if (view === 'table') {
+                $('#eldersTableContainer').show();
+                reloadEldersTable();
+            } else if (view === 'grid') {
+                $('#cardView').show();
+                renderCardView();
+            } else if (view === 'summary') {
+                $('#summaryView').show();
+                renderSummaryView();
+            }
+        }
+
+        function renderCardView() {
+            const container = $('#elderCards');
+            container.empty();
+
+            if (elders.length === 0) {
+                container.html(`<div class="col-12 text-center py-5"><i class="fa fa-users fa-4x text-muted mb-3"></i><h5>No Elders Found</h5><p class="text-muted">Add your first elder to get started</p><button class="btn btn-primary mt-3" onclick="openAddElderModal()"><i class="fa fa-plus-circle me-2"></i>Add New Elder</button></div>`);
+                return;
+            }
+
+            elders.forEach(elder => {
+                const fullName = elder.member ? `${elder.member.firstName} ${elder.member.otherNames || ''}` : `Elder ${elder.elderId}`;
+                const ordinationDate = elder.dateOrdained ? moment(elder.dateOrdained) : null;
+                const yearsOfService = ordinationDate ? moment().diff(ordinationDate, 'years') : 0;
+
+                container.append(`<div class="col-md-4 col-lg-3">
+                    <div class="card elder-card border-0 shadow-sm h-100">
+                        <div class="status-badge">
+                            ${elder.isActive ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>'}
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block">
+                                    <i class="fa fa-user-circle-o text-primary fa-3x"></i>
+                                </div>
+                                <h5 class="card-title mt-2 mb-1">${escapeHtml(fullName)}</h5>
+                                <span class="ordination-badge">
+                                    <i class="fa fa-calendar me-1"></i>Ordained: ${ordinationDate ? ordinationDate.format('MMM D, YYYY') : 'Not specified'}
+                                </span>
+                            </div>
+
+                            <div class="mb-3">
+                                <p class="small text-muted mb-2">
+                                    <i class="fa fa-phone me-2"></i>${escapeHtml(elder.member?.phone || 'No phone')}<br>
+                                    <i class="fa fa-envelope me-2"></i>${escapeHtml(elder.member?.email || 'No email')}<br>
+                                    <i class="fa fa-clock-o me-2"></i>Service: ${yearsOfService} ${yearsOfService === 1 ? 'year' : 'years'}
+                                </p>
+                            </div>
+
+                            ${elder.description ? `<div class="small text-muted border-top pt-2 mt-2">
+                                <i class="fa fa-quote-left me-1"></i> ${escapeHtml(elder.description.substring(0, 80))}${elder.description.length > 80 ? '...' : ''}
+                            </div>` : ''}
+
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <span class="text-muted small">
+                                    <i class="fa fa-clock-o me-1"></i>${moment(elder.createdAt).format('MMM D, YYYY')}
+                                </span>
+                                <div>
+                                    <button class="action-btn view-btn btn btn-sm btn-outline-secondary me-1" onclick="viewElder(${elder.elderId})" title="View Details">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit-btn btn btn-sm btn-outline-primary me-1" onclick="editElder(${elder.elderId})" title="Edit">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn btn btn-sm btn-outline-danger" onclick="deleteElder(${elder.elderId})" title="Delete">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`);
+            });
+        }
+
+        function renderSummaryView() {
+            if (statusChart) statusChart.destroy();
+            if (ordinationChart) ordinationChart.destroy();
+            if (serviceChart) serviceChart.destroy();
+
+            const activeCount = elders.filter(e => e.isActive).length;
+            const inactiveCount = elders.filter(e => !e.isActive).length;
+
+            statusChart = new Chart(document.getElementById('statusChart'), {
+                type: 'pie',
+                data: {
+                    labels: ['Active Elders', 'Inactive Elders'],
+                    datasets: [{
+                        data: [activeCount, inactiveCount],
+                        backgroundColor: ['#28a745', '#dc3545'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            const ordinationYears = {};
+            elders.forEach(elder => {
+                if (elder.dateOrdained) {
+                    const year = moment(elder.dateOrdained).format('YYYY');
+                    ordinationYears[year] = (ordinationYears[year] || 0) + 1;
+                }
+            });
+
+            ordinationChart = new Chart(document.getElementById('ordinationChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ordinationYears).sort(),
+                    datasets: [{
+                        label: 'Number of Elders',
+                        data: Object.keys(ordinationYears).sort().map(year => ordinationYears[year]),
+                        backgroundColor: '#0d6efd',
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Ordination Year'
+                            }
+                        }
+                    }
+                }
+            });
+
+            const serviceYears = elders
+                .map(elder => ({
+                    name: elder.member ? `${elder.member.firstName} ${elder.member.otherNames || ''}` : `Elder ${elder.elderId}`,
+                    years: elder.dateOrdained ? moment().diff(moment(elder.dateOrdained), 'years', true) : 0
+                }))
+                .filter(e => e.years > 0)
+                .sort((a, b) => b.years - a.years)
+                .slice(0, 10);
+
+            serviceChart = new Chart(document.getElementById('serviceChart'), {
+                type: 'bar',
+                data: {
+                    labels: serviceYears.map(s => s.name),
+                    datasets: [{
+                        label: 'Years of Service',
+                        data: serviceYears.map(s => s.years.toFixed(1)),
+                        backgroundColor: '#28a745',
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    indexAxis: 'y',
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.raw} years`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Years of Service'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(text));
+            return div.innerHTML;
+        }
+
+        function reloadEldersTable() {
+            $('#eldersTableContainer').load('@Url.Action("EldersTable", "Leadership")', function() {
+                initializeDataTable();
+            });
+        }
+
+        function initializeDataTable() {
+            if ($.fn.DataTable.isDataTable('#eldersTable')) $('#eldersTable').DataTable().destroy();
+            $('#eldersTable').DataTable({
+                pageLength: 10,
+                language: {
+                    search: "Search elders:",
+                    lengthMenu: "Show _MENU_ elders",
+                    info: "Showing _START_ to _END_ of _TOTAL_ elders",
+                    emptyTable: "No elders available",
+                    zeroRecords: "No matching elders found"
+                },
+                columnDefs: [{ targets: -1, orderable: false, searchable: false }],
+                initComplete: function() {
+                    $('#eldersTable .btn-group .btn').addClass('action-btn');
+                }
+            });
+        }
+
+        function applyFilters() {
+            const search = $('#elderSearch').val();
+            const status = $('#statusFilter').val();
+
+            if (currentView === 'table') {
+                $('#eldersTable').DataTable().search(search).draw();
+                if (status) {
+                    $('#eldersTable').DataTable().column(4).search(status === 'true' ? 'Active' : 'Inactive').draw();
+                } else {
+                    $('#eldersTable').DataTable().column(4).search('').draw();
+                }
+            } else if (currentView === 'grid') {
+                const filtered = elders.filter(elder => {
+                    let match = true;
+                    const fullName = elder.member ? `${elder.member.firstName} ${elder.member.otherNames || ''} ${elder.member.email || ''} ${elder.member.phone || ''}` : '';
+
+                    if (search) {
+                        match = match && fullName.toLowerCase().includes(search.toLowerCase());
+                    }
+                    if (status) {
+                        match = match && elder.isActive.toString() === status;
+                    }
+                    return match;
+                });
+
+                const temp = elders;
+                elders = filtered;
+                renderCardView();
+                elders = temp;
+            }
+        }
+
+        function clearFilters() {
+            $('#elderSearch, #statusFilter').val('');
+            if (currentView === 'table') {
+                $('#eldersTable').DataTable().search('').columns().search('').draw();
+            } else if (currentView === 'grid') {
+                renderCardView();
+            }
+        }
+
+        function exportElders() {
+            const exportData = elders.map(e => ({
+                'Elder ID': e.elderId,
+                'Full Name': e.member ? `${e.member.firstName} ${e.member.otherNames || ''}` : '',
+                'Phone': e.member?.phone || '',
+                'Email': e.member?.email || '',
+                'Description': e.description,
+                'Date Ordained': e.dateOrdained ? moment(e.dateOrdained).format('YYYY-MM-DD') : '',
+                'Status': e.isActive ? 'Active' : 'Inactive',
+                'Created At': moment(e.createdAt).format('YYYY-MM-DD HH:mm:ss')
+            }));
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(exportData), 'Elders');
+            XLSX.writeFile(wb, `Elders_${moment().format('YYYY-MM-DD')}.xlsx`);
+            showToast('Elders exported successfully', 'success');
+        }
+
+        window.deleteElder = deleteElder;
+        window.editElder = editElder;
+        window.viewElder = viewElder;
+        window.toggleElderStatus = toggleElderStatus;
+        window.openAddElderModal = openAddElderModal;
+    </script>
+}

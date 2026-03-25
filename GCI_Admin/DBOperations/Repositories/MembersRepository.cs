@@ -360,6 +360,15 @@ namespace GCI_Admin.DBOperations.Repositories
                         Message = "Member not found"
                     };
                 }
+                if (member.StatusId != 1)
+                {
+                    return new DbResponse<bool>
+
+                    {
+                        Success=false,
+                        Message="Member Not Fu"
+                    } ;
+                }
 
                 member.UserRole = roleId;
 

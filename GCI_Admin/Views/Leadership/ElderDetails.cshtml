@@ -1,0 +1,542 @@
+﻿@model GCI_Admin.Models.Elder
+
+@{
+    ViewData["Title"] = "Elder Details";
+    var elder = Model;
+    var member = elder?.Member;
+}
+
+<div class="container-fluid px-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="d-flex align-items-center">
+                <a href="@Url.Action("Elders", "Leadership")" class="btn btn-outline-secondary me-3">
+                    <i class="fa fa-arrow-left me-1"></i> Back
+                </a>
+                <div>
+                    <h2 class="fw-bold mb-1">Elder Details</h2>
+                    <p class="text-muted mb-0">View and manage elder information</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("EditElder", "Leadership", new { id = elder?.ElderId })" class="btn btn-warning btn-lg me-2">
+                <i class="fa fa-edit me-2"></i>Edit Elder
+            </a>
+            <button class="btn btn-danger btn-lg" onclick="deleteElder(@elder?.ElderId)">
+                <i class="fa fa-trash me-2"></i>Delete
+            </button>
+        </div>
+    </div>
+
+    @if (elder == null)
+    {
+        <div class="alert alert-danger">
+            <i class="fa fa-exclamation-circle me-2"></i>
+            Elder not found. Please go back and try again.
+        </div>
+    }
+    else
+    {
+        <!-- Status Badges Row -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex gap-2">
+                    @if (elder.IsActive)
+                    {
+                        <span class="badge bg-success fs-6 p-2">
+                            <i class="fa fa-check-circle me-1"></i> Active
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger fs-6 p-2">
+                            <i class="fa fa-ban me-1"></i> Inactive
+                        </span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Left Column - Personal Information -->
+            <div class="col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-0 pt-4">
+                        <div class="text-center">
+                            <div class="bg-primary bg-opacity-10 p-4 rounded-circle d-inline-block mb-3">
+                                <i class="fa fa-user-circle-o text-primary fa-4x"></i>
+                            </div>
+                            <h3 class="fw-bold mb-1">@(member != null ? $"{member.FirstName} {member.OtherNames}" : $"Elder {elder.ElderId}")</h3>
+                            <p class="text-muted">
+                                <i class="fa fa-tag me-1"></i> Elder ID: @elder.ElderId
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Quick Actions -->
+                        <div class="d-grid gap-2 mb-4">
+                            @if (!elder.IsActive)
+                            {
+                                <button class="btn btn-success" onclick="toggleElderStatus(@elder.ElderId, true)">
+                                    <i class="fa fa-check-circle me-2"></i> Activate Elder
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-danger" onclick="toggleElderStatus(@elder.ElderId, false)">
+                                    <i class="fa fa-ban me-2"></i> Deactivate Elder
+                                </button>
+                            }
+                        </div>
+
+                        <h5 class="fw-bold mb-3">
+                            <i class="fa fa-info-circle me-2 text-primary"></i>Personal Information
+                        </h5>
+
+                        <div class="info-list">
+                            <div class="info-item d-flex py-2 border-bottom">
+                                <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                    <i class="fa fa-user"></i>
+                                </div>
+                                <div class="info-content flex-grow-1">
+                                    <small class="text-muted d-block">Full Name</small>
+                                    <strong>@(member != null ? $"{member.FirstName} {member.OtherNames}" : "-")</strong>
+                                </div>
+                            </div>
+
+                            <div class="info-item d-flex py-2 border-bottom">
+                                <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                    <i class="fa fa-phone"></i>
+                                </div>
+                                <div class="info-content flex-grow-1">
+                                    <small class="text-muted d-block">Phone Number</small>
+                                    <strong>
+                                        @if (!string.IsNullOrEmpty(member?.Phone))
+                                        {
+                                            <a href="tel:@member.Phone">@member.Phone</a>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </strong>
+                                </div>
+                            </div>
+
+                            <div class="info-item d-flex py-2 border-bottom">
+                                <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                    <i class="fa fa-envelope"></i>
+                                </div>
+                                <div class="info-content flex-grow-1">
+                                    <small class="text-muted d-block">Email Address</small>
+                                    <strong>
+                                        @if (!string.IsNullOrEmpty(member?.Email))
+                                        {
+                                            <a href="mailto:@member.Email">@member.Email</a>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </strong>
+                                </div>
+                            </div>
+
+                            <div class="info-item d-flex py-2 border-bottom">
+                                <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                    <i class="fa fa-venus-mars"></i>
+                                </div>
+                                <div class="info-content flex-grow-1">
+                                    <small class="text-muted d-block">Gender</small>
+                                    <strong>@(member?.Gender ?? "-")</strong>
+                                </div>
+                            </div>
+
+                            <div class="info-item d-flex py-2 border-bottom">
+                                <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                                <div class="info-content flex-grow-1">
+                                    <small class="text-muted d-block">Date of Birth</small>
+                                    <strong>@(member?.DateOfBirth?.ToString("dd MMM yyyy") ?? "-")</strong>
+                                </div>
+                            </div>
+
+                            <div class="info-item d-flex py-2 border-bottom">
+                                <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                    <i class="fa fa-heart"></i>
+                                </div>
+                                <div class="info-content flex-grow-1">
+                                    <small class="text-muted d-block">Marital Status</small>
+                                    <strong>@(member?.MaritalStatus ?? "-")</strong>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(member?.SpouseName))
+                            {
+                                <div class="info-item d-flex py-2 border-bottom">
+                                    <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                        <i class="fa fa-users"></i>
+                                    </div>
+                                    <div class="info-content flex-grow-1">
+                                        <small class="text-muted d-block">Spouse Name</small>
+                                        <strong>@member.SpouseName</strong>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (member?.NumberOfChildren > 0)
+                            {
+                                <div class="info-item d-flex py-2 border-bottom">
+                                    <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                        <i class="fa fa-child"></i>
+                                    </div>
+                                    <div class="info-content flex-grow-1">
+                                        <small class="text-muted d-block">Number of Children</small>
+                                        <strong>@member.NumberOfChildren</strong>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(member?.ResidentialAddress))
+                            {
+                                <div class="info-item d-flex py-2 border-bottom">
+                                    <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                        <i class="fa fa-home"></i>
+                                    </div>
+                                    <div class="info-content flex-grow-1">
+                                        <small class="text-muted d-block">Residential Address</small>
+                                        <strong>@member.ResidentialAddress</strong>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(member?.Assembly))
+                            {
+                                <div class="info-item d-flex py-2 border-bottom">
+                                    <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                        <i class="fa fa-building"></i>
+                                    </div>
+                                    <div class="info-content flex-grow-1">
+                                        <small class="text-muted d-block">Assembly</small>
+                                        <strong>@member.Assembly</strong>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Elder Information -->
+            <div class="col-lg-8">
+                <!-- Elder Details Card -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-transparent border-0 pt-4">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fa fa-church me-2 text-primary"></i>Elder Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-item d-flex py-2 border-bottom">
+                                    <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                        <i class="fa fa-tag"></i>
+                                    </div>
+                                    <div class="info-content flex-grow-1">
+                                        <small class="text-muted d-block">Elder ID</small>
+                                        <strong>@elder.ElderId</strong>
+                                    </div>
+                                </div>
+
+                                <div class="info-item d-flex py-2 border-bottom">
+                                    <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                        <i class="fa fa-calendar-check-o"></i>
+                                    </div>
+                                    <div class="info-content flex-grow-1">
+                                        <small class="text-muted d-block">Date Ordained</small>
+                                        <strong>@(elder.DateOrdained?.ToString("dd MMM yyyy") ?? "Not specified")</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="info-item d-flex py-2 border-bottom">
+                                    <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                        <i class="fa fa-clock-o"></i>
+                                    </div>
+                                    <div class="info-content flex-grow-1">
+                                        <small class="text-muted d-block">Years of Service</small>
+                                        <strong>
+                                            @if (elder.DateOrdained.HasValue)
+                                            {
+                                                var yearsOfService = DateTime.Now.Year - elder.DateOrdained.Value.Year;
+                                                var monthsOfService = DateTime.Now.Month - elder.DateOrdained.Value.Month;
+                                                if (monthsOfService < 0)
+                                                {
+                                                    yearsOfService--;
+                                                }
+                                                @yearsOfService @(yearsOfService == 1 ? "year" : "years")
+                                            }
+                                            else
+                                            {
+                                                <span>Not applicable</span>
+                                            }
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(elder.Description))
+                        {
+                            <div class="mt-3 pt-3 border-top">
+                                <h6 class="fw-bold mb-2">
+                                    <i class="fa fa-align-left me-2 text-primary"></i>Description / Bio
+                                </h6>
+                                <p class="text-muted mb-0">@elder.Description</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Member Information Card -->
+                @if (member != null)
+                {
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-transparent border-0 pt-4">
+                            <h5 class="fw-bold mb-0">
+                                <i class="fa fa-id-card me-2 text-primary"></i>Church Member Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="info-item d-flex py-2 border-bottom">
+                                        <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                            <i class="fa fa-id-badge"></i>
+                                        </div>
+                                        <div class="info-content flex-grow-1">
+                                            <small class="text-muted d-block">Member ID</small>
+                                            <strong>@member.Id</strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-item d-flex py-2 border-bottom">
+                                        <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                            <i class="fa fa-calendar"></i>
+                                        </div>
+                                        <div class="info-content flex-grow-1">
+                                            <small class="text-muted d-block">Member Since</small>
+                                            <strong>@member.CreatedAt.ToString("dd MMM yyyy")</strong>
+                                        </div>
+                                    </div>
+
+                                    @* @if (!string.IsNullOrEmpty(member.BaptismalStatus)) *@
+                                    @* { *@
+                                    @*     <div class="info-item d-flex py-2 border-bottom"> *@
+                                    @*         <div class="info-icon me-3 text-muted" style="width: 30px;"> *@
+                                    @*             <i class="fa fa-dove"></i> *@
+                                    @*         </div> *@
+                                    @*         <div class="info-content flex-grow-1"> *@
+                                    @*             <small class="text-muted d-block">Baptismal Status</small> *@
+                                    @*             <strong>@member.BaptismalStatus</strong> *@
+                                    @*         </div> *@
+                                    @*     </div> *@
+                                    @* } *@
+                                </div>
+
+                                <div class="col-md-6">
+                                    @if (!string.IsNullOrEmpty(member.SocialMediaName))
+                                    {
+                                        <div class="info-item d-flex py-2 border-bottom">
+                                            <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                                <i class="fa fa-facebook"></i>
+                                            </div>
+                                            <div class="info-content flex-grow-1">
+                                                <small class="text-muted d-block">Social Media</small>
+                                                <strong>@member.SocialMediaName</strong>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (member.StatusId.HasValue)
+                                    {
+                                        <div class="info-item d-flex py-2 border-bottom">
+                                            <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                                <i class="fa fa-flag"></i>
+                                            </div>
+                                            <div class="info-content flex-grow-1">
+                                                <small class="text-muted d-block">Membership Status</small>
+                                                <strong>
+                                                    @{
+                                                        var statusName = member.StatusId switch
+                                                        {
+                                                            1 => "Active Member",
+                                                            2 => "Membership Class",
+                                                            3 => "Non-Member",
+                                                            _ => "Unknown"
+                                                        };
+                                                    }
+                                                    @statusName
+                                                </strong>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Audit Information -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-0 pt-4">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fa fa-history me-2 text-primary"></i>Audit Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-item d-flex py-2 border-bottom">
+                                    <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                        <i class="fa fa-calendar-plus-o"></i>
+                                    </div>
+                                    <div class="info-content flex-grow-1">
+                                        <small class="text-muted d-block">Created At</small>
+                                        <strong>@elder.CreatedAt.ToString("dd MMM yyyy hh:mm tt")</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (elder.UpdatedAt.HasValue)
+                            {
+                                <div class="col-md-6">
+                                    <div class="info-item d-flex py-2 border-bottom">
+                                        <div class="info-icon me-3 text-muted" style="width: 30px;">
+                                            <i class="fa fa-calendar-times-o"></i>
+                                        </div>
+                                        <div class="info-content flex-grow-1">
+                                            <small class="text-muted d-block">Last Updated</small>
+                                            <strong>@elder.UpdatedAt.Value.ToString("dd MMM yyyy hh:mm tt")</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Delete elder
+        function deleteElder(id) {
+            Swal.fire({
+                title: 'Delete Elder',
+                text: 'Are you sure you want to delete this elder? This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Deleting...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        url: '@Url.Action("DeleteElder", "Leadership")',
+                        type: 'DELETE',
+                        data: { id: id },
+                        success: function(response) {
+                            if (response.isSuccess) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: response.message || 'Elder deleted successfully',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.href = '@Url.Action("Elders", "Leadership")';
+                                });
+                            } else {
+                                Swal.fire('Error', response.message || 'Failed to delete elder', 'error');
+                            }
+                        },
+                        error: function(xhr) {
+                            const message = xhr.responseJSON?.message || 'Failed to delete elder';
+                            Swal.fire('Error', message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Toggle elder status
+        function toggleElderStatus(id, activate) {
+            let actionText = activate ? "activate" : "deactivate";
+
+            Swal.fire({
+                title: `Are you sure?`,
+                text: `You are about to ${actionText} this elder.`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: `Yes, ${actionText}`,
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Processing...",
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        url: '@Url.Action("ToggleElderStatus", "Leadership")',
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            isActive: activate
+                        },
+                        success: function(response) {
+                            if (response.isSuccess) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: response.message,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire('Error', response.message || 'Operation failed', 'error');
+                            }
+                        },
+                        error: function(xhr) {
+                            const message = xhr.responseJSON?.message || 'Operation failed';
+                            Swal.fire('Error', message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

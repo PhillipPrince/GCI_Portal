@@ -172,5 +172,108 @@ namespace GCI_Admin.Controllers
             return Ok(result);
         }
 
+        public async Task<IActionResult> Elders()
+        {
+            try
+            {
+                var response = await _leadershipService.GetAllEldersAsync();
+
+                if (response != null && response.IsSuccess)
+                {
+                    return View(response.Data);
+                }
+
+                return View(new List<Elder>());
+            }
+            catch (Exception)
+            {
+                return View(new List<Elder>());
+            }
+        }
+        public async Task<IActionResult> ElderDetails(int id)
+        {
+            try
+            {
+                var elder = await _leadershipService.GetElderByIdAsync(id);
+
+                if (elder == null || !elder.IsSuccess)
+                {
+                    TempData["ErrorMessage"] = "Elder not found.";
+                    return RedirectToAction(nameof(Elders));
+                }
+
+                return View(elder.Data);
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "An error occurred while loading elder details.";
+                return RedirectToAction(nameof(Elders));
+            }
+        }
+        public async Task<IActionResult> AddElderPartial()
+        {
+            var model = new NewElder
+            {
+                MembersList = new List<DropdownItem>()
+            };
+
+            var response = await _members.GetAllMembersAsync();
+
+            var members = response?.Data?
+                .Where(m => m.StatusId == 1)
+                .ToList() ?? new List<Member>();
+
+            model.MembersList = members.Select(m => new DropdownItem
+            {
+                Value = m.Id.ToString(),
+                Text = $"{m.FirstName} {m.OtherNames}"
+            }).ToList();
+
+            return PartialView("_AddElder", model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> CreateElder([FromBody] ElderDto dto)
+        {
+            var result = await _leadershipService.CreateElderAsync(dto);
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetElder(int id)
+        {
+            var result = await _leadershipService.GetElderByIdAsync(id);
+
+            if (!result.IsSuccess)
+                return NotFound(result);
+
+            return Ok(result);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateElder(int id, [FromBody] ElderDto dto)
+        {
+            var result = await _leadershipService.UpdateElderAsync(id, dto);
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteElder(int id)
+        {
+            var result = await _leadershipService.DeleteElderAsync(id);
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
     }
 }

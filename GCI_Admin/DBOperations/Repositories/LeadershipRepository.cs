@@ -245,5 +245,180 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+
+        public async Task<DbResponse<Elder>> CreateElderAsync(ElderDto dto)
+        {
+            try
+            {
+                var memberExists = await _context.Members
+                    .AnyAsync(x => x.Id == dto.MemberId);
+
+                if (!memberExists)
+                    return new DbResponse<Elder>
+                    {
+                        Success = false,
+                        Message = "Member not found"
+                    };
+
+                var entity = new Elder
+                {
+                    MemberId = dto.MemberId,
+                    Description = dto.Description,
+                    DateOrdained = dto.DateOrdained,
+                    IsActive = true,
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.Elders.Add(entity);
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<Elder>
+                {
+                    Success = true,
+                    Message = "Elder created successfully",
+                    Data = entity
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"CreateElderAsync Error: {ex}");
+                return new DbResponse<Elder>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<List<Elder>>> GetAllEldersAsync()
+        {
+            try
+            {
+                var data = await _context.Elders
+                    .Where(x => x.IsActive)
+                    .Include(x => x.Member)
+                    .OrderByDescending(x => x.CreatedAt)
+                    .ToListAsync();
+
+                return new DbResponse<List<Elder>>
+                {
+                    Success = true,
+                    Data = data
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"GetAllEldersAsync Error: {ex}");
+                return new DbResponse<List<Elder>>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<Elder>> GetElderByIdAsync(int id)
+        {
+            try
+            {
+                var data = await _context.Elders
+                    .Include(x => x.Member)
+                    .FirstOrDefaultAsync(x => x.ElderId == id);
+
+                if (data == null)
+                    return new DbResponse<Elder>
+                    {
+                        Success = false,
+                        Message = "Elder not found"
+                    };
+
+                return new DbResponse<Elder>
+                {
+                    Success = true,
+                    Data = data
+                };
+            }
+            catch (Exception ex)
+            {
+                return new DbResponse<Elder>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<Elder>> UpdateElderAsync(int id, ElderDto dto)
+        {
+            try
+            {
+                var existing = await _context.Elders.FindAsync(id);
+
+                if (existing == null)
+                    return new DbResponse<Elder>
+                    {
+                        Success = false,
+                        Message = "Elder not found"
+                    };
+
+                existing.MemberId = dto.MemberId;
+                existing.Description = dto.Description;
+                existing.DateOrdained = dto.DateOrdained;
+                existing.UpdatedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<Elder>
+                {
+                    Success = true,
+                    Message = "Elder updated successfully",
+                    Data = existing
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"UpdateElderAsync Error: {ex}");
+                return new DbResponse<Elder>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<bool>> DeleteElderAsync(int id)
+        {
+            try
+            {
+                var data = await _context.Elders.FindAsync(id);
+
+                if (data == null)
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Elder not found"
+                    };
+
+                data.IsActive = false;
+
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<bool>
+                {
+                    Success = true,
+                    Message = "Elder deleted successfully",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"DeleteElderAsync Error: {ex}");
+                return new DbResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }

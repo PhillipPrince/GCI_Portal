@@ -87,28 +87,6 @@
             </div>
         </div>
     </div>
-
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <div class="bg-danger bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-money-bill-wave fa-2x text-danger"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Total Giving</h6>
-                        <h3 class="fw-bold mb-0">KES 1,250,000</h3>
-                        <small class="text-success"><i class="fa fa-arrow-up me-1"></i>+15% from last month</small>
-                    </div>
-                </div>
-                <div class="progress" style="height: 4px;">
-                    <div class="progress-bar bg-danger" style="width: 68%"></div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- CHARTS SECTION -->
@@ -127,20 +105,6 @@
             </div>
             <div class="card-body">
                 <canvas id="membersChart" height="120"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-5">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="fw-bold mb-0">💰 Monthly Giving</h6>
-                    <span class="badge bg-success">+23% vs last year</span>
-                </div>
-            </div>
-            <div class="card-body">
-                <canvas id="givingChart" height="120"></canvas>
             </div>
         </div>
     </div>
@@ -192,10 +156,11 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100 overflow-hidden">
-            <div class="row g-0 h-100">
 
+    <!-- Theme Card with onclick -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 overflow-hidden" onclick="openThemeModal()" style="cursor: pointer;">
+            <div class="row g-0 h-100">
                 <!-- Left Image Section -->
                 <div class="col-md-5">
                     <div class="h-100">
@@ -205,31 +170,22 @@
                              style="object-fit: cover;">
                     </div>
                 </div>
-
                 <!-- Right Content Section -->
                 <div class="col-md-7">
                     <div class="card-body d-flex flex-column justify-content-center align-items-center text-center h-100">
-
                         <h6 class="fw-bold text-primary mb-2" id="themeYearTitle">
                             Theme of the Year
                         </h6>
-
                         <h5 class="fw-bold mb-3" id="themeTitle">
                             Loading...
                         </h5>
-
                         <p class="text-muted mb-1 fw-semibold" id="themeVerse"></p>
-
                         <p class="text-muted mb-0" id="themeDescription"></p>
-
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
-
-
 
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100">
@@ -241,16 +197,12 @@
                     <a href="javascript:void(0);"
                        onclick="openAddMemberModal()"
                        class="btn btn-primary text-start d-flex align-items-center">
-
                         <i class="fa fa-user-plus me-3"></i>
                         <div>
                             <strong>Add New Member</strong><br>
                             <small class="opacity-75">Register a new church member</small>
                         </div>
-
                     </a>
-
-
                     <a href="@Url.Action("CreateEvent", "Event")" class="btn btn-success text-start d-flex align-items-center">
                         <i class="fa fa-calendar-plus me-3"></i>
                         <div>
@@ -258,7 +210,6 @@
                             <small class="opacity-75">Schedule a church event</small>
                         </div>
                     </a>
-
                     <a href="@Url.Action("Create", "Announcements")" class="btn btn-warning text-start d-flex align-items-center">
                         <i class="fa fa-bullhorn me-3"></i>
                         <div>
@@ -266,7 +217,6 @@
                             <small class="opacity-75">Share with congregation</small>
                         </div>
                     </a>
-
                     <a href="@Url.Action("Giving", "Reports")" class="btn btn-info text-start d-flex align-items-center">
                         <i class="fa fa-chart-pie me-3"></i>
                         <div>
@@ -309,7 +259,6 @@
         <div class="tab-content" id="memberTabsContent">
             <div class="tab-pane fade show active" id="activeMembers" role="tabpanel">
                 @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.ActiveMembers)
-
             </div>
             <div class="tab-pane fade" id="membershipClass" role="tabpanel">
                 @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MembershipClassMembers)
@@ -321,12 +270,72 @@
     </div>
 </div>
 
+<!-- Theme Modal -->
+<div class="modal fade" id="themeModal" tabindex="-1" aria-labelledby="themeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient-primary text-white border-0">
+                <h5 class="modal-title fw-bold" id="themeModalLabel">
+                    <i class="fa fa-star me-2"></i>Theme of the Year
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- Display Mode -->
+                <div id="displayMode">
+                    <div class="text-center mb-4">
+                        <img id="modalImage" src="" alt="Theme Image" class="img-fluid rounded shadow-sm" style="max-height: 300px; width: auto;">
+                    </div>
+                    <h4 id="modalTitle" class="text-center fw-bold mb-3"></h4>
+                    <p id="modalVerse" class="text-center text-muted fst-italic mb-3"></p>
+                    <p id="modalDescription" class="text-center text-muted"></p>
+                </div>
+
+                <!-- Edit Mode (hidden by default) -->
+                <div id="editMode" style="display: none;">
+                    <div class="mb-3">
+                        <label for="editImageFile" class="form-label fw-bold">Theme Image</label>
+                        <input type="file" class="form-control" id="editImageFile" accept="image/*" onchange="previewImage(this)">
+                        <small class="text-muted">Upload a new image (will be converted to base64)</small>
+                        <div class="mt-2 text-center">
+                            <img id="imagePreview" src="" alt="Preview" style="max-height: 150px; display: none;" class="img-fluid rounded">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editYear" class="form-label fw-bold">Year</label>
+                        <input type="text" class="form-control" id="editYear" placeholder="Enter year (e.g., 2024)">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTitle" class="form-label fw-bold">Theme Title</label>
+                        <input type="text" class="form-control" id="editTitle" placeholder="Enter theme title">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editVerse" class="form-label fw-bold">Key Verse</label>
+                        <input type="text" class="form-control" id="editVerse" placeholder="Enter key verse">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label fw-bold">Description</label>
+                        <textarea class="form-control" id="editDescription" rows="3" placeholder="Enter description"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="editThemeButton" onclick="toggleEditMode()">
+                    <i class="fa fa-edit me-2"></i>Edit
+                </button>
+                <button type="button" class="btn btn-success" id="saveThemeButton" style="display: none;" onclick="saveThemeChanges()">
+                    <i class="fa fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Add Member Modal -->
 <div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow">
-
-            <!-- Modal Header with gradient background -->
             <div class="modal-header bg-gradient-primary text-white border-0 py-3">
                 <div class="d-flex align-items-center">
                     <div class="rounded-circle bg-white bg-opacity-20 p-2 me-3">
@@ -339,24 +348,17 @@
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-
-            <!-- Modal Body with improved spacing -->
             <div class="modal-body p-4" id="addMemberModalBody">
-                <!-- Loading state -->
                 <div class="text-center py-5 d-none" id="loadingSpinner">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                     <p class="mt-3 text-muted">Loading form...</p>
                 </div>
-
-                <!-- Content container -->
                 <div id="modalContent">
                     <!-- Partial view will load here -->
                 </div>
             </div>
-
-            <!-- Modal Footer with action buttons -->
             <div class="modal-footer bg-light border-top-0 px-4 py-3">
                 <div class="d-flex gap-2 w-100">
                     <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
@@ -367,7 +369,6 @@
                     </button>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
@@ -387,136 +388,6 @@
     </div>
 </div>
 
-<!-- Required CSS (add to your stylesheet) -->
-<style>
-    /* Gradient background utility */
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    /* White with opacity utility */
-    .bg-opacity-20 {
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-
-    /* Modal animation improvements */
-    .modal.fade .modal-dialog {
-        transform: scale(0.95);
-        transition: transform 0.2s ease-in-out;
-    }
-
-    .modal.show .modal-dialog {
-        transform: scale(1);
-    }
-
-    /* Custom scrollbar for modal body */
-    .modal-body::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .modal-body::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    .modal-body::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 10px;
-    }
-
-        .modal-body::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
-
-    /* Card-like appearance for form elements */
-    .modal-content {
-        border-radius: 16px;
-        overflow: hidden;
-    }
-
-    /* Hover effects for buttons */
-    .btn-outline-secondary:hover {
-        background-color: #f8f9fa;
-        border-color: #ced4da;
-        color: #1e293b;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        /* Success state for save button */
-        .btn-primary.btn-success {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-</style>
-
-<!-- Required JavaScript (add before closing body tag) -->
-<script>
-    // Optional: Enhance modal functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const addMemberModal = document.getElementById('addMemberModal');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const modalContent = document.getElementById('modalContent');
-        const saveBtn = document.getElementById('saveMemberBtn');
-
-        // Show loading state when modal is opened
-        addMemberModal.addEventListener('show.bs.modal', function() {
-            loadingSpinner.classList.remove('d-none');
-            modalContent.classList.add('d-none');
-
-            // Simulate loading (replace with actual loading logic)
-            setTimeout(() => {
-                loadingSpinner.classList.add('d-none');
-                modalContent.classList.remove('d-none');
-            }, 500);
-        });
-
-        // Handle save button with loading state
-        saveBtn.addEventListener('click', function() {
-            const originalText = this.innerHTML;
-            this.disabled = true;
-            this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
-
-            // Simulate save (replace with actual save logic)
-            setTimeout(() => {
-                this.disabled = false;
-                this.innerHTML = originalText;
-
-                // Show success state briefly
-                this.classList.add('btn-success');
-                this.innerHTML = '<i class="bi bi-check-lg me-2"></i>Saved!';
-
-                setTimeout(() => {
-                    this.classList.remove('btn-success');
-                    this.innerHTML = originalText;
-
-                    // Close modal (optional)
-                    // bootstrap.Modal.getInstance(addMemberModal).hide();
-                }, 1500);
-            }, 2000);
-        });
-
-        // Reset form when modal is closed
-        addMemberModal.addEventListener('hidden.bs.modal', function() {
-            loadingSpinner.classList.add('d-none');
-            modalContent.classList.remove('d-none');
-            saveBtn.disabled = false;
-            saveBtn.classList.remove('btn-success');
-        });
-    });
-</script>
 <!-- Report Modal -->
 <div class="modal fade" id="reportModal" tabindex="-1">
     <div class="modal-dialog">
@@ -555,20 +426,79 @@
     </div>
 </div>
 
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Required CSS -->
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
 
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    .bg-opacity-20 {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
 
-    <style>
-        .nav-tabs-custom .nav-link {
-            color: #6c757d;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
+    .modal.fade .modal-dialog {
+        transform: scale(0.95);
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .modal.show .modal-dialog {
+        transform: scale(1);
+    }
+
+    .modal-body::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .modal-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 10px;
+    }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
         }
+
+    .modal-content {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #f8f9fa;
+        border-color: #ced4da;
+        color: #1e293b;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary.btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+    .nav-tabs-custom .nav-link {
+        color: #6c757d;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+    }
 
         .nav-tabs-custom .nav-link.active {
             color: #0d6efd;
@@ -580,41 +510,290 @@
             font-weight: normal;
         }
 
-        .card {
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
 
         .card:hover {
             transform: translateY(-2px);
             box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
         }
 
-        .btn-outline-primary, .btn-outline-success, .btn-outline-warning {
-            position: relative;
-            overflow: hidden;
-        }
+    .progress {
+        border-radius: 10px;
+    }
+</style>
 
-        .btn-outline-primary:hover, .btn-outline-success:hover, .btn-outline-warning:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .progress {
-            border-radius: 10px;
-        }
-
-        .bg-opacity-10 {
-            opacity: 0.1;
-        }
-    </style>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
     <script>
+        let currentThemeData = {};
 
-         $(document).ready(function () {
+        $(document).ready(function () {
             loadCurrentYearTheme();
+
+            // Initialize DataTable
+            var table = $('#membersTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[1, "asc"]],
+                language: {
+                    search: "Search members:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ members",
+                    paginate: {
+                        first: '<i class="fa fa-angle-double-left"></i>',
+                        previous: '<i class="fa fa-angle-left"></i>',
+                        next: '<i class="fa fa-angle-right"></i>',
+                        last: '<i class="fa fa-angle-double-right"></i>'
+                    }
+                }
+            });
         });
 
-        // Enhanced charts with better styling
+        // Function to convert image file to base64
+        function convertImageToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64String = reader.result;
+                    resolve(base64String);
+                };
+                reader.onerror = (error) => {
+                    reject(error);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Preview image before upload
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Load current year theme from server
+        function loadCurrentYearTheme() {
+            $.ajax({
+                url: '/Event/GetCurrentYearTheme',
+                type: 'GET',
+                success: function (response) {
+                    if (!response.isSuccess) {
+                        console.error(response.message);
+                        return;
+                    }
+                    var theme = response.data;
+                    currentThemeData = theme;
+
+                    $("#themeYearTitle").text("Theme of the Year " + theme.year);
+                    $("#themeTitle").text(theme.theme);
+                    $("#themeVerse").text(theme.verse);
+                    $("#themeDescription").text(theme.description);
+
+                    if (theme.yearThemeImage) {
+                        $("#yearThemeImage").attr('src', theme.yearThemeImage);
+                    }
+                },
+                error: function (err) {
+                    console.error("Error loading theme:", err);
+                }
+            });
+        }
+
+        // Open theme modal
+        function openThemeModal() {
+            // Populate modal with current data
+            document.getElementById('modalImage').src = document.getElementById('yearThemeImage').src;
+            document.getElementById('modalTitle').innerText = document.getElementById('themeTitle').innerText;
+            document.getElementById('modalVerse').innerText = document.getElementById('themeVerse').innerText;
+            document.getElementById('modalDescription').innerText = document.getElementById('themeDescription').innerText;
+
+            // Reset to display mode
+            document.getElementById('displayMode').style.display = 'block';
+            document.getElementById('editMode').style.display = 'none';
+            document.getElementById('editThemeButton').style.display = 'inline-block';
+            document.getElementById('saveThemeButton').style.display = 'none';
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('themeModal'));
+            modal.show();
+        }
+
+        // Toggle between display and edit mode
+        function toggleEditMode() {
+            if (document.getElementById('editMode').style.display === 'none') {
+                // Populate edit fields with current values
+                document.getElementById('editYear').value = currentThemeData.year || '';
+                document.getElementById('editTitle').value = currentThemeData.theme || '';
+                document.getElementById('editVerse').value = currentThemeData.verse || '';
+                document.getElementById('editDescription').value = currentThemeData.description || '';
+
+                // Clear file input and preview
+                document.getElementById('editImageFile').value = '';
+                document.getElementById('imagePreview').style.display = 'none';
+                document.getElementById('imagePreview').src = '';
+
+                // Switch to edit mode
+                document.getElementById('displayMode').style.display = 'none';
+                document.getElementById('editMode').style.display = 'block';
+                document.getElementById('editThemeButton').style.display = 'none';
+                document.getElementById('saveThemeButton').style.display = 'inline-block';
+            }
+        }
+
+        // Save theme changes with base64 image conversion
+        async function saveThemeChanges() {
+            const saveButton = document.getElementById('saveThemeButton');
+            const originalText = saveButton.innerHTML;
+
+            try {
+                // Disable button and show loading
+                saveButton.disabled = true;
+                saveButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+
+                // Get values from edit form
+                const year = document.getElementById('editYear').value;
+                const title = document.getElementById('editTitle').value;
+                const verse = document.getElementById('editVerse').value;
+                const description = document.getElementById('editDescription').value;
+                const imageFile = document.getElementById('editImageFile').files[0];
+
+                // Validate required fields
+                if (!year || !title) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Missing Fields',
+                        text: 'Please fill in both Year and Theme Title.'
+                    });
+                    saveButton.disabled = false;
+                    saveButton.innerHTML = originalText;
+                    return;
+                }
+
+                let base64Image = currentThemeData.yearThemeImage;
+
+                // Convert new image to base64 if selected
+                if (imageFile) {
+                    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+                    if (!validTypes.includes(imageFile.type)) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid File Type',
+                            text: 'Please select a valid image file (JPEG, PNG, or GIF).'
+                        });
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = originalText;
+                        return;
+                    }
+
+                    // Check file size (max 5MB)
+                    if (imageFile.size > 5 * 1024 * 1024) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'File Too Large',
+                            text: 'Image size should be less than 5MB.'
+                        });
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = originalText;
+                        return;
+                    }
+
+                    base64Image = await convertImageToBase64(imageFile);
+                }
+
+                // Prepare data to send to controller
+                const themeData = {
+                    Id: currentThemeData.id || 0,
+                    Year: parseInt(year),
+                    Theme: title,
+                    Verse: verse,
+                    Description: description,
+                    YearThemeImage: base64Image
+                };
+
+                // Send to controller
+                $.ajax({
+                    url: '/Event/UpdateYearTheme',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(themeData),
+                    success: function(response) {
+                        if (response.isSuccess) {
+                            // Update current theme data
+                            currentThemeData = themeData;
+
+                            // Update main card display
+                            document.getElementById('themeYearTitle').innerText = "Theme of the Year " + year;
+                            document.getElementById('themeTitle').innerText = title;
+                            document.getElementById('themeVerse').innerText = verse;
+                            document.getElementById('themeDescription').innerText = description;
+                            document.getElementById('yearThemeImage').src = base64Image;
+
+                            // Update modal display mode
+                            document.getElementById('modalImage').src = base64Image;
+                            document.getElementById('modalTitle').innerText = title;
+                            document.getElementById('modalVerse').innerText = verse;
+                            document.getElementById('modalDescription').innerText = description;
+
+                            // Switch back to display mode
+                            document.getElementById('displayMode').style.display = 'block';
+                            document.getElementById('editMode').style.display = 'none';
+                            document.getElementById('editThemeButton').style.display = 'inline-block';
+                            document.getElementById('saveThemeButton').style.display = 'none';
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Theme updated successfully.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Update Failed',
+                                text: response.message || 'An error occurred while updating the theme.'
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Error:', xhr);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to update theme. Please try again.'
+                        });
+                    },
+                    complete: function() {
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = originalText;
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error converting image:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to process image. Please try again.'
+                });
+                saveButton.disabled = false;
+                saveButton.innerHTML = originalText;
+            }
+        }
+
+        // Enhanced charts
         new Chart(document.getElementById('membersChart'), {
             type: 'line',
             data: {
@@ -659,108 +838,8 @@
             }
         });
 
-
-        new Chart(document.getElementById('givingChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Giving (KES)',
-                    data: [120000, 200000, 180000, 250000, 210000, 300000],
-                    backgroundColor: [
-                        'rgba(13, 110, 253, 0.8)',
-                        'rgba(25, 135, 84, 0.8)',
-                        'rgba(255, 193, 7, 0.8)',
-                        'rgba(220, 53, 69, 0.8)',
-                        'rgba(13, 202, 240, 0.8)',
-                        'rgba(111, 66, 193, 0.8)'
-                    ],
-                    borderRadius: 6,
-                    borderSkipped: false
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'KES ' + value.toLocaleString();
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // Initialize DataTable
-        $(document).ready(function() {
-            var table = $('#membersTable').DataTable({
-                responsive: true,
-                pageLength: 10,
-                order: [[1, "asc"]],
-                language: {
-                    search: "Search members:",
-                    lengthMenu: "Show _MENU_ entries",
-                    info: "Showing _START_ to _END_ of _TOTAL_ members",
-                    paginate: {
-                        first: '<i class="fa fa-angle-double-left"></i>',
-                        previous: '<i class="fa fa-angle-left"></i>',
-                        next: '<i class="fa fa-angle-right"></i>',
-                        last: '<i class="fa fa-angle-double-right"></i>'
-                    }
-                }
-            });
-
-            // Custom search functionality
-            $('#membersTable_filter input').addClass('form-control form-control-sm');
-        });
-                function loadCurrentYearTheme() {
-
-            $.ajax({
-                url: '/Event/GetCurrentYearTheme',
-                type: 'GET',
-                success: function (response) {
-
-                    if (!response.isSuccess) {
-                        console.error(response.message);
-                        return;
-                    }
-
-                    var theme = response.data;
-
-                    // Set Year
-                    $("#themeYearTitle").text("Theme of the Year " + theme.year);
-
-                    // Set Theme
-                    $("#themeTitle").text(theme.theme);
-
-                    // Set Verse
-                    $("#themeVerse").text(theme.verse);
-
-                    // Set Description
-                    $("#themeDescription").text(theme.description);
-
-                    // Set Image
-                    setBase64Image("yearThemeImage", theme.yearThemeImage);
-                },
-                error: function (err) {
-                    console.error("Error loading theme:", err);
-                }
-            });
-        }
-
-
         // SweetAlert2 functions
         function joinMembershipClass(memberId) {
-
             Swal.fire({
                 title: 'Confirm Action',
                 text: 'Register this member for membership class?',
@@ -771,9 +850,7 @@
                 confirmButtonText: 'Yes, continue',
                 cancelButtonText: 'Cancel'
             }).then((result) => {
-
                 if (result.isConfirmed) {
-
                     Swal.fire({
                         title: 'Loading...',
                         text: 'Preparing form',
@@ -782,14 +859,9 @@
                             Swal.showLoading();
                         }
                     });
-
                     $.get('/Members/AddMembershipClassPartial', { memberId: memberId }, function (data) {
-
                         Swal.close();
-
                         $('#membershipClassModalBody').html(data);
-
-                        // Open modal
                         const modal = new bootstrap.Modal(document.getElementById('membershipClassModal'));
                         modal.show();
                     })
@@ -828,148 +900,13 @@
                 }
             });
         }
-              function openAddMemberModal() {
 
+        function openAddMemberModal() {
             $.get('/Members/AddMemberPartial', function (data) {
-
                 $('#addMemberModalBody').html(data);
-
                 var modal = new bootstrap.Modal(document.getElementById('addMemberModal'));
                 modal.show();
             });
         }
-        (function() {
-        // Get DOM elements
-        const maritalStatus = document.getElementById('maritalStatus');
-        const spouseField = document.getElementById('spouseField');
-        const spouseInput = document.getElementById('spouseName');
-        const childrenField = document.getElementById('childrenField');
-        const childrenCount = document.getElementById('childrenCount');
-
-        // Form fields for progress tracking
-        const formFields = [
-            'firstName', 'phone', 'email', 'gender',
-            'dob', 'assembly', 'maritalStatus', 'spouseName',
-            'childrenCount', 'socialMedia'
-        ];
-
-        // Show/hide spouse field based on marital status
-        function toggleSpouseField() {
-            const selectedStatus = maritalStatus.value;
-
-            if (selectedStatus === 'Married') {
-                spouseField.style.display = 'block';
-                spouseInput.required = true;
-
-                // Add animation class
-                spouseField.classList.add('spouse-field');
-
-                // Focus on spouse input after animation
-                setTimeout(() => {
-                    spouseInput.focus();
-                }, 300);
-            } else {
-                spouseField.style.display = 'none';
-                spouseInput.required = false;
-                spouseInput.value = ''; // Clear the value
-            }
-
-            // If divorced or widowed, show children field
-            if (selectedStatus === 'Divorced' || selectedStatus === 'Widowed') {
-                childrenField.style.display = 'block';
-            }
-
-            updateProgress();
-        }
-
-        // Update form progress
-        function updateProgress() {
-            let completedFields = 0;
-            let totalVisibleFields = 0;
-
-            formFields.forEach(fieldId => {
-                const field = document.getElementById(fieldId);
-                if (field) {
-                    // Check if field is visible
-                    const isVisible = field.closest('[id$="Field"]') ?
-                        field.closest('[id$="Field"]').style.display !== 'none' : true;
-
-                    if (isVisible) {
-                        totalVisibleFields++;
-
-                        // Check if field has value
-                        if (field.type === 'checkbox' || field.type === 'radio') {
-                            if (field.checked) completedFields++;
-                        } else {
-                            if (field.value && field.value.trim() !== '') {
-                                completedFields++;
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Calculate progress percentage
-            const percentage = totalVisibleFields > 0 ?
-                (completedFields / totalVisibleFields) * 100 : 0;
-
-            // Update progress bar
-            const progressBar = document.getElementById('formProgress');
-            const progressText = document.getElementById('progressText');
-
-            if (progressBar && progressText) {
-                progressBar.style.width = percentage + '%';
-                progressText.textContent = `${completedFields} of ${totalVisibleFields} fields completed`;
-
-                // Change color based on progress
-                if (percentage < 30) {
-                    progressBar.className = 'progress-bar bg-danger';
-                } else if (percentage < 70) {
-                    progressBar.className = 'progress-bar bg-warning';
-                } else {
-                    progressBar.className = 'progress-bar bg-success';
-                }
-            }
-        }
-
-        // Add validation for spouse field when married
-        function validateMarriedFields() {
-            if (maritalStatus.value === 'Married' && !spouseInput.value.trim()) {
-                spouseInput.classList.add('is-invalid');
-                return false;
-            }
-            return true;
-        }
-
-        // Event listeners
-        maritalStatus.addEventListener('change', toggleSpouseField);
-
-        // Add input listeners for progress tracking
-        formFields.forEach(fieldId => {
-            const field = document.getElementById(fieldId);
-            if (field) {
-                field.addEventListener('input', updateProgress);
-                field.addEventListener('change', updateProgress);
-            }
-        });
-
-        // Initial call to set proper state
-        toggleSpouseField();
-
-       
-        // Reset form when modal is closed
-        document.addEventListener('hidden.bs.modal', function(event) {
-            if (event.target.id === 'addMemberModal') {
-                const form = document.getElementById('addMemberForm');
-                form.reset();
-                form.classList.remove('was-validated');
-                toggleSpouseField();
-                updateProgress();
-            }
-        });
-
-        // Initial progress update
-        updateProgress();
-    })();
     </script>
 }

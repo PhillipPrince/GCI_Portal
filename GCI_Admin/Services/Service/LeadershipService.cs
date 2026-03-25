@@ -207,6 +207,149 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-     
+        public async Task<ApiResponse<Elder>> CreateElderAsync(ElderDto dto)
+        {
+            var response = new ApiResponse<Elder>();
+
+            try
+            {
+                var result = await _leadershipRepository.CreateElderAsync(dto);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message ?? "Failed to create elder";
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "Elder created successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        public async Task<ApiResponse<List<Elder>>> GetAllEldersAsync()
+        {
+            var response = new ApiResponse<List<Elder>>();
+
+            try
+            {
+                var result = await _leadershipRepository.GetAllEldersAsync();
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "Elders retrieved successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        public async Task<ApiResponse<Elder>> GetElderByIdAsync(int id)
+        {
+            var response = new ApiResponse<Elder>();
+
+            try
+            {
+                var result = await _leadershipRepository.GetElderByIdAsync(id);
+
+                if (!result.Success || result.Data == null)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = result.Message ?? "Elder not found";
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "Elder retrieved successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        public async Task<ApiResponse<Elder>> UpdateElderAsync(int id, ElderDto dto)
+        {
+            var response = new ApiResponse<Elder>();
+
+            try
+            {
+                var result = await _leadershipRepository.UpdateElderAsync(id, dto);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message ?? "Update failed";
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "Elder updated successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        public async Task<ApiResponse<bool>> DeleteElderAsync(int id)
+        {
+            var response = new ApiResponse<bool>();
+
+            try
+            {
+                var result = await _leadershipRepository.DeleteElderAsync(id);
+
+                if (!result.Success || !result.Data)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = result.Message ?? "Delete failed";
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "Elder deleted successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
     }
 }

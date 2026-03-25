@@ -1,0 +1,269 @@
+﻿@model List<GCI_Admin.Models.Elder>
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="eldersTable" class="table table-striped table-hover align-middle datatable">
+            <thead class="table-light">
+                <tr>
+                    <th>Elder Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Description</th>
+                    <th>Date Ordained</th>
+                    <th>Years of Service</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                <tr>
+                    <th>
+                        <input type="text" placeholder="Search Name" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Phone" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Email" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Description" class="form-control form-control-sm" />
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="True">Active</option>
+                            <option value="False">Inactive</option>
+                        </select>
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var elder in Model)
+                {
+                    var yearsOfService = elder.DateOrdained.HasValue ? DateTime.Now.Year - elder.DateOrdained.Value.Year : 0;
+
+                    <tr>
+                        <!-- Elder Name (combining FirstName and OtherNames from Member) -->
+                        <td>
+                            @(elder.Member != null ? $"{elder.Member.FirstName} {elder.Member.OtherNames}" : "-")
+                        </td>
+
+                        <!-- Phone -->
+                        <td>
+                            @(elder.Member?.Phone ?? "-")
+                        </td>
+
+                        <!-- Email -->
+                        <td>
+                            @(elder.Member?.Email ?? "-")
+                        </td>
+
+                        <!-- Description (truncated if too long) -->
+                        <td>
+                            @if (!string.IsNullOrEmpty(elder.Description) && elder.Description.Length > 50)
+                            {
+                                <span title="@elder.Description">@elder.Description.Substring(0, 50)...</span>
+                            }
+                            else
+                            {
+                                @elder.Description
+                            }
+                        </td>
+
+                        <!-- Date Ordained -->
+                        <td>
+                            @(elder.DateOrdained.HasValue ? elder.DateOrdained.Value.ToString("dd MMM yyyy") : "-")
+                        </td>
+
+                        <!-- Years of Service -->
+                        <td>
+                            @if (elder.DateOrdained.HasValue)
+                            {
+                                <span class="badge bg-info">@yearsOfService @(yearsOfService == 1 ? "year" : "years")</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">N/A</span>
+                            }
+                        </td>
+
+                        <!-- Active Status -->
+                        <td>
+                            @if (elder.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactive</span>
+                            }
+                        </td>
+
+                        <!-- Created At -->
+                        <td>@elder.CreatedAt.ToString("dd MMM yyyy")</td>
+
+                        <!-- Actions -->
+                        <td class="text-end">
+                            <!-- View - Using anchor tag -->
+                            <a href="@Url.Action("ElderDetails", "Leadership", new { id = elder.ElderId })"
+                               class="btn btn-sm btn-outline-info"
+                               title="View Details">
+                                <i class="fa fa-eye"></i>
+                            </a>
+
+                            <!-- Edit - Using anchor tag -->
+                            <a href="@Url.Action("EditElder", "Leadership", new { id = elder.ElderId })"
+                               class="btn btn-sm btn-outline-warning"
+                               title="Edit Elder">
+                                <i class="fa fa-edit"></i>
+                            </a>
+
+                            <!-- Toggle Active Status -->
+                            @if (elder.IsActive)
+                            {
+                                <button class="btn btn-sm btn-outline-warning"
+                                        onclick="toggleElderStatus(@elder.ElderId, false)"
+                                        title="Deactivate Elder">
+                                    <i class="fa fa-ban"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-outline-success"
+                                        onclick="toggleElderStatus(@elder.ElderId, true)"
+                                        title="Activate Elder">
+                                    <i class="fa fa-check-circle"></i>
+                                </button>
+                            }
+
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteElder(@elder.ElderId)"
+                                    title="Delete Elder">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable with custom filtering
+        var table = $('#eldersTable').DataTable({
+            pageLength: 10,
+            language: {
+                search: "Search elders:",
+                lengthMenu: "Show _MENU_ elders",
+                info: "Showing _START_ to _END_ of _TOTAL_ elders",
+                emptyTable: "No elders available",
+                zeroRecords: "No matching elders found"
+            },
+            order: [[0, 'asc']],
+            initComplete: function() {
+                // Apply individual column search inputs
+                this.api().columns().every(function(index) {
+                    var column = this;
+                    var header = $(column.header());
+                    var input = header.find('input, select');
+
+                    if (input.length) {
+                        input.on('keyup change', function() {
+                            var val = $(this).val();
+                            if (column.search() !== val) {
+                                column.search(val).draw();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+    // Function to toggle elder status
+    function toggleElderStatus(id, activate) {
+        Swal.fire({
+            title: `Are you sure?`,
+            text: `You are about to ${activate ? "activate" : "deactivate"} this elder.`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: `Yes, ${activate ? "activate" : "deactivate"}`
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: "Processing...",
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                $.ajax({
+                    url: '/Leadership/ToggleElderStatus',
+                    type: 'POST',
+                    data: { id: id, isActive: activate },
+                    success: (response) => {
+                        if (response.isSuccess) {
+                            Swal.fire("Success", response.message, "success").then(() => location.reload());
+                        } else {
+                            Swal.fire("Error", response.message || "Operation failed", "error");
+                        }
+                    },
+                    error: (xhr) => {
+                        Swal.fire("Error", xhr.responseJSON?.message || "Operation failed", "error");
+                    }
+                });
+            }
+        });
+    }
+
+    // Function to delete elder
+    function deleteElder(id) {
+        Swal.fire({
+            title: 'Delete Elder',
+            text: 'Are you sure you want to delete this elder? This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Yes, delete it',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return $.ajax({
+                    url: '/Leadership/DeleteElder',
+                    type: 'DELETE',
+                    data: { id: id }
+                }).then(response => {
+                    if (!response.isSuccess) throw new Error(response.message);
+                    return response;
+                }).catch(error => {
+                    Swal.showValidationMessage(`Request failed: ${error.message}`);
+                });
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Deleted!',
+                    text: 'Elder has been deleted successfully.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => location.reload());
+            }
+        });
+    }
+
+    // Function to edit elder
+    function editElder(id) {
+        window.location.href = '/Leadership/EditElder/' + id;
+    }
+
+    // Function to view elder details
+    function viewElder(id) {
+        window.location.href = '/Leadership/ElderDetails/' + id;
+    }
+</script>
