@@ -253,6 +253,15 @@ namespace GCI_Admin.Controllers
 
             return Ok(result);
         }
+        [HttpPut]
+        public async Task<IActionResult> UpdateAnnualTheme(int id, [FromBody] AnnualThemeDto dto)
+        {
+            var result = await _eventsService.UpdateAnnualThemeAsync(id, dto);
 
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }

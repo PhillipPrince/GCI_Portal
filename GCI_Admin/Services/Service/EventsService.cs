@@ -8,6 +8,7 @@ using GCI_Admin.Services.IService;
 using GCI_Admin.Utils;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Core.Types;
 using Utils;
 
 namespace GCI_Admin.Services.Service
@@ -473,7 +474,34 @@ namespace GCI_Admin.Services.Service
 
             return response;
         }
+        public async Task<ApiResponse<AnnualTheme>> UpdateAnnualThemeAsync(int id, AnnualThemeDto dto)
+        {
+            var response = new ApiResponse<AnnualTheme>();
 
+            try
+            {
+                var result = await _eventsRepository.UpdateAnnualThemeAsync(id, dto);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message ?? "Update failed";
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "Theme updated successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
 
     }
 }

@@ -471,6 +471,46 @@ namespace GCI_Admin.DBOperations.Repositories
             }
         }
 
+        public async Task<DbResponse<AnnualTheme>> UpdateAnnualThemeAsync(int id, AnnualThemeDto dto)
+        {
+            try
+            {
+                var existing = await _context.AnnualThemes.FindAsync(id);
+
+                if (existing == null)
+                    return new DbResponse<AnnualTheme>
+                    {
+                        Success = false,
+                        Message = "Theme not found"
+                    };
+
+                existing.Theme = dto.Theme;
+                existing.Verse = dto.Verse;
+                existing.Description = dto.Description;
+                existing.Year = dto.Year;
+                existing.IsActive = dto.IsActive;
+                existing.UpdatedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<AnnualTheme>
+                {
+                    Success = true,
+                    Message = "Theme updated successfully",
+                    Data = existing
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"UpdateAnnualThemeAsync Error: {ex}");
+                return new DbResponse<AnnualTheme>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
 
     }
 }

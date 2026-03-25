@@ -19,6 +19,7 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<EventUploadResponse>> ProcessEventExcelUploadAsync(IFormFile file, string createdBy, string uploadOption);
         Task<ApiResponse<bool>> ToggleEventStatusAsync(int eventId, bool isActive);
         Task<ApiResponse<AnnualTheme>> GetCurrentYearThemeAsync();
+        Task<ApiResponse<AnnualTheme>> UpdateAnnualThemeAsync(int id, AnnualThemeDto dto);
 
 
 
