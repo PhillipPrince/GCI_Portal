@@ -52,6 +52,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXNzZW1ibGllc1xfQXNzZW1ibExlYWRlcnNUYWJsZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/GCI/GCI_Portal/GCI_Admin/Views/Auth/ForgotPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxGb3Jnb3RQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/GCI/GCI_Portal/GCI_Admin/Views/Auth/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/GCI/GCI_Portal/GCI_Admin/Views/Benevolence/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmVuZXZvbGVuY2VcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 

@@ -19,15 +19,25 @@ namespace Utils
             _jwtSettings = jwtSettings.Value;
         }
 
-        public string GenerateToken(string username, string email)
+
+        public string GenerateToken(string username, string email, int roleId, List<string> permissions)
         {
-            var claims = new[]
+            var claims = new List<Claim>
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, email),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim("username", username),
+        new Claim(ClaimTypes.Name, username),
+
+        // 🔥 Role
+        new Claim(ClaimTypes.Role, roleId.ToString())
+    };
+
+            // 🔥 Add permissions as claims
+            foreach (var permission in permissions)
             {
-                new Claim(JwtRegisteredClaimNames.Sub, email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("username", username),
-                new Claim(ClaimTypes.Name, username)
-            };
+                claims.Add(new Claim("permission", permission));
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

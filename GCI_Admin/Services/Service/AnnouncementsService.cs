@@ -1,7 +1,9 @@
-﻿using GCI_Admin.DBOperations.Repositories;
+﻿using GCI_Admin.DBOperations;
+using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
+using Microsoft.EntityFrameworkCore;
 using Utils;
 
 namespace GCI_Admin.Services.Service
@@ -9,10 +11,14 @@ namespace GCI_Admin.Services.Service
     public class AnnouncementsService : IAnnouncementsService
     {
         private readonly AnnouncementsRepository _repo;
+        private readonly CommunicationService _communicationService;
+        private readonly AppDbContext _context;
 
-        public AnnouncementsService(AnnouncementsRepository repo)
+        public AnnouncementsService(AnnouncementsRepository repo, CommunicationService communicationService, AppDbContext context)
         {
             _repo = repo;
+            _communicationService = communicationService;
+            _context = context;
         }
 
         public async Task<ApiResponse<Notification>> CreateAnnouncementAsync(NotificationDto dto)
@@ -22,28 +28,99 @@ namespace GCI_Admin.Services.Service
             try
             {
                 var result = await _repo.CreateAnnouncementAsync(dto);
+
                 if (!result.Success)
                 {
-                    response.IsSuccess = false;
-                    response.Code = "400";
-                    response.Message = result.Message;
-                    return response;
+                    return new ApiResponse<Notification>
+                    {
+                        IsSuccess = false,
+                        Code = "400",
+                        Message = result.Message
+                    };
                 }
 
-                response.IsSuccess = true;
-                response.Data = result.Data;
-                response.Message = "Announcement created successfully";
+                // Fire-and-forget SMS (DO NOT block API)
+                if (dto.SendSMS)
+                {
+                    _ = Task.Run(() => SendPersonalizedSmsAsync(new SendSmsDto
+                    {
+                        Title = dto.Title,
+                        Message = dto.Message,
+                        SendSMS = dto.SendSMS
+                    }));
+                }
+
+                return new ApiResponse<Notification>
+                {
+                    IsSuccess = true,
+                    Data = result.Data,
+                    Message = "Announcement created successfully"
+                };
             }
             catch (Exception ex)
             {
-                response.IsSuccess = false;
-                response.Code = "500";
-                response.Message = ex.Message;
+                // Replace with ILogger in real apps
+                Console.WriteLine(ex);
+
+                return new ApiResponse<Notification>
+                {
+                    IsSuccess = false,
+                    Code = "500",
+                    Message = "An error occurred while creating announcement"
+                };
             }
-
-            return response;
         }
+        private async Task SendPersonalizedSmsAsync(SendSmsDto dto)
+        {
+            Loggers.EventLogs($"Starting SMS sending process for {dto.Title}...");
+            try
+            {
+                var members = await _context.Members
+                    .AsNoTracking() // 🔥 performance boost
+                    .Where(u => !string.IsNullOrEmpty(u.Phone))
+                    .Select(u => new
+                    {
+                        Name = string.IsNullOrWhiteSpace(u.FirstName) ? "Member" : u.FirstName,
+                        Phone = u.Phone.StartsWith("0")
+                            ? "254" + u.Phone.Substring(1)
+                            : u.Phone
+                    })
+                    .ToListAsync();
 
+                var uniqueMembers = members
+                    .GroupBy(m => m.Phone)
+                    .Select(g => g.First())
+                    .ToList();
+
+                int batchSize = 10;
+
+                for (int i = 0; i < uniqueMembers.Count; i += batchSize)
+                {
+                    var batch = uniqueMembers.Skip(i).Take(batchSize);
+
+                    var tasks = batch.Select(async member =>
+                    {
+                        try
+                        {
+                            var message = $"Dear {member.Name}: {dto.Title}\n{dto.Message}";
+                            await _communicationService.SendSmsAsync(member.Phone, message);
+                        }
+                        catch (Exception ex)
+                        {
+                            Loggers.DoLogs($"SMS failed for {member.Phone}: {ex.Message}");
+                        }
+                    });
+
+                    await Task.WhenAll(tasks);
+
+                    await Task.Delay(500);
+                }
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"SMS process failed: {ex.Message}");
+            }
+        }
         public async Task<ApiResponse<List<Notification>>> GetAllAnnouncementsAsync()
         {
             var response = new ApiResponse<List<Notification>>();

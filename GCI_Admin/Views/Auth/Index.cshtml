@@ -1,0 +1,1036 @@
+﻿@model GCI_Admin.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GCI Admin</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -50px;
+            right: -50px;
+            animation-delay: 5s;
+        }
+
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 10s;
+        }
+
+        .shape-4 {
+            width: 400px;
+            height: 400px;
+            bottom: -150px;
+            left: -150px;
+            animation-delay: 15s;
+        }
+
+        @@keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 480px;
+            margin: 20px;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-card {
+            background: var(--bg-white);
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .login-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.3);
+            }
+
+        .logo-section {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
+            padding: 2rem 2rem 1.5rem 2rem;
+            text-align: center;
+        }
+
+        .church-logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1rem;
+            background: var(--bg-white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md);
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .church-logo img {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+        }
+
+        .church-logo i {
+            font-size: 3rem;
+            color: var(--primary-blue);
+        }
+
+        .logo-section h3 {
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+            font-size: 1.75rem;
+        }
+
+        .logo-section p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .login-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .login-type-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            background: var(--bg-light);
+            padding: 5px;
+            border-radius: 12px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            color: var(--secondary-gray);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+            .toggle-btn.active {
+                background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
+                color: var(--text-light);
+                box-shadow: 0 2px 8px rgba(37, 139, 251, 0.3);
+            }
+
+            .toggle-btn i {
+                margin-right: 8px;
+            }
+
+        .input-group {
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+            .input-group:focus-within {
+                box-shadow: 0 0 0 3px var(--accent-blue-light);
+            }
+
+        .input-group-text {
+            background: var(--bg-light);
+            border: 2px solid var(--secondary-border);
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            padding: 0.75rem 1rem;
+        }
+
+        .form-control {
+            border: 2px solid var(--secondary-border);
+            border-left: none;
+            border-radius: 0 12px 12px 0;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+            .form-control:focus {
+                border-color: var(--primary-blue);
+                box-shadow: none;
+            }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
+            border: none;
+            padding: 0.875rem;
+            font-weight: 600;
+            font-size: 1rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            width: 100%;
+            color: var(--text-light);
+        }
+
+            .btn-login:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(37, 139, 251, 0.3);
+            }
+
+        .forgot-link {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.3s ease;
+        }
+
+            .forgot-link:hover {
+                color: var(--primary-dark-blue);
+                text-decoration: underline;
+            }
+
+        .alert-custom {
+            border-radius: 12px;
+            border: none;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @@keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+
+            10%, 30%, 50%, 70%, 90% {
+                transform: translateX(-5px);
+            }
+
+            20%, 40%, 60%, 80% {
+                transform: translateX(5px);
+            }
+        }
+
+        .login-footer {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--bg-light);
+            border-top: 1px solid var(--secondary-border);
+        }
+
+        .password-toggle {
+            cursor: pointer;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-gray);
+            z-index: 10;
+            background: transparent;
+            border: none;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+            .password-wrapper .form-control {
+                padding-right: 45px;
+            }
+
+        /* OTP Modal Styles */
+        .otp-input-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .otp-input {
+            width: 55px;
+            height: 55px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            border: 2px solid var(--secondary-border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+            .otp-input:focus {
+                border-color: var(--primary-blue);
+                box-shadow: 0 0 0 3px var(--accent-blue-light);
+                outline: none;
+            }
+
+        .timer-text {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .resend-btn {
+            background: none;
+            border: none;
+            color: var(--primary-blue);
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+            .resend-btn:hover:not(:disabled) {
+                color: var(--primary-dark-blue);
+                text-decoration: underline;
+            }
+
+            .resend-btn:disabled {
+                color: var(--secondary-gray);
+                cursor: not-allowed;
+            }
+
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
+            color: var(--text-light);
+            border-radius: 20px 20px 0 0;
+            border-bottom: none;
+        }
+
+        .btn-close-white {
+            filter: brightness(0) invert(1);
+        }
+
+        .verify-btn {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%);
+            border: none;
+            padding: 0.75rem;
+            font-weight: 600;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+            .verify-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(37, 139, 251, 0.3);
+            }
+
+        /* Import CSS variables */
+        :root {
+            --primary-blue: #258cfb;
+            --primary-dark-blue: #074074;
+            --primary-light-blue: #9EC8EA;
+            --secondary-gray: #6c757d;
+            --secondary-light-gray: #f8f9fa;
+            --secondary-border: #e9ecef;
+            --secondary-dark-gray: #495057;
+            --secondary-text: #6c757d;
+            --accent-blue: #86b7fe;
+            --accent-blue-light: rgba(13, 110, 253, 0.15);
+            --accent-blue-dark: #0d6efd;
+            --success-green: #28a745;
+            --warning-yellow: #ffc107;
+            --danger-red: #dc3545;
+            --info-blue: #17a2b8;
+            --bg-white: #ffffff;
+            --bg-light: #f8f9fa;
+            --bg-dark: #343a40;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-light: #fff;
+            --text-muted: #6c757d;
+            --border-light: #ddd;
+            --border-default: #ced4da;
+            --border-focus: #86b7fe;
+            --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+        }
+    </style>
+</head>
+<body>
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    <div class="shape shape-4"></div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo-section">
+                <div class="church-logo">
+                    @if (!string.IsNullOrEmpty(ViewBag.ChurchLogo))
+                    {
+                        <img src="@ViewBag.ChurchLogo" alt="Church Logo">
+                    }
+                    else
+                    {
+                        <i class="fas fa-church"></i>
+                    }
+                </div>
+                <h3>Global Church International</h3>
+                <p>Admin Portal</p>
+            </div>
+
+            <div class="login-body">
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-custom" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+
+                <div class="login-type-toggle">
+                    <button type="button" class="toggle-btn active" id="emailToggle" onclick="switchLoginType('email')">
+                        <i class="fas fa-envelope"></i> Email
+                    </button>
+                    <button type="button" class="toggle-btn" id="phoneToggle" onclick="switchLoginType('phone')">
+                        <i class="fas fa-phone"></i> Phone
+                    </button>
+                </div>
+
+                <form id="loginForm" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="LoginType" id="loginType" value="email" />
+
+                    <div class="form-group login-field" id="emailField">
+                        <label class="form-label fw-semibold mb-2">
+                            <i class="fas fa-envelope me-2"></i>Email Address
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input name="Email" class="form-control" placeholder="admin@gci.org" autocomplete="email" autofocus />
+                        </div>
+                    </div>
+
+                    <div class="form-group login-field" id="phoneField" style="display: none;">
+                        <label class="form-label fw-semibold mb-2">
+                            <i class="fas fa-phone me-2"></i>Phone Number
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                            <input name="Phone" class="form-control" placeholder="+254712345678 or 0712345678" autocomplete="tel" />
+                        </div>
+                        <small class="text-muted">Enter phone number with country code (+254...) or local format (07...)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label fw-semibold mb-2">
+                            <i class="fas fa-lock me-2"></i>Password
+                        </label>
+                        <div class="password-wrapper">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                <input type="password" name="Password" class="form-control" placeholder="Enter your password" id="passwordInput" />
+                            </div>
+                            <button type="button" class="password-toggle" onclick="togglePassword()">
+                                <i class="fas fa-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input name="RememberMe" class="form-check-input" id="rememberMe" type="checkbox" />
+                            <label class="form-check-label" for="rememberMe">
+                                <i class="fas fa-check-circle me-1"></i>Remember me
+                            </label>
+                        </div>
+                        <a href="@Url.Action("ForgotPassword", "Auth")" class="forgot-link">
+                            <i class="fas fa-question-circle me-1"></i>Forgot Password?
+                        </a>
+                    </div>
+
+                    <button type="button" class="btn btn-login" id="loginBtn" onclick="submitLogin()">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        <span>Sign In</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="login-footer">
+                <p><i class="fas fa-shield-alt me-1"></i>Secure Login | GCI Admin Portal</p>
+                <p class="mt-2 small">&copy; @DateTime.Now.Year - Global Church International</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- OTP Verification Modal -->
+    <div class="modal fade" id="otpModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-key me-2"></i>Verify Your Identity
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="closeOtpModal()"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-envelope-open-text fa-3x text-primary mb-3"></i>
+                        <i class="fas fa-phone-alt fa-3x text-primary mb-3 d-none" id="phoneIcon"></i>
+                    </div>
+                    <p class="mb-2">We've sent a verification code to:</p>
+                    <p class="fw-bold text-primary" id="otpDestination">user@example.com</p>
+                    <p class="text-muted small mb-3">Please enter the 6-digit code to complete your login</p>
+
+                    <!-- OTP Input Fields -->
+                    <div class="otp-input-group">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp2')" onkeydown="handleBackspace(this, 'otp1')" id="otp1">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp3')" onkeydown="handleBackspace(this, 'otp1')" id="otp2">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp4')" onkeydown="handleBackspace(this, 'otp2')" id="otp3">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp5')" onkeydown="handleBackspace(this, 'otp3')" id="otp4">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp6')" onkeydown="handleBackspace(this, 'otp4')" id="otp5">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInputComplete(this)" onkeydown="handleBackspace(this, 'otp5')" id="otp6">
+                    </div>
+
+                    <!-- Timer -->
+                    <div class="timer-text">
+                        <i class="fas fa-hourglass-half me-1"></i>
+                        <span id="timerDisplay">02:00</span>
+                    </div>
+
+                    <!-- Resend Button -->
+                    <div class="text-center mb-3">
+                        <button class="btn btn-link resend-btn" id="resendOtpBtn" onclick="resendOtp()" disabled>
+                            <i class="fas fa-redo-alt me-1"></i>Resend Code
+                        </button>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="otpError" class="alert alert-danger alert-sm mt-2" style="display: none; font-size: 0.875rem; padding: 0.5rem;">
+                        <i class="fas fa-exclamation-circle me-1"></i>
+                        <span id="otpErrorMessage"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeOtpModal()">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary verify-btn" onclick="verifyOtp()" id="verifyOtpBtn">
+                        <i class="fas fa-check me-2"></i>Verify
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        let loginIdentifier = '';
+        let loginType = 'email';
+        let otpTimer;
+        let timeLeft = 120;
+        let otpModalInstance;
+
+        function switchLoginType(type) {
+            loginType = type;
+            $('#loginType').val(type);
+
+            if (type === 'email') {
+                $('#emailToggle').addClass('active');
+                $('#phoneToggle').removeClass('active');
+                $('#emailField').show();
+                $('#phoneField').hide();
+                $('input[name="Email"]').prop('required', true);
+                $('input[name="Phone"]').prop('required', false);
+                setTimeout(() => $('input[name="Email"]').focus(), 100);
+            } else {
+                $('#phoneToggle').addClass('active');
+                $('#emailToggle').removeClass('active');
+                $('#phoneField').show();
+                $('#emailField').hide();
+                $('input[name="Phone"]').prop('required', true);
+                $('input[name="Email"]').prop('required', false);
+                setTimeout(() => $('input[name="Phone"]').focus(), 100);
+            }
+        }
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Convert phone number from local format (07...) to international format (+2547...)
+        function normalizePhoneNumber(phone) {
+            if (!phone) return phone;
+            phone = phone.trim();
+            // Check if it starts with 0 (local format like 0712345678)
+            if (phone.startsWith('0')) {
+                return '+254' + phone.substring(1);
+            }
+            // Check if it starts with 254 without +
+            if (phone.startsWith('254') && !phone.startsWith('+')) {
+                return '+' + phone;
+            }
+            return phone;
+        }
+
+        function submitLogin() {
+            let emailOrPhone = '';
+
+            if (loginType === 'email') {
+                emailOrPhone = $('input[name="Email"]').val();
+                if (!emailOrPhone) {
+                    showError('Please enter your email address');
+                    return;
+                }
+                if (!isValidEmail(emailOrPhone)) {
+                    showError('Please enter a valid email address');
+                    return;
+                }
+            } else {
+                emailOrPhone = $('input[name="Phone"]').val();
+                if (!emailOrPhone) {
+                    showError('Please enter your phone number');
+                    return;
+                }
+                const normalizedPhone = normalizePhoneNumber(emailOrPhone);
+                if (!isValidPhone(normalizedPhone)) {
+                    showError('Please enter a valid phone number (e.g., +254712345678 or 0712345678)');
+                    return;
+                }
+                emailOrPhone = normalizedPhone;
+                $('input[name="Phone"]').val(normalizedPhone);
+            }
+
+            const password = $('input[name="Password"]').val();
+            if (!password) {
+                showError('Please enter your password');
+                return;
+            }
+
+            const loginData = {
+                emailOrPhone: emailOrPhone,
+                password: password
+            };
+
+            const btn = $('#loginBtn');
+            const originalHtml = btn.html();
+            btn.html('<span class="spinner-border spinner-border-sm me-2"></span>Verifying...');
+            btn.prop('disabled', true);
+
+            $.ajax({
+                url: '/Auth/Login',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(loginData),
+                success: function(response) {
+                    if (response.data.useOtp) {
+                        // OTP is required, show the OTP modal
+                        loginIdentifier = emailOrPhone;
+                        btn.html(originalHtml);
+                        btn.prop('disabled', false);
+                        showOtpModal();
+                        // Call to send OTP
+                    } else if (response.isSuccess) {
+                        // Direct login success (no OTP required)
+                        window.location.href = response.redirectUrl || '/Home';
+                    } else {
+                        btn.html(originalHtml);
+                        btn.prop('disabled', false);
+                        showError(response.message || 'Invalid credentials');
+                    }
+                },
+                error: function(xhr) {
+                    btn.html(originalHtml);
+                    btn.prop('disabled', false);
+                    const errorMsg = xhr.responseJSON?.message || 'An error occurred. Please try again.';
+                    showError(errorMsg);
+                }
+            });
+        }
+
+        function showOtpModal() {
+            // Clear previous OTP inputs
+            clearOtpInputs();
+            // Hide any error messages
+            $('#otpError').hide();
+            // Set destination display
+            $('#otpDestination').text(loginIdentifier);
+            // Show appropriate icon based on login type
+            if (loginType === 'email') {
+                $('.fa-envelope-open-text').removeClass('d-none');
+                $('.fa-phone-alt').addClass('d-none');
+            } else {
+                $('.fa-envelope-open-text').addClass('d-none');
+                $('.fa-phone-alt').removeClass('d-none');
+            }
+            // Show modal
+            otpModalInstance = new bootstrap.Modal(document.getElementById('otpModal'));
+            otpModalInstance.show();
+        }
+
+        function sendOtp() {
+            $.ajax({
+                url: '/Auth/SendOtp',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    emailOrPhone: loginIdentifier
+                }),
+                success: function(response) {
+                    if (response.isSuccess) {
+                        startTimer();
+                    } else {
+                        showErrorInModal(response.message || 'Failed to send OTP');
+                    }
+                },
+                error: function() {
+                    showErrorInModal('Failed to send OTP. Please try again.');
+                }
+            });
+        }
+
+            function verifyOtp() {
+            // Get OTP from input fields
+            const otp = $('#otp1').val() + $('#otp2').val() + $('#otp3').val() +
+                        $('#otp4').val() + $('#otp5').val() + $('#otp6').val();
+
+            if (otp.length !== 6) {
+                showErrorInModal('Please enter the complete 6-digit code');
+                return;
+            }
+
+            // Disable verify button and show loading
+            const verifyBtn = $('#verifyOtpBtn');
+            const originalBtnHtml = verifyBtn.html();
+            verifyBtn.html('<span class="spinner-border spinner-border-sm me-2"></span>Verifying...');
+            verifyBtn.prop('disabled', true);
+
+            $.ajax({
+                url: '/Auth/ConfirmOtp',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({
+                    EmailOrPhone: loginIdentifier,
+                    OTPCode: otp   // ✅ matches your C# DTO exactly
+                }),
+                success: function (response) {
+                    if (response.isSuccess) {
+                        // Close modal and redirect
+                        otpModalInstance.hide();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Login successful',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = response.redirectUrl || '/Home';
+                        });
+                    } else {
+                        verifyBtn.html(originalBtnHtml);
+                        verifyBtn.prop('disabled', false);
+
+                        showErrorInModal(response.message || 'Invalid OTP. Please try again.');
+
+                        // Clear OTP inputs
+                        clearOtpInputs();
+                        $('#otp1').focus();
+                    }
+                },
+                error: function (xhr) {
+                    verifyBtn.html(originalBtnHtml);
+                    verifyBtn.prop('disabled', false);
+
+                    let errorMsg = 'Failed to verify OTP. Please try again.';
+
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+
+                    showErrorInModal(errorMsg);
+
+                    clearOtpInputs();
+                    $('#otp1').focus();
+                }
+            });
+        }
+        function resendOtp() {
+            $('#resendOtpBtn').prop('disabled', true);
+            $('#resendOtpBtn').html('<span class="spinner-border spinner-border-sm me-1"></span>Sending...');
+
+            $.ajax({
+                url: '/Auth/ResendOtp',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    emailOrPhone: loginIdentifier
+                }),
+                success: function(response) {
+                    if (response.isSuccess) {
+                        startTimer();
+                        clearOtpInputs();
+                        $('#otp1').focus();
+                        $('#otpError').hide();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'OTP Sent',
+                            text: 'A new verification code has been sent',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        $('#resendOtpBtn').prop('disabled', false);
+                        $('#resendOtpBtn').html('<i class="fas fa-redo-alt me-1"></i>Resend Code');
+                        showErrorInModal(response.message || 'Failed to resend OTP');
+                    }
+                },
+                error: function() {
+                    $('#resendOtpBtn').prop('disabled', false);
+                    $('#resendOtpBtn').html('<i class="fas fa-redo-alt me-1"></i>Resend Code');
+                    showErrorInModal('Failed to resend OTP. Please try again.');
+                }
+            });
+        }
+
+        function startTimer() {
+            if (otpTimer) clearInterval(otpTimer);
+            timeLeft = 120;
+            updateTimerDisplay();
+
+            otpTimer = setInterval(function() {
+                if (timeLeft <= 0) {
+                    clearInterval(otpTimer);
+                    $('#resendOtpBtn').prop('disabled', false);
+                    $('#resendOtpBtn').html('<i class="fas fa-redo-alt me-1"></i>Resend Code');
+                    $('#timerDisplay').text('00:00');
+                } else {
+                    timeLeft--;
+                    updateTimerDisplay();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            $('#timerDisplay').text(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+            if (timeLeft > 0) {
+                $('#resendOtpBtn').prop('disabled', true);
+                $('#resendOtpBtn').html('<i class="fas fa-hourglass-half me-1"></i>Resend Code (' + $('#timerDisplay').text() + ')');
+            }
+        }
+
+        function closeOtpModal() {
+            if (otpTimer) clearInterval(otpTimer);
+            clearOtpInputs();
+            $('#otpError').hide();
+            $('#resendOtpBtn').prop('disabled', false);
+            $('#resendOtpBtn').html('<i class="fas fa-redo-alt me-1"></i>Resend Code');
+            $('#verifyOtpBtn').prop('disabled', false);
+            $('#verifyOtpBtn').html('<i class="fas fa-check me-2"></i>Verify');
+        }
+
+        function clearOtpInputs() {
+            $('#otp1, #otp2, #otp3, #otp4, #otp5, #otp6').val('');
+        }
+
+        function showErrorInModal(message) {
+            $('#otpErrorMessage').text(message);
+            $('#otpError').fadeIn();
+            setTimeout(() => {
+                $('#otpError').fadeOut();
+            }, 5000);
+        }
+
+        // OTP Input Handlers
+        function handleOtpInput(current, nextId) {
+            if (current.value.length === 1) {
+                // Auto-move to next input
+                const nextInput = document.getElementById(nextId);
+                if (nextInput) {
+                    nextInput.focus();
+                }
+                // If this is the last input, optionally auto-verify
+                if (nextId === 'otp6') {
+                    // Check if all fields are filled
+                    const otp1 = $('#otp1').val();
+                    const otp2 = $('#otp2').val();
+                    const otp3 = $('#otp3').val();
+                    const otp4 = $('#otp4').val();
+                    const otp5 = $('#otp5').val();
+                    const otp6 = $('#otp6').val();
+                    if (otp1 && otp2 && otp3 && otp4 && otp5 && otp6) {
+                        // Auto-verify after a short delay
+                        setTimeout(() => {
+                            verifyOtp();
+                        }, 300);
+                    }
+                }
+            }
+        }
+
+        function handleOtpInputComplete(current) {
+            if (current.value.length === 1) {
+                // Check if all fields are filled
+                const otp1 = $('#otp1').val();
+                const otp2 = $('#otp2').val();
+                const otp3 = $('#otp3').val();
+                const otp4 = $('#otp4').val();
+                const otp5 = $('#otp5').val();
+                const otp6 = $('#otp6').val();
+                if (otp1 && otp2 && otp3 && otp4 && otp5 && otp6) {
+                    // Auto-verify after a short delay
+                    setTimeout(() => {
+                        verifyOtp();
+                    }, 300);
+                }
+            }
+        }
+
+        function handleBackspace(current, prevId) {
+            if (current.value.length === 0 && event.key === 'Backspace') {
+                const prevInput = document.getElementById(prevId);
+                if (prevInput) {
+                    prevInput.focus();
+                }
+            }
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function isValidPhone(phone) {
+            const phoneRegex = /^(\+254|0)[17]\d{8}$/;
+            return phoneRegex.test(phone);
+        }
+
+        function showError(message) {
+            $('.alert-custom').remove();
+            const alertHtml = `
+                <div class="alert alert-danger alert-custom" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    ${message}
+                </div>
+            `;
+            $('.login-body').prepend(alertHtml);
+            setTimeout(() => $('.alert-custom').fadeOut(300, function() { $(this).remove(); }), 5000);
+        }
+
+        // Auto-detect login type
+        $('input[name="Email"]').on('input', function() {
+            if ($(this).val() && loginType !== 'email') switchLoginType('email');
+        });
+
+        $('input[name="Phone"]').on('input', function() {
+            if ($(this).val() && loginType !== 'phone') switchLoginType('phone');
+        });
+
+        // Allow Enter key to submit OTP
+        $(document).on('keypress', '.otp-input', function(e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                verifyOtp();
+            }
+        });
+    </script>
+</body>
+</html>

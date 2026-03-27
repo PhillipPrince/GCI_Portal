@@ -1,11 +1,13 @@
 ﻿using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Services.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCI_Admin.Controllers
 {
+    [SessionAuthorize]
     public class HomeController : Controller
     {
         private readonly IMembersService _membersService;

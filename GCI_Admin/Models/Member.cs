@@ -35,6 +35,14 @@ namespace GCI_Admin.Models
         public int UserRole { get; set; }
         [NotMapped]
         public string RoleName { get; set; }
+        public bool MustChangePassword { get; set; }
+        [NotMapped]
+        public bool UseOtp { get; set; }
+        [NotMapped]
+        public string Token { get; set; } = string.Empty;
+        [NotMapped]
+        public byte[] ProfileImage { get; set; }
+
     }
 
     public class MembersListViewModel

@@ -31,10 +31,10 @@ namespace Utils
                 errMsg = errMsg + currtime;
 
                 string appPath = Path.GetDirectoryName("C:\\GCI");
-                appPath = appPath + "\\AdminErrors\\" + DateTime.Now.ToString("yyyyMMdd");
+                appPath = appPath + "\\AdminErrorlogs\\" + DateTime.Now.ToString("yyyyMMdd");
                 if (!Directory.Exists(appPath))
                     Directory.CreateDirectory(appPath);
-                appPath = appPath + "\\errorlog.txt";
+                appPath = appPath + "\\errorlog.log";
                 using (StreamWriter sw = File.AppendText(appPath))
                 {
                     sw.WriteLine(errMsg);
@@ -46,11 +46,34 @@ namespace Utils
             }
         }
 
-        public static void LogMethodsErrorDetails(string method, Exception exception, int hasMode, int mode)
+        public static void EventLogs(string errMsg)
         {
             try
             {
-                _methodName = hasMode == 1 ? $"{method}({mode})" : method;
+                DateTime currtime = DateTime.Now;
+                errMsg = errMsg + currtime;
+
+                string appPath = Path.GetDirectoryName("C:\\GCI");
+                appPath = appPath + "\\AdminEventLogs\\" + DateTime.Now.ToString("yyyyMMdd");
+                if (!Directory.Exists(appPath))
+                    Directory.CreateDirectory(appPath);
+                appPath = appPath + "\\eventlog.log";
+                using (StreamWriter sw = File.AppendText(appPath))
+                {
+                    sw.WriteLine(errMsg);
+                }
+            }
+            catch (Exception ex)
+            {
+                DoLogs(ex.Message);
+            }
+        }
+
+        public static void LogMethodsErrorDetails(string method, Exception exception)
+        {
+            try
+            {
+                _methodName = method;
 
                 DoLogs(PrepareErrorMessage(_methodName, exception));
             }

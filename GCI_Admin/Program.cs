@@ -6,6 +6,7 @@ using GCI_Admin.Services.Service;
 using GCI_Admin.DBOperations.Repositories;
 using Repo_GCI;
 using GCI_Admin.Services;
+using GCI_Admin.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,10 +23,19 @@ builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 
     options.UseSqlServer(connectionString);
 });
-
-// Configure JWT settings
+// Configs
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+builder.Services.Configure<SmsConfig>(builder.Configuration.GetSection("SmsConfig"));
+
 builder.Services.Configure<JwtSettings>(jwtSettings);
+builder.Services.AddScoped<JwtTokenService>();
+
+builder.Services.AddHttpClient<CommunicationService>();
+builder.Services.AddScoped<SessionManager>();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSession();
+
 
 // Repositories (Scoped)
 builder.Services.AddScoped<EventsRepository>();
@@ -40,6 +50,8 @@ builder.Services.AddScoped<BenevolenceRepository>();
 builder.Services.AddScoped<LeadershipRepository>();
 builder.Services.AddScoped<SystemConfigRepository>();
 builder.Services.AddScoped<RolesRepository>();
+builder.Services.AddScoped<AuthRepository>();
+
 // Services (Scoped)
 builder.Services.AddScoped<IEventsService, EventsService>();
 builder.Services.AddScoped<IMembersService, MembersService>();
@@ -53,6 +65,10 @@ builder.Services.AddScoped<IBenevolenceService, BenevolenceService>();
 builder.Services.AddScoped<ILeadershipService, LeadershipService>();
 builder.Services.AddScoped<ISystemConfigService, SystemConfigService>();
 builder.Services.AddScoped<IRolesService,RolesService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+
+
 
 
 var app = builder.Build();
@@ -70,6 +86,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",

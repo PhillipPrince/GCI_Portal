@@ -1,5 +1,6 @@
 ﻿using GCI_Admin.Models;
 using GCI_Admin.Services.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -47,6 +48,7 @@ namespace GCI_Admin.Controllers
 
             return View(data);
         }
+        [Authorize(Roles = "1")]
 
         public ActionResult MemberDetails(int id)
         {
