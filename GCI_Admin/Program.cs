@@ -1,4 +1,4 @@
-using GCI_Admin.DBOperations;
+﻿using GCI_Admin.DBOperations;
 using Utils;
 using Microsoft.EntityFrameworkCore;
 using GCI_Admin.Services.IService;
@@ -7,6 +7,10 @@ using GCI_Admin.DBOperations.Repositories;
 using Repo_GCI;
 using GCI_Admin.Services;
 using GCI_Admin.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,6 +74,60 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 
 
+builder.Services.Configure<JwtSettings>(jwtSettings);
+builder.Services.AddScoped<JwtTokenService>();
+
+
+    builder.Services.AddSession(options =>
+    {
+        options.IdleTimeout = TimeSpan.FromMinutes(20); // Auto logout after 20 minutes
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+    }); ;
+
+var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+
+        RoleClaimType = ClaimTypes.Role // 🔥 IMPORTANT for your Roles = "1"
+    };
+    options.Events = new JwtBearerEvents
+    {
+        OnChallenge = context =>
+        {
+            context.HandleResponse();
+
+            // 🔥 Not logged in
+            context.Response.Redirect("/Auth/Index");
+            return Task.CompletedTask;
+        },
+        OnForbidden = context =>
+        {
+            // 🔥 Logged in but no role/permission
+            context.Response.Redirect("/Auth/Unauthorized");
+            return Task.CompletedTask;
+        }
+    };
+});
+
+
+
 
 var app = builder.Build();
 
@@ -86,6 +144,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+app.UseAuthentication();   
+
 app.UseSession();
 
 app.MapControllerRoute(

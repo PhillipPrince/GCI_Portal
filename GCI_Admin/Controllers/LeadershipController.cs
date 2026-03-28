@@ -6,6 +6,8 @@ using Utils;
 
 namespace GCI_Admin.Controllers
 {
+    [SessionAuthorize]
+
     public class LeadershipController : Controller
     {
         private readonly ILeadershipService _leadershipService;

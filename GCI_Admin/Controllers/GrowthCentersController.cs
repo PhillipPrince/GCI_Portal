@@ -6,6 +6,8 @@ using GCI_Admin.Services.IService;
 
 namespace GCI_Admin.Controllers
 {
+    [SessionAuthorize]
+
     public class GrowthCentersController : Controller
     {
         private readonly IGrowthCentersService _growthCentersService;

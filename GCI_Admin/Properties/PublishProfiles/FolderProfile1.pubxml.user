@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>C:\inetpub\wwwroot\Portal</_PublishTargetUrl>
-    <History>True|2026-03-25T04:49:10.4868296Z||;True|2026-03-25T07:40:25.4313376+03:00||;True|2026-03-21T21:34:54.4205480+03:00||;True|2026-03-21T10:53:00.0523491+03:00||;True|2026-03-20T04:45:53.4574572+03:00||;</History>
+    <History>True|2026-03-28T09:59:14.3602543Z||;True|2026-03-27T20:56:16.5149044+03:00||;True|2026-03-27T20:52:11.1536884+03:00||;True|2026-03-27T17:17:12.9188080+03:00||;True|2026-03-25T07:49:10.4868296+03:00||;True|2026-03-25T07:40:25.4313376+03:00||;True|2026-03-21T21:34:54.4205480+03:00||;True|2026-03-21T10:53:00.0523491+03:00||;True|2026-03-20T04:45:53.4574572+03:00||;</History>
     <LastFailureDetails />
   </PropertyGroup>
 </Project>

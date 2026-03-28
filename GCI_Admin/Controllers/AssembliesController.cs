@@ -6,6 +6,8 @@ using Utils;
 
 namespace GCI_Admin.Controllers
 {
+    [SessionAuthorize]
+
     public class AssembliesController : Controller
     {
         private readonly IAssembliesService _assembliesService;

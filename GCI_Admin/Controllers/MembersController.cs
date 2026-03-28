@@ -6,6 +6,8 @@ using GCI_Admin.Services.Service;
 using Microsoft.AspNetCore.Mvc;
 using Utils;
 
+[SessionAuthorize]
+
 public class MembersController : Controller
 {
     private readonly IMembersService _membersService;

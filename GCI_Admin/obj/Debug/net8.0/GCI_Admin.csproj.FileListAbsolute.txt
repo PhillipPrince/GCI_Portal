@@ -544,3 +544,4 @@ D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\refint\GCI_Admin.dll
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.pdb
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.genruntimeconfig.cache
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\ref\GCI_Admin.dll
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

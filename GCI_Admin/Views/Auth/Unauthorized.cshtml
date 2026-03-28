@@ -1,0 +1,68 @@
+﻿<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f4f6f9;
+    }
+
+    .access-denied-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .access-denied-card {
+        background: #ffffff;
+        padding: 40px 60px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .icon {
+        font-size: 50px;
+        color: #e74c3c;
+        margin-bottom: 15px;
+    }
+
+    .title {
+        font-size: 26px;
+        font-weight: bold;
+        color: #e74c3c;
+        margin-bottom: 10px;
+    }
+
+    .message {
+        color: #555;
+        margin-bottom: 25px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #0b5394;
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: 0.3s ease;
+    }
+
+        .btn:hover {
+            background: #094174;
+        }
+</style>
+
+<div class="access-denied-wrapper">
+    <div class="access-denied-card">
+        <div class="icon">🚫</div>
+        <div class="title">Access Denied</div>
+        <div class="message">
+            Your account does not have permission to view this page.
+        </div>
+
+        <a href="/Auth/Login" class="btn">Go to Login</a>
+    </div>
+</div>

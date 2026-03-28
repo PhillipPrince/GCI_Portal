@@ -7,6 +7,8 @@ using Utils;
 
 namespace GCI_Admin.Controllers
 {
+    [SessionAuthorize]
+
     public class EventController : Controller
     {
         private readonly IEventsService _eventsService;

@@ -48,7 +48,7 @@ namespace GCI_Admin.Controllers
 
             return View(data);
         }
-        [Authorize(Roles = "1")]
+        //[Authorize(Roles = "1")]
 
         public ActionResult MemberDetails(int id)
         {

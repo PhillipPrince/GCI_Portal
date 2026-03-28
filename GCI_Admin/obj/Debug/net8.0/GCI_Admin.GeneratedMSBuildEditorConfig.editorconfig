@@ -60,6 +60,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/GCI/GCI_Portal/GCI_Admin/Views/Auth/Unauthorized.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxVbmF1dGhvcml6ZWQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/GCI/GCI_Portal/GCI_Admin/Views/Benevolence/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmVuZXZvbGVuY2VcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 

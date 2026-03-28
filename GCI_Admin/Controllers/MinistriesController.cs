@@ -6,6 +6,8 @@ using GCI_Admin.Services.IService;
 
 namespace GCI_Admin.Controllers
 {
+    [SessionAuthorize]
+
     public class MinistriesController : Controller
     {
         private readonly IMinistriesService _ministriesService;

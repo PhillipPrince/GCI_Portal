@@ -6,6 +6,8 @@ using Utils;
 
 namespace GCI_Admin.Controllers
 {
+    [SessionAuthorize]
+
     public class AnnouncementsController : Controller
     {
         private readonly IAnnouncementsService _announcementsService;

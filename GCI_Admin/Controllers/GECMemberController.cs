@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GCI_Admin.Controllers
 {
+    [SessionAuthorize]
+
     public class GECMemberController : Controller
     {
         private readonly IGECMemberService _gecMemberService;

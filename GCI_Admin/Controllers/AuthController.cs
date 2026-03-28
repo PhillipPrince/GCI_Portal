@@ -1,5 +1,6 @@
 ﻿using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCI_Admin.Controllers
@@ -78,6 +79,20 @@ namespace GCI_Admin.Controllers
                 return BadRequest(result);
 
             return Ok(result);
+        }
+        public IActionResult Unauthorized()
+        {
+            return View();
+        }
+        public async Task<IActionResult> Logout()
+        {
+            HttpContext.Session.Clear();
+
+            await HttpContext.SignOutAsync();
+
+            HttpContext.Session.Remove("Token");
+
+            return RedirectToAction("Index", "Auth");
         }
     }
 }

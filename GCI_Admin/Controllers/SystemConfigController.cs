@@ -7,6 +7,8 @@ using Utils;
 
 namespace GCI_Admin.Controllers
 {
+    [SessionAuthorize]
+
     public class SystemConfigController : Controller
     {
         private readonly ISystemConfigService _configService;

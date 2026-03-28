@@ -6,6 +6,8 @@ using System.Text.Json;
 
 namespace GCI_Admin.Controllers
 {
+    [SessionAuthorize]
+
     public class FinanceController : Controller
     {
         private readonly IPaymentsService _paymentsService;
