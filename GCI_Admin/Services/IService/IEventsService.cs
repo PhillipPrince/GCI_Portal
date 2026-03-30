@@ -20,6 +20,7 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<bool>> ToggleEventStatusAsync(int eventId, bool isActive);
         Task<ApiResponse<AnnualTheme>> GetCurrentYearThemeAsync();
         Task<ApiResponse<AnnualTheme>> UpdateAnnualThemeAsync(int id, AnnualThemeDto dto);
+        Task<ApiResponse<List<Event>>> GetUpcomingEventsAsync();
 
 
 

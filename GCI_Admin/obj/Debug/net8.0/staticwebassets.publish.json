@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "LNKqDHr/KUGnL/8212moa9lreuP3Zn3OiukH5ytft7k=",
+  "Hash": "5ijgCqECG4qqFuc5TIlfaQT/6PikztwsE0k4u8RsoMg=",
   "Source": "GCI_Admin",
   "BasePath": "_content/GCI_Admin",
   "Mode": "Default",
@@ -80,12 +80,12 @@
       "OriginalItemSpec": "wwwroot\\css\\site.css"
     },
     {
-      "Identity": "D:\\GCI\\GCI_Portal\\GCI_Admin\\wwwroot\\favicon.ico",
+      "Identity": "D:\\GCI\\GCI_Portal\\GCI_Admin\\wwwroot\\favicon.ico.png",
       "SourceId": "GCI_Admin",
       "SourceType": "Discovered",
       "ContentRoot": "D:\\GCI\\GCI_Portal\\GCI_Admin\\wwwroot\\",
       "BasePath": "_content/GCI_Admin",
-      "RelativePath": "favicon#[.{fingerprint}]?.ico",
+      "RelativePath": "favicon.ico#[.{fingerprint}]?.png",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -94,11 +94,11 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "61n19gt1b8",
-      "Integrity": "Jtxf9L+5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM=",
+      "Fingerprint": "8z9gbbf79d",
+      "Integrity": "hD19rc0Zow8VlWrTuIscO0Yio55KvSgDMXby8MGO4wo=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\favicon.ico"
+      "OriginalItemSpec": "wwwroot\\favicon.ico.png"
     },
     {
       "Identity": "D:\\GCI\\GCI_Portal\\GCI_Admin\\wwwroot\\images\\church-logo.png",
@@ -1487,8 +1487,8 @@
       ]
     },
     {
-      "Route": "favicon.61n19gt1b8.ico",
-      "AssetFile": "D:\\GCI\\GCI_Portal\\GCI_Admin\\wwwroot\\favicon.ico",
+      "Route": "favicon.ico.8z9gbbf79d.png",
+      "AssetFile": "D:\\GCI\\GCI_Portal\\GCI_Admin\\wwwroot\\favicon.ico.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -1497,15 +1497,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "5430"
+          "Value": "134909"
         },
         {
           "Name": "Content-Type",
-          "Value": "image/x-icon"
+          "Value": "image/png"
         },
         {
           "Name": "ETag",
-          "Value": "\"Jtxf9L+5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM=\""
+          "Value": "\"hD19rc0Zow8VlWrTuIscO0Yio55KvSgDMXby8MGO4wo=\""
         },
         {
           "Name": "Last-Modified",
@@ -1519,21 +1519,21 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "61n19gt1b8"
+          "Value": "8z9gbbf79d"
         },
         {
           "Name": "label",
-          "Value": "favicon.ico"
+          "Value": "favicon.ico.png"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-Jtxf9L+5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM="
+          "Value": "sha256-hD19rc0Zow8VlWrTuIscO0Yio55KvSgDMXby8MGO4wo="
         }
       ]
     },
     {
-      "Route": "favicon.ico",
-      "AssetFile": "D:\\GCI\\GCI_Portal\\GCI_Admin\\wwwroot\\favicon.ico",
+      "Route": "favicon.ico.png",
+      "AssetFile": "D:\\GCI\\GCI_Portal\\GCI_Admin\\wwwroot\\favicon.ico.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -1542,15 +1542,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "5430"
+          "Value": "134909"
         },
         {
           "Name": "Content-Type",
-          "Value": "image/x-icon"
+          "Value": "image/png"
         },
         {
           "Name": "ETag",
-          "Value": "\"Jtxf9L+5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM=\""
+          "Value": "\"hD19rc0Zow8VlWrTuIscO0Yio55KvSgDMXby8MGO4wo=\""
         },
         {
           "Name": "Last-Modified",
@@ -1564,7 +1564,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-Jtxf9L+5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM="
+          "Value": "sha256-hD19rc0Zow8VlWrTuIscO0Yio55KvSgDMXby8MGO4wo="
         }
       ]
     },
@@ -1591,7 +1591,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 27 Mar 2026 13:43:39 GMT"
+          "Value": "Mon, 30 Mar 2026 09:57:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1636,7 +1636,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 27 Mar 2026 13:43:39 GMT"
+          "Value": "Mon, 30 Mar 2026 09:57:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1681,7 +1681,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 27 Mar 2026 13:43:39 GMT"
+          "Value": "Mon, 30 Mar 2026 09:57:49 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1718,7 +1718,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 27 Mar 2026 13:43:39 GMT"
+          "Value": "Mon, 30 Mar 2026 09:57:49 GMT"
         },
         {
           "Name": "Cache-Control",

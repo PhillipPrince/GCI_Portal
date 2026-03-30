@@ -72,7 +72,7 @@ namespace GCI_Admin.DBOperations.Repositories
 
 
                 var user = await _context.Members
-                    .FirstOrDefaultAsync(u => u.Email == login.EmailOrPhone || u.Phone == login.EmailOrPhone);
+                    .FirstOrDefaultAsync(u => u.Email == login.EmailOrPhone || u.Phone == login.EmailOrPhone && u.UserRole==1 || u.UserRole==5||u.UserRole==6);
 
                 if (user == null)
                 {

@@ -1,5 +1,5 @@
 wwwroot\css\site.css
-wwwroot\favicon.ico
+wwwroot\favicon.ico.png
 wwwroot\images\church-logo.png
 wwwroot\js\datatables-global.js
 wwwroot\js\global-utils.js

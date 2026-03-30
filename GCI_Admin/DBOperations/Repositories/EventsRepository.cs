@@ -511,6 +511,31 @@ namespace GCI_Admin.DBOperations.Repositories
             }
         }
 
+        public async Task<DbResponse<List<Event>>> GetUpcomingEventsAsync()
+        {
+            try
+            {
+                var today = DateTime.Today;
+                var nextWeek = today.AddDays(7);
+                var upcomingEvents = await _context.Events
+                    .Where(e => e.EventDate >= today && e.EventDate <= nextWeek && e.IsActive)
+                    .OrderBy(e => e.EventDate)
+                    .ToListAsync();
+                return new DbResponse<List<Event>>
+                {
+                    Success = true,
+                    Data = upcomingEvents
+                };
+            }
+            catch (Exception ex)
+            {
+                return new DbResponse<List<Event>>
+                {
+                    Success = false,
+                    Message = $"Error fetching upcoming events: {ex.Message}"
+                };
+            }
+        }
 
-    }
+        }
 }

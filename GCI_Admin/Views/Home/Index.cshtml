@@ -89,22 +89,40 @@
     </div>
 </div>
 
-<!-- CHARTS SECTION -->
+<!-- CHARTS SECTION - Two charts side by side -->
 <div class="row g-4 mb-4">
-    <div class="col-md-7">
+    <div class="col-md-6">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <h6 class="fw-bold mb-0">📈 Member Growth</h6>
                     <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-secondary active">Weekly</button>
-                        <button class="btn btn-outline-secondary">Monthly</button>
-                        <button class="btn btn-outline-secondary">Yearly</button>
+                        <button class="btn btn-outline-secondary active" data-chart="member-growth">Weekly</button>
+                        <button class="btn btn-outline-secondary" data-chart="member-growth">Monthly</button>
+                        <button class="btn btn-outline-secondary" data-chart="member-growth">Yearly</button>
                     </div>
                 </div>
             </div>
             <div class="card-body">
                 <canvas id="membersChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0">👑 Full Membership Attainment</h6>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-secondary active" data-chart="full-membership">Weekly</button>
+                        <button class="btn btn-outline-secondary" data-chart="full-membership">Monthly</button>
+                        <button class="btn btn-outline-secondary" data-chart="full-membership">Yearly</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="fullMembersChart" height="120"></canvas>
             </div>
         </div>
     </div>
@@ -117,41 +135,39 @@
             <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <h6 class="fw-bold mb-0">📅 Upcoming Events</h6>
-                    <a href="@Url.Action("Index", "Events")" class="btn btn-link btn-sm p-0">View All →</a>
+                    <a href="@Url.Action("Index", "Event")" class="btn btn-link btn-sm p-0">View All →</a>
                 </div>
             </div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
-                    <div class="list-group-item px-0 border-0 d-flex align-items-center">
-                        <div class="bg-primary bg-opacity-10 p-2 rounded-circle me-3">
-                            <i class="fa fa-church text-primary"></i>
+                    @if (Model.UpcomingEvent != null && Model.UpcomingEvent.Any())
+                    {
+                        foreach (var evt in Model.UpcomingEvent.Take(3))
+                        {
+                            <div class="list-group-item px-0 border-0 d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 p-2 rounded-circle me-3">
+                                    <i class="fa fa-church text-primary"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">@evt.Title</h6>
+                                    <small class="text-muted">
+                                        <i class="fa fa-clock me-1"></i>
+                                        @evt.EventDate.ToString("MMM dd, h:mm tt")
+                                    </small>
+                                </div>
+                                <span class="badge @(evt.EventDate.Date == DateTime.Today ? "bg-primary" : "bg-secondary")">
+                                    @(evt.EventDate.Date == DateTime.Today ? "Today" : "")
+                                </span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <i class="fa fa-calendar-alt fa-2x mb-2"></i>
+                            <p class="mb-0">No upcoming events</p>
                         </div>
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1">Sunday Service</h6>
-                            <small class="text-muted"><i class="fa fa-clock me-1"></i>Feb 11, 9:00 AM</small>
-                        </div>
-                        <span class="badge bg-primary">Today</span>
-                    </div>
-                    <div class="list-group-item px-0 border-0 d-flex align-items-center">
-                        <div class="bg-success bg-opacity-10 p-2 rounded-circle me-3">
-                            <i class="fa fa-users text-success"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1">Youth Conference</h6>
-                            <small class="text-muted"><i class="fa fa-clock me-1"></i>Feb 18, 10:00 AM</small>
-                        </div>
-                        <span class="badge bg-secondary">156 going</span>
-                    </div>
-                    <div class="list-group-item px-0 border-0 d-flex align-items-center">
-                        <div class="bg-warning bg-opacity-10 p-2 rounded-circle me-3">
-                            <i class="fa fa-user-tie text-warning"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1">Leadership Summit</h6>
-                            <small class="text-muted"><i class="fa fa-clock me-1"></i>Mar 2, 8:30 AM</small>
-                        </div>
-                        <span class="badge bg-secondary">45 going</span>
-                    </div>
+                    }
                 </div>
             </div>
         </div>
@@ -532,9 +548,15 @@
 
     <script>
         let currentThemeData = {};
+        let membersChart;
+        let fullMembersChart;
 
         $(document).ready(function () {
             loadCurrentYearTheme();
+
+            // Load initial chart data
+            loadMemberGrowthData('weekly');
+            loadFullMembershipData('weekly');
 
             // Initialize DataTable
             var table = $('#membersTable').DataTable({
@@ -553,7 +575,200 @@
                     }
                 }
             });
+
+            // Add event listeners for member growth chart buttons
+            $('.btn-group .btn[data-chart="member-growth"]').on('click', function() {
+                // Update active state for this chart group
+                $('.btn-group .btn[data-chart="member-growth"]').removeClass('active');
+                $(this).addClass('active');
+
+                // Get selected period
+                const period = $(this).text().toLowerCase();
+
+                // Reload chart with new period
+                loadMemberGrowthData(period);
+            });
+
+            // Add event listeners for full membership chart buttons
+            $('.btn-group .btn[data-chart="full-membership"]').on('click', function() {
+                // Update active state for this chart group
+                $('.btn-group .btn[data-chart="full-membership"]').removeClass('active');
+                $(this).addClass('active');
+
+                // Get selected period
+                const period = $(this).text().toLowerCase();
+
+                // Reload chart with new period
+                loadFullMembershipData(period);
+            });
         });
+
+        // Function to load member growth chart data
+        function loadMemberGrowthData(period = 'weekly') {
+            $.ajax({
+                url: '/Home/GetMemberGrowthData',
+                type: 'GET',
+                data: { period: period },
+                success: function(response) {
+                    if (response.success) {
+                        const ctx = document.getElementById('membersChart').getContext('2d');
+
+                        // Destroy existing chart if it exists
+                        if (membersChart) {
+                            membersChart.destroy();
+                        }
+
+                        // Create new chart with dynamic data
+                        membersChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: response.labels,
+                                datasets: [{
+                                    label: 'New Members',
+                                    data: response.data,
+                                    borderColor: '#0d6efd',
+                                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                                    borderWidth: 3,
+                                    tension: 0.4,
+                                    fill: true,
+                                    pointBackgroundColor: '#0d6efd',
+                                    pointBorderColor: '#fff',
+                                    pointBorderWidth: 2,
+                                    pointRadius: 4,
+                                    pointHoverRadius: 6
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                return context.parsed.y + ' members';
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        title: {
+                                            display: true,
+                                            text: 'Number of Members',
+                                            color: '#6c757d'
+                                        },
+                                        grid: {
+                                            display: true,
+                                            color: 'rgba(0,0,0,0.05)'
+                                        }
+                                    },
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: period === 'weekly' ? 'Day' : (period === 'monthly' ? 'Week' : 'Month'),
+                                            color: '#6c757d'
+                                        },
+                                        grid: {
+                                            display: false
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                },
+                error: function(err) {
+                    console.error("Error loading member growth data:", err);
+                }
+            });
+        }
+
+        // Function to load full membership attainment data
+        function loadFullMembershipData(period = 'weekly') {
+            $.ajax({
+                url: '/Home/GetFullMembershipData',
+                type: 'GET',
+                data: { period: period },
+                success: function(response) {
+                    if (response.success) {
+                        const ctx = document.getElementById('fullMembersChart').getContext('2d');
+
+                        // Destroy existing chart if it exists
+                        if (fullMembersChart) {
+                            fullMembersChart.destroy();
+                        }
+
+                        // Create new chart with dynamic data
+                        fullMembersChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: response.labels,
+                                datasets: [{
+                                    label: 'Full Members',
+                                    data: response.data,
+                                    borderColor: '#198754',
+                                    backgroundColor: 'rgba(25, 135, 84, 0.2)',
+                                    borderWidth: 2,
+                                    borderRadius: 5,
+                                    pointBackgroundColor: '#198754',
+                                    pointBorderColor: '#fff',
+                                    pointBorderWidth: 2,
+                                    pointRadius: 4,
+                                    pointHoverRadius: 6
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                return context.parsed.y + ' members attained full membership';
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        title: {
+                                            display: true,
+                                            text: 'Number of Full Members',
+                                            color: '#6c757d'
+                                        },
+                                        grid: {
+                                            display: true,
+                                            color: 'rgba(0,0,0,0.05)'
+                                        }
+                                    },
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: period === 'weekly' ? 'Day' : (period === 'monthly' ? 'Week' : 'Month'),
+                                            color: '#6c757d'
+                                        },
+                                        grid: {
+                                            display: false
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                },
+                error: function(err) {
+                    console.error("Error loading full membership data:", err);
+                }
+            });
+        }
 
         // Function to convert image file to base64
         function convertImageToBase64(file) {
@@ -792,51 +1007,6 @@
                 saveButton.innerHTML = originalText;
             }
         }
-
-        // Enhanced charts
-        new Chart(document.getElementById('membersChart'), {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Members',
-                    data: [200, 350, 520, 690, 890, 1250],
-                    borderColor: '#0d6efd',
-                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointBackgroundColor: '#0d6efd',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            display: true,
-                            color: 'rgba(0,0,0,0.05)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
-        });
 
         // SweetAlert2 functions
         function joinMembershipClass(memberId) {

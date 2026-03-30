@@ -287,6 +287,7 @@ D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\DocumentFormat.OpenXml.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\DocumentFormat.OpenXml.Framework.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\ExcelNumberFormat.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Humanizer.dll
+D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.AspNetCore.Razor.Language.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.Build.dll
@@ -544,4 +545,3 @@ D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\refint\GCI_Admin.dll
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.pdb
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.genruntimeconfig.cache
 D:\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\ref\GCI_Admin.dll
-D:\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

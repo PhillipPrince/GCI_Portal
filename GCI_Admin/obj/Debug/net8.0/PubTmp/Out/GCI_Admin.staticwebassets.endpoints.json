@@ -29,7 +29,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 27 Mar 2026 13:43:39 GMT"
+          "Value": "Mon, 30 Mar 2026 09:57:49 GMT"
         }
       ],
       "EndpointProperties": [
@@ -74,7 +74,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 27 Mar 2026 13:43:39 GMT"
+          "Value": "Mon, 30 Mar 2026 09:57:49 GMT"
         }
       ],
       "EndpointProperties": [
@@ -167,8 +167,8 @@
       ]
     },
     {
-      "Route": "favicon.61n19gt1b8.ico",
-      "AssetFile": "favicon.ico",
+      "Route": "favicon.ico.8z9gbbf79d.png",
+      "AssetFile": "favicon.ico.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -181,15 +181,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "5430"
+          "Value": "134909"
         },
         {
           "Name": "Content-Type",
-          "Value": "image/x-icon"
+          "Value": "image/png"
         },
         {
           "Name": "ETag",
-          "Value": "\"Jtxf9L+5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM=\""
+          "Value": "\"hD19rc0Zow8VlWrTuIscO0Yio55KvSgDMXby8MGO4wo=\""
         },
         {
           "Name": "Last-Modified",
@@ -199,21 +199,21 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "61n19gt1b8"
+          "Value": "8z9gbbf79d"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-Jtxf9L+5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM="
+          "Value": "sha256-hD19rc0Zow8VlWrTuIscO0Yio55KvSgDMXby8MGO4wo="
         },
         {
           "Name": "label",
-          "Value": "favicon.ico"
+          "Value": "favicon.ico.png"
         }
       ]
     },
     {
-      "Route": "favicon.ico",
-      "AssetFile": "favicon.ico",
+      "Route": "favicon.ico.png",
+      "AssetFile": "favicon.ico.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -226,15 +226,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "5430"
+          "Value": "134909"
         },
         {
           "Name": "Content-Type",
-          "Value": "image/x-icon"
+          "Value": "image/png"
         },
         {
           "Name": "ETag",
-          "Value": "\"Jtxf9L+5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM=\""
+          "Value": "\"hD19rc0Zow8VlWrTuIscO0Yio55KvSgDMXby8MGO4wo=\""
         },
         {
           "Name": "Last-Modified",
@@ -244,7 +244,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-Jtxf9L+5ITKRc1gIRl4VbUpGkRNfOBXjYTdhJD4facM="
+          "Value": "sha256-hD19rc0Zow8VlWrTuIscO0Yio55KvSgDMXby8MGO4wo="
         }
       ]
     },

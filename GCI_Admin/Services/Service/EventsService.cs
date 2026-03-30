@@ -503,5 +503,23 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-    }
+        public async Task<ApiResponse<List<Event>>> GetUpcomingEventsAsync()
+        {
+            var response = new ApiResponse<List<Event>>();
+            try
+            {
+                var result = await _eventsRepository.GetUpcomingEventsAsync();
+                response.Data = result.Data;
+                response.Message = "Upcoming events retrieved successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+        }
 }
