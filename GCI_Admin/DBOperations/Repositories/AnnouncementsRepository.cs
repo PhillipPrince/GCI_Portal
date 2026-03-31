@@ -16,13 +16,14 @@ namespace GCI_Admin.DBOperations.Repositories
 
         public async Task<DbResponse<Notification>> CreateAnnouncementAsync(NotificationDto dto)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
                 var entity = new Notification
                 {
                     Title = dto.Title,
                     Message = dto.Message,
-                    //CreatedById = dto.CreatedById,
                     IsChurchWide = dto.IsChurchWide,
                     MinistryId = dto.MinistryId,
                     NotificationTime = dto.NotificationTime,
@@ -32,23 +33,55 @@ namespace GCI_Admin.DBOperations.Repositories
                     SendEmail = dto.SendEmail,
                     CreatedAt = DateTime.Now,
                     IsActive = dto.IsActive,
-
-                    //later input loged in user
-                    CreatedById=1
+                    CreatedById = dto.CreatedById.Value,
+                    NotificationGroupId = dto.NotificationGroupId
                 };
 
                 _context.Notifications.Add(entity);
                 await _context.SaveChangesAsync();
 
-                return new DbResponse<Notification> { Success = true, Data = entity, Message = "Announcement created successfully" };
+                var notificationId = entity.NotificationId;
+
+                if (dto.NotificationGroupId == 3)
+                {
+
+
+                    if (dto.SelectedMembers != null && dto.SelectedMembers.Any())
+                    {
+                        var specialMembers = dto.SelectedMembers.Select(memberId => new SpecialNotificationMember
+                        {
+                            NotificationId = notificationId,
+                            MemberId = memberId,
+                            IsNotified = false,
+                            CreatedAt = DateTime.Now
+                        }).ToList();
+
+                        await _context.SpecialNotificationMembers.AddRangeAsync(specialMembers);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                await transaction.CommitAsync();
+
+                return new DbResponse<Notification>
+                {
+                    Success = true,
+                    Data = entity,
+                    Message = "Announcement created successfully"
+                };
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
                 Loggers.DoLogs($"Error in CreateAnnouncementAsync: {ex}");
-                return new DbResponse<Notification> { Success = false, Message = $"Error creating announcement: {ex.Message}" };
+
+                return new DbResponse<Notification>
+                {
+                    Success = false,
+                    Message = $"Error creating announcement: {ex.Message}"
+                };
             }
         }
-
         public async Task<DbResponse<List<Notification>>> GetAllAnnouncementsAsync()
         {
             try
@@ -151,6 +184,20 @@ namespace GCI_Admin.DBOperations.Repositories
                 return new DbResponse<bool> { Success = false, Message = $"Error toggling announcement status: {ex.Message}" };
             }
         }
-    }
+        public async Task<DbResponse<List<NotificationGroup>>> GetAllNotificationGroupsAsync()
+        {
+            try
+            {
+                var list = await _context.NotificationGroups
+                    .OrderByDescending(g => g.CreatedAt)
+                    .ToListAsync();
+                return new DbResponse<List<NotificationGroup>> { Success = true, Data = list };
+            }
+            catch (Exception ex)
+            {
+                return new DbResponse<List<NotificationGroup>> { Success = false, Message = $"Error fetching notification groups: {ex.Message}" };
+            }
+        }
+        }
 }
 

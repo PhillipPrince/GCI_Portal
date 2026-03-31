@@ -76,7 +76,47 @@
 						</div>
 					</div>
 
+					<!-- Notification Group Dropdown -->
+					<div class="mb-3">
+						<label class="form-label">Notification Group</label>
+						<select id="annNotificationGroupId" name="NotificationGroupId" class="form-select">
+							<option value="">-- Select Group --</option>
+							@if (Model.NotificationGroups != null && Model.NotificationGroups.Any())
+							{
+								foreach (var group in Model.NotificationGroups)
+								{
+									<option value="@group.Value">@group.Text</option>
+								}
+							}
+						</select>
+					</div>
+
+					<!-- Members Section (shown only when Group ID = 3) -->
+					<div id="membersSection" style="display: none;">
+						<div class="mb-3">
+							<label class="form-label">Select Members (Searchable)</label>
+							<select id="annMemberSelect" class="form-select select2-members">
+								<option value="">-- Search and Select Members --</option>
+								@if (Model.Members != null && Model.Members.Any())
+								{
+									foreach (var member in Model.Members)
+									{
+										<option value="@member.Value">@member.Text</option>
+									}
+								}
+							</select>
+						</div>
+
+						<div class="mb-3">
+							<label class="form-label">Selected Members Preview</label>
+							<div id="selectedMembersPreview" class="border rounded p-2" style="min-height: 100px; max-height: 200px; overflow-y: auto;">
+								<div class="text-muted text-center">No members selected</div>
+							</div>
+						</div>
+					</div>
+
 					<input type="hidden" id="annCreatedById" />
+					<input type="hidden" id="selectedMembersIds" name="SelectedMembersIds" />
 				</div>
 				<div class="modal-footer">
 					<button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
@@ -86,3 +126,190 @@
 		</div>
 	</div>
 </div>
+
+<!-- Include Select2 CSS and JS -->
+@* <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> *@
+@* <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> *@
+
+<script>
+	// Global variables
+	let selectedMembers = [];
+
+	// Function to initialize Select2
+	function initializeSelect2() {
+		if ($('#annMemberSelect').length && $.fn.select2) {
+			// Destroy existing Select2 instance if any
+			if ($('#annMemberSelect').hasClass('select2-hidden-accessible')) {
+				$('#annMemberSelect').select2('destroy');
+			}
+
+			// Initialize Select2
+			$('#annMemberSelect').select2({
+				placeholder: "Search and select members",
+				allowClear: true,
+				width: '100%',
+				dropdownParent: $('#createAnnouncementModal')
+			});
+		}
+	}
+
+	// Function to update the preview
+	function updateMembersPreview() {
+		const previewContainer = $('#selectedMembersPreview');
+		if (selectedMembers.length === 0) {
+			previewContainer.html('<div class="text-muted text-center">No members selected</div>');
+			$('#selectedMembersIds').val('');
+		} else {
+			let html = '<div class="d-flex flex-wrap gap-2">';
+			selectedMembers.forEach(member => {
+				html += `
+					<div class="badge bg-primary p-2 d-flex align-items-center gap-2" style="font-size: 14px;">
+						<span>${escapeHtml(member.text)}</span>
+						<button type="button" class="btn-close btn-close-white" style="font-size: 10px;" onclick="removeMember('${member.id}')"></button>
+					</div>
+				`;
+			});
+			html += '</div>';
+			previewContainer.html(html);
+			$('#selectedMembersIds').val(selectedMembers.map(m => m.id).join(','));
+		}
+	}
+
+	// Escape HTML to prevent XSS
+	function escapeHtml(text) {
+		if (!text) return '';
+		return text.replace(/[&<>]/g, function(m) {
+			if (m === '&') return '&amp;';
+			if (m === '<') return '&lt;';
+			if (m === '>') return '&gt;';
+			return m;
+		});
+	}
+
+	// Function to add member
+	window.addMember = function() {
+		const select = $('#annMemberSelect');
+		const selectedValue = select.val();
+		const selectedText = select.find('option:selected').text();
+
+		if (selectedValue && !selectedMembers.some(m => m.id === selectedValue)) {
+			selectedMembers.push({ id: selectedValue, text: selectedText });
+			updateMembersPreview();
+			select.val('').trigger('change');
+		} else if (selectedMembers.some(m => m.id === selectedValue)) {
+			Swal.fire('Info', 'Member already selected', 'info');
+		}
+	};
+
+	// Function to remove member
+	window.removeMember = function(memberId) {
+		selectedMembers = selectedMembers.filter(m => m.id !== memberId);
+		updateMembersPreview();
+	};
+
+	// Function to get selected member IDs
+	window.getSelectedMemberIds = function() {
+		return selectedMembers.map(m => parseInt(m.id));
+	};
+
+	// Function to clear all members
+	window.clearAllMembers = function() {
+		selectedMembers = [];
+		updateMembersPreview();
+		if ($('#annMemberSelect').length) {
+			$('#annMemberSelect').val('').trigger('change');
+		}
+	};
+
+	// Function to load selected members for editing
+	window.loadSelectedMembers = function(memberIds) {
+		if (!memberIds || memberIds.length === 0) return;
+
+		// Clear existing members
+		selectedMembers = [];
+
+		// Get member names from the dropdown options
+		memberIds.forEach(id => {
+			const option = $(`#annMemberSelect option[value='${id}']`);
+			if (option.length) {
+				selectedMembers.push({ id: id.toString(), text: option.text() });
+			}
+		});
+
+		updateMembersPreview();
+
+		// Show members section if members are selected
+		if (selectedMembers.length > 0) {
+			$('#membersSection').show();
+		}
+	};
+
+	$(document).ready(function() {
+		// Initialize Select2
+		initializeSelect2();
+
+		// Show/hide members section based on notification group selection
+		$('#annNotificationGroupId').on('change', function() {
+			const selectedGroupId = $(this).val();
+			console.log('Selected Group ID:', selectedGroupId); // Debug log
+
+			if (selectedGroupId === '3') {
+				$('#membersSection').slideDown(300);
+				// Re-initialize Select2 when showing (fixes display issues)
+				setTimeout(function() {
+					initializeSelect2();
+				}, 100);
+			} else {
+				$('#membersSection').slideUp(300);
+				// Clear selected members when hiding
+				selectedMembers = [];
+				updateMembersPreview();
+				if ($('#annMemberSelect').length) {
+					$('#annMemberSelect').val('').trigger('change');
+				}
+			}
+		});
+
+		// Listen for selection change on member dropdown
+		$('#annMemberSelect').on('change', function() {
+			if ($(this).val()) {
+				addMember();
+			}
+		});
+
+		// Reset form when modal is hidden
+		$('#createAnnouncementModal').on('hidden.bs.modal', function() {
+			$('#createAnnouncementForm')[0].reset();
+			$('#annEditId').val('');
+			selectedMembers = [];
+			updateMembersPreview();
+			$('#annNotificationGroupId').val('').trigger('change');
+		});
+
+		// Optional: Log form submission
+		$('#createAnnouncementForm').on('submit', function() {
+			console.log('Selected Members IDs:', $('#selectedMembersIds').val());
+		});
+	});
+</script>
+
+<style>
+	/* Custom styles for selected members preview */
+	#selectedMembersPreview .badge {
+		margin: 4px;
+	}
+
+	.select2-container--default .select2-selection--single {
+		height: 38px;
+		padding: 5px;
+	}
+
+		.select2-container--default .select2-selection--single .select2-selection__arrow {
+			height: 36px;
+		}
+
+	/* Ensure Select2 dropdown appears above modal */
+	.select2-container {
+		z-index: 9999;
+	}
+</style>

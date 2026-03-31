@@ -39,5 +39,42 @@ namespace GCI_Admin.Models
         public DateTime? UpdatedAt { get; set; }
 
         public bool IsActive { get; set; } = true;
+        public int? NotificationGroupId { get; set; }
     }
-}   
+   
+        public class NotificationGroup
+        {
+        [Key]
+        public int GroupId { get; set; }
+
+            public string GroupName { get; set; }
+
+            public string Description { get; set; }
+
+            public bool IsActive { get; set; } = true;
+
+            public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+            public DateTime? UpdatedAt { get; set; }
+        }
+
+    public class SpecialNotificationMember
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public int NotificationId { get; set; }
+
+        public int MemberId { get; set; }
+
+        public bool IsNotified { get; set; } = false;
+
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        // Optional Navigation Properties
+        //public Notification Notification { get; set; }
+
+        // public Member Member { get; set; }
+    }
+}
+    

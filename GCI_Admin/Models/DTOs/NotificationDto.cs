@@ -27,5 +27,10 @@ namespace GCI_Admin.Models.DTOs
         public bool SendEmail { get; set; }
 
         public bool IsActive { get; set; } = true;
+
+        public List<DropdownItem> NotificationGroups { get; set; }
+        public int NotificationGroupId { get; set; }
+        public List<DropdownItem> Members { get; set; }
+        public List<int> SelectedMembers { get; set; }
     }
 }   

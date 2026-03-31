@@ -12,5 +12,6 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<Notification>> UpdateAnnouncementAsync(int id, NotificationDto dto);
         Task<ApiResponse<bool>> DeleteAnnouncementAsync(int id);
         Task<ApiResponse<bool>> ToggleAnnouncementStatusAsync(int id, bool isActive);
+        Task<ApiResponse<List<NotificationGroup>>> GetAllNotificationGroupsAsync();
     }
 }

@@ -11,10 +11,12 @@ namespace GCI_Admin.Controllers
     public class AnnouncementsController : Controller
     {
         private readonly IAnnouncementsService _announcementsService;
+        private readonly IMembersService _membersService;
 
-        public AnnouncementsController(IAnnouncementsService announcementsService)
+        public AnnouncementsController(IAnnouncementsService announcementsService, IMembersService membersService)
         {
             _announcementsService = announcementsService;
+            _membersService = membersService;
         }
 
         public async Task<IActionResult> Index()
@@ -47,7 +49,24 @@ namespace GCI_Admin.Controllers
         [HttpGet]
         public IActionResult CreateAnnouncement()
         {
-            return View("_CreateAnnouncement", new NotificationDto());
+            NotificationDto notification = new NotificationDto();
+            var notificationGroupsResponse = _announcementsService.GetAllNotificationGroupsAsync().Result.Data;
+            
+            notification.NotificationGroups =
+                notification.NotificationGroups = notificationGroupsResponse.Select(m => new DropdownItem
+                      {
+                          Value = m.GroupId.ToString(),
+                          Text = m.GroupName.ToString()
+                      }).ToList();
+            var membersResponse = _membersService.GetAllMembersAsync().Result.Data;
+            notification.Members = membersResponse.Select(m => new DropdownItem
+            {
+                Value = m.Id.ToString(),
+                Text = $"{m.FirstName} {m.OtherNames}"
+            }).ToList();
+
+
+            return View("_CreateAnnouncement",  notification);
         }
 
         [HttpPost]

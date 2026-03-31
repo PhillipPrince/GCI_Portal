@@ -38,6 +38,8 @@ namespace GCI_Admin.DBOperations
         public DbSet<Role> Roles { get; set; }
         public DbSet<Elder> Elders { get; set; }
         public DbSet<OTP> OTPs { get; set; }
+        public DbSet<NotificationGroup> NotificationGroups { get; set; }
+        public DbSet<SpecialNotificationMember> SpecialNotificationMembers { get; set; }
 
     }
 }

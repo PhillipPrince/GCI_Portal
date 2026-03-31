@@ -46,7 +46,8 @@
     @await Html.PartialAsync("_AnnouncementsTable", Model ?? new List<GCI_Admin.Models.Notification>())
 </div>
 
-@await Html.PartialAsync("_CreateAnnouncement", new GCI_Admin.Models.DTOs.NotificationDto())
+<!-- Modal Container - Will be dynamically loaded -->
+<div id="createAnnouncementModalContainer"></div>
 
 @section Scripts {
     <script>
@@ -54,8 +55,61 @@
             initializeAnnouncementsTable();
 
             $('#openCreateAnnouncementBtn').on('click', function () {
-                $('#createAnnouncementModal').modal('show');
-                $('#createAnnouncementForm')[0].reset();
+                // Load the modal content fresh from server
+                $.ajax({
+                    url: '@Url.Action("CreateAnnouncement", "Announcements")',
+                    type: 'GET',
+                    success: function (response) {
+                        // Replace modal container with fresh content
+                        $('#createAnnouncementModalContainer').html(response);
+
+                        // Initialize Select2 after modal is loaded
+                        if ($.fn.select2) {
+                            $('.select2-members').select2({
+                                placeholder: "Search and select members",
+                                allowClear: true,
+                                width: '100%',
+                                dropdownParent: $('#createAnnouncementModal')
+                            });
+                        }
+
+                        // Show the modal
+                        $('#createAnnouncementModal').modal('show');
+
+                        // Reset any additional form fields
+                        $('#annEditId').val('');
+                        $('#annCreatedById').val('');
+
+                        // Clear selected members array if exists
+                        if (typeof window.selectedMembers !== 'undefined') {
+                            window.selectedMembers = [];
+                            if (typeof updateMembersPreview === 'function') {
+                                updateMembersPreview();
+                            }
+                        }
+
+                        // Reset datetime fields
+                        const now = new Date();
+                        const nowLocal = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+                            .toISOString()
+                            .slice(0, 16);
+                        $('#annNotificationTime').val(nowLocal);
+                        $('#annExpiryTime').val('');
+
+                        // Reset checkboxes to default states
+                        $('#annIsChurchWide').prop('checked', false);
+                        $('#annRequiresReminder').prop('checked', false);
+                        $('#annIsActive').prop('checked', true);
+                        $('#annSendSMS').prop('checked', false);
+                        $('#annSendEmail').prop('checked', false);
+
+                        // Hide members section initially
+                        $('#membersSection').hide();
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Failed to load announcement form', 'error');
+                    }
+                });
             });
 
             $('#applyAnnouncementsFilter').on('click', function () {
@@ -97,6 +151,12 @@
                 return;
             }
 
+            // Get selected member IDs
+            let selectedMemberIds = [];
+            if (typeof window.getSelectedMemberIds === 'function') {
+                selectedMemberIds = window.getSelectedMemberIds();
+            }
+
             const dto = {
                 Title: $('#annTitle').val().trim(),
                 Message: $('#annMessage').val().trim(),
@@ -108,7 +168,9 @@
                 RequiresReminder: $('#annRequiresReminder').is(':checked'),
                 SendSMS: $('#annSendSMS').is(':checked'),
                 SendEmail: $('#annSendEmail').is(':checked'),
-                IsActive: $('#annIsActive').is(':checked')
+                IsActive: $('#annIsActive').is(':checked'),
+                NotificationGroupId: $('#annNotificationGroupId').val() || null,
+                SelectedMembers: selectedMemberIds
             };
 
             $('#createAnnouncementModal .modal-footer button').prop('disabled', true);
@@ -151,12 +213,19 @@
                 $('#annCreatedById').val(a.createdById || '');
                 $('#annIsChurchWide').prop('checked', a.isChurchWide);
                 $('#annMinistryId').val(a.ministryId || '');
+                $('#annNotificationGroupId').val(a.notificationGroupId || '').trigger('change');
+
                 if (a.notificationTime) $('#annNotificationTime').val((new Date(a.notificationTime)).toISOString().slice(0,16));
                 if (a.expiryTime) $('#annExpiryTime').val((new Date(a.expiryTime)).toISOString().slice(0,16));
                 $('#annRequiresReminder').prop('checked', a.requiresReminder);
                 $('#annSendSMS').prop('checked', a.sendSMS);
                 $('#annSendEmail').prop('checked', a.sendEmail);
                 $('#annIsActive').prop('checked', a.isActive);
+
+                // Load selected members if any
+                if (a.selectedMembers && a.selectedMembers.length > 0 && typeof window.loadSelectedMembers === 'function') {
+                    window.loadSelectedMembers(a.selectedMembers);
+                }
 
                 $('#createAnnouncementModal').modal('show');
             });
@@ -165,6 +234,12 @@
         function submitUpdateAnnouncement() {
             const id = $('#annEditId').val();
             if (!id) return submitCreateAnnouncement();
+
+            // Get selected member IDs
+            let selectedMemberIds = [];
+            if (typeof window.getSelectedMemberIds === 'function') {
+                selectedMemberIds = window.getSelectedMemberIds();
+            }
 
             const dto = {
                 Title: $('#annTitle').val().trim(),
@@ -177,7 +252,9 @@
                 RequiresReminder: $('#annRequiresReminder').is(':checked'),
                 SendSMS: $('#annSendSMS').is(':checked'),
                 SendEmail: $('#annSendEmail').is(':checked'),
-                IsActive: $('#annIsActive').is(':checked')
+                IsActive: $('#annIsActive').is(':checked'),
+                NotificationGroupId: $('#annNotificationGroupId').val() || null,
+                SelectedMembers: selectedMemberIds
             };
 
             $.ajax({
@@ -259,8 +336,18 @@
     </script>
 
     <style>
-        .stat-card { transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important; }
-        .badge { font-size: 0.75rem; }
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important;
+            }
+
+        .badge {
+            font-size: 0.75rem;
+        }
     </style>
 }

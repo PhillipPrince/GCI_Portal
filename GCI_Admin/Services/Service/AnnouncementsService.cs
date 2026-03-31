@@ -13,12 +13,18 @@ namespace GCI_Admin.Services.Service
         private readonly AnnouncementsRepository _repo;
         private readonly CommunicationService _communicationService;
         private readonly AppDbContext _context;
+        private readonly Member member;
+        private readonly SessionManager _sessionManager;
 
-        public AnnouncementsService(AnnouncementsRepository repo, CommunicationService communicationService, AppDbContext context)
+
+
+        public AnnouncementsService(AnnouncementsRepository repo, CommunicationService communicationService, AppDbContext context, SessionManager session)
         {
             _repo = repo;
             _communicationService = communicationService;
             _context = context;
+            _sessionManager = session;
+            member =_sessionManager.GetUserSession<Member>();
         }
 
         public async Task<ApiResponse<Notification>> CreateAnnouncementAsync(NotificationDto dto)
@@ -27,6 +33,7 @@ namespace GCI_Admin.Services.Service
 
             try
             {
+                dto.CreatedById = member.Id; 
                 var result = await _repo.CreateAnnouncementAsync(dto);
 
                 if (!result.Success)
@@ -255,5 +262,23 @@ namespace GCI_Admin.Services.Service
 
             return response;
         }
-    }
+        public async Task<ApiResponse<List<NotificationGroup>>> GetAllNotificationGroupsAsync()
+        {
+            var response = new ApiResponse<List<NotificationGroup>>();
+            try
+            {
+                var groups = await _repo.GetAllNotificationGroupsAsync();
+
+                response.IsSuccess = true;
+                response.Data = groups.Data;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+        }
 }
