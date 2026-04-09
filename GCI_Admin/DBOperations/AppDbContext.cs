@@ -40,6 +40,7 @@ namespace GCI_Admin.DBOperations
         public DbSet<OTP> OTPs { get; set; }
         public DbSet<NotificationGroup> NotificationGroups { get; set; }
         public DbSet<SpecialNotificationMember> SpecialNotificationMembers { get; set; }
+        public DbSet<CareRequest> CareRequests { get; set; }
 
     }
 }
