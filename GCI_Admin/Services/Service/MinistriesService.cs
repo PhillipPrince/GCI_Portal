@@ -1,13 +1,14 @@
-﻿using GCI_Admin.DBOperations;
+﻿using ClosedXML.Excel;
+using GCI_Admin.DBOperations;
 using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using Microsoft.EntityFrameworkCore;
-using Utils;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Utils;
 
 namespace GCI_Admin.Services.Service
 {
@@ -222,5 +223,7 @@ namespace GCI_Admin.Services.Service
 
             return response;
         }
+
+       
     }
 }

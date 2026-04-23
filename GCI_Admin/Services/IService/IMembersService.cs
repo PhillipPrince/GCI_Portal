@@ -16,6 +16,8 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<MemberAdditionalInformation>> GetAdditionalInfoByMemberIdAsync(int memberId);
         Task<ApiResponse<MemberAdditionalInformation>> UpdateAdditionalInfoAsync(int id, MemberAdditionalInformationDto dto);
         Task<ApiResponse<bool>> UpdateMemberRoleAsync(int memberId, int roleId);
+        Task<ApiResponse<MemberUploadResponse>> ProcessMembersExcelUploadAsync(IFormFile file, string createdBy,string uploadOption);
+        Task<ApiResponse<bool>> UpdateFullMembershipStatusAsync(int memberId);
 
     }
 }

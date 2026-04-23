@@ -447,14 +447,9 @@
         <div class="login-card">
             <div class="logo-section">
                 <div class="church-logo">
-                    @if (!string.IsNullOrEmpty(ViewBag.ChurchLogo))
-                    {
-                        <img src="@ViewBag.ChurchLogo" alt="Church Logo">
-                    }
-                    else
-                    {
-                        <i class="fas fa-church"></i>
-                    }
+                    <img src="@Url.Content("~/images/church-logo.png")" alt="Logo" />
+
+                 
                 </div>
                 <h3>Gospel Centers International</h3>
                 <p>Admin Portal</p>

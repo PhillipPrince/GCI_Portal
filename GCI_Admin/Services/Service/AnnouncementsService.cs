@@ -3,6 +3,7 @@ using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Utils;
 
@@ -27,7 +28,7 @@ namespace GCI_Admin.Services.Service
             member =_sessionManager.GetUserSession<Member>();
         }
 
-        public async Task<ApiResponse<Notification>> CreateAnnouncementAsync(NotificationDto dto)
+        public async Task<ApiResponse<Notification>> CreateAnnouncementAsync([FromBody] NotificationDto dto)
         {
             var response = new ApiResponse<Notification>();
 

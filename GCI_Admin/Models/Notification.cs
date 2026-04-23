@@ -40,6 +40,7 @@ namespace GCI_Admin.Models
 
         public bool IsActive { get; set; } = true;
         public int? NotificationGroupId { get; set; }
+        public bool IsSent { get; set; }
     }
    
         public class NotificationGroup

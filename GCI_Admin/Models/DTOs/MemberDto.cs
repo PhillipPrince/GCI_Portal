@@ -16,4 +16,27 @@
         public int? NumberOfChildren { get; set; }
         public string? SpouseName { get; set; }
     }
+    public class MemberUploadResponse
+    {
+        public int TotalRecords { get; set; }
+        public int SuccessfulRecords { get; set; }
+        public int FailedRecords { get; set; }
+        public List<string> ErrorMessages { get; set; } = new();
+    }
+    public class ExcelMemberDto
+    {
+        public int RowNumber { get; set; }
+        public string FirstName { get; set; }
+        public string OtherNames { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+        public string Gender { get; set; }
+        public string DateOfBirth { get; set; }
+        public string MaritalStatus { get; set; }
+        public string SpouseName { get; set; }
+        public string NumberOfChildren { get; set; }
+        public string Assembly { get; set; }
+        public string ResidentialAddress { get; set; }
+        public string SocialMediaName { get; set; }
+    }
 }

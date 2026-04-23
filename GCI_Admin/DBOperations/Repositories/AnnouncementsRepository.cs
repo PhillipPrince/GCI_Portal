@@ -34,7 +34,8 @@ namespace GCI_Admin.DBOperations.Repositories
                     CreatedAt = DateTime.Now,
                     IsActive = dto.IsActive,
                     CreatedById = dto.CreatedById.Value,
-                    NotificationGroupId = dto.NotificationGroupId
+                    NotificationGroupId = dto.NotificationGroupId,
+                    IsSent = false
                 };
 
                 _context.Notifications.Add(entity);

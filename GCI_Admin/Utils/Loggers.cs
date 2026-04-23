@@ -31,10 +31,10 @@ namespace Utils
                 errMsg = errMsg + currtime;
 
                 string appPath = Path.GetDirectoryName("C:\\GCI");
-                appPath = appPath + "\\AdminErrorlogs\\" + DateTime.Now.ToString("yyyyMMdd");
+                appPath = appPath + "\\GCI_Logs\\" + DateTime.Now.ToString("yyyyMMdd");
                 if (!Directory.Exists(appPath))
                     Directory.CreateDirectory(appPath);
-                appPath = appPath + "\\errorlog.log";
+                appPath = appPath + "\\AdminErrorlogs.log";
                 using (StreamWriter sw = File.AppendText(appPath))
                 {
                     sw.WriteLine(errMsg);
@@ -54,10 +54,10 @@ namespace Utils
                 errMsg = errMsg + currtime;
 
                 string appPath = Path.GetDirectoryName("C:\\GCI");
-                appPath = appPath + "\\AdminEventLogs\\" + DateTime.Now.ToString("yyyyMMdd");
+                appPath = appPath + "\\GCI_Logs\\" + DateTime.Now.ToString("yyyyMMdd");
                 if (!Directory.Exists(appPath))
                     Directory.CreateDirectory(appPath);
-                appPath = appPath + "\\eventlog.log";
+                appPath = appPath + "\\AdminEventLogs.log";
                 using (StreamWriter sw = File.AppendText(appPath))
                 {
                     sw.WriteLine(errMsg);

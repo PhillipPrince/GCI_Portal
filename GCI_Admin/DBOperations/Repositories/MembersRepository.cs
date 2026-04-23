@@ -204,7 +204,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
-    
+
         public async Task<DbResponse<MemberAdditionalInformation>> CreateAdditionalInfoAsync(CreateMemberAdditionalInformationDto dto)
         {
             try
@@ -234,7 +234,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 var entity = new MemberAdditionalInformation
                 {
                     MemberId = dto.MemberId,
-                    MembershipYear =int.Parse(dto.MembershipYear.ToString()),
+                    MembershipYear = int.Parse(dto.MembershipYear.ToString()),
                     Cohort = dto.Cohort,
                     IsMemberOfAnotherChurch = dto.IsMemberOfAnotherChurch,
                     FormerChurchName = dto.FormerChurchName,
@@ -365,9 +365,9 @@ namespace GCI_Admin.DBOperations.Repositories
                     return new DbResponse<bool>
 
                     {
-                        Success=false,
-                        Message="Member Not Fu"
-                    } ;
+                        Success = false,
+                        Message = "Member Not Fu"
+                    };
                 }
 
                 member.UserRole = roleId;
@@ -392,6 +392,46 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+        public async Task<DbResponse<bool>> UpdateFullMembershipStatusAsync(int memberId)
+        {
+            try
+            {
+                var member = await _context.Members.FindAsync(memberId);
+                if (member == null)
+                {
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Member not found"
+                    };
+                }
+                if (member.StatusId != 2)
+                {
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Member is not in Membership Class status"
+                    };
+                }
+                member.StatusId = 1;
+                await _context.SaveChangesAsync();
+                return new DbResponse<bool>
+                {
+                    Success = true,
+                    Message = "Membership status updated to Active Member",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error in UpdateFullMembershipStatusAsync: {ex}");
+                return new DbResponse<bool>
+                {
+                    Success = false,
+                    Message = $"Error updating membership status: {ex.Message}"
+                };
+            }
 
+        }
     }
 }

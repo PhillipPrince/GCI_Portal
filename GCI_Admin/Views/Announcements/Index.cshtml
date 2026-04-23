@@ -150,8 +150,20 @@
                 form.reportValidity();
                 return;
             }
+        var notificationGroupId = $('#annNotificationGroupId').val();
 
-            // Get selected member IDs
+        if (!notificationGroupId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Validation Error',
+                text: 'Please select a notification group.'
+            });
+            return false;
+        }
+
+        
+
+
             let selectedMemberIds = [];
             if (typeof window.getSelectedMemberIds === 'function') {
                 selectedMemberIds = window.getSelectedMemberIds();
