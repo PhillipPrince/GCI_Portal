@@ -1,4 +1,5 @@
-﻿using GCI_Admin.DBOperations.Repositories;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
@@ -29,13 +30,29 @@ public class MembersController : Controller
     {
 
         MembersListViewModel membersListViewModel = new MembersListViewModel();
+        if (membersListViewModel.MemberStatus == null)
+        {
+            membersListViewModel.MemberStatus = new MemberStatusModel();
+        }
+
 
         var allMembers = await _membersService.GetAllMembersAsync();
 
+        var members = allMembers?.Data;
 
-        membersListViewModel.ActiveMembers = allMembers.Data.Where(m => m.StatusId == 1).ToList();
-        membersListViewModel.MembershipClassMembers = allMembers.Data.Where(m => m.StatusId == 2).ToList();
-        membersListViewModel.NonMembers = allMembers.Data.Where(m => m.StatusId == 3).ToList();
+
+
+
+        membersListViewModel.MemberStatus.AllMembers = members;
+        membersListViewModel.MemberStatus.MembershipClassMembers = members.Where(x => x.StatusId == 2).ToList();
+        membersListViewModel.MemberStatus.ActiveMembers = members.Where(x => x.StatusId == 1).ToList();
+        membersListViewModel.MemberStatus.InactiveMembers = members.Where(x => x.StatusId == 3).ToList();
+        membersListViewModel.MemberStatus.TransferredMembers = members.Where(x => x.StatusId == 4).ToList();
+        membersListViewModel.MemberStatus.PromotedToGlory = members.Where(x => x.StatusId == 5).ToList();
+        membersListViewModel.MemberStatus.WithdrawnMembers = members.Where(x => x.StatusId == 6).ToList();
+
+        // For backward compatibility - NonMembers (all except Active Members with StatusId 1)
+        membersListViewModel.MemberStatus.NonMembers = members.Where(x => x.StatusId != 1).ToList();
         membersListViewModel.TotalMembers = allMembers.Data.Count;
 
         
@@ -47,7 +64,7 @@ public class MembersController : Controller
 
     public async Task<IActionResult> MemberDetails(int memberId)
     {
-        Member member = new Member();
+        GCI_Admin.Models.Member member = new GCI_Admin.Models.Member();
         if (memberId <= 0)
             return BadRequest("Invalid member ID");
 

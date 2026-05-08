@@ -4,6 +4,7 @@ using GCI_Admin.Services.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Utils;
 
 namespace GCI_Admin.Controllers
 {
@@ -21,23 +22,56 @@ namespace GCI_Admin.Controllers
         // GET: HomeController1
         public async Task<IActionResult> Index()
         {
-            DashboardViewModel dashboard = new DashboardViewModel();
-            var allMembers = await _membersService.GetAllMembersAsync();
-            var upcomingEvents = await _eventsService.GetAllEventsAsync();
-            var events= await _eventsService.GetUpcomingEventsAsync();
+            try
+            {
+                var dashboard = new DashboardViewModel();
 
+                var allMembers = await _membersService.GetAllMembersAsync();
+                var upcomingEvents = await _eventsService.GetAllEventsAsync();
+                var events = await _eventsService.GetUpcomingEventsAsync();
 
-            dashboard.ActiveMembers = allMembers.Data.Where(m => m.StatusId == 1).ToList();
-            dashboard.MembershipClassMembers = allMembers.Data.Where(m => m.StatusId == 2).ToList();
-            dashboard.NonMembers = allMembers.Data.Where(m => m.StatusId == 3).ToList();
-            dashboard.UpcomingEvents = upcomingEvents.Data.Count;
-            dashboard.TotalActiveMembers = dashboard.ActiveMembers.Count;
-            dashboard.TotalMembers = allMembers.Data.Count;
-            dashboard.UpcomingEvent = events.Data;
+                var members = allMembers?.Data ?? new List<Member>();
 
-            return View(dashboard);
-        }
-        // GET: HomeController1/Details/5
+                if (dashboard.MemberStatus == null)
+                {
+                    dashboard.MemberStatus = new MemberStatusModel();
+                }
+
+                // Assign members to respective status lists
+                dashboard.MemberStatus.AllMembers = members;
+                dashboard.MemberStatus.MembershipClassMembers = members.Where(x => x.StatusId == 2).ToList();
+                dashboard.MemberStatus.ActiveMembers = members.Where(x => x.StatusId == 1).ToList();
+                dashboard.MemberStatus.InactiveMembers = members.Where(x => x.StatusId == 3).ToList();
+                dashboard.MemberStatus.TransferredMembers = members.Where(x => x.StatusId == 4).ToList();
+                dashboard.MemberStatus.PromotedToGlory = members.Where(x => x.StatusId == 5).ToList();
+                dashboard.MemberStatus.WithdrawnMembers = members.Where(x => x.StatusId == 6).ToList();
+
+                // For backward compatibility - NonMembers (all except Active Members with StatusId 1)
+                dashboard.MemberStatus.NonMembers = members.Where(x => x.StatusId != 1).ToList();
+
+                // Total counts
+                dashboard.TotalMembers = members.Count;
+                dashboard.TotalActiveMembers = dashboard.MemberStatus.ActiveMembers.Count;
+
+                // Events
+                dashboard.UpcomingEvents = upcomingEvents?.Data?.Count ?? 0;
+                dashboard.UpcomingEvent = events?.Data ?? new List<Event>();
+
+                return View(dashboard);
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"HomeController Index Error: {ex}");
+
+                TempData["Error"] = "Unable to load dashboard.";
+
+                return View(new DashboardViewModel
+                {
+                    UpcomingEvent = new List<Event>(),
+                    MemberStatus = new MemberStatusModel() // Initialize MemberStatus to avoid null reference
+                });
+            }
+        }// GET: HomeController1/Details/5
         public ActionResult Details(int id)
         {
             return View();

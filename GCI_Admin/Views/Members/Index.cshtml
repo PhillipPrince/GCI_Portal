@@ -51,7 +51,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">Active Members</h6>
-                        <h3 class="fw-bold mb-0" id="activeMembers">@Model.ActiveMembers?.Count ?? 0</h3>
+                        <h3 class="fw-bold mb-0" id="activeMembers">@Model.MemberStatus.ActiveMembers?.Count ?? 0</h3>
                     </div>
                 </div>
             </div>
@@ -69,7 +69,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">Membership Class</h6>
-                        <h3 class="fw-bold mb-0" id="membershipClass">@Model.MembershipClassMembers?.Count ?? 0</h3>
+                        <h3 class="fw-bold mb-0" id="membershipClass">@Model.MemberStatus.MembershipClassMembers?.Count ?? 0</h3>
                     </div>
                 </div>
             </div>
@@ -87,7 +87,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">Non-Members</h6>
-                        <h3 class="fw-bold mb-0" id="nonMembers">@Model.NonMembers?.Count ?? 0</h3>
+                        <h3 class="fw-bold mb-0" id="nonMembers">@Model.MemberStatus.NonMembers?.Count </h3>
                     </div>
                 </div>
             </div>
@@ -148,19 +148,19 @@
     <li class="nav-item" role="presentation">
         <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#activeMembers" type="button" role="tab">
             <i class="fa fa-check-circle me-1"></i>Active Members
-            <span class="badge bg-success ms-1">@Model.ActiveMembers?.Count ?? 0</span>
+            <span class="badge bg-success ms-1">@Model.MemberStatus.ActiveMembers?.Count ?? 0</span>
         </button>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="membership-tab" data-bs-toggle="tab" data-bs-target="#membershipClass" type="button" role="tab">
             <i class="fa fa-graduation-cap me-1"></i>Membership Class
-            <span class="badge bg-warning ms-1">@Model.MembershipClassMembers?.Count ?? 0</span>
+            <span class="badge bg-warning ms-1">@Model.MemberStatus.MembershipClassMembers?.Count ?? 0</span>
         </button>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="nonmembers-tab" data-bs-toggle="tab" data-bs-target="#nonMembers" type="button" role="tab">
             <i class="fa fa-user-plus me-1"></i>Non-Members
-            <span class="badge bg-info ms-1">@Model.NonMembers?.Count ?? 0</span>
+            <span class="badge bg-info ms-1">@Model.MemberStatus.NonMembers?.Count ?? 0</span>
         </button>
     </li>
 </ul>
@@ -189,68 +189,104 @@
 </div>
 
 <!-- Members Container -->
-<div class="card border-0 shadow-sm">
-    <div class="card-body p-0">
-        <!-- Table View -->
-        <div id="membersTableContainer" class="p-3">
-            <div class="tab-content">
-                <div class="tab-pane fade show active" id="activeMembers" role="tabpanel">
-                    @await Html.PartialAsync("_MembersTablePartial", Model.ActiveMembers)
-                </div>
-                <div class="tab-pane fade" id="membershipClass" role="tabpanel">
-                    @await Html.PartialAsync("_MembersTablePartial", Model.MembershipClassMembers)
-                </div>
-                <div class="tab-pane fade" id="nonMembers" role="tabpanel">
-                    @await Html.PartialAsync("_MembersTablePartial", Model.NonMembers)
-                </div>
-            </div>
-        </div>
+<div class="card-body">
+    <!-- TABS -->
+    <ul class="nav nav-tabs nav-tabs-custom mb-3" id="memberTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="all-members-tab" data-bs-toggle="tab" data-bs-target="#allMembers" type="button" role="tab">
+                <i class="fa fa-users text-primary me-1"></i>All Members
+                <span class="badge bg-primary ms-2">@Model.TotalMembers</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#activeMembers" type="button" role="tab">
+                <i class="fa fa-check-circle text-success me-1"></i>Active Members
+                <span class="badge bg-primary ms-2">@Model.MemberStatus.ActiveMembers?.Count ?? 0</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="membership-tab" data-bs-toggle="tab" data-bs-target="#membershipClass" type="button" role="tab">
+                <i class="fa fa-book text-warning me-1"></i>Membership Class
+                <span class="badge bg-warning ms-2">@Model.MemberStatus.MembershipClassMembers?.Count ?? 0</span>
+            </button>
+        </li>
+            
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="inactive-tab" data-bs-toggle="tab" data-bs-target="#inactiveMembers" type="button" role="tab">
+                <i class="fa fa-pause-circle text-secondary me-1"></i>Inactive Members
+                <span class="badge bg-secondary ms-2">@Model.MemberStatus.InactiveMembers?.Count ?? 0</span>
+            </button>
+        </li>
+        <li class="nav-item dropdown">
+            <button class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button">
+                <i class="fa fa-ellipsis-h me-1"></i>More Status
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <button class="dropdown-item" id="transferred-tab" data-bs-toggle="tab" data-bs-target="#transferredMembers" type="button" role="tab">
+                        <i class="fa fa-exchange-alt text-primary me-2"></i>Transferred
+                        <span class="badge bg-primary ms-2">@Model.MemberStatus.TransferredMembers?.Count ?? 0</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="dropdown-item" id="glory-tab" data-bs-toggle="tab" data-bs-target="#promotedToGlory" type="button" role="tab">
+                        <i class="fa fa-angel text-info me-2"></i>Promoted to Glory
+                        <span class="badge bg-info ms-2">@Model.MemberStatus.PromotedToGlory?.Count ?? 0</span>
+                    </button>
+                </li>
+                    
+                <li>
+                    <button class="dropdown-item" id="withdrawn-tab" data-bs-toggle="tab" data-bs-target="#withdrawnMembers" type="button" role="tab">
+                        <i class="fa fa-sign-out-alt text-warning me-2"></i>Withdrawn
+                        <span class="badge bg-warning ms-2">@Model.MemberStatus.WithdrawnMembers?.Count ?? 0</span>
+                    </button>
+                </li>
+                    
+            </ul>
+        </li>
+    </ul>
 
-        <!-- Card View (Hidden by default) -->
-        <div id="cardView" style="display: none;" class="p-3">
-            <div class="row g-4" id="memberCards">
-                <!-- Members will be loaded here dynamically -->
-            </div>
+    <!-- TAB CONTENT -->
+    <div class="tab-content" id="memberTabsContent">
+        <!-- All Members Tab - Make this the active tab content -->
+        <div class="tab-pane fade show active" id="allMembers" role="tabpanel">
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.AllMembers)
         </div>
-
-        <!-- Summary View (Hidden by default) -->
-        <div id="summaryView" style="display: none;" class="p-3">
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-transparent border-0">
-                            <h5 class="mb-0">Members by Status</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="statusChart" height="300"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 mb-4">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-transparent border-0">
-                            <h5 class="mb-0">Gender Distribution</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="genderChart" height="300"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-transparent border-0">
-                            <h5 class="mb-0">Member Growth</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="growthChart" height="300"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!-- Active Members Tab -->
+        <div class="tab-pane fade" id="activeMembers" role="tabpanel">
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.ActiveMembers)
         </div>
+            
+        <!-- Membership Class Tab -->
+        <div class="tab-pane fade" id="membershipClass" role="tabpanel">
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.MembershipClassMembers)
+        </div>
+           
+        <!-- Inactive Members Tab -->
+        <div class="tab-pane fade" id="inactiveMembers" role="tabpanel">
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.InactiveMembers)
+        </div>
+            
+        <!-- Transferred Members Tab -->
+        <div class="tab-pane fade" id="transferredMembers" role="tabpanel">
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.TransferredMembers)
+        </div>
+            
+        <!-- Promoted to Glory Tab -->
+        <div class="tab-pane fade" id="promotedToGlory" role="tabpanel">
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.PromotedToGlory)
+        </div>
+            
+            
+            
+        <!-- Withdrawn Members Tab -->
+        <div class="tab-pane fade" id="withdrawnMembers" role="tabpanel">
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.WithdrawnMembers)
+        </div>
+            
+            
     </div>
 </div>
-
 <!-- Upload Modal -->
 <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -845,6 +881,40 @@
                     </div>
                 `);
             });
+        }
+          function filterByStatus(status) {
+            switch(status) {
+                case 'active':
+                    $('#active-tab').tab('show');
+                    break;
+                case 'membership_class':
+                    $('#membership-tab').tab('show');
+                    break;
+                case 'full_member':
+                    $('#fullmembers-tab').tab('show');
+                    break;
+                case 'inactive':
+                    $('#inactive-tab').tab('show');
+                    break;
+                case 'transferred':
+                    $('#transferred-tab').tab('show');
+                    break;
+                case 'promoted_to_glory':
+                    $('#glory-tab').tab('show');
+                    break;
+                case 'excommunicated':
+                    $('#excommunicated-tab').tab('show');
+                    break;
+                case 'withdrawn':
+                    $('#withdrawn-tab').tab('show');
+                    break;
+                case 'on_leave':
+                    $('#onleave-tab').tab('show');
+                    break;
+                case 'all':
+                    location.reload();
+                    break;
+            }
         }
 
         // Render summary view with charts

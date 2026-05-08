@@ -49,10 +49,8 @@ namespace GCI_Admin.Models
     {
         public int TotalMembers { get; set; }
 
-        public List<Member> ActiveMembers { get; set; } = new();
-        public List<Member> MembershipClassMembers { get; set; } = new();
-        public List<Member> NonMembers { get; set; } = new();
-        public List<Member> Members { get; set; }
+        public MemberStatusModel MemberStatus { get; set; }
+
     }
 
     public class MemberDetailsViewModel
@@ -60,5 +58,17 @@ namespace GCI_Admin.Models
         public Member Member { get; set; }
         public MemberAdditionalInformation AdditionalInformation { get; set; }
         public List<DropdownItem> UserRoles { get; set; }
+    }
+
+    public class MemberStatusModel {
+        public List<Member> AllMembers { get; set; }
+        public List<Member> MembershipClassMembers { get; set; }
+        public List<Member> ActiveMembers { get; set; }
+        public List<Member> InactiveMembers { get; set; }
+        public List<Member> TransferredMembers { get; set; }
+        public List<Member> PromotedToGlory { get; set; }
+        public List<Member> WithdrawnMembers { get; set; }
+
+        public List<Member> NonMembers { get; set; }
     }
 }

@@ -1,5 +1,4 @@
 ﻿@model GCI_Admin.Models.DashboardViewModel
-
 @{
     ViewData["Title"] = "Dashboard";
 }
@@ -14,7 +13,7 @@
         <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#reportModal">
             <i class="fa fa-download me-2"></i>Export Report
         </button>
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" onclick="location.reload()">
             <i class="fa fa-sync-alt me-2"></i>Refresh Data
         </button>
     </div>
@@ -66,6 +65,8 @@
         </div>
     </div>
 
+    
+
     <div class="col-md-3">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
@@ -97,9 +98,9 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h6 class="fw-bold mb-0">📈 Member Growth</h6>
                     <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-secondary active" data-chart="member-growth">Weekly</button>
-                        <button class="btn btn-outline-secondary" data-chart="member-growth">Monthly</button>
-                        <button class="btn btn-outline-secondary" data-chart="member-growth">Yearly</button>
+                        <button class="btn btn-outline-secondary active" data-chart="member-growth" data-period="weekly">Weekly</button>
+                        <button class="btn btn-outline-secondary" data-chart="member-growth" data-period="monthly">Monthly</button>
+                        <button class="btn btn-outline-secondary" data-chart="member-growth" data-period="yearly">Yearly</button>
                     </div>
                 </div>
             </div>
@@ -115,9 +116,9 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h6 class="fw-bold mb-0">👑 Full Membership Attainment</h6>
                     <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-secondary active" data-chart="full-membership">Weekly</button>
-                        <button class="btn btn-outline-secondary" data-chart="full-membership">Monthly</button>
-                        <button class="btn btn-outline-secondary" data-chart="full-membership">Yearly</button>
+                        <button class="btn btn-outline-secondary active" data-chart="full-membership" data-period="weekly">Weekly</button>
+                        <button class="btn btn-outline-secondary" data-chart="full-membership" data-period="monthly">Monthly</button>
+                        <button class="btn btn-outline-secondary" data-chart="full-membership" data-period="yearly">Yearly</button>
                     </div>
                 </div>
             </div>
@@ -233,55 +234,108 @@
                             <small class="opacity-75">Share with congregation</small>
                         </div>
                     </a>
-                    @* <a href="@Url.Action("Giving", "Reports")" class="btn btn-info text-start d-flex align-items-center"> *@
-                    @*     <i class="fa fa-chart-pie me-3"></i> *@
-                    @*     <div> *@
-                    @*         <strong>Financial Report</strong><br> *@
-                    @*         <small class="opacity-75">View giving summary</small> *@
-                    @*     </div> *@
-                    @* </a> *@
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- MEMBERS TAB SECTION -->
+<!-- MEMBERS TAB SECTION - ENHANCED WITH ALL STATUSES -->
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white border-0 py-3">
-        <h6 class="fw-bold mb-0">👥 Member Management</h6>
+        <div class="d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold mb-0">
+                <i class="fa fa-users me-2 text-primary"></i>👥 Member Management
+            </h6>
+         
+        </div>
     </div>
     <div class="card-body">
         <!-- TABS -->
         <ul class="nav nav-tabs nav-tabs-custom mb-3" id="memberTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#activeMembers" type="button" role="tab">
-                    Active Members <span class="badge bg-primary ms-2">@Model.ActiveMembers.Count</span>
+                    <i class="fa fa-check-circle text-success me-1"></i>Active Members 
+                    <span class="badge bg-primary ms-2">@Model.MemberStatus.ActiveMembers?.Count ?? 0</span>
                 </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="membership-tab" data-bs-toggle="tab" data-bs-target="#membershipClass" type="button" role="tab">
-                    Membership Class <span class="badge bg-warning ms-2">@Model.MembershipClassMembers.Count</span>
+                    <i class="fa fa-book text-warning me-1"></i>Membership Class 
+                    <span class="badge bg-warning ms-2">@Model.MemberStatus.MembershipClassMembers?.Count ?? 0</span>
                 </button>
             </li>
+            
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="nonmembers-tab" data-bs-toggle="tab" data-bs-target="#nonMembers" type="button" role="tab">
-                    Non-Members <span class="badge bg-secondary ms-2">@Model.NonMembers.Count</span>
+                <button class="nav-link" id="inactive-tab" data-bs-toggle="tab" data-bs-target="#inactiveMembers" type="button" role="tab">
+                    <i class="fa fa-pause-circle text-secondary me-1"></i>Inactive Members 
+                    <span class="badge bg-secondary ms-2">@Model.MemberStatus.InactiveMembers?.Count ?? 0</span>
                 </button>
+            </li>
+            <li class="nav-item dropdown">
+                <button class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button">
+                    <i class="fa fa-ellipsis-h me-1"></i>More Status
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <button class="dropdown-item" id="transferred-tab" data-bs-toggle="tab" data-bs-target="#transferredMembers" type="button" role="tab">
+                            <i class="fa fa-exchange-alt text-primary me-2"></i>Transferred
+                            <span class="badge bg-primary ms-2">@Model.MemberStatus.TransferredMembers?.Count ?? 0</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="dropdown-item" id="glory-tab" data-bs-toggle="tab" data-bs-target="#promotedToGlory" type="button" role="tab">
+                            <i class="fa fa-angel text-info me-2"></i>Promoted to Glory
+                            <span class="badge bg-info ms-2">@Model.MemberStatus.PromotedToGlory?.Count ?? 0</span>
+                        </button>
+                    </li>
+                    
+                    <li>
+                        <button class="dropdown-item" id="withdrawn-tab" data-bs-toggle="tab" data-bs-target="#withdrawnMembers" type="button" role="tab">
+                            <i class="fa fa-sign-out-alt text-warning me-2"></i>Withdrawn
+                            <span class="badge bg-warning ms-2">@Model.MemberStatus.WithdrawnMembers?.Count ?? 0</span>
+                        </button>
+                    </li>
+                    
+                </ul>
             </li>
         </ul>
 
         <!-- TAB CONTENT -->
         <div class="tab-content" id="memberTabsContent">
+            <!-- Active Members Tab -->
             <div class="tab-pane fade show active" id="activeMembers" role="tabpanel">
-                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.ActiveMembers)
+                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.ActiveMembers)
             </div>
+            
+            <!-- Membership Class Tab -->
             <div class="tab-pane fade" id="membershipClass" role="tabpanel">
-                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MembershipClassMembers)
+                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.MembershipClassMembers)
+            </div>      
+           
+            <!-- Inactive Members Tab -->
+            <div class="tab-pane fade" id="inactiveMembers" role="tabpanel">
+                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.InactiveMembers)
             </div>
-            <div class="tab-pane fade" id="nonMembers" role="tabpanel">
-                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.NonMembers)
+            
+            <!-- Transferred Members Tab -->
+            <div class="tab-pane fade" id="transferredMembers" role="tabpanel">
+                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.TransferredMembers)
             </div>
+            
+            <!-- Promoted to Glory Tab -->
+            <div class="tab-pane fade" id="promotedToGlory" role="tabpanel">
+                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.PromotedToGlory)
+            </div>
+            
+            
+            
+            <!-- Withdrawn Members Tab -->
+            <div class="tab-pane fade" id="withdrawnMembers" role="tabpanel">
+                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.WithdrawnMembers)
+            </div>
+            
+            
         </div>
     </div>
 </div>
@@ -514,17 +568,34 @@
         border: none;
         padding: 0.75rem 1.5rem;
         font-weight: 500;
+        transition: all 0.3s ease;
     }
 
-        .nav-tabs-custom .nav-link.active {
-            color: #0d6efd;
-            background: none;
-            border-bottom: 3px solid #0d6efd;
-        }
+    .nav-tabs-custom .nav-link:hover {
+        color: #667eea;
+        background-color: rgba(102, 126, 234, 0.05);
+        border-radius: 8px;
+    }
 
-        .nav-tabs-custom .nav-link .badge {
-            font-weight: normal;
-        }
+    .nav-tabs-custom .nav-link.active {
+        color: #0d6efd;
+        background: none;
+        border-bottom: 3px solid #0d6efd;
+    }
+
+    .nav-tabs-custom .nav-link .badge {
+        font-weight: normal;
+    }
+    
+    .dropdown-menu .dropdown-item {
+        padding: 0.5rem 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .dropdown-menu .dropdown-item:hover {
+        background-color: rgba(102, 126, 234, 0.1);
+        transform: translateX(5px);
+    }
 
     .card {
         transition: transform 0.2s, box-shadow 0.2s;
@@ -537,6 +608,10 @@
 
     .progress {
         border-radius: 10px;
+    }
+    
+    .nav-tabs-custom .dropdown-toggle::after {
+        margin-left: 0.5rem;
     }
 </style>
 
@@ -559,6 +634,10 @@
             loadFullMembershipData('weekly');
 
             // Initialize DataTable
+            if ($.fn.DataTable.isDataTable('#membersTable')) {
+                $('#membersTable').DataTable().destroy();
+            }
+            
             var table = $('#membersTable').DataTable({
                 responsive: true,
                 pageLength: 10,
@@ -583,7 +662,7 @@
                 $(this).addClass('active');
 
                 // Get selected period
-                const period = $(this).text().toLowerCase();
+                const period = $(this).data('period');
 
                 // Reload chart with new period
                 loadMemberGrowthData(period);
@@ -596,12 +675,48 @@
                 $(this).addClass('active');
 
                 // Get selected period
-                const period = $(this).text().toLowerCase();
+                const period = $(this).data('period');
 
                 // Reload chart with new period
                 loadFullMembershipData(period);
             });
         });
+
+        // Function to filter by status
+        function filterByStatus(status) {
+            switch(status) {
+                case 'active':
+                    $('#active-tab').tab('show');
+                    break;
+                case 'membership_class':
+                    $('#membership-tab').tab('show');
+                    break;
+                case 'full_member':
+                    $('#fullmembers-tab').tab('show');
+                    break;
+                case 'inactive':
+                    $('#inactive-tab').tab('show');
+                    break;
+                case 'transferred':
+                    $('#transferred-tab').tab('show');
+                    break;
+                case 'promoted_to_glory':
+                    $('#glory-tab').tab('show');
+                    break;
+                case 'excommunicated':
+                    $('#excommunicated-tab').tab('show');
+                    break;
+                case 'withdrawn':
+                    $('#withdrawn-tab').tab('show');
+                    break;
+                case 'on_leave':
+                    $('#onleave-tab').tab('show');
+                    break;
+                case 'all':
+                    location.reload();
+                    break;
+            }
+        }
 
         // Function to load member growth chart data
         function loadMemberGrowthData(period = 'weekly') {
@@ -869,173 +984,158 @@
 
         // Save theme changes with base64 image conversion
         async function saveThemeChanges() {
-    const saveButton = document.getElementById('saveThemeButton');
-    const originalText = saveButton.innerHTML;
+            const saveButton = document.getElementById('saveThemeButton');
+            const originalText = saveButton.innerHTML;
 
-    try {
-        // Disable button and show loading
-        saveButton.disabled = true;
-        saveButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+            try {
+                // Disable button and show loading
+                saveButton.disabled = true;
+                saveButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
 
-        // Get values from edit form
-        const year = document.getElementById('editYear').value;
-        const title = document.getElementById('editTitle').value;
-        const verse = document.getElementById('editVerse').value;
-        const description = document.getElementById('editDescription').value;
-        const imageFile = document.getElementById('editImageFile').files[0];
+                // Get values from edit form
+                const year = document.getElementById('editYear').value;
+                const title = document.getElementById('editTitle').value;
+                const verse = document.getElementById('editVerse').value;
+                const description = document.getElementById('editDescription').value;
+                const imageFile = document.getElementById('editImageFile').files[0];
 
-        // Validate required fields
-        if (!year || !title) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Missing Fields',
-                text: 'Please fill in both Year and Theme Title.'
-            });
+                // Validate required fields
+                if (!year || !title) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Missing Fields',
+                        text: 'Please fill in both Year and Theme Title.'
+                    });
 
-            saveButton.disabled = false;
-            saveButton.innerHTML = originalText;
-            return;
-        }
+                    saveButton.disabled = false;
+                    saveButton.innerHTML = originalText;
+                    return;
+                }
 
-        // Keep existing image if no new image selected
-        let base64Image = currentThemeData.themeImage || '';
+                // Keep existing image if no new image selected
+                let base64Image = currentThemeData.themeImage || '';
 
-        // Convert selected image to base64
-        if (imageFile) {
+                // Convert selected image to base64
+                if (imageFile) {
+                    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
 
-            const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+                    if (!validTypes.includes(imageFile.type)) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid File Type',
+                            text: 'Please select a valid image file (JPEG, PNG, JPG, or GIF).'
+                        });
 
-            if (!validTypes.includes(imageFile.type)) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid File Type',
-                    text: 'Please select a valid image file (JPEG, PNG, JPG, or GIF).'
-                });
-
-                saveButton.disabled = false;
-                saveButton.innerHTML = originalText;
-                return;
-            }
-
-            // Validate size (5MB max)
-            if (imageFile.size > 5 * 1024 * 1024) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'File Too Large',
-                    text: 'Image size should be less than 5MB.'
-                });
-
-                saveButton.disabled = false;
-                saveButton.innerHTML = originalText;
-                return;
-            }
-
-            // Convert image to base64 string
-            base64Image = await convertImageToBase64(imageFile);
-        }
-
-        // Prepare data
-        const themeData = {
-            Id: currentThemeData.id || 0,
-            Year: parseInt(year),
-            Theme: title,
-            Verse: verse,
-            Description: description,
-            ThemeImage: base64Image
-        };
-
-        // Send request
-        $.ajax({
-            url: '/Event/UpdateAnnualTheme?id=' + themeData.Id,
-            type: 'PUT',
-            contentType: 'application/json',
-            data: JSON.stringify(themeData),
-
-            success: function (response) {
-
-                if (response.isSuccess) {
-
-                    // Update current data
-                    currentThemeData = {
-                        ...themeData,
-                        themeImage: base64Image
-                    };
-
-                    // Update display
-                    document.getElementById('themeYearTitle').innerText =
-                        "Theme of the Year " + year;
-
-                    document.getElementById('themeTitle').innerText = title;
-                    document.getElementById('themeVerse').innerText = verse;
-                    document.getElementById('themeDescription').innerText = description;
-
-                    // Update images if available
-                    if (base64Image) {
-                        document.getElementById('yearThemeImage').src = base64Image;
-                        document.getElementById('modalImage').src = base64Image;
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = originalText;
+                        return;
                     }
 
-                    // Update modal text
-                    document.getElementById('modalTitle').innerText = title;
-                    document.getElementById('modalVerse').innerText = verse;
-                    document.getElementById('modalDescription').innerText = description;
+                    // Validate size (5MB max)
+                    if (imageFile.size > 5 * 1024 * 1024) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'File Too Large',
+                            text: 'Image size should be less than 5MB.'
+                        });
 
-                    // Switch back to display mode
-                    document.getElementById('displayMode').style.display = 'block';
-                    document.getElementById('editMode').style.display = 'none';
-                    document.getElementById('editThemeButton').style.display = 'inline-block';
-                    document.getElementById('saveThemeButton').style.display = 'none';
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = originalText;
+                        return;
+                    }
 
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: 'Theme updated successfully.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-
-                } else {
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Update Failed',
-                        text: response.message || 'An error occurred while updating the theme.'
-                    });
+                    // Convert image to base64 string
+                    base64Image = await convertImageToBase64(imageFile);
                 }
-            },
 
-            error: function (xhr) {
+                // Prepare data
+                const themeData = {
+                    Id: currentThemeData.id || 0,
+                    Year: parseInt(year),
+                    Theme: title,
+                    Verse: verse,
+                    Description: description,
+                    ThemeImage: base64Image
+                };
 
-                console.error('Error:', xhr);
+                // Send request
+                $.ajax({
+                    url: '/Event/UpdateAnnualTheme?id=' + themeData.Id,
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(themeData),
 
+                    success: function (response) {
+                        if (response.isSuccess) {
+                            // Update current data
+                            currentThemeData = {
+                                ...themeData,
+                                themeImage: base64Image
+                            };
+
+                            // Update display
+                            document.getElementById('themeYearTitle').innerText = "Theme of the Year " + year;
+                            document.getElementById('themeTitle').innerText = title;
+                            document.getElementById('themeVerse').innerText = verse;
+                            document.getElementById('themeDescription').innerText = description;
+
+                            // Update images if available
+                            if (base64Image) {
+                                document.getElementById('yearThemeImage').src = base64Image;
+                                document.getElementById('modalImage').src = base64Image;
+                            }
+
+                            // Update modal text
+                            document.getElementById('modalTitle').innerText = title;
+                            document.getElementById('modalVerse').innerText = verse;
+                            document.getElementById('modalDescription').innerText = description;
+
+                            // Switch back to display mode
+                            document.getElementById('displayMode').style.display = 'block';
+                            document.getElementById('editMode').style.display = 'none';
+                            document.getElementById('editThemeButton').style.display = 'inline-block';
+                            document.getElementById('saveThemeButton').style.display = 'none';
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Theme updated successfully.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Update Failed',
+                                text: response.message || 'An error occurred while updating the theme.'
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error('Error:', xhr);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to update theme. Please try again.'
+                        });
+                    },
+                    complete: function () {
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = originalText;
+                    }
+                });
+            } catch (error) {
+                console.error('Error converting image:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Failed to update theme. Please try again.'
+                    text: 'Failed to process image. Please try again.'
                 });
-            },
-
-            complete: function () {
-
                 saveButton.disabled = false;
                 saveButton.innerHTML = originalText;
             }
-        });
-
-    } catch (error) {
-
-        console.error('Error converting image:', error);
-
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Failed to process image. Please try again.'
-        });
-
-        saveButton.disabled = false;
-        saveButton.innerHTML = originalText;
-    }
-}
+        }
+        
         // SweetAlert2 functions
         function joinMembershipClass(memberId) {
             Swal.fire({
@@ -1106,5 +1206,15 @@
                 modal.show();
             });
         }
+        
+        // Make functions globally available
+        window.filterByStatus = filterByStatus;
+        window.joinMembershipClass = joinMembershipClass;
+        window.makeFullMember = makeFullMember;
+        window.openAddMemberModal = openAddMemberModal;
+        window.openThemeModal = openThemeModal;
+        window.toggleEditMode = toggleEditMode;
+        window.saveThemeChanges = saveThemeChanges;
+        window.previewImage = previewImage;
     </script>
 }
