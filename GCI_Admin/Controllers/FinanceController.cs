@@ -1,13 +1,14 @@
 ﻿using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
+using GCI_Admin.Utils;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace GCI_Admin.Controllers
 {
     [SessionAuthorize]
-
+    [PermissionAuthorize("VIEW_FINANCE")]
     public class FinanceController : Controller
     {
         private readonly IPaymentsService _paymentsService;

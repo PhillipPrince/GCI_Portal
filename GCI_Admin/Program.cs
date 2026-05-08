@@ -55,6 +55,7 @@ builder.Services.AddScoped<LeadershipRepository>();
 builder.Services.AddScoped<SystemConfigRepository>();
 builder.Services.AddScoped<RolesRepository>();
 builder.Services.AddScoped<AuthRepository>();
+builder.Services.AddScoped<RcpsRepository>();
 
 // Services (Scoped)
 builder.Services.AddScoped<IEventsService, EventsService>();
@@ -70,6 +71,7 @@ builder.Services.AddScoped<ILeadershipService, LeadershipService>();
 builder.Services.AddScoped<ISystemConfigService, SystemConfigService>();
 builder.Services.AddScoped<IRolesService,RolesService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRcpsService, RcpsService>();
 
 
 

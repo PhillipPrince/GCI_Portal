@@ -119,13 +119,13 @@ namespace GCI_Admin.Services.Service
         }
 
         // ✅ UPDATE
-        public async Task<ApiResponse<GECMember>> UpdateGECMemberAsync(int gecId, GECMemberDto dto)
+        public async Task<ApiResponse<GECMember>> UpdateGECMemberAsync( GECMemberDto dto)
         {
             var response = new ApiResponse<GECMember>();
 
             try
             {
-                var result = await _gecMemberRepository.UpdateGECMemberAsync(gecId, dto);
+                var result = await _gecMemberRepository.UpdateGECMemberAsync(dto);
 
                 if (!result.Success)
                 {

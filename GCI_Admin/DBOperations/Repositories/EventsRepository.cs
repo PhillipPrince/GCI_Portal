@@ -475,21 +475,53 @@ namespace GCI_Admin.DBOperations.Repositories
         {
             try
             {
-                var existing = await _context.AnnualThemes.FindAsync(id);
+                AnnualTheme existing = null;
 
-                if (existing == null)
+                if (id > 0)
+                {
+                    existing = await _context.AnnualThemes.FindAsync(id);
+                }
+                else
+                {
+                    existing = await _context.AnnualThemes
+                        .Where(t =>  t.Year == dto.Year)
+                        .FirstOrDefaultAsync();
+                }
+
+                
+                if (existing == null || existing.Year != dto.Year)
+                {
+                    var newTheme = new AnnualTheme
+                    {
+                        Theme = dto.Theme,
+                        Verse = dto.Verse,
+                        Description = dto.Description,
+                        Year = dto.Year,
+                        IsActive = true,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    };
+
+                    _context.AnnualThemes.Add(newTheme);
+                    await _context.SaveChangesAsync();
+
+                    Loggers.DoLogs($"Created new annual theme: {newTheme.Theme} for year {newTheme.Year}");
+
                     return new DbResponse<AnnualTheme>
                     {
-                        Success = false,
-                        Message = "Theme not found"
+                        Success = true,
+                        Message = "Theme created successfully",
+                        Data = newTheme
                     };
+                }
 
                 existing.Theme = dto.Theme;
                 existing.Verse = dto.Verse;
                 existing.Description = dto.Description;
-                existing.Year = dto.Year;
-                existing.IsActive = dto.IsActive;
+                existing.IsActive = true;
                 existing.UpdatedAt = DateTime.Now;
+
+                Loggers.DoLogs($"Updated annual theme: {existing.Theme} for year {existing.Year}");
 
                 await _context.SaveChangesAsync();
 
@@ -503,6 +535,7 @@ namespace GCI_Admin.DBOperations.Repositories
             catch (Exception ex)
             {
                 Loggers.DoLogs($"UpdateAnnualThemeAsync Error: {ex}");
+
                 return new DbResponse<AnnualTheme>
                 {
                     Success = false,

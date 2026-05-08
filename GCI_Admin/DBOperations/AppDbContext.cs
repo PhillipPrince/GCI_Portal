@@ -41,6 +41,8 @@ namespace GCI_Admin.DBOperations
         public DbSet<NotificationGroup> NotificationGroups { get; set; }
         public DbSet<SpecialNotificationMember> SpecialNotificationMembers { get; set; }
         public DbSet<CareRequest> CareRequests { get; set; }
+        public DbSet<Rcps> Rcps { get; set; }
+        public DbSet<RcpsPledges> RcpsPledges { get; set; }
 
     }
 }

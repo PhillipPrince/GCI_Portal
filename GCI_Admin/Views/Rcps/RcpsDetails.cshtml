@@ -1,0 +1,333 @@
+﻿@model GCI_Admin.Models.RcpsDetailsViewModel
+
+@{
+    ViewData["Title"] = $"RCP Details - {Model.Rcps.Name}";
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <a href="@Url.Action("Index", "RCPS")" class="btn btn-outline-secondary mb-3">
+            <i class="fa fa-arrow-left me-1"></i> Back to RCPs
+        </a>
+        <h2 class="fw-bold mb-1">
+            <i class="fa fa-flag-checkered text-success me-2"></i>@Model.Rcps.Name
+        </h2>
+        <p class="text-muted">Rapid Church Planting Rcps Details</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-success btn-lg" onclick="makePledge()">
+            <i class="fa fa-hand-holding-heart me-2"></i>Make a Pledge
+        </button>
+    </div>
+</div>
+
+<!-- RCP Overview Card -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Rcps Overview</h5>
+            <button class="btn @(Model.Rcps.IsActive ? "btn-warning" : "btn-success")" 
+                    onclick="toggleRcpStatus(@Model.Rcps.Id, @Model.Rcps.IsActive.ToString().ToLower())"
+                    id="toggleStatusBtn">
+                <i class="fa @(Model.Rcps.IsActive ? "fa-pause" : "fa-play") me-1"></i>
+                @(Model.Rcps.IsActive ? "Deactivate" : "Activate") Campaign
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="text-muted small text-uppercase">Rcps Description</label>
+                    <p class="mb-0">@Model.Rcps.Description</p>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-muted small text-uppercase">Start Date</label>
+                        <p class="fw-bold">@Model.Rcps.StartDate.ToString("dddd, MMMM dd, yyyy")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small text-uppercase">End Date</label>
+                        <p class="fw-bold">@Model.Rcps.EndDate.ToString("dddd, MMMM dd, yyyy")</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="text-center text-muted mb-3">Fundraising Progress</h6>
+                        <div class="text-center mb-3">
+                            <h1 class="display-4 fw-bold text-success">@Model.ProgressPercentage.ToString("F1")%</h1>
+                            <div class="progress mb-2" style="height: 12px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: @Model.ProgressPercentage%"></div>
+                            </div>
+                        </div>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <label class="text-muted small">Target Amount</label>
+                                <h4 class="fw-bold mb-0">KES @Model.Rcps.TargetAmount.ToString("N0")</h4>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-muted small">Amount Raised</label>
+                                <h4 class="fw-bold text-success mb-0">KES @Model.Rcps.AmountRaised.ToString("N0")</h4>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <span class="badge bg-@(Model.Rcps.Status == "Active" ? "success" : "secondary") p-2" id="statusBadge">
+                                Status: @Model.Rcps.Status
+                            </span>
+                            <span class="badge bg-@(Model.Rcps.IsActive ? "success" : "danger") p-2 ms-2" id="activeBadge">
+                                <i class="fa @(Model.Rcps.IsActive ? "fa-check-circle" : "fa-ban") me-1"></i>
+                                @(Model.Rcps.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pledges Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Total Pledges</h6>
+                        <h2 class="fw-bold mb-0" id="totalPledges">@Model.TotalPledges</h2>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                        <i class="fa fa-hand-peace-o text-primary fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Total Pledged Amount</h6>
+                        <h2 class="fw-bold text-warning mb-0" id="totalPledgedAmount">KES @Model.TotalPledgedAmount.ToString("N0")</h2>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                        <i class="fa fa-credit-card text-warning fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Amount Redeemed/Paid</h6>
+                        <h2 class="fw-bold text-success mb-0" id="totalPaidAmount">KES @Model.TotalPaidAmount.ToString("N0")</h2>
+                    </div>
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                        <i class="fa fa-money text-success fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pledge vs Redemption Progress -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <h6 class="mb-3">Pledge Fulfillment Progress</h6>
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="progress mb-2" style="height: 25px;">
+                    <div class="progress-bar bg-success" role="progressbar" id="redemptionProgressBar" style="width: @Model.RedemptionPercentage%">
+                        <span id="redemptionPercentage">@Model.RedemptionPercentage.ToString("F1")%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <span class="text-muted" id="redemptionInfo">KES @Model.TotalPaidAmount.ToString("N0") redeemed out of KES @Model.TotalPledgedAmount.ToString("N0") pledged</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pledges Table Container -->
+<div id="pledgesTableContainer">
+    @await Html.PartialAsync("_RCPPledgesTable", Model.Pledges)
+</div>
+
+<!-- Make Pledge Modal Container -->
+<div id="makePledgeModalContainer"></div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .status-toggle-btn {
+            transition: all 0.3s ease;
+        }
+        .status-toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+
+    <script>
+        function makePledge() {
+            $.get('/RCPS/MakePledgePartial/@Model.Rcps.Id', function(data) {
+                $('#makePledgeModalContainer').html(data);
+                $('#makePledgeModal').modal('show');
+            }).fail(function() {
+                Swal.fire('Error', 'Failed to load pledge form', 'error');
+            });
+        }
+
+        function viewPledgeDetails(pledgeId) {
+            window.location.href = '/RCPS/PledgeDetails/' + pledgeId;
+        }
+
+        function recordPayment(pledgeId) {
+            $.get('/RCPS/RecordPaymentPartial/' + pledgeId, function(data) {
+                $('#makePledgeModalContainer').html(data);
+                $('#recordPaymentModal').modal('show');
+            }).fail(function() {
+                Swal.fire('Error', 'Failed to load payment form', 'error');
+            });
+        }
+
+        function refreshPledges() {
+            $.ajax({
+                url: '/RCPS/GetPledgesTable/@Model.Rcps.Id',
+                type: 'GET',
+                success: function(response) {
+                    $('#pledgesTableContainer').html(response);
+                }
+            });
+        }
+
+       function toggleRcpStatus(rcpId, isCurrentlyActive) {
+    const actionText = isCurrentlyActive ? 'deactivate' : 'activate';
+    
+    Swal.fire({
+        title: `${isCurrentlyActive ? 'Deactivate' : 'Activate'} Campaign`,
+        text: `Are you sure you want to ${actionText} this campaign?`,
+        icon: isCurrentlyActive ? 'warning' : 'question',
+        showCancelButton: true,
+        confirmButtonColor: isCurrentlyActive ? '#ffc107' : '#28a745',
+        confirmButtonText: `Yes, ${actionText}`,
+        cancelButtonText: 'Cancel',
+        showLoaderOnConfirm: true,
+        preConfirm: async () => {
+            try {
+                const csrfToken = $('input[name="__RequestVerificationToken"]').val();
+                
+                const response = await $.ajax({
+                    url: '/RCPS/ToggleRcpStatus',
+                    type: 'POST',
+                    data: {
+                        id: rcpId,
+                        isActive: !isCurrentlyActive
+                    },
+                    headers: {
+                        'RequestVerificationToken': csrfToken
+                    }
+                });
+                
+                if (!response.success) {
+                    throw new Error(response.message);
+                }
+                
+                return response;
+            } catch (error) {
+                Swal.showValidationMessage(`Error: ${error.message}`);
+                throw error;
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed && result.value?.success) {
+            Swal.fire({
+                title: 'Success!',
+                text: result.value.message,
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => {
+                location.reload(); // Reload to show updated status
+            });
+        }
+    });
+}
+        // Function to refresh campaign statistics after status change (optional)
+        function refreshCampaignStats() {
+            // You can implement this to refresh stats without page reload
+            // For now, we'll just show a toast message
+            showToast('Campaign status updated successfully', 'success');
+        }
+        
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Helper function to get CSRF token
+        function getCsrfToken() {
+            const token = $('input[name="__RequestVerificationToken"]').val();
+            if (token) return token;
+            
+            const metaToken = $('meta[name="csrf-token"]').attr('content');
+            return metaToken || '';
+        }
+        
+        // Helper function to show toast notification
+        function showToast(message, type = 'success') {
+            // Create toast container if it doesn't exist
+            if ($('#dynamicToastContainer').length === 0) {
+                $('body').append(`
+                    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="dynamicToastContainer">
+                        <div id="dynamicToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="3000">
+                            <div class="d-flex">
+                                <div class="toast-body" id="dynamicToastBody"></div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            }
+            
+            const toast = $('#dynamicToast');
+            toast.removeClass('bg-success bg-danger bg-warning bg-info');
+            
+            if (type === 'success') toast.addClass('bg-success');
+            else if (type === 'error') toast.addClass('bg-danger');
+            else if (type === 'warning') toast.addClass('bg-warning');
+            else toast.addClass('bg-info');
+            
+            $('#dynamicToastBody').text(message);
+            const bsToast = new bootstrap.Toast(toast[0]);
+            bsToast.show();
+        }
+        
+        // Optional: Add keyboard shortcut for status toggle (Ctrl + Shift + S)
+        $(document).on('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+                e.preventDefault();
+                const isActive = @Model.Rcps.IsActive.ToString().ToLower();
+                toggleRcpStatus(@Model.Rcps.Id, isActive);
+            }
+        });
+        
+        // Log status change for debugging (optional)
+        function logStatusChange(action, rcpId, oldStatus, newStatus) {
+            console.log(`RCP ${rcpId} status changed: ${oldStatus} -> ${newStatus} (Action: ${action})`);
+            // You can send this to an analytics endpoint if needed
+        }
+    </script>
+}

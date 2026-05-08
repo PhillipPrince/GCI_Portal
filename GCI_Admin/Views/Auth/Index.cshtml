@@ -707,35 +707,46 @@
             btn.html('<span class="spinner-border spinner-border-sm me-2"></span>Verifying...');
             btn.prop('disabled', true);
 
-            $.ajax({
-                url: '/Auth/Login',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(loginData),
-                success: function(response) {
-                    if (response.data.useOtp) {
-                        // OTP is required, show the OTP modal
-                        loginIdentifier = emailOrPhone;
-                        btn.html(originalHtml);
-                        btn.prop('disabled', false);
-                        showOtpModal();
-                        // Call to send OTP
-                    } else if (response.isSuccess) {
-                        // Direct login success (no OTP required)
-                        window.location.href = response.redirectUrl || '/Home';
-                    } else {
-                        btn.html(originalHtml);
-                        btn.prop('disabled', false);
-                        showError(response.message || 'Invalid credentials');
-                    }
-                },
-                error: function(xhr) {
-                    btn.html(originalHtml);
-                    btn.prop('disabled', false);
-                    const errorMsg = xhr.responseJSON?.message || 'An error occurred. Please try again.';
-                    showError(errorMsg);
-                }
-            });
+        $.ajax({
+        url: '/Auth/Login',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(loginData),
+        success: function (response) {
+        if (response.data.useOtp) {
+        // OTP is required, show the OTP modal
+        loginIdentifier = emailOrPhone;
+        btn.html(originalHtml);
+        btn.prop('disabled', false);
+        showOtpModal();
+        }
+        else if (response.isSuccess) {
+
+        if (response.data.UserRole == 6) {
+        window.location.href = response.redirectUrl || '/Finance';
+        return; // stop here
+        }
+
+        // Direct login success (no OTP required)
+        window.location.href = response.redirectUrl || '/Home';
+        }
+        else {
+        btn.html(originalHtml);
+        btn.prop('disabled', false);
+        showError(response.message || 'Invalid credentials');
+        }
+        },
+        error: function (xhr) {
+        btn.html(originalHtml);
+        btn.prop('disabled', false);
+
+        const errorMsg =
+        xhr.responseJSON?.message ||
+        'An error occurred. Please try again.';
+
+        showError(errorMsg);
+        }
+        });
         }
 
         function showOtpModal() {

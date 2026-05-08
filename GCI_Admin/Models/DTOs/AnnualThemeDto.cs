@@ -17,5 +17,7 @@ namespace GCI_Admin.Models.DTOs
         public int Year { get; set; }
 
         public bool IsActive { get; set; }
+
+        public string ThemeImage { get; set; }
     }
 }

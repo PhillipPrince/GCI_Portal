@@ -20,7 +20,7 @@ namespace Utils
                         "CREATE_EVENTS"
                     };
 
-                case 2: // Pastor
+                case 5: // Pastor
                     return new List<string>
                     {
                         "VIEW_MEMBERS",
@@ -28,10 +28,10 @@ namespace Utils
                         "CREATE_EVENTS"
                     };
 
-                case 3: // Member
+                case 6: // Finance
                     return new List<string>
                     {
-                        "VIEW_EVENTS"
+                        "VIEW_FINANCE"
                     };
 
                 default:

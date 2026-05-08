@@ -1,0 +1,147 @@
+﻿@model GCI_Admin.Models.RcpsPledgesViewModel
+
+@{
+    var fulfillmentRate = Model.RcpsStats.FulfillmentRate;
+    var targetAchieved = Model.RcpsStats.PercentageOfTarget;
+    var remainingAmount = Model.RcpsStats.TotalPledged - Model.RcpsStats.TotalRedeemed;
+}
+
+<div class="card border-0 shadow-sm mb-4 animate__animated animate__fadeIn">
+    <div class="card-header bg-gradient-primary text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <h5 class="mb-0">
+            <i class="fa fa-flag-checkered me-2"></i>
+            Rcps Statistics: <span id="selectedRCPName">@Model.SelectedRcpsName</span>
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 text-center hover-shadow">
+                            <h6 class="text-muted mb-2">
+                                <i class="fa fa-file-text me-1"></i>Pledges Count
+                            </h6>
+                            <h3 class="fw-bold text-primary mb-0">@Model.RcpsStats.PledgeCount.ToString("N0")</h3>
+                            <small class="text-muted">Total pledges</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 text-center hover-shadow">
+                            <h6 class="text-muted mb-2">
+                                <i class="fa fa-credit-card me-1"></i>Total Pledged
+                            </h6>
+                            <h3 class="fw-bold text-warning mb-0">KES @Model.RcpsStats.TotalPledged.ToString("N0")</h3>
+                            <small class="text-muted">Amount committed</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 text-center hover-shadow">
+                            <h6 class="text-muted mb-2">
+                                <i class="fa fa-check-circle me-1"></i>Total Redeemed
+                            </h6>
+                            <h3 class="fw-bold text-success mb-0">KES @Model.RcpsStats.TotalRedeemed.ToString("N0")</h3>
+                            <small class="text-muted">Amount collected</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">
+                            <i class="fa fa-percent me-1"></i>Pledge Fulfillment Rate
+                        </span>
+                        <span class="fw-bold text-success">@fulfillmentRate.ToString("F1")%</span>
+                    </div>
+                    <div class="progress mb-3" style="height: 8px;">
+                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: @fulfillmentRate%"></div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">
+                            <i class="fa fa-bullseye me-1"></i>Rcps Target Achievement
+                        </span>
+                        <span class="fw-bold text-info">@targetAchieved.ToString("F1")%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: @targetAchieved%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card bg-light border-0">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted mb-3">
+                            <i class="fa fa-chart-line me-1"></i>Rcps Impact Summary
+                        </h6>
+                        <div class="mb-3">
+                            <div class="display-4 fw-bold text-success mb-0">@targetAchieved.ToString("F0")%</div>
+                            <small class="text-muted">of target achieved</small>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Rcps Target</small>
+                                <strong>KES @Model.RcpsStats.RcpsTarget.ToString("N0")</strong>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Amount Raised</small>
+                                <strong class="text-success">KES @Model.RcpsStats.TotalRedeemed.ToString("N0")</strong>
+                            </div>
+                        </div>
+                        @if (remainingAmount > 0)
+                        {
+                            <div class="alert alert-warning mt-3 mb-0 py-2">
+                                <i class="fa fa-exclamation-triangle me-1"></i>
+                                <small>KES @remainingAmount.ToString("N0") remaining to be redeemed</small>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-success mt-3 mb-0 py-2">
+                                <i class="fa fa-check-circle me-1"></i>
+                                <small>All pledges fully redeemed!</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div class="me-3 mb-2">
+                        <span class="badge bg-primary">Active: @Model.RcpsStats.ActivePledgesCount</span>
+                        <span class="badge bg-success">Fulfilled: @Model.RcpsStats.FulfilledPledgesCount</span>
+                        <span class="badge bg-warning">Partial: @Model.RcpsStats.PartiallyPaidPledgesCount</span>
+                        <span class="badge bg-danger">Overdue: @Model.RcpsStats.OverduePledgesCount</span>
+                        <span class="badge bg-secondary">Pending: @Model.RcpsStats.PendingPledgesCount</span>
+                    </div>
+                    <div>
+                        <small class="text-muted">
+                            <i class="fa fa-chart-bar me-1"></i>
+                            Avg Pledge: KES @Model.RcpsStats.AveragePledgeAmount.ToString("N0")
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-shadow {
+        transition: all 0.3s ease;
+    }
+    .hover-shadow:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+    }
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+</style>

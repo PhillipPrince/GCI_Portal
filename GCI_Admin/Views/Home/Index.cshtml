@@ -869,145 +869,173 @@
 
         // Save theme changes with base64 image conversion
         async function saveThemeChanges() {
-            const saveButton = document.getElementById('saveThemeButton');
-            const originalText = saveButton.innerHTML;
+    const saveButton = document.getElementById('saveThemeButton');
+    const originalText = saveButton.innerHTML;
 
-            try {
-                // Disable button and show loading
-                saveButton.disabled = true;
-                saveButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+    try {
+        // Disable button and show loading
+        saveButton.disabled = true;
+        saveButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
 
-                // Get values from edit form
-                const year = document.getElementById('editYear').value;
-                const title = document.getElementById('editTitle').value;
-                const verse = document.getElementById('editVerse').value;
-                const description = document.getElementById('editDescription').value;
-                const imageFile = document.getElementById('editImageFile').files[0];
+        // Get values from edit form
+        const year = document.getElementById('editYear').value;
+        const title = document.getElementById('editTitle').value;
+        const verse = document.getElementById('editVerse').value;
+        const description = document.getElementById('editDescription').value;
+        const imageFile = document.getElementById('editImageFile').files[0];
 
-                // Validate required fields
-                if (!year || !title) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Missing Fields',
-                        text: 'Please fill in both Year and Theme Title.'
-                    });
-                    saveButton.disabled = false;
-                    saveButton.innerHTML = originalText;
-                    return;
-                }
+        // Validate required fields
+        if (!year || !title) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Missing Fields',
+                text: 'Please fill in both Year and Theme Title.'
+            });
 
-                let base64Image = currentThemeData.yearThemeImage;
+            saveButton.disabled = false;
+            saveButton.innerHTML = originalText;
+            return;
+        }
 
-                // Convert new image to base64 if selected
-                if (imageFile) {
-                    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
-                    if (!validTypes.includes(imageFile.type)) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Invalid File Type',
-                            text: 'Please select a valid image file (JPEG, PNG, or GIF).'
-                        });
-                        saveButton.disabled = false;
-                        saveButton.innerHTML = originalText;
-                        return;
-                    }
+        // Keep existing image if no new image selected
+        let base64Image = currentThemeData.themeImage || '';
 
-                    // Check file size (max 5MB)
-                    if (imageFile.size > 5 * 1024 * 1024) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'File Too Large',
-                            text: 'Image size should be less than 5MB.'
-                        });
-                        saveButton.disabled = false;
-                        saveButton.innerHTML = originalText;
-                        return;
-                    }
+        // Convert selected image to base64
+        if (imageFile) {
 
-                    base64Image = await convertImageToBase64(imageFile);
-                }
+            const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
 
-                // Prepare data to send to controller
-                const themeData = {
-                    Id: currentThemeData.id || 0,
-                    Year: parseInt(year),
-                    Theme: title,
-                    Verse: verse,
-                    Description: description,
-                    YearThemeImage: base64Image
-                };
-
-                // Send to controller
-                $.ajax({
-                    url: '/Event/UpdateYearTheme',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(themeData),
-                    success: function(response) {
-                        if (response.isSuccess) {
-                            // Update current theme data
-                            currentThemeData = themeData;
-
-                            // Update main card display
-                            document.getElementById('themeYearTitle').innerText = "Theme of the Year " + year;
-                            document.getElementById('themeTitle').innerText = title;
-                            document.getElementById('themeVerse').innerText = verse;
-                            document.getElementById('themeDescription').innerText = description;
-                            document.getElementById('yearThemeImage').src = base64Image;
-
-                            // Update modal display mode
-                            document.getElementById('modalImage').src = base64Image;
-                            document.getElementById('modalTitle').innerText = title;
-                            document.getElementById('modalVerse').innerText = verse;
-                            document.getElementById('modalDescription').innerText = description;
-
-                            // Switch back to display mode
-                            document.getElementById('displayMode').style.display = 'block';
-                            document.getElementById('editMode').style.display = 'none';
-                            document.getElementById('editThemeButton').style.display = 'inline-block';
-                            document.getElementById('saveThemeButton').style.display = 'none';
-
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: 'Theme updated successfully.',
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Update Failed',
-                                text: response.message || 'An error occurred while updating the theme.'
-                            });
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('Error:', xhr);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Failed to update theme. Please try again.'
-                        });
-                    },
-                    complete: function() {
-                        saveButton.disabled = false;
-                        saveButton.innerHTML = originalText;
-                    }
+            if (!validTypes.includes(imageFile.type)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid File Type',
+                    text: 'Please select a valid image file (JPEG, PNG, JPG, or GIF).'
                 });
 
-            } catch (error) {
-                console.error('Error converting image:', error);
+                saveButton.disabled = false;
+                saveButton.innerHTML = originalText;
+                return;
+            }
+
+            // Validate size (5MB max)
+            if (imageFile.size > 5 * 1024 * 1024) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'File Too Large',
+                    text: 'Image size should be less than 5MB.'
+                });
+
+                saveButton.disabled = false;
+                saveButton.innerHTML = originalText;
+                return;
+            }
+
+            // Convert image to base64 string
+            base64Image = await convertImageToBase64(imageFile);
+        }
+
+        // Prepare data
+        const themeData = {
+            Id: currentThemeData.id || 0,
+            Year: parseInt(year),
+            Theme: title,
+            Verse: verse,
+            Description: description,
+            ThemeImage: base64Image
+        };
+
+        // Send request
+        $.ajax({
+            url: '/Event/UpdateAnnualTheme?id=' + themeData.Id,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(themeData),
+
+            success: function (response) {
+
+                if (response.isSuccess) {
+
+                    // Update current data
+                    currentThemeData = {
+                        ...themeData,
+                        themeImage: base64Image
+                    };
+
+                    // Update display
+                    document.getElementById('themeYearTitle').innerText =
+                        "Theme of the Year " + year;
+
+                    document.getElementById('themeTitle').innerText = title;
+                    document.getElementById('themeVerse').innerText = verse;
+                    document.getElementById('themeDescription').innerText = description;
+
+                    // Update images if available
+                    if (base64Image) {
+                        document.getElementById('yearThemeImage').src = base64Image;
+                        document.getElementById('modalImage').src = base64Image;
+                    }
+
+                    // Update modal text
+                    document.getElementById('modalTitle').innerText = title;
+                    document.getElementById('modalVerse').innerText = verse;
+                    document.getElementById('modalDescription').innerText = description;
+
+                    // Switch back to display mode
+                    document.getElementById('displayMode').style.display = 'block';
+                    document.getElementById('editMode').style.display = 'none';
+                    document.getElementById('editThemeButton').style.display = 'inline-block';
+                    document.getElementById('saveThemeButton').style.display = 'none';
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Theme updated successfully.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                } else {
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Update Failed',
+                        text: response.message || 'An error occurred while updating the theme.'
+                    });
+                }
+            },
+
+            error: function (xhr) {
+
+                console.error('Error:', xhr);
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Failed to process image. Please try again.'
+                    text: 'Failed to update theme. Please try again.'
                 });
+            },
+
+            complete: function () {
+
                 saveButton.disabled = false;
                 saveButton.innerHTML = originalText;
             }
-        }
+        });
 
+    } catch (error) {
+
+        console.error('Error converting image:', error);
+
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to process image. Please try again.'
+        });
+
+        saveButton.disabled = false;
+        saveButton.innerHTML = originalText;
+    }
+}
         // SweetAlert2 functions
         function joinMembershipClass(memberId) {
             Swal.fire({

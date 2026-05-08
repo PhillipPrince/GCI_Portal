@@ -72,12 +72,22 @@ namespace GCI_Admin.DBOperations.Repositories
 
 
                 var user = await _context.Members
-                    .FirstOrDefaultAsync(u => u.Email == login.EmailOrPhone || u.Phone == login.EmailOrPhone && u.UserRole==1 || u.UserRole==5||u.UserRole==6);
+                    .FirstOrDefaultAsync(u => u.Email == login.EmailOrPhone || u.Phone == login.EmailOrPhone);
 
                 if (user == null)
                 {
                     response.Success = false;
                     response.Message = "User not found.";
+                    response.Data = null;
+                    return response;
+                }
+
+                var allowedRoles = new[] { 1, 5,6 }; 
+
+                if (!allowedRoles.Contains(user.UserRole))
+                {
+                    response.Success = false;
+                    response.Message = "Access denied. Only Admins and Pastors can perform this action.";
                     response.Data = null;
                     return response;
                 }

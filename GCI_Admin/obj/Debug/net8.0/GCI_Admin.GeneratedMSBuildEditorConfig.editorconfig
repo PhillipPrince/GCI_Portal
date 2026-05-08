@@ -166,6 +166,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVhZGVyc2hpcFxfQWRkRGVhY29uLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Leadership/_AddElder.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVhZGVyc2hpcFxfQWRkRWxkZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Leadership/_DeaconsTable.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVhZGVyc2hpcFxfRGVhY29uc1RhYmxlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -206,20 +210,64 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWluaXN0cmllc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Ministries/_MinistriesTable.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWluaXN0cmllc1xfTWluaXN0cmllc1RhYmxlLmNzaHRtbA==
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Ministries/_AddMinistryLeaderPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWluaXN0cmllc1xfQWRkTWluaXN0cnlMZWFkZXJQYXJ0aWFsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Ministries/_MinistryLeaderForm.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWluaXN0cmllc1xfTWluaXN0cnlMZWFkZXJGb3JtLmNzaHRtbA==
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Ministries/_MinistriesTable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWluaXN0cmllc1xfTWluaXN0cmllc1RhYmxlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Ministries/_MinistryLeadersTable.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWluaXN0cmllc1xfTWluaXN0cnlMZWFkZXJzVGFibGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Rcps/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmNwc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Rcps/RcpsDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmNwc1xSY3BzRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Rcps/RcpsPledges.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmNwc1xSY3BzUGxlZGdlcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Rcps/_AddRcpsModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmNwc1xfQWRkUmNwc01vZGFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Rcps/_AllPledgesTable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmNwc1xfQWxsUGxlZGdlc1RhYmxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Rcps/_RCPPledgesTable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmNwc1xfUkNQUGxlZGdlc1RhYmxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Rcps/_RcpSpecificStats.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmNwc1xfUmNwU3BlY2lmaWNTdGF0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Rcps/_RcpsTable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmNwc1xfUmNwc1RhYmxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Rcps/_RecordPaymentModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmNwc1xfUmVjb3JkUGF5bWVudE1vZGFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Rcps/_StatsCards.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmNwc1xfU3RhdHNDYXJkcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Shared/_MemberSelector.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9NZW1iZXJTZWxlY3Rvci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Shared/_ValidationScriptsPartial.cshtml]

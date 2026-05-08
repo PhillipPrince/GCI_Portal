@@ -116,21 +116,32 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Open Add Member Modal
+
+            // ================= MODAL LOAD =================
             $('#openAddMemberModalBtn').on('click', function () {
                 $('#memberModal').modal('show');
                 $('#modalTitleMember').text('Add New Member');
-                $('#memberModalBody').html('<div class="text-center p-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+
+                $('#memberModalBody').html(`
+                    <div class="text-center p-4">
+                        <div class="spinner-border text-primary"></div>
+                    </div>
+                `);
+
                 $('#saveMemberBtn').prop('disabled', false);
 
                 $.get('@Url.Action("LoadCreateForm", "GECMember")', function (data) {
                     $('#memberModalBody').html(data);
                 }).fail(function () {
-                    $('#memberModalBody').html('<div class="alert alert-danger">Failed to load form. Please try again.</div>');
+                    $('#memberModalBody').html(
+                        '<div class="alert alert-danger">Failed to load form. Please try again.</div>'
+                    );
                 });
             });
+
         });
 
+        // ================= FILTER BUTTONS =================
         function applyMemberFilters() {
             const search = $('#memberSearch').val();
             const table = $('#gecMembersTable').DataTable();
@@ -143,36 +154,6 @@
             table.search('').draw();
         }
 
-        function submitMemberForm() {
-            const form = $('#createMemberForm, #editMemberForm').first();
-            if (!form.length) return;
-
-            if (!form[0].checkValidity()) { form[0].reportValidity(); return; }
-
-            $('#saveMemberBtn').prop('disabled', true);
-            $('#memberLoading').removeClass('d-none');
-
-            $.ajax({
-                url: form.attr('action'),
-                type: 'POST',
-                data: form.serialize(),
-                success: function (response) {
-                    $('#memberLoading').addClass('d-none');
-                    $('#saveMemberBtn').prop('disabled', false);
-
-                    if (response.success) {
-                        $('#memberModal').modal('hide');
-                        location.reload();
-                    } else {
-                        Swal.fire('Error', response.message || 'Failed to save member.', 'error');
-                    }
-                },
-                error: function () {
-                    $('#memberLoading').addClass('d-none');
-                    $('#saveMemberBtn').prop('disabled', false);
-                    Swal.fire('Error', 'An unexpected error occurred.', 'error');
-                }
-            });
-        }
+    
     </script>
 }

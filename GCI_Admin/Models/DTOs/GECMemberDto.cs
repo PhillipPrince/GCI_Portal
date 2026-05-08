@@ -2,7 +2,7 @@
 {
     public class GECMemberDto
     {
-        public int GECId { get; set; }  
+        public int GECId { get; set; }
         public int MemberId { get; set; }
         public string PositionTitle { get; set; }
         public string Bio { get; set; }
@@ -14,6 +14,6 @@
     public class CreateGECMemberDto
     {
         public List<Member> Members { get; set; }
-       public GECMemberDto GECMember { get; set; }
+        public GECMemberDto GECMember { get; set; }
     }
 }

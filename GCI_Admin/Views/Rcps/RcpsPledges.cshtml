@@ -1,0 +1,355 @@
+﻿@model GCI_Admin.Models.RcpsPledgesViewModel
+
+@{
+    ViewData["Title"] = "RCPS Pledges Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-1">
+                <i class="fa fa-hand-holding-heart text-primary me-2"></i>RCPS Pledges Management
+            </h2>
+            <p class="text-muted mb-0">Manage pledges for Rapid Church Planting Rcpss</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-success btn-lg" onclick="exportAllPledges()">
+                <i class="fa fa-file-excel me-2"></i>Export Pledges
+            </button>
+        </div>
+    </div>
+
+    <!-- RCP Selector Dropdown -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-5">
+                    <label class="fw-bold mb-2">
+                        <i class="fa fa-filter me-1"></i> Select RCP Rcps
+                    </label>
+                    <select class="form-select form-select-lg" id="rcpSelect">
+                        <option value="">-- All RCP Rcpss --</option>
+                        @foreach (var item in Model.RcpsList)
+                        {
+                            <option value="@item.Value" selected="@item.Selected" 
+                                    data-subtext="@item.Subtext"
+                                    data-icon="@item.Icon"
+                                    data-amount-raised="@(item.ExtraData?["amountRaised"])"
+                                    data-target-amount="@(item.ExtraData?["targetAmount"])"
+                                    data-status="@(item.ExtraData?["status"])">
+                                @item.Text
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-7">
+                    <div class="alert alert-info mb-0">
+                        <i class="fa fa-info-circle me-2"></i>
+                        <span id="selectionInfo">Select an RCP Rcps to view its pledge details and statistics</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards Container -->
+    <div id="statsCardsContainer">
+        @await Html.PartialAsync("_StatsCards", Model)
+    </div>
+
+    <!-- RCP Specific Stats Container -->
+    <div id="rcpSpecificStatsContainer">
+        @if (Model.SelectedRcpsId > 0)
+        {
+            @await Html.PartialAsync("_RcpSpecificStats", Model)
+        }
+    </div>
+
+    <!-- Pledges Table Container -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent">
+            <h5 class="mb-0">
+                <i class="fa fa-list me-2"></i>Pledge Details
+            </h5>
+        </div>
+        <div class="card-body">
+            <div id="pledgesTableContainer">
+                @await Html.PartialAsync("_RCPPledgesTable", Model.Pledges)
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Record Payment Modal Container -->
+<div id="recordPaymentModalContainer"></div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" />
+
+    <style>
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+        }
+        #rcpSelect {
+            border: 2px solid #e9ecef;
+            font-weight: 500;
+        }
+        .loading-overlay {
+            position: relative;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .loading-overlay::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            margin: -20px 0 0 -20px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 1000;
+        }
+       
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: calc(1.5em + 1rem + 2px);
+            padding: 0.5rem 1rem;
+            font-size: 1.25rem;
+            border-radius: 0.5rem;
+        }
+    </style>
+
+    <script>
+        let currentRCPId = @(Model.SelectedRcpsId ?? 0);
+        let pledgesTable;
+
+        $(document).ready(function() {
+            // Initialize DataTable
+            if ($('#pledgesTable').length) {
+                pledgesTable = $('#pledgesTable').DataTable({
+                    pageLength: 25,
+                    responsive: true,
+                    language: {
+                        search: "Search pledges:",
+                        lengthMenu: "Show _MENU_ pledges per page",
+                        info: "Showing _START_ to _END_ of _TOTAL_ pledges"
+                    }
+                });
+            }
+
+            // Initialize select2 for better dropdown
+            $('#rcpSelect').select2({
+                theme: 'bootstrap-5',
+                placeholder: '-- All RCP Rcpss --',
+                allowClear: true,
+                templateResult: formatRcpOption,
+                templateSelection: formatRcpSelection
+            });
+
+            // Set initial value
+            if (currentRCPId) {
+                $('#rcpSelect').val(currentRCPId).trigger('change');
+            }
+
+            // Handle dropdown change
+            $('#rcpSelect').on('change', function() {
+                filterByRCP();
+            });
+        });
+
+        function formatRcpOption(option) {
+            if (!option.id) return option.text;
+            
+            var $option = $(option.element);
+            var icon = $option.data('icon');
+            var subtext = $option.data('subtext');
+            var status = $option.data('status');
+            
+            var statusColor = '';
+            if (status === 'Ongoing') statusColor = '#28a745';
+            else if (status === 'Completed') statusColor = '#17a2b8';
+            else statusColor = '#ffc107';
+            
+            var iconHtml = icon ? `<i class="${icon} me-2" style="color: ${statusColor}"></i>` : '';
+            var subtextHtml = subtext ? `<small class="d-block text-muted">${subtext}</small>` : '';
+            
+            return $(`<div class="d-flex align-items-center">${iconHtml}<div><strong>${option.text}</strong>${subtextHtml}</div></div>`);
+        }
+
+        function formatRcpSelection(option) {
+            if (!option.id) return option.text;
+            
+            var $option = $(option.element);
+            var icon = $option.data('icon');
+            var iconHtml = icon ? `<i class="${icon} me-2"></i>` : '';
+            
+            return $(`<span>${iconHtml}${option.text}</span>`);
+        }
+
+        function filterByRCP() {
+            var rcpId = $('#rcpSelect').val();
+            
+            if (!rcpId || rcpId === '') {
+                loadAllData();
+            } else {
+                loadRcpData(rcpId);
+            }
+        }
+
+        function loadRcpData(rcpId) {
+            showLoading();
+            
+            $.ajax({
+                url: '@Url.Action("GetRcpData", "Rcps")',
+                type: 'GET',
+                data: { rcpId: rcpId },
+                success: function(response) {
+                    if (response.success) {
+                        updateUI(response.data);
+                        currentRCPId = parseInt(rcpId);
+                        updateUrlParameter('rcpId', rcpId);
+                        showToast('Rcps data loaded successfully', 'success');
+                    } else {
+                        showError(response.message);
+                    }
+                    hideLoading();
+                },
+                error: function(xhr, status, error) {
+                    showError('Failed to load Rcps data: ' + error);
+                    hideLoading();
+                }
+            });
+        }
+
+        function loadAllData() {
+            showLoading();
+            
+            $.ajax({
+                url: '@Url.Action("GetAllData", "Rcps")',
+                type: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        updateUI(response.data);
+                        currentRCPId = 0;
+                        updateUrlParameter('rcpId', '');
+                        showToast('All Rcpss data loaded successfully', 'success');
+                    } else {
+                        showError(response.message);
+                    }
+                    hideLoading();
+                },
+                error: function(xhr, status, error) {
+                    showError('Failed to load data: ' + error);
+                    hideLoading();
+                }
+            });
+        }
+
+        function updateUI(data) {
+            // Update stats cards
+            $('#statsCardsContainer').html(data.statsCardsHtml);
+            
+            // Update RCP specific stats
+            if (data.rcpSpecificStatsHtml) {
+                $('#rcpSpecificStatsContainer').html(data.rcpSpecificStatsHtml).fadeIn();
+                $('#selectionInfo').text(`Showing statistics for: ${data.selectedRcpName}`);
+            } else {
+                $('#rcpSpecificStatsContainer').fadeOut();
+                $('#selectionInfo').text('Showing statistics for all RCP Rcpss');
+            }
+            
+            // Update pledges table
+            $('#pledgesTableContainer').html(data.pledgesTableHtml);
+            
+            // Reinitialize DataTable
+            if ($('#pledgesTable').length) {
+                if (pledgesTable) {
+                    pledgesTable.destroy();
+                }
+                pledgesTable = $('#pledgesTable').DataTable({
+                    pageLength: 25,
+                    responsive: true,
+                    language: {
+                        search: "Search pledges:",
+                        lengthMenu: "Show _MENU_ pledges per page",
+                        info: "Showing _START_ to _END_ of _TOTAL_ pledges"
+                    }
+                });
+            }
+        }
+
+        function exportAllPledges() {
+            var rcpId = $('#rcpSelect').val();
+            var url = rcpId ? '@Url.Action("ExportPledges", "Rcps")?rcpId=' + rcpId : '@Url.Action("ExportPledges", "Rcps")';
+            window.location.href = url;
+        }
+
+        function viewPledgeDetails(pledgeId) {
+            window.location.href = '@Url.Action("RcpsDetails", "Rcps")?id=' + pledgeId;
+        }
+
+        function recordPayment(pledgeId) {
+            $.get('@Url.Action("RecordPaymentPartial", "Rcps")/' + pledgeId, function(data) {
+                $('#recordPaymentModalContainer').html(data);
+                $('#recordPaymentModal').modal('show');
+            }).fail(function() {
+                showError('Failed to load payment form');
+            });
+        }
+
+        function updateUrlParameter(param, value) {
+            var url = new URL(window.location.href);
+            if (value && value !== '') {
+                url.searchParams.set(param, value);
+            } else {
+                url.searchParams.delete(param);
+            }
+            window.history.pushState({}, '', url);
+        }
+
+        function showLoading() {
+            $('#statsCardsContainer, #rcpSpecificStatsContainer, #pledgesTableContainer').addClass('loading-overlay');
+            $('body').css('cursor', 'wait');
+        }
+
+        function hideLoading() {
+            $('#statsCardsContainer, #rcpSpecificStatsContainer, #pledgesTableContainer').removeClass('loading-overlay');
+            $('body').css('cursor', 'default');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = $('#successToast');
+            toast.removeClass('bg-success bg-danger bg-warning');
+            
+            if (type === 'success') toast.addClass('bg-success');
+            else if (type === 'error') toast.addClass('bg-danger');
+            else toast.addClass('bg-warning');
+            
+            toast.find('.toast-body').text(message);
+            const bsToast = new bootstrap.Toast(toast[0], { autohide: true, delay: 3000 });
+            bsToast.show();
+        }
+
+        function showError(message) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: message,
+                confirmButtonColor: '#d33'
+            });
+        }
+    </script>
+}

@@ -1,0 +1,365 @@
+﻿@model GCI_Admin.Models.ViewModels.MemberSelectorViewModel
+
+<div class="member-selector-component" data-selected-member-id="@Model.SelectedMemberId" data-is-edit="@Model.IsEdit.ToString().ToLower()">
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <label class="form-label fw-bold">
+                @Model.LabelText
+                @if (Model.IsRequired)
+                {
+                    <span class="text-danger">*</span>
+                }
+            </label>
+            
+            <!-- Custom dropdown with search on top -->
+            <div class="custom-dropdown" id="@(Model.ControlId)_dropdown">
+                <div class="dropdown-trigger" id="@(Model.ControlId)_trigger" @(Model.IsEdit ? "disabled" : null)>
+                    <input type="text"
+                           class="form-control"
+                           id="@(Model.ControlId)_display"
+                           placeholder="@Model.PlaceholderText"
+                           readonly
+                    @(Model.IsEdit ? "disabled" : null)>
+                    <span class="dropdown-arrow">▼</span>
+                </div>
+                
+                <div class="dropdown-list" id="@(Model.ControlId)_list" style="display: none;">
+                    <!-- Search box on top of the list -->
+                    <div class="dropdown-search">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fa fa-search"></i>
+                            </span>
+                            <input type="text"
+                                   class="form-control"
+                                   id="@(Model.ControlId)_search"
+                                   placeholder="Search by name, email, or phone..."
+                                   autocomplete="off">
+                            <button class="btn btn-outline-secondary" type="button" id="@(Model.ControlId)_clearBtn" style="display: none;">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted d-block mt-1" id="@(Model.ControlId)_info"></small>
+                    </div>
+                    
+                    <!-- Options list -->
+                    <div class="dropdown-options" id="@(Model.ControlId)_options">
+                        <div class="option-item" data-value="">
+                            -- Select a member --
+                        </div>
+                        @if (Model.Members != null)
+                        {
+                            foreach (var member in Model.Members)
+                            {
+                                var fullName = $"{member.FirstName} {member.OtherNames}".Trim();
+                                var searchData = $"{fullName} {member.Email} {member.Phone}".ToLower();
+                                <div class="option-item"
+                                     data-value="@member.Id"
+                                     data-fullname="@fullName"
+                                     data-email="@member.Email"
+                                     data-phone="@member.Phone"
+                                     data-gender="@member.Gender"
+                                     data-search="@searchData">
+                                    <div class="option-title">@fullName</div>
+                                    <div class="option-subtitle">@member.Email</div>
+                                    @if (!string.IsNullOrEmpty(member.Phone))
+                                    {
+                                        <div class="option-subtitle">📞 @member.Phone</div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hidden field to store selected member ID -->
+            <input type="hidden"
+                   name="@Model.MemberIdFieldName"
+                   id="@(Model.ControlId)_selectedId"
+                   value="@Model.SelectedMemberId" />
+            
+            @if (Model.IsRequired)
+            {
+                <span class="text-danger" id="@(Model.ControlId)_validation"></span>
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Full Name</label>
+            <input type="text" class="form-control" id="@(Model.ControlId)_fullName" readonly disabled>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Email</label>
+            <input type="email" class="form-control" id="@(Model.ControlId)_email" readonly disabled>
+        </div>
+    </div>
+    
+    @if (Model.ShowPhoneAndGender)
+    {
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Phone</label>
+                <input type="tel" class="form-control" id="@(Model.ControlId)_phone" readonly disabled>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Gender</label>
+                <input type="text" class="form-control" id="@(Model.ControlId)_gender" readonly disabled>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    // Initialize member selector when document is ready
+    $(document).ready(function() {
+        initializeMemberSelector('@Model.ControlId');
+    });
+    
+    function initializeMemberSelector(controlId) {
+        var $trigger = $('#' + controlId + '_trigger');
+        var $dropdownList = $('#' + controlId + '_list');
+        var $searchInput = $('#' + controlId + '_search');
+        var $clearBtn = $('#' + controlId + '_clearBtn');
+        var $searchInfo = $('#' + controlId + '_info');
+        var $options = $('#' + controlId + '_options').find('.option-item');
+        var $selectedDisplay = $('#' + controlId + '_display');
+        var $selectedMemberId = $('#' + controlId + '_selectedId');
+        var isEdit = $('.member-selector-component').data('is-edit') === 'true';
+        
+        if (isEdit) {
+            $trigger.attr('disabled', 'disabled');
+            $selectedDisplay.attr('disabled', 'disabled');
+        }
+        
+        // Toggle dropdown on click
+        $trigger.on('click', function() {
+            if (!$(this).attr('disabled')) {
+                $dropdownList.toggle();
+                if ($dropdownList.is(':visible')) {
+                    $searchInput.focus();
+                    updateSearchInfo('');
+                    positionDropdown();
+                } else {
+                    clearSearch();
+                }
+            }
+        });
+        
+        // Position dropdown
+        function positionDropdown() {
+            var triggerHeight = $trigger.outerHeight();
+            $dropdownList.css({
+                top: triggerHeight + 'px',
+                left: '0',
+                width: $trigger.outerWidth() + 'px'
+            });
+        }
+        
+        // Close dropdown when clicking outside
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.custom-dropdown').length) {
+                $dropdownList.hide();
+                clearSearch();
+            }
+        });
+        
+        // Filter options
+        function filterOptions(searchTerm) {
+            searchTerm = searchTerm.toLowerCase().trim();
+            var hasSearchTerm = searchTerm !== '';
+            var visibleCount = 0;
+            
+            if (hasSearchTerm) {
+                $clearBtn.show();
+            } else {
+                $clearBtn.hide();
+            }
+            
+            $options.each(function() {
+                var $option = $(this);
+                var value = $option.data('value');
+                
+                if (value === '') {
+                    if (!hasSearchTerm) {
+                        $option.show();
+                    } else {
+                        $option.hide();
+                    }
+                    return;
+                }
+                
+                var searchData = ($option.data('search') || '').toLowerCase();
+                var fullName = ($option.data('fullname') || '').toLowerCase();
+                var email = ($option.data('email') || '').toLowerCase();
+                var phone = ($option.data('phone') || '').toLowerCase();
+                
+                var matches = !hasSearchTerm ||
+                             searchData.includes(searchTerm) ||
+                             fullName.includes(searchTerm) ||
+                             email.includes(searchTerm) ||
+                             phone.includes(searchTerm);
+                
+                if (matches) {
+                    $option.show();
+                    visibleCount++;
+                } else {
+                    $option.hide();
+                }
+            });
+            
+            updateSearchInfo(searchTerm, visibleCount);
+            
+            var $noResult = $('#' + controlId + '_options').find('.no-result-message');
+            if (hasSearchTerm && visibleCount === 0) {
+                if ($noResult.length === 0) {
+                    $('#' + controlId + '_options').append('<div class="no-result-message text-center p-3 text-muted">No members found matching your search</div>');
+                }
+            } else {
+                $noResult.remove();
+            }
+        }
+        
+        function updateSearchInfo(searchTerm, visibleCount) {
+            var totalCount = $options.filter('[data-value!=""]').length;
+            
+            if (searchTerm && searchTerm.trim() !== '') {
+                $searchInfo.text(`Found ${visibleCount} of ${totalCount} members`);
+            } else {
+                $searchInfo.text(`${totalCount} members available`);
+            }
+        }
+        
+        function clearSearch() {
+            $searchInput.val('');
+            filterOptions('');
+        }
+        
+        function selectOption($option) {
+            var value = $option.data('value');
+            var fullName = $option.data('fullname');
+            var email = $option.data('email');
+            var phone = $option.data('phone');
+            var gender = $option.data('gender');
+            
+            if (value && value !== '') {
+                $selectedDisplay.val(fullName + ' (' + email + ')');
+                $selectedMemberId.val(value);
+                
+                $('#' + controlId + '_fullName').val(fullName || '');
+                $('#' + controlId + '_email').val(email || '');
+                
+                if ($('#' + controlId + '_phone').length) {
+                    $('#' + controlId + '_phone').val(phone || '');
+                }
+                if ($('#' + controlId + '_gender').length) {
+                    $('#' + controlId + '_gender').val(gender || '');
+                }
+                
+                $dropdownList.hide();
+                clearSearch();
+                
+                // Trigger custom event
+                $(document).trigger('memberSelected', { controlId: controlId, memberId: value, member: { fullName: fullName, email: email, phone: phone, gender: gender } });
+            } else {
+                $selectedDisplay.val('');
+                $selectedMemberId.val('');
+                $('#' + controlId + '_fullName').val('');
+                $('#' + controlId + '_email').val('');
+                
+                if ($('#' + controlId + '_phone').length) {
+                    $('#' + controlId + '_phone').val('');
+                }
+                if ($('#' + controlId + '_gender').length) {
+                    $('#' + controlId + '_gender').val('');
+                }
+            }
+        }
+        
+        $options.on('click', function(e) {
+            e.stopPropagation();
+            selectOption($(this));
+        });
+        
+        var debounceTimer;
+        $searchInput.on('input', function() {
+            clearTimeout(debounceTimer);
+            var searchTerm = $(this).val();
+            debounceTimer = setTimeout(function() {
+                filterOptions(searchTerm);
+            }, 300);
+        });
+        
+        $clearBtn.on('click', function(e) {
+            e.stopPropagation();
+            clearSearch();
+            $searchInput.focus();
+        });
+        
+        $searchInput.on('keydown', function(e) {
+            var $visibleOptions = $options.filter(':visible');
+            var $selected = $visibleOptions.filter('.selected');
+            var index = $visibleOptions.index($selected);
+            
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    if (index < $visibleOptions.length - 1) {
+                        $visibleOptions.removeClass('selected');
+                        $visibleOptions.eq(index + 1).addClass('selected');
+                        $visibleOptions.eq(index + 1)[0].scrollIntoView({ block: 'nearest' });
+                    } else if ($visibleOptions.length > 0) {
+                        $visibleOptions.removeClass('selected');
+                        $visibleOptions.eq(0).addClass('selected');
+                        $visibleOptions.eq(0)[0].scrollIntoView({ block: 'nearest' });
+                    }
+                    break;
+                    
+                case 'ArrowUp':
+                    e.preventDefault();
+                    if (index > 0) {
+                        $visibleOptions.removeClass('selected');
+                        $visibleOptions.eq(index - 1).addClass('selected');
+                        $visibleOptions.eq(index - 1)[0].scrollIntoView({ block: 'nearest' });
+                    } else if ($visibleOptions.length > 0) {
+                        $visibleOptions.removeClass('selected');
+                        $visibleOptions.eq($visibleOptions.length - 1).addClass('selected');
+                        $visibleOptions.eq($visibleOptions.length - 1)[0].scrollIntoView({ block: 'nearest' });
+                    }
+                    break;
+                    
+                case 'Enter':
+                    e.preventDefault();
+                    if ($selected.length) {
+                        selectOption($selected);
+                    } else if ($visibleOptions.length > 0) {
+                        selectOption($visibleOptions.first());
+                    }
+                    break;
+                    
+                case 'Escape':
+                    $dropdownList.hide();
+                    clearSearch();
+                    break;
+            }
+        });
+        
+        $(window).on('resize', function() {
+            if ($dropdownList.is(':visible')) {
+                positionDropdown();
+            }
+        });
+        
+        // Pre-select if in edit mode
+        var selectedMemberId = $('.member-selector-component').data('selected-member-id');
+        if (selectedMemberId && selectedMemberId !== '') {
+            var $selectedOption = $options.filter('[data-value="' + selectedMemberId + '"]');
+            if ($selectedOption.length) {
+                selectOption($selectedOption);
+                $selectedMemberId.val(selectedMemberId);
+            }
+        }
+    }
+</script>

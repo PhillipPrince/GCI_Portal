@@ -1,0 +1,92 @@
+﻿@model GCI_Admin.Models.RcpsPledges
+
+<div class="modal fade" id="recordPaymentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fa fa-money me-2"></i>Record Payment
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <strong>Pledge Details:</strong><br />
+                    Member: @Model.Member?.FirstName<br />
+                    Pledged Amount: <strong>KES @Model.PledgedAmount.ToString("N0")</strong><br />
+                    Amount Paid: <strong>KES @Model.AmountPaid.ToString("N0")</strong><br />
+                    Remaining Balance: <strong class="text-danger">KES @Model.Balance.ToString("N0")</strong>
+                </div>
+                
+                <form id="paymentForm">
+                    <input type="hidden" id="pledgeId" value="@Model.Id" />
+                    
+                    <div class="mb-3">
+                        <label for="amount" class="form-label fw-bold">Payment Amount *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">KES</span>
+                            <input type="number" class="form-control form-control-lg" id="amount"
+                                   placeholder="Enter amount" min="1" max="@Model.Balance" required />
+                        </div>
+                        <small class="text-muted">Maximum: KES @Model.Balance.ToString("N0")</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label fw-bold">Payment Notes</label>
+                        <textarea class="form-control" id="notes" rows="3"
+                                  placeholder="Enter payment reference, method, or other notes"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-success" onclick="submitPayment()">
+                    <i class="fa fa-save"></i> Record Payment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function submitPayment() {
+        var amount = $('#amount').val();
+        var notes = $('#notes').val();
+        var pledgeId = $('#pledgeId').val();
+        
+        if (!amount || amount <= 0) {
+            Swal.fire('Error', 'Please enter a valid payment amount', 'error');
+            return;
+        }
+        
+        if (parseFloat(amount) > parseFloat('@Model.Balance')) {
+            Swal.fire('Error', `Payment amount cannot exceed the remaining balance of KES ${parseFloat('@Model.Balance').toLocaleString()}`, 'error');
+            return;
+        }
+        
+        $.ajax({
+            url: '@Url.Action("RecordPayment", "Rcps")',
+            type: 'POST',
+            data: {
+                pledgeId: pledgeId,
+                amount: amount,
+                notes: notes
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#recordPaymentModal').modal('hide');
+                    Swal.fire('Success', response.message, 'success').then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+            },
+            error: function() {
+                Swal.fire('Error', 'Failed to record payment', 'error');
+            }
+        });
+    }
+</script>

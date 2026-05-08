@@ -5,6 +5,7 @@ using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Utils;
 
 namespace GCI_Admin.Controllers
 {
@@ -17,11 +18,11 @@ namespace GCI_Admin.Controllers
         private readonly MembersRepository _membersRepository;
 
 
-        public GECMemberController(IGECMemberService gecMemberService, AppDbContext context,MembersRepository repository)
+        public GECMemberController(IGECMemberService gecMemberService, AppDbContext context, MembersRepository repository)
         {
             _gecMemberService = gecMemberService;
             _context = context;
-                _membersRepository = repository;
+            _membersRepository = repository;
         }
 
         // ✅ INDEX
@@ -32,7 +33,7 @@ namespace GCI_Admin.Controllers
                 ? response.Data.ToList()
                 : new List<GECMember>();
 
-            return View(members); 
+            return View(members);
         }
 
         //public async Task<IActionResult> Index()
@@ -40,7 +41,7 @@ namespace GCI_Admin.Controllers
         //    return View();
         //}
 
-        
+
 
 
         public async Task<IActionResult> AddNewGecMember()
@@ -49,7 +50,7 @@ namespace GCI_Admin.Controllers
             // Get all members for the dropdown
             var members = await _membersRepository.GetAllMembersAsync();
 
-            dto.Members   = members.Data;
+            dto.Members = members.Data;
 
 
             return View(dto);
@@ -93,104 +94,119 @@ namespace GCI_Admin.Controllers
             return PartialView("_CreateGECMemberPartial", dto);
         }
 
-        //// GET: Load edit form in modal
-        //public async Task<IActionResult> LoadEditForm(int id)
-        //{
-        //    var gecMember = await _gecMemberRepository.GetByIdAsync(id);
-        //    if (gecMember == null)
-        //    {
-        //        return NotFound();
-        //    }
+        
 
-        //    // Map to DTO
-        //    CreateGECMemberDto dto = new CreateGECMemberDto
-        //    {
-        //        GECId = gecMember.GECId,
-        //        MemberId = gecMember.MemberId,
-        //        PositionTitle = gecMember.PositionTitle,
-        //        Bio = gecMember.Bio,
-        //        StartDate = gecMember.StartDate,
-        //        EndDate = gecMember.EndDate,
-        //        IsActive = gecMember.IsActive
-        //    };
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateGECMember([FromForm] GECMemberDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
 
-        //    var members = await _membersRepository.GetAllMembersAsync();
-        //    dto.Members = members.Data;
+                return Json(new
+                {
+                    success = false,
+                    message = "Validation failed. Please check the form.",
+                    errors = errors
+                });
+            }
 
-        //    ViewBag.IsEdit = true;
-        //    return PartialView("_CreateGECMemberPartial", dto);
-        //}
+            try
+            {
+                var result = await _gecMemberService.CreateGECMemberAsync(dto);
 
-        //// POST: Create new GEC member
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> CreateGECMember(CreateGECMemberDto dto)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return Json(new
-        //        {
-        //            success = false,
-        //            message = "Validation failed",
-        //            errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
-        //        });
-        //    }
+                if (result.IsSuccess)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        message = "GEC member created successfully",
+                        data = result.Data
+                    });
+                }
 
-        //    try
-        //    {
-        //        var result = await _gecMemberService.CreateGECMember(dto);
-        //        if (result.Success)
-        //        {
-        //            return Json(new
-        //            {
-        //                success = true,
-        //                message = "GEC member created successfully",
-        //                data = result.Data
-        //            });
-        //        }
+                return Json(new
+                {
+                    success = false,
+                    message = result.Message ?? "Failed to create GEC member"
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Loggers.DoLogs("Error creating GEC member: " + ex.ToString());
 
-        //        return Json(new { success = false, message = result.Message });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { success = false, message = "An error occurred while creating the member" });
-        //    }
-        //}
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while creating the member. Please try again."
+                });
+            }
+        }
 
-        //// POST: Update GEC member
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> UpdateGECMember(CreateGECMemberDto dto)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return Json(new
-        //        {
-        //            success = false,
-        //            message = "Validation failed",
-        //            errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
-        //        });
-        //    }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateGECMember([FromForm] GECMemberDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
 
-        //    try
-        //    {
-        //        var result = await _gecMemberService.UpdateGECMember(dto);
-        //        if (result.Success)
-        //        {
-        //            return Json(new
-        //            {
-        //                success = true,
-        //                message = "GEC member updated successfully",
-        //                data = result.Data
-        //            });
-        //        }
+                return Json(new
+                {
+                    success = false,
+                    message = "Validation failed. Please check the form.",
+                    errors = errors
+                });
+            }
 
-        //        return Json(new { success = false, message = result.Message });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { success = false, message = "An error occurred while updating the member" });
-        //    }
-        //}
+            if (dto.GECId <= 0)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Invalid GEC member ID"
+                });
+            }
+
+            try
+            {
+                var result = await _gecMemberService.UpdateGECMemberAsync(dto);
+
+                if (result.IsSuccess)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        message = "GEC member updated successfully",
+                        data = result.Data
+                    });
+                }
+
+                return Json(new
+                {
+                    success = false,
+                    message = result.Message ?? "Failed to update GEC member"
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Loggers.DoLogs("Error updating GEC member: " + ex.ToString());
+
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while updating the member. Please try again."
+                });
+            }
+        }
     }
 }

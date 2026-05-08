@@ -2,3 +2,11 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
+
+$(document).ready(function () {
+    $('.select2').select2({
+        width: '100%',
+        placeholder: "Select an option",
+        allowClear: true
+    });
+});

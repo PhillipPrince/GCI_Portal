@@ -813,10 +813,10 @@ C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\staticwebassets
 C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\staticwebassets.build.endpoints.json
 C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\swae.build.ex.cache
+C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.csproj.Up2Date
 C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.dll
 C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\refint\GCI_Admin.dll
 C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.pdb
 C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.genruntimeconfig.cache
 C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\ref\GCI_Admin.dll
-C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

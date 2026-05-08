@@ -2,7 +2,7 @@
 using GCI_Admin.Models.DTOs;
 using Utils;
 
-namespace GCI_Admin.Services
+namespace GCI_Admin.Services.IService
 {
     public interface ISystemConfigService
     {

@@ -1,0 +1,99 @@
+﻿@model GCI_Admin.Models.RcpsPledgesViewModel
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-gavel text-primary fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Pledges</h6>
+                        <h3 class="fw-bold mb-0">@Model.TotalPledges.ToString("N0")</h3>
+                        <small class="text-muted">Total number of pledges</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-credit-card text-warning fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Pledged</h6>
+                        <h3 class="fw-bold mb-0">KES @Model.TotalPledgedAmount.ToString("N0")</h3>
+                        <small class="text-muted">Total amount pledged</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-money text-success fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Redeemed</h6>
+                        <h3 class="fw-bold mb-0">KES @Model.TotalPaidAmount.ToString("N0")</h3>
+                        <small class="text-muted">Total amount paid</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-users text-info fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Active Pledges</h6>
+                        <h3 class="fw-bold mb-0">@Model.ActivePledges.ToString("N0")</h3>
+                        <small class="text-muted">Pledges with balance > 0</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.TotalPledgedAmount > 0)
+{
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Overall Fulfillment Rate</span>
+                        <span class="fw-bold text-success">@((Model.TotalPaidAmount / Model.TotalPledgedAmount * 100).ToString("F1"))%</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-success" role="progressbar"
+                             style="width: @((Model.TotalPaidAmount / Model.TotalPledgedAmount * 100))%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace GCI_Admin.Models.DTOs
@@ -11,5 +12,35 @@ namespace GCI_Admin.Models.DTOs
 
         [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
         public string Description { get; set; }
+    }
+    public class CreateMinistryLeader
+    {
+        public List<DropdownItem> MembersList { get; set; }
+    }
+
+    public class MembersMinistriesViewModel
+    {
+        public List<SelectListItem> MembersList { get; set; }
+        public List<SelectListItem> MinistriesList { get; set; }
+        public int SelectedMemberId { get; set; }
+        public int SelectedMinistryId { get; set; }
+        public string PositionTitle { get; set; }
+        public string Bio { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+
+    public class CreateMinistryLeaderDto
+    {
+        public int MinistryLeaderId { get; set; }
+        public int MemberId { get; set; }
+        public int MinistryId { get; set; }
+        public string PositionTitle { get; set; }
+        public string Bio { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime? CreatedAt { get; set; }
     }
 }

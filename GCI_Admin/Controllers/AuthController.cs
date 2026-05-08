@@ -65,6 +65,20 @@ namespace GCI_Admin.Controllers
             return Ok(result);
         }
 
+        [HttpPost("/RequestPasswordReset")]
+        public async Task<IActionResult> RequestPassReset([FromBody] PasswordResetRequestDto request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.EmailOrPhone))
+                return BadRequest(new { IsSuccess = false, Message = "Email or Phone is required." });
+
+            var result = await _userService.RequestPasswordReset(request.EmailOrPhone);
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
         // Reset password using OTP
         [HttpPost("/ResetPassword")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto reset)
@@ -82,6 +96,9 @@ namespace GCI_Admin.Controllers
         }
         public IActionResult Unauthorized()
         {
+            HttpContext.Session.Clear();
+
+
             return View();
         }
         public async Task<IActionResult> Logout()

@@ -1,0 +1,236 @@
+﻿@model List<GCI_Admin.Models.RcpsPledges>
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="rcpsPledgesTable" class="table table-striped table-hover align-middle datatable">
+
+            <thead class="table-light">
+                <tr>
+                    <th>Member ID</th>
+                    <th>Member Name</th>
+                    <th>RRcps</th>
+                    <th>Pledged Amount</th>
+                    <th>Amount Paid</th>
+                    <th>Balance</th>
+                    <th>Progress</th>
+                    <th>Pledge Date</th>
+                    <th>Target Date</th>
+                    <th>Status</th>
+                    <th>Payment Received</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <thead class="table-secondary">
+                <!-- Search Row -->
+                <tr>
+                    <th>
+                        <input type="text" placeholder="Search Member ID" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Member Name" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Rcps" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Pledged" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Paid" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Balance" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Progress" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="date" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="date" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <select class="form-control form-control-sm">
+                            <option value="">All</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Partially Paid">Partially Paid</option>
+                            <option value="Fulfilled">Fulfilled</option>
+                            <option value="Overdue">Overdue</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select class="form-control form-control-sm">
+                            <option value="">All</option>
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var pledge in Model)
+                {
+                    <tr>
+                        <td>@pledge.MemberId</td>
+                        <td>@(pledge.Member.FirstName + " " + pledge.Member?.OtherNames ?? "N/A")</td>
+                        <td>@(pledge.RcpsId)</td>
+                        <td>KES @pledge.PledgedAmount.ToString("N2")</td>
+                        <td>KES @pledge.AmountPaid.ToString("N2")</td>
+                        <td>KES @pledge.Balance.ToString("N2")</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="me-2">@(((decimal)pledge.AmountPaid / pledge.PledgedAmount * 100).ToString("F0"))%</span>
+                                <div class="progress flex-grow-1" style="height: 6px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: @((decimal)pledge.AmountPaid / pledge.PledgedAmount * 100)%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@pledge.PledgeDate.ToString("dd MMM yyyy")</td>
+                        <td>
+                            @if (pledge.TargetCompletionDate.HasValue)
+                            {
+                                <span class="@(pledge.TargetCompletionDate.Value < DateTime.Now && pledge.Status != "Fulfilled" ? "text-danger" : "")">
+                                    @pledge.TargetCompletionDate.Value.ToString("dd MMM yyyy")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                        </td>
+                        <td>
+                            @if (pledge.Status == "Fulfilled")
+                            {
+                                <span class="badge bg-success">Fulfilled</span>
+                            }
+                            else if (pledge.Status == "Partially Paid")
+                            {
+                                <span class="badge bg-info">Partially Paid</span>
+                            }
+                            else if (pledge.Status == "Pending")
+                            {
+                                <span class="badge bg-warning">Pending</span>
+                            }
+                            else if (pledge.Status == "Overdue")
+                            {
+                                <span class="badge bg-danger">Overdue</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Cancelled</span>
+                            }
+                        </td>
+                        <td>
+                            @if (pledge.PaymentRecieved)
+                            {
+                                <span class="badge bg-success">
+                                    <i class="fa fa-check-circle"></i> Yes
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    <i class="fa fa-clock-o"></i> No
+                                </span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <!-- View Details -->
+                            <button class="btn btn-sm btn-outline-info"
+                                    onclick="viewPledgeDetails(@pledge.Id)">
+                                <i class="fa fa-eye"></i>
+                            </button>
+
+                            <!-- Record Payment -->
+                            @if (pledge.Balance > 0 && pledge.Status != "Cancelled")
+                            {
+                                <button class="btn btn-sm btn-outline-success"
+                                        onclick="recordPayment(@pledge.Id)">
+                                    <i class="fa fa-money"></i>
+                                </button>
+                            }
+
+                            <!-- Edit -->
+                            <button class="btn btn-sm btn-outline-primary"
+                                    onclick="editPledge(@pledge.Id)">
+                                <i class="fa fa-edit"></i>
+                            </button>
+
+                            <!-- Delete -->
+                            <button class="btn btn-sm btn-outline-danger"
+                                    onclick="deletePledge(@pledge.Id)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+            <tfoot class="table-light">
+                <tr class="fw-bold">
+                    <td colspan="3" class="text-end">Totals:</td>
+                    <td>KES @Model.Sum(p => p.PledgedAmount).ToString("N2")</td>
+                    <td>KES @Model.Sum(p => p.AmountPaid).ToString("N2")</td>
+                    <td>KES @Model.Sum(p => p.Balance).ToString("N2")</td>
+                    <td colspan="6"></td>
+                </tr>
+            </tfoot>
+
+        </table>
+    </div>
+</div>
+
+<script>
+    function viewPledgeDetails(id) {
+        window.location.href = '/RCPS/PledgeDetails/' + id;
+    }
+
+    function recordPayment(id) {
+        $.get('/RCPS/RecordPaymentPartial/' + id, function(data) {
+            $('#paymentModalContainer').html(data);
+            $('#recordPaymentModal').modal('show');
+        }).fail(function() {
+            Swal.fire('Error', 'Failed to load payment form', 'error');
+        });
+    }
+
+    function editPledge(id) {
+        $.get('/RCPS/EditPledgePartial/' + id, function(data) {
+            $('#editPledgeModalContainer').html(data);
+            $('#editPledgeModal').modal('show');
+        }).fail(function() {
+            Swal.fire('Error', 'Failed to load edit form', 'error');
+        });
+    }
+
+    function deletePledge(id) {
+        Swal.fire({
+            title: 'Delete Pledge',
+            text: 'Are you sure you want to delete this pledge?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Yes, delete it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/RCPS/DeletePledge/' + id,
+                    type: 'POST',
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire('Deleted!', 'Pledge deleted successfully.', 'success');
+                            location.reload();
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    }
+                });
+            }
+        });
+    }
+</script>

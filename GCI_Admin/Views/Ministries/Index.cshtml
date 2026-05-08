@@ -273,7 +273,7 @@
             
             // Load the partial view
             $.ajax({
-                url: '@Url.Action("GetMinistryLeaderForm", "Ministries")',
+                url: '@Url.Action("AddMinistryLeader", "Ministries")',
                 type: 'GET',
                 success: function (response) {
                     $('#leaderModalContent').html(response);

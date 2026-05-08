@@ -11,26 +11,54 @@ namespace GCI_Admin.Utils
         /// <param name="folderPath">Folder path where image will be stored</param>
         /// <param name="originalFileName">Original file name (to preserve extension)</param>
         /// <returns>Saved file name or null if failed</returns>
-        public static string? SaveImage(byte[]? imageBytes, string folderPath, string originalFileName)
+        public static string? SaveImage(
+    byte[]? imageBytes,
+    string folderPath,
+    string originalFileName,
+    string extension)
         {
             try
             {
-                // Only proceed if imageBytes is not null or empty
                 if (imageBytes == null || imageBytes.Length == 0)
                 {
+                    Loggers.DoLogs("ImageHelper->SaveImage->Image bytes are empty.");
                     return null;
                 }
 
-                if (string.IsNullOrWhiteSpace(folderPath) || string.IsNullOrWhiteSpace(originalFileName))
+                if (string.IsNullOrWhiteSpace(folderPath) ||
+                    string.IsNullOrWhiteSpace(originalFileName))
                 {
                     Loggers.DoLogs("ImageHelper->SaveImage->Folder path or file name is invalid.");
+                    return null;
+                }
+
+                // normalize extension
+                extension = extension?.Trim().ToLower() ?? ".png";
+
+                if (!extension.StartsWith("."))
+                    extension = "." + extension;
+
+                if (extension == ".jpeg")
+                    extension = ".jpg";
+
+                // allow only image extensions
+                var allowed = new[] { ".png", ".jpg" };
+
+                if (!allowed.Contains(extension))
+                {
+                    Loggers.DoLogs($"ImageHelper->SaveImage->Unsupported extension {extension}");
                     return null;
                 }
 
                 if (!Directory.Exists(folderPath))
                     Directory.CreateDirectory(folderPath);
 
-                string fullPath = Path.Combine(folderPath, originalFileName);
+                // remove extension if already present
+                string fileNameWithoutExt = Path.GetFileNameWithoutExtension(originalFileName);
+
+                string finalFileName = $"{fileNameWithoutExt}{extension}";
+
+                string fullPath = Path.Combine(folderPath, finalFileName);
 
                 File.WriteAllBytes(fullPath, imageBytes);
 

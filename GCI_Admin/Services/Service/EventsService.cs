@@ -18,12 +18,17 @@ namespace GCI_Admin.Services.Service
         private readonly EventsRepository _eventsRepository;
         private readonly MembersRepository _membersRepository;
         private readonly AppDbContext _context;
+        private readonly SystemConfigRepository _systemConfigRepository;
+        private readonly string folderPath;
 
-        public EventsService(EventsRepository eventsRepository, MembersRepository membersRepository, AppDbContext context)
+
+        public EventsService(EventsRepository eventsRepository, MembersRepository membersRepository, AppDbContext context, SystemConfigRepository systemConfigRepository)
         {
             _eventsRepository = eventsRepository;
             _membersRepository = membersRepository;
             _context = context;
+            _systemConfigRepository = systemConfigRepository;
+            folderPath= SystemConfigHelper.GetImageBasePathAsync(_systemConfigRepository).Result;
         }
 
         public async Task<ApiResponse<Event>> CreateEventAsync(EventDto dto)
@@ -458,7 +463,7 @@ namespace GCI_Admin.Services.Service
                     return response;
                 }
                 //to be changed to use config
-                result.Data.YearThemeImage = ImageHelper.ReadImage(@"C:\Images\Images", currentYear.Year.ToString());
+                result.Data.YearThemeImage = ImageHelper.ReadImage(folderPath, currentYear.Year.ToString());
 
                 response.IsSuccess = true;
                 response.Code = "200";
@@ -480,6 +485,43 @@ namespace GCI_Admin.Services.Service
 
             try
             {
+                byte[]? themeImage = null;
+                string extension = ".png";
+
+                if (!string.IsNullOrWhiteSpace(dto.ThemeImage))
+                {
+                    var imageString = dto.ThemeImage;
+
+                    // extract extension
+                    if (imageString.StartsWith("data:image/", StringComparison.OrdinalIgnoreCase))
+                    {
+                        int slash = imageString.IndexOf('/');
+                        int semicolon = imageString.IndexOf(';');
+
+                        if (slash > -1 && semicolon > slash)
+                        {
+                            extension = "." + imageString.Substring(
+                                slash + 1,
+                                semicolon - slash - 1
+                            ).ToLower();
+
+                            if (extension == ".jpeg")
+                                extension = ".jpg";
+                        }
+                    }
+
+                    // strip prefix
+                    if (imageString.Contains(","))
+                        imageString = imageString.Split(',')[1];
+
+                    themeImage = Convert.FromBase64String(imageString);
+                }
+
+                string savedPath = ImageHelper.SaveImage(
+                    themeImage,
+                    folderPath,
+                    dto.Year.ToString(),
+                    extension);
                 var result = await _eventsRepository.UpdateAnnualThemeAsync(id, dto);
 
                 if (!result.Success)

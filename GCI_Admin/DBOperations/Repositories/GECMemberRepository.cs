@@ -108,11 +108,11 @@ namespace GCI_Admin.DBOperations.Repositories
             }
         }
 
-        public async Task<DbResponse<GECMember>> UpdateGECMemberAsync(int gecId, GECMemberDto dto)
+        public async Task<DbResponse<GECMember>> UpdateGECMemberAsync(GECMemberDto dto)
         {
             try
             {
-                var existingMember = await _context.GECMembers.FindAsync(gecId);
+                var existingMember = await _context.GECMembers.FindAsync(dto.GECId);
 
                 if (existingMember == null)
                 {

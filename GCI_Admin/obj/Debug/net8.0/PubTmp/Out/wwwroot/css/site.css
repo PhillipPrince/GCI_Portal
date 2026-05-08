@@ -821,3 +821,118 @@ textarea.edit-field {
     ::-webkit-scrollbar-thumb:hover {
         background: var(--primary-blue);
     }
+
+
+
+/* Custom dropdown styles */
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-trigger {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+}
+
+    .dropdown-trigger[disabled] {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .dropdown-trigger input {
+        cursor: pointer;
+        background-color: white;
+        padding-right: 30px;
+    }
+
+        .dropdown-trigger input:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+.dropdown-arrow {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.dropdown-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 1060;
+    max-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdown-search {
+    padding: 10px;
+    border-bottom: 1px solid #e9ecef;
+    background: white;
+}
+
+.dropdown-options {
+    overflow-y: auto;
+    max-height: 350px;
+}
+
+.option-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+    .option-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .option-item.selected {
+        background-color: #e7f1ff;
+    }
+
+.option-title {
+    font-weight: 500;
+    color: #212529;
+}
+
+.option-subtitle {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 2px;
+}
+
+.no-result-message {
+    padding: 20px;
+    text-align: center;
+    color: #999;
+}
+
+.dropdown-list {
+    animation: dropdownFadeIn 0.15s ease;
+}
+
+@@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
