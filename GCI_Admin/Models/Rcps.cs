@@ -144,8 +144,8 @@ namespace GCI_Admin.Models
         public decimal TotalPledged { get; set; }
         public decimal TotalRedeemed { get; set; }
         public decimal FulfillmentRate { get; set; }
-        public decimal RcpsTarget { get; set; }
-        public decimal PercentageOfTarget { get; set; }
+        public decimal? RcpsTarget { get; set; }
+        public decimal? PercentageOfTarget { get; set; }
         public int ActivePledgesCount { get; set; }
         public int FulfilledPledgesCount { get; set; }
         public int OverduePledgesCount { get; set; }

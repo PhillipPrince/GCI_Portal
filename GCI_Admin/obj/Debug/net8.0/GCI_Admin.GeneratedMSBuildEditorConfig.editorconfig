@@ -130,6 +130,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR3Jvd3RoQ2VudGVyc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/GrowthCenters/_CreateGCLeaderPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR3Jvd3RoQ2VudGVyc1xfQ3JlYXRlR0NMZWFkZXJQYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/GrowthCenters/_GrowthCenterLeadersTable.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR3Jvd3RoQ2VudGVyc1xfR3Jvd3RoQ2VudGVyTGVhZGVyc1RhYmxlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -210,8 +214,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWluaXN0cmllc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Ministries/_AddMinistryLeaderPartial.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWluaXN0cmllc1xfQWRkTWluaXN0cnlMZWFkZXJQYXJ0aWFsLmNzaHRtbA==
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Ministries/_CreateMinistryLeaderPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWluaXN0cmllc1xfQ3JlYXRlTWluaXN0cnlMZWFkZXJQYXJ0aWFsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Ministries/_MinistriesTable.cshtml]

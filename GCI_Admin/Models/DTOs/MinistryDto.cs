@@ -31,7 +31,16 @@ namespace GCI_Admin.Models.DTOs
         public bool IsActive { get; set; } = true;
     }
 
+
     public class CreateMinistryLeaderDto
+    {
+        public List<SelectListItem> Members { get; set; }
+        public List<SelectListItem> Ministries { get; set; }
+        public MinistryLeaderDto MinistryLeader { get; set; }
+    }
+
+   
+    public class MinistryLeaderDto
     {
         public int MinistryLeaderId { get; set; }
         public int MemberId { get; set; }
@@ -42,5 +51,8 @@ namespace GCI_Admin.Models.DTOs
         public DateTime? EndDate { get; set; }
         public bool IsActive { get; set; }
         public DateTime? CreatedAt { get; set; }
+
+        public List<SelectListItem> MembersList { get; set; }
+        public List<SelectListItem> MinistriesList { get; set; }
     }
 }

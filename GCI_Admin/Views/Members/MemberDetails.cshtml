@@ -220,7 +220,7 @@
                                     <td class="text-muted"><strong>Number of Children:</strong></td>
                                     <td class="fw-bold">
                                         <span class="display-value" data-field="numberOfChildren">@(member.NumberOfChildren?.ToString() ?? "0")</span>
-                                        <input type="number" class="form-control edit-field" data-field="numberOfChildren" style="display: none;" value="@(member.NumberOfChildren ?? 0)" min="0">
+                                        <input type="number" class="form-control edit-field" data-field="numberOfChildren" style="display: none;" value="@(member.NumberOfChildren )" min="0">
                                     </td>
                                 </tr>
                             </table>

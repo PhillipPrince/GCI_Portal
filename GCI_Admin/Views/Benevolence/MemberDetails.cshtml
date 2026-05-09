@@ -397,7 +397,7 @@
             // Collect all edited data
             const benevolenceData = {
                 Id: @member.Id,
-                MemberId: @(member.Member?.Id ?? 0),
+                MemberId: @(member.Member?.Id ),
                 NationalId: '',
                 RegNo: '',
                 PreferredCoverAmount: 0,
@@ -409,7 +409,7 @@
                 NumberOfDependants: 0,
                 IsActive: true,
                 Member: {
-                    Id: @(member.Member?.Id ?? 0),
+                    Id: @(member.Member?.Id ),
                     FirstName: '',
                     OtherNames: '',
                     Phone: '',

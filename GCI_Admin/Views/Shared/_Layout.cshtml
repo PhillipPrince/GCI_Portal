@@ -19,124 +19,118 @@
     <!-- Custom CSS -->
     <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
 
-
+    
 </head>
 
 <body>
 
     <!-- ================= SIDEBAR ================= -->
     <div class="sidebar">
-
-        <a href="@Url.Action("Index", "Home")">
+        <!-- Dashboard link (always visible) -->
+        <a href="@Url.Action("Index", "Home")" class="menu-link">
             <i class="fa fa-home me-2"></i> Dashboard
         </a>
 
         <!-- MEMBERS -->
-        <a data-bs-toggle="collapse" href="#membersMenu">
+        <a data-bs-toggle="collapse" href="#membersMenu" class="menu-link" data-parent="members">
             <i class="fa fa-users me-2"></i> Members
         </a>
         <div id="membersMenu" class="collapse submenu">
             <a href="@Url.Action("Index", "Members")">All Members</a>
-            @* <a href="@Url.Action("Approvals", "Members")">Certification Approvals</a> *@
-            @* <a href="@Url.Action("PrivacyRequests", "Members")">Privacy Requests</a> *@
         </div>
 
         <!-- CHURCH STRUCTURE -->
-        <a data-bs-toggle="collapse" href="#churchMenu">
+        <a data-bs-toggle="collapse" href="#churchMenu" class="menu-link" data-parent="church">
             <i class="fa fa-church me-2"></i> Church Structure
         </a>
         <div id="churchMenu" class="collapse submenu">
-            @* <a href="@Url.Action("Index", "Branches")">Assemblies</a> *@
             <a href="@Url.Action("Index", "Assemblies")">Assemblies</a>
             <a href="@Url.Action("Index", "GrowthCenters")">Growth Centers</a>
         </div>
 
         <!-- RCP & PLEDGES MENU -->
-        <a data-bs-toggle="collapse" href="#rcpsMenu">
+        <a data-bs-toggle="collapse" href="#rcpsMenu" class="menu-link" data-parent="rcps">
             <i class="fa fa-seedling me-2"></i> Rapid Church Planting (RCPS)
         </a>
         <div id="rcpsMenu" class="collapse submenu">
             <a href="@Url.Action("Index", "Rcps")">Active Rcpss</a>
             <a href="@Url.Action("RcpsPledges", "Rcps")">Pledges & Giving</a>
-            <a href="@Url.Action("Reports", "Rcps")">RCPS Reports</a>
+            @* <a href="@Url.Action("Reports", "Rcps")">RCPS Reports</a> *@
         </div>
 
         <!-- LEADERSHIP -->
-        <a data-bs-toggle="collapse" href="#leadershipMenu">
+        <a data-bs-toggle="collapse" href="#leadershipMenu" class="menu-link" data-parent="leadership">
             <i class="fa fa-user-tie me-2"></i> Leadership
         </a>
         <div id="leadershipMenu" class="collapse submenu">
             <a href="@Url.Action("Index", "GECMember")">Central Leadership</a>
             <a href="@Url.Action("Elders", "Leadership")">Elders</a>
             <a href="@Url.Action("Deacons", "Leadership")">Deacons</a>
-            <a href="@Url.Action("Index", "BranchLeaders")">Branch Leaders</a>
-            <a href="@Url.Action("Index", "GrowthCenterLeaders")">Growth Center Leaders</a>
+            @* <a href="@Url.Action("Index", "BranchLeaders")">Branch Leaders</a> *@
+            @* <a href="@Url.Action("Index", "GrowthCenterLeaders")">Growth Center Leaders</a> *@
         </div>
 
         <!-- MINISTRIES -->
-        <a data-bs-toggle="collapse" href="#ministriesMenu">
+        <a data-bs-toggle="collapse" href="#ministriesMenu" class="menu-link" data-parent="ministries">
             <i class="fa fa-cross me-2"></i> Ministries
         </a>
         <div id="ministriesMenu" class="collapse submenu">
             <a href="@Url.Action("Index", "Ministries")">All Ministries</a>
-            <a href="@Url.Action("Requests", "Ministries")">Join Requests</a>
-            <a href="@Url.Action("Members", "Ministries")">Ministry Members</a>
+            @* <a href="@Url.Action("Requests", "Ministries")">Join Requests</a>
+            <a href="@Url.Action("Members", "Ministries")">Ministry Members</a> *@
         </div>
 
         <!-- EVENTS -->
-        <a data-bs-toggle="collapse" href="#eventsMenu">
+        <a data-bs-toggle="collapse" href="#eventsMenu" class="menu-link" data-parent="events">
             <i class="fa fa-calendar me-2"></i> Events
         </a>
         <div id="eventsMenu" class="collapse submenu">
             <a href="@Url.Action("Index", "Event")">Annual Calendar</a>
-            <a href="@Url.Action("EventRegistrations", "Event")">Registrations</a>
+            @* <a href="@Url.Action("EventRegistrations", "Event")">Registrations</a> *@
         </div>
 
         <!-- CONTENT -->
-        <a data-bs-toggle="collapse" href="#contentMenu">
+        <a data-bs-toggle="collapse" href="#contentMenu" class="menu-link" data-parent="content">
             <i class="fa fa-bullhorn me-2"></i> Content & Media
         </a>
         <div id="contentMenu" class="collapse submenu">
             <a href="@Url.Action("Index", "Announcements")">Announcements</a>
-            <a href="@Url.Action("Index", "BibleVerse")">Daily Bible Verse</a>
+            @* <a href="@Url.Action("Index", "BibleVerse")">Daily Bible Verse</a>
             <a href="@Url.Action("Index", "Sermons")">Sermons</a>
-            <a href="@Url.Action("Index", "Notifications")">Notifications</a>
+            <a href="@Url.Action("Index", "Notifications")">Notifications</a> *@
         </div>
 
         <!-- FINANCE -->
-        <a data-bs-toggle="collapse" href="#finance">
+        <a data-bs-toggle="collapse" href="#finance" class="menu-link" data-parent="finance">
             <i class="fa fa-money-bill-wave me-2"></i> Finance
         </a>
         <div id="finance" class="collapse submenu">
             <a href="@Url.Action("Index", "Finance")">Payments</a>
-            <a href="@Url.Action("Reports", "Finance")">Reports</a>
+            @* <a href="@Url.Action("Reports", "Finance")">Reports</a> *@
         </div>
-        <!--BENEVOLENCE-->
-
-        <a data-bs-toggle="collapse" href="#benevolence">
-            <i class="fa fa-money-bill-wave me-2"></i> Benevolence
+        <!-- BENEVOLENCE -->
+        <a data-bs-toggle="collapse" href="#benevolence" class="menu-link" data-parent="benevolence">
+            <i class="fa fa-hand-holding-heart me-2"></i> Benevolence
         </a>
         <div id="benevolence" class="collapse submenu">
             <a href="@Url.Action("Index", "Benevolence")">Benevolence Members</a>
-            <a href="@Url.Action("Reports", "Finance")">Reports</a>
+            @* <a href="@Url.Action("Reports", "Benevolence")">Reports</a> *@
         </div>
 
-
         <!-- SECURITY -->
-        <a data-bs-toggle="collapse" href="#securityMenu">
+        @* <a data-bs-toggle="collapse" href="#securityMenu" class="menu-link" data-parent="security">
             <i class="fa fa-shield-alt me-2"></i> Security & RBAC
         </a>
         <div id="securityMenu" class="collapse submenu">
             <a href="@Url.Action("Index", "Roles")">Roles</a>
             <a href="@Url.Action("Index", "Admins")">Admin Accounts</a>
             <a href="@Url.Action("Index", "AuditLogs")">Audit Logs</a>
-        </div>
+        </div> *@
 
         <!-- SETTINGS -->
-        <a href="@Url.Action("Index", "SystemConfig")">
+        <a href="@Url.Action("Index", "SystemConfig")" class="menu-link">
             <i class="fa fa-cogs me-2"></i> System Settings
         </a>
-
     </div>
 
     <!-- ================= TOPBAR ================= -->
@@ -167,7 +161,6 @@
             </ul>
         </div>
     </div>
-
     <!-- ================= CONTENT ================= -->
     <div class="content">
         @RenderBody()
@@ -181,12 +174,11 @@
     <!-- ================= JAVASCRIPT ================= -->
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- jQuery -->
 
     <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Select2 (ADD HERE) -->
+    <!-- Select2 -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <!-- SweetAlert2 -->
@@ -214,6 +206,99 @@
     <!-- Custom JS -->
     <script src="~/js/site.js" asp-append-version="true"></script>
 
+    <!-- Active menu fix -->
+    <script>
+        (function() {
+        function getActiveMenuFromUrl() {
+        var currentPath = window.location.pathname.toLowerCase();
+        var menuItems = {
+        'members': { parentId: 'membersMenu', triggerSelector: '[href="#membersMenu"]' },
+        'assemblies': { parentId: 'churchMenu', triggerSelector: '[href="#churchMenu"]' },
+        'growthcenters': { parentId: 'churchMenu', triggerSelector: '[href="#churchMenu"]' },
+        'rcps': { parentId: 'rcpsMenu', triggerSelector: '[href="#rcpsMenu"]' },
+        'rcpspledges': { parentId: 'rcpsMenu', triggerSelector: '[href="#rcpsMenu"]' },
+        'gecmember': { parentId: 'leadershipMenu', triggerSelector: '[href="#leadershipMenu"]' },
+        'elders': { parentId: 'leadershipMenu', triggerSelector: '[href="#leadershipMenu"]' },
+        'deacons': { parentId: 'leadershipMenu', triggerSelector: '[href="#leadershipMenu"]' },
+        'branchleaders': { parentId: 'leadershipMenu', triggerSelector: '[href="#leadershipMenu"]' },
+        'growthcenterleaders': { parentId: 'leadershipMenu', triggerSelector: '[href="#leadershipMenu"]' },
+        'ministries': { parentId: 'ministriesMenu', triggerSelector: '[href="#ministriesMenu"]' },
+        'event': { parentId: 'eventsMenu', triggerSelector: '[href="#eventsMenu"]' },
+        'eventregistrations': { parentId: 'eventsMenu', triggerSelector: '[href="#eventsMenu"]' },
+        'announcements': { parentId: 'contentMenu', triggerSelector: '[href="#contentMenu"]' },
+        'bibleverse': { parentId: 'contentMenu', triggerSelector: '[href="#contentMenu"]' },
+        'sermons': { parentId: 'contentMenu', triggerSelector: '[href="#contentMenu"]' },
+        'notifications': { parentId: 'contentMenu', triggerSelector: '[href="#contentMenu"]' },
+        'finance': { parentId: 'finance', triggerSelector: '[href="#finance"]' },
+        'benevolence': { parentId: 'benevolence', triggerSelector: '[href="#benevolence"]' },
+        'roles': { parentId: 'securityMenu', triggerSelector: '[href="#securityMenu"]' },
+        'admins': { parentId: 'securityMenu', triggerSelector: '[href="#securityMenu"]' },
+        'auditlogs': { parentId: 'securityMenu', triggerSelector: '[href="#securityMenu"]' },
+        'systemconfig': { parentId: null, isSingle: true }
+        };
+        for (var key in menuItems) {
+        if (currentPath.includes(key)) {
+        return menuItems[key];
+        }
+        }
+        if (currentPath === '/' || currentPath === '/home' || currentPath === '/home/index') {
+        return { parentId: null, isDashboard: true };
+        }
+        return null;
+        }
+
+        function openActiveSubmenu() {
+        var active = getActiveMenuFromUrl();
+        if (active && active.parentId) {
+        var submenuDiv = document.getElementById(active.parentId);
+        var triggerLink = document.querySelector(active.triggerSelector);
+        if (submenuDiv && !submenuDiv.classList.contains('show')) {
+        var bsCollapse = new bootstrap.Collapse(submenuDiv, { toggle: false });
+        bsCollapse.show();
+        if (triggerLink) {
+        triggerLink.setAttribute('aria-expanded', 'true');
+        triggerLink.classList.add('active');
+        }
+        } else if (triggerLink && !triggerLink.classList.contains('active')) {
+        triggerLink.classList.add('active');
+        }
+        } else if (active && active.isDashboard) {
+        var dashLink = document.querySelector('.sidebar a[href*="Home"]');
+        if (dashLink) dashLink.classList.add('active');
+        }
+
+        var allSubLinks = document.querySelectorAll('.submenu a');
+        allSubLinks.forEach(function(link) {
+        var linkHref = link.getAttribute('href');
+        if (linkHref && (window.location.pathname.endsWith(linkHref.split('/').pop()) ||
+        window.location.pathname.toLowerCase() === linkHref.toLowerCase())) {
+        link.classList.add('active-link');
+        var parentCollapse = link.closest('.collapse');
+        if (parentCollapse && !parentCollapse.classList.contains('show')) {
+        var parentId = parentCollapse.getAttribute('id');
+        var triggerBtn = document.querySelector('[data-bs-toggle="collapse"][href="#' + parentId + '"]');
+        if (triggerBtn) {
+        var bsCollapse = new bootstrap.Collapse(parentCollapse, { toggle: false });
+        bsCollapse.show();
+        triggerBtn.setAttribute('aria-expanded', 'true');
+        triggerBtn.classList.add('active');
+        }
+        } else if (parentCollapse && parentCollapse.classList.contains('show')) {
+        var parentTrigger = document.querySelector('[data-bs-toggle="collapse"][href="#' + parentCollapse.id + '"]');
+        if (parentTrigger) parentTrigger.classList.add('active');
+        }
+        }
+        });
+        }
+
+        if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', openActiveSubmenu);
+        } else {
+        openActiveSubmenu();
+        }
+        setTimeout(openActiveSubmenu, 100);
+        })();
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 

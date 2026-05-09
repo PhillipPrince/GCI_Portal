@@ -1,4 +1,5 @@
-﻿using GCI_Admin.Models;
+﻿using Azure;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Utils;
 
@@ -21,6 +22,8 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<AnnualTheme>> GetCurrentYearThemeAsync();
         Task<ApiResponse<AnnualTheme>> UpdateAnnualThemeAsync(int id, AnnualThemeDto dto);
         Task<ApiResponse<List<Event>>> GetUpcomingEventsAsync();
+        Task<ApiResponse<List<Event>>> GetEventsByDateRangeAsync(DateTime startDate, DateTime endDate);
+
 
 
 

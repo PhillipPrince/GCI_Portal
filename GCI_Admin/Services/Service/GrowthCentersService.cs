@@ -222,5 +222,30 @@ namespace GCI_Admin.Services.Service
 
             return response;
         }
+
+        public Task<ApiResponse<GrowthCenterLeader>> GetGCLeaderByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ApiResponse<GrowthCenterLeader>> GetGCLeaderByMemberAndCenterAsync(int memberId, int centerId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ApiResponse<GrowthCenterLeader>> CreateGCLeaderAsync(GrowthCenterLeader leader)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ApiResponse<GrowthCenterLeader>> UpdateGCLeaderAsync(GrowthCenterLeader leader)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ApiResponse<bool>> DeleteGCLeaderAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

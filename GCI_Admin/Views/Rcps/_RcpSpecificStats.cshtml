@@ -62,8 +62,8 @@
                         <span class="text-muted">
                             <i class="fa fa-bullseye me-1"></i>Rcps Target Achievement
                         </span>
-                        <span class="fw-bold text-info">@targetAchieved.ToString("F1")%</span>
-                    </div>
+<span class="fw-bold text-info">@(Convert.ToDouble(targetAchieved).ToString("F1"))%</span>          
+</div>
                     <div class="progress" style="height: 8px;">
                         <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" 
                              role="progressbar" style="width: @targetAchieved%"></div>
@@ -78,15 +78,14 @@
                             <i class="fa fa-chart-line me-1"></i>Rcps Impact Summary
                         </h6>
                         <div class="mb-3">
-                            <div class="display-4 fw-bold text-success mb-0">@targetAchieved.ToString("F0")%</div>
-                            <small class="text-muted">of target achieved</small>
+<div class="display-4 fw-bold text-success mb-0">@(Convert.ToDouble(targetAchieved).ToString("F0"))%</div>                     
+<small class="text-muted">of target achieved</small>
                         </div>
                         <hr>
                         <div class="row">
                             <div class="col-6">
                                 <small class="text-muted d-block">Rcps Target</small>
-                                <strong>KES @Model.RcpsStats.RcpsTarget.ToString("N0")</strong>
-                            </div>
+<strong>KES @Convert.ToDouble(Model.RcpsStats.RcpsTarget).ToString("N0")</strong>                            </div>
                             <div class="col-6">
                                 <small class="text-muted d-block">Amount Raised</small>
                                 <strong class="text-success">KES @Model.RcpsStats.TotalRedeemed.ToString("N0")</strong>

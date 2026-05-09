@@ -27,8 +27,10 @@ namespace GCI_Admin.Controllers
                 var dashboard = new DashboardViewModel();
 
                 var allMembers = await _membersService.GetAllMembersAsync();
-                var upcomingEvents = await _eventsService.GetAllEventsAsync();
-                var events = await _eventsService.GetUpcomingEventsAsync();
+                var events = await _eventsService.GetAllEventsAsync();
+                var previousMonthMembers = await _membersService.GetMembersByDateRangeAsync(DateTime.Now.AddMonths(-1), DateTime.Now);
+                var previousMonthActiveMembers = await _membersService.GetActiveMembersByDateRangeAsync(DateTime.Now.AddMonths(-1), DateTime.Now);
+                var previousMonthEvents = await _eventsService.GetEventsByDateRangeAsync(DateTime.Now.AddMonths(-1), DateTime.Now);
 
                 var members = allMembers?.Data ?? new List<Member>();
 
@@ -36,6 +38,8 @@ namespace GCI_Admin.Controllers
                 {
                     dashboard.MemberStatus = new MemberStatusModel();
                 }
+                var upcomingEvents = events.Data.Where(e=>e.IsActive);
+                
 
                 // Assign members to respective status lists
                 dashboard.MemberStatus.AllMembers = members;
@@ -53,9 +57,36 @@ namespace GCI_Admin.Controllers
                 dashboard.TotalMembers = members.Count;
                 dashboard.TotalActiveMembers = dashboard.MemberStatus.ActiveMembers.Count;
 
+                // Calculate percentages for progress bars
+                dashboard.TotalMembersPercentage = dashboard.TotalMembers > 0 ?
+                    Math.Round((decimal)dashboard.TotalActiveMembers / dashboard.TotalMembers * 100, 2) : 0;
+
+                dashboard.ActiveMembersPercentage = dashboard.TotalActiveMembers > 0 ?
+                    Math.Round((decimal)dashboard.MemberStatus.MembershipClassMembers.Count / dashboard.TotalActiveMembers * 100, 2) : 0;
+
+                dashboard.EventCompletionPercentage = dashboard.UpcomingEvents > 0 ?
+                    Math.Round((decimal)events?.Data?.Count(e => e.EventDate >= DateTime.Now && e.EventDate <= DateTime.Now.AddDays(7)) / dashboard.UpcomingEvents * 100, 2) : 0;
+
+                // Calculate growth percentages (compared to previous month)
+                int previousTotalMembers = previousMonthMembers.Data.Count ;
+                int previousActiveMembers = previousMonthActiveMembers.Data.Count ;
+                int previousEvents = previousMonthEvents.Data.Count ;
+
+                dashboard.MemberGrowthPercentage = previousTotalMembers > 0 ?
+                    Math.Round((decimal)(dashboard.TotalMembers - previousTotalMembers) / previousTotalMembers * 100, 2) :
+                    (dashboard.TotalMembers > 0 ? 100 : 0);
+
+                dashboard.ActiveMemberGrowthPercentage = previousActiveMembers > 0 ?
+                    Math.Round((decimal)(dashboard.TotalActiveMembers - previousActiveMembers) / previousActiveMembers * 100, 2) :
+                    (dashboard.TotalActiveMembers > 0 ? 100 : 0);
+
+                dashboard.EventChangePercentage = previousEvents > 0 ?
+                    Math.Round((decimal)(dashboard.UpcomingEvents - previousEvents) / previousEvents * 100, 2) :
+                    (dashboard.UpcomingEvents > 0 ? 100 : 0);
+
                 // Events
-                dashboard.UpcomingEvents = upcomingEvents?.Data?.Count ?? 0;
-                dashboard.UpcomingEvent = events?.Data ?? new List<Event>();
+                dashboard.UpcomingEvents = upcomingEvents.Count();
+                dashboard.UpcomingEvent = upcomingEvents.ToList();
 
                 return View(dashboard);
             }
@@ -68,10 +99,16 @@ namespace GCI_Admin.Controllers
                 return View(new DashboardViewModel
                 {
                     UpcomingEvent = new List<Event>(),
-                    MemberStatus = new MemberStatusModel() // Initialize MemberStatus to avoid null reference
+                    MemberStatus = new MemberStatusModel(),
+                    TotalMembersPercentage = 0,
+                    ActiveMembersPercentage = 0,
+                    EventCompletionPercentage = 0,
+                    MemberGrowthPercentage = 0,
+                    ActiveMemberGrowthPercentage = 0,
+                    EventChangePercentage = 0
                 });
             }
-        }// GET: HomeController1/Details/5
+        }
         public ActionResult Details(int id)
         {
             return View();
@@ -139,122 +176,155 @@ namespace GCI_Admin.Controllers
                 return View();
             }
         }
+       
         [HttpGet]
         public async Task<IActionResult> GetMemberGrowthData(string period = "weekly")
         {
-            var allMembers = await _membersService.GetAllMembersAsync();
-            var members = allMembers.Data; // Adjust based on your service response structure
-
-            var labels = new List<string>();
-            var data = new List<int>();
-
-            if (period == "weekly")
+            try
             {
-                // Get last 7 days
-                for (int i = 6; i >= 0; i--)
-                {
-                    var date = DateTime.Today.AddDays(-i);
-                    labels.Add(date.ToString("ddd")); // Mon, Tue, Wed, etc.
+                var labels = new List<string>();
+                var data = new List<int>();
+                var now = DateTime.Now;
 
-                    var count = members.Count(m => m.CreatedAt.Date == date);
-                    data.Add(count);
+                if (period == "weekly")
+                {
+                    // Weekly: Sunday to Saturday of current week
+                    var startOfWeek = now.AddDays(-(int)now.DayOfWeek);
+                    for (int i = 0; i < 7; i++)
+                    {
+                        var currentDate = startOfWeek.AddDays(i);
+                        labels.Add(currentDate.ToString("ddd, MMM dd"));
+
+                        var membersOnDate = await _membersService.GetMembersByDateRangeAsync(
+                            currentDate.Date,
+                            currentDate.Date.AddDays(1).AddSeconds(-1));
+                        data.Add(membersOnDate.Data.Count );
+                    }
                 }
+                else if (period == "monthly")
+                {
+                    // Monthly: Weeks 1-4 of current month
+                    var startOfMonth = new DateTime(now.Year, now.Month, 1);
+                    var daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
+
+                    for (int week = 0; week < 4; week++)
+                    {
+                        var weekStart = startOfMonth.AddDays(week * 7);
+                        var weekEnd = weekStart.AddDays(6);
+
+                        if (weekStart > startOfMonth.AddDays(daysInMonth - 1))
+                            break;
+
+                        if (weekEnd > startOfMonth.AddDays(daysInMonth - 1))
+                            weekEnd = startOfMonth.AddDays(daysInMonth - 1);
+
+                        labels.Add($"Week {week + 1}");
+
+                        var membersInWeek = await _membersService.GetMembersByDateRangeAsync(
+                            weekStart.Date,
+                            weekEnd.Date.AddDays(1).AddSeconds(-1));
+                        data.Add(membersInWeek.Data.Count );
+                    }
+                }
+                else if (period == "yearly")
+                {
+                    // Yearly: January to December
+                    for (int month = 1; month <= 12; month++)
+                    {
+                        labels.Add(new DateTime(now.Year, month, 1).ToString("MMM"));
+
+                        var startDate = new DateTime(now.Year, month, 1);
+                        var endDate = startDate.AddMonths(1).AddDays(-1);
+
+                        var membersInMonth = await _membersService.GetMembersByDateRangeAsync(
+                            startDate.Date,
+                            endDate.Date.AddDays(1).AddSeconds(-1));
+                        data.Add(membersInMonth.Data.Count );
+                    }
+                }
+
+                return Json(new { success = true, labels = labels, data = data });
             }
-            else if (period == "monthly")
+            catch (Exception ex)
             {
-                // Get current month's weeks
-                var today = DateTime.Today;
-                var firstDayOfMonth = new DateTime(today.Year, today.Month, 1);
-                var daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
-
-                // Group by week (4 weeks)
-                var weekSize = daysInMonth / 4;
-
-                for (int week = 0; week < 4; week++)
-                {
-                    var weekStart = firstDayOfMonth.AddDays(week * weekSize);
-                    var weekEnd = (week == 3) ? new DateTime(today.Year, today.Month, daysInMonth) : weekStart.AddDays(weekSize - 1);
-
-                    labels.Add($"Week {week + 1}");
-
-                    var count = members.Count(m => m.CreatedAt.Date >= weekStart && m.CreatedAt.Date <= weekEnd);
-                    data.Add(count);
-                }
+                Loggers.DoLogs($"GetMemberGrowthData Error: {ex}");
+                return Json(new { success = false, message = "Error loading data" });
             }
-            else // yearly
-            {
-                // Get last 12 months
-                for (int i = 11; i >= 0; i--)
-                {
-                    var date = DateTime.Today.AddMonths(-i);
-                    labels.Add(date.ToString("MMM")); // Jan, Feb, Mar, etc.
-
-                    var count = members.Count(m => m.CreatedAt.Year == date.Year && m.CreatedAt.Month == date.Month);
-                    data.Add(count);
-                }
-            }
-
-            return Json(new { success = true, labels = labels, data = data });
         }
+
         [HttpGet]
         public async Task<IActionResult> GetFullMembershipData(string period = "weekly")
         {
-            var allMembers = await _membersService.GetAllMembersAsync();
-            var members = allMembers.Data;
-
-            // Filter members who attained full membership (StatusId == 1 for Active Members or however you track full members)
-            var fullMembers = members.Where(m => m.StatusId == 1).ToList(); // Adjust StatusId as needed
-
-            var labels = new List<string>();
-            var data = new List<int>();
-
-            if (period == "weekly")
+            try
             {
-                // Get last 7 days
-                for (int i = 6; i >= 0; i--)
-                {
-                    var date = DateTime.Today.AddDays(-i);
-                    labels.Add(date.ToString("ddd")); // Mon, Tue, Wed, etc.
+                var labels = new List<string>();
+                var data = new List<int>();
+                var now = DateTime.Now;
 
-                    var count = fullMembers.Count(m => m.CreatedAt.Date == date);
-                    data.Add(count);
+                if (period == "weekly")
+                {
+                    // Weekly: Sunday to Saturday of current week
+                    var startOfWeek = now.AddDays(-(int)now.DayOfWeek);
+                    for (int i = 0; i < 7; i++)
+                    {
+                        var currentDate = startOfWeek.AddDays(i);
+                        labels.Add(currentDate.ToString("ddd, MMM dd"));
+
+                        var fullMembersOnDate = await _membersService.GetFullMembersByDateRangeAsync(
+                            currentDate.Date,
+                            currentDate.Date.AddDays(1).AddSeconds(-1));
+                        data.Add(fullMembersOnDate.Data.Count );
+                    }
                 }
+                else if (period == "monthly")
+                {
+                    // Monthly: Weeks 1-4 of current month
+                    var startOfMonth = new DateTime(now.Year, now.Month, 1);
+                    var daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
+
+                    for (int week = 0; week < 4; week++)
+                    {
+                        var weekStart = startOfMonth.AddDays(week * 7);
+                        var weekEnd = weekStart.AddDays(6);
+
+                        if (weekStart > startOfMonth.AddDays(daysInMonth - 1))
+                            break;
+
+                        if (weekEnd > startOfMonth.AddDays(daysInMonth - 1))
+                            weekEnd = startOfMonth.AddDays(daysInMonth - 1);
+
+                        labels.Add($"Week {week + 1}");
+
+                        var fullMembersInWeek = await _membersService.GetFullMembersByDateRangeAsync(
+                            weekStart.Date,
+                            weekEnd.Date.AddDays(1).AddSeconds(-1));
+                        data.Add(fullMembersInWeek.Data.Count );
+                    }
+                }
+                else if (period == "yearly")
+                {
+                    // Yearly: January to December
+                    for (int month = 1; month <= 12; month++)
+                    {
+                        labels.Add(new DateTime(now.Year, month, 1).ToString("MMM"));
+
+                        var startDate = new DateTime(now.Year, month, 1);
+                        var endDate = startDate.AddMonths(1).AddDays(-1);
+
+                        var fullMembersInMonth = await _membersService.GetFullMembersByDateRangeAsync(
+                            startDate.Date,
+                            endDate.Date.AddDays(1).AddSeconds(-1));
+                        data.Add(fullMembersInMonth.Data.Count );
+                    }
+                }
+
+                return Json(new { success = true, labels = labels, data = data });
             }
-            else if (period == "monthly")
+            catch (Exception ex)
             {
-                // Get current month's weeks
-                var today = DateTime.Today;
-                var firstDayOfMonth = new DateTime(today.Year, today.Month, 1);
-                var daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
-
-                // Group by week (4 weeks)
-                var weekSize = daysInMonth / 4;
-
-                for (int week = 0; week < 4; week++)
-                {
-                    var weekStart = firstDayOfMonth.AddDays(week * weekSize);
-                    var weekEnd = (week == 3) ? new DateTime(today.Year, today.Month, daysInMonth) : weekStart.AddDays(weekSize - 1);
-
-                    labels.Add($"Week {week + 1}");
-
-                    var count = fullMembers.Count(m => m.CreatedAt.Date >= weekStart && m.CreatedAt.Date <= weekEnd);
-                    data.Add(count);
-                }
+                Loggers.DoLogs($"GetFullMembershipData Error: {ex}");
+                return Json(new { success = false, message = "Error loading data" });
             }
-            else // yearly
-            {
-                // Get last 12 months
-                for (int i = 11; i >= 0; i--)
-                {
-                    var date = DateTime.Today.AddMonths(-i);
-                    labels.Add(date.ToString("MMM")); // Jan, Feb, Mar, etc.
-
-                    var count = fullMembers.Count(m => m.CreatedAt.Year == date.Year && m.CreatedAt.Month == date.Month);
-                    data.Add(count);
-                }
-            }
-
-            return Json(new { success = true, labels = labels, data = data });
         }
     }
 }

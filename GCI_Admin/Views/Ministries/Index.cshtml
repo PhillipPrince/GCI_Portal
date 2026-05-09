@@ -63,7 +63,7 @@
                         </div>
                         <div class="ms-3">
                             <h6 class="text-muted mb-1">Active Leaders</h6>
-                            <h3 class="fw-bold mb-0" id="activeMinistryLeaders">@Model.MinistryLeaders?.Count(l => l.IsActive) ?? 0</h3>
+                            <h3 class="fw-bold mb-0" id="activeMinistryLeaders">@Model.MinistryLeaders?.Count(l => l.IsActive) </h3>
                         </div>
                     </div>
                 </div>
@@ -77,7 +77,7 @@
                         </div>
                         <div class="ms-3">
                             <h6 class="text-muted mb-1">Recently Added</h6>
-                            <h3 class="fw-bold mb-0" id="recentMinistries">@(Model.Ministries?.OrderByDescending(m => m.CreatedAt).Take(5).Count() ?? 0)</h3>
+                            <h3 class="fw-bold mb-0" id="recentMinistries">@(Model.Ministries?.OrderByDescending(m => m.CreatedAt).Take(5).Count() )</h3>
                         </div>
                     </div>
                 </div>
@@ -116,7 +116,6 @@
 
     <!-- Ministry Leaders Tab -->
     <div class="tab-pane fade" id="ministryLeaders" role="tabpanel" aria-labelledby="ministryLeaders-tab">
-
         
         <!-- Leaders Table -->
         <div id="ministryLeadersTableContainer">
@@ -138,6 +137,7 @@
             </div>
             <div class="modal-body" id="ministryModalBody">
                 <form id="ministryForm">
+                    @Html.AntiForgeryToken()
                     <div class="mb-3">
                         <label for="ministryName" class="form-label">Ministry Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="ministryName" name="MinistryName" placeholder="Enter ministry name" required>
@@ -163,25 +163,24 @@
     </div>
 </div>
 
-<!-- Ministry Leader Modal (loads partial page) -->
+<!-- Ministry Leader Modal -->
 <div class="modal fade" id="ministryLeaderModal" tabindex="-1" aria-labelledby="ministryLeaderModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="ministryLeaderModalLabel">
-                    <i class="fa fa-user-plus me-2"></i>Add New Ministry Leader
+                    <i class="fa fa-user-plus me-2"></i>
+                    <span id="modalTitleMinistryLeader">Add New Ministry Leader</span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="ministryLeaderModalBody">
-                <div id="leaderModalContent">
-                    <!-- Partial view will be loaded here -->
-                    <div class="text-center p-4" id="leaderLoadingSpinner">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-2">Loading form...</p>
+                <!-- Content will be loaded here -->
+                <div class="text-center p-4" id="leaderLoadingSpinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
+                    <p class="mt-2">Loading form...</p>
                 </div>
             </div>
             <div class="modal-footer">
@@ -195,15 +194,15 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
         let ministries = [];
         let ministryLeaders = [];
 
         $(document).ready(function () {
-            // Load data and initialize tables
-            loadMinistryData();
+            // Initialize tables
             initializeMinistryTables();
-            setupMinistryEventHandlers();
 
             // Handle tab changes - update button text and functionality
             $('#ministryTabs button').on('shown.bs.tab', function (e) {
@@ -245,10 +244,8 @@
             });
         });
 
-        function setupMinistryEventHandlers() {
-            // Keep for compatibility, but button is now handled dynamically
-        }
-
+        // ================= MODAL LOAD FUNCTIONS =================
+        
         function openMinistryModal() {
             $('#ministryModal').modal('show');
             $('#ministryForm')[0].reset();
@@ -258,8 +255,12 @@
         }
 
         function openMinistryLeaderModal() {
-            // Reset modal content and show loading spinner
-            $('#leaderModalContent').html(`
+            // Show modal with loading spinner
+            $('#ministryLeaderModal').modal('show');
+            $('#modalTitleMinistryLeader').text('Add New Ministry Leader');
+            
+            // Reset modal body with loading spinner
+            $('#ministryLeaderModalBody').html(`
                 <div class="text-center p-4" id="leaderLoadingSpinner">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
@@ -268,119 +269,64 @@
                 </div>
             `);
             
-            $('#ministryLeaderModal').modal('show');
             $('#saveMinistryLeaderBtn').prop('disabled', false);
-            
-            // Load the partial view
-            $.ajax({
-                url: '@Url.Action("AddMinistryLeader", "Ministries")',
-                type: 'GET',
-                success: function (response) {
-                    $('#leaderModalContent').html(response);
-                    // Initialize search functionality for member dropdown
-                    initializeMemberDropdownSearch();
-                },
-                error: function (xhr, status, error) {
-                    $('#leaderModalContent').html(`
-                        <div class="alert alert-danger">
-                            <i class="fa fa-exclamation-triangle me-2"></i>
-                            Error loading form. Please try again.
-                        </div>
-                    `);
-                    console.error("Error loading partial view:", error);
-                }
+
+            // Load the form via AJAX
+            $.get('@Url.Action("LoadCreateForm", "Ministries")', function (data) {
+                $('#ministryLeaderModalBody').html(data);
+            }).fail(function () {
+                $('#ministryLeaderModalBody').html(
+                    '<div class="alert alert-danger m-3">Failed to load form. Please try again.</div>'
+                );
             });
         }
 
-        function initializeMemberDropdownSearch() {
-            // Add search/filter functionality to the member dropdown if Select2 is not available
-            const memberSelect = $('#MemberId');
-            if (memberSelect.length && typeof $.fn.select2 === 'undefined') {
-                // Create search input above dropdown
-                const searchWrapper = $('<div class="mb-2"></div>');
-                const searchInput = $('<input type="text" class="form-control" placeholder="Search members...">');
-                
-                memberSelect.before(searchWrapper);
-                searchWrapper.append(searchInput);
-                
-                searchInput.on('keyup', function() {
-                    const searchTerm = $(this).val().toLowerCase();
-                    memberSelect.find('option').each(function() {
-                        const optionText = $(this).text().toLowerCase();
-                        if (optionText.indexOf(searchTerm) > -1 || $(this).val() === '') {
-                            $(this).show();
-                        } else {
-                            $(this).hide();
-                        }
-                    });
-                });
-            }
-        }
+        // ================= FORM SUBMISSION =================
 
-        function submitMinistryLeaderForm() {
-            // Gather form data
-            const memberId = $('#MemberId').val();
-            const ministryId = $('#MinistryId').val();
-            const positionTitle = $('#PositionTitle').val()?.trim();
-            const bio = $('#Bio').val()?.trim() || null;
-            const startDate = $('#StartDate').val();
-            const endDate = $('#EndDate').val() || null;
-            const isActive = $('#IsActive').is(':checked');
-            
-            // Validation
-            if (!memberId) {
-                Swal.fire('Validation Error', 'Please select a member.', 'error');
+        function submitMinistryForm(e) {
+            if (e) e.preventDefault();
+            const form = document.getElementById('ministryForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
                 return;
             }
-            if (!ministryId) {
-                Swal.fire('Validation Error', 'Please select a ministry.', 'error');
-                return;
-            }
-            if (!positionTitle) {
-                Swal.fire('Validation Error', 'Position Title is required.', 'error');
-                return;
-            }
-            if (!startDate) {
-                Swal.fire('Validation Error', 'Start Date is required.', 'error');
-                return;
-            }
-            
-            const leaderData = {
-                MemberId: parseInt(memberId),
-                MinistryId: parseInt(ministryId),
-                PositionTitle: positionTitle,
-                Bio: bio,
-                StartDate: startDate,
-                EndDate: endDate || null,
-                IsActive: isActive
+
+            const dto = {
+                MinistryName: $('#ministryName').val()?.trim() || "",
+                Description: $('#ministryDescription').val()?.trim() || null
             };
-            
-            $('#saveMinistryLeaderBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i>Saving...');
-            
+
+            $('#saveMinistryBtn').prop('disabled', true);
+            $('#ministryLoading').removeClass('d-none');
+
             $.ajax({
-                url: '@Url.Action("CreateMinistryLeader", "Ministries")',
+                url: '@Url.Action("SubmitNewMinistry", "Ministries")',
                 type: 'POST',
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
-                data: JSON.stringify(leaderData),
+                data: JSON.stringify(dto),
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
                 success: function (response) {
-                    $('#saveMinistryLeaderBtn').prop('disabled', false).html('<i class="fa fa-save me-1"></i>Save Leader');
-                    
+                    $('#ministryLoading').addClass('d-none');
+                    $('#saveMinistryBtn').prop('disabled', false);
+
                     if (response.isSuccess) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Success',
-                            text: 'Ministry Leader added successfully!'
-                        }).then(() => {
-                            $('#ministryLeaderModal').modal('hide');
-                            location.reload();
-                        });
+                            text: response.message || 'Ministry created successfully!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => location.reload());
                     } else {
-                        Swal.fire('Error', response.message || 'Failed to add ministry leader.', 'error');
+                        Swal.fire('Error', response.message || 'Failed to create ministry.', 'error');
                     }
                 },
                 error: function (xhr) {
-                    $('#saveMinistryLeaderBtn').prop('disabled', false).html('<i class="fa fa-save me-1"></i>Save Leader');
+                    $('#ministryLoading').addClass('d-none');
+                    $('#saveMinistryBtn').prop('disabled', false);
                     let message = "An unexpected error occurred.";
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         message = xhr.responseJSON.message;
@@ -389,6 +335,14 @@
                 }
             });
         }
+
+        function submitMinistryLeaderForm() {
+            // This function will be called from the loaded partial view
+            // The partial view should have its own submit function
+            console.log("submitMinistryLeaderForm called from main view");
+        }
+
+        // ================= TABLE FUNCTIONS =================
 
         function initializeMinistryTables() {
             if ($.fn.DataTable.isDataTable('#ministriesTable')) {
@@ -426,6 +380,8 @@
             });
         }
 
+        // ================= FILTER FUNCTIONS =================
+
         function applyMinistryFilters() {
             const search = $('#ministrySearch').val();
             const table = $('#ministriesTable').DataTable();
@@ -436,59 +392,6 @@
             $('#ministrySearch').val('');
             const table = $('#ministriesTable').DataTable();
             table.search('').draw();
-        }
-
-        function submitMinistryForm(e) {
-            if (e) e.preventDefault();
-            const form = document.getElementById('ministryForm');
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-
-            const dto = {
-                MinistryName: $('#ministryName').val()?.trim() || "",
-                Description: $('#ministryDescription').val()?.trim() || null
-            };
-
-            $('#saveMinistryBtn').prop('disabled', true);
-            $('#ministryLoading').removeClass('d-none');
-
-            $.ajax({
-                url: '@Url.Action("SubmitNewMinistry", "Ministries")',
-                type: 'POST',
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                data: JSON.stringify(dto),
-                success: function (response) {
-                    $('#ministryLoading').addClass('d-none');
-                    $('#saveMinistryBtn').prop('disabled', false);
-
-                    if (response.isSuccess) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: 'Ministry created successfully!'
-                        }).then(() => location.reload());
-                    } else {
-                        Swal.fire('Error', response.message || 'Failed to create ministry.', 'error');
-                    }
-                },
-                error: function (xhr) {
-                    $('#ministryLoading').addClass('d-none');
-                    $('#saveMinistryBtn').prop('disabled', false);
-                    let message = "An unexpected error occurred.";
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        message = xhr.responseJSON.message;
-                    }
-                    Swal.fire('Error', message, 'error');
-                }
-            });
-        }
-
-        function loadMinistryData() {
-            // Placeholder for any data loading needs
-            console.log("Ministry data loaded");
         }
     </script>
 

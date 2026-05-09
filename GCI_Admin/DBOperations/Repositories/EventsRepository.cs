@@ -570,5 +570,271 @@ namespace GCI_Admin.DBOperations.Repositories
             }
         }
 
+        // Add these methods to your EventsRepository class
+
+        public async Task<DbResponse<List<Event>>> GetEventsByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var events = await _context.Events
+                    .Where(e => e.EventDate >= startDate && e.EventDate <= endDate)
+                    .OrderBy(e => e.EventDate)
+                    .ToListAsync();
+
+                return new DbResponse<List<Event>>
+                {
+                    Success = true,
+                    Data = events,
+                    Message = $"Found {events.Count} events between {startDate:yyyy-MM-dd} and {endDate:yyyy-MM-dd}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching events by date range: {ex.ToString()}");
+                return new DbResponse<List<Event>>
+                {
+                    Success = false,
+                    Message = $"Error fetching events by date range: {ex.Message}"
+                };
+            }
         }
+
+        public async Task<DbResponse<List<Event>>> GetUpcomingEventsByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var now = DateTime.Now;
+                var events = await _context.Events
+                    .Where(e => e.EventDate >= startDate && e.EventDate <= endDate && e.EventDate >= now)
+                    .OrderBy(e => e.EventDate)
+                    .ToListAsync();
+
+                return new DbResponse<List<Event>>
+                {
+                    Success = true,
+                    Data = events,
+                    Message = $"Found {events.Count} upcoming events between {startDate:yyyy-MM-dd} and {endDate:yyyy-MM-dd}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching upcoming events by date range: {ex.ToString()}");
+                return new DbResponse<List<Event>>
+                {
+                    Success = false,
+                    Message = $"Error fetching upcoming events by date range: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<int>> GetEventsCountByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var count = await _context.Events
+                    .CountAsync(e => e.EventDate >= startDate && e.EventDate <= endDate);
+
+                return new DbResponse<int>
+                {
+                    Success = true,
+                    Data = count,
+                    Message = $"Found {count} events between {startDate:yyyy-MM-dd} and {endDate:yyyy-MM-dd}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error counting events by date range: {ex.ToString()}");
+                return new DbResponse<int>
+                {
+                    Success = false,
+                    Message = $"Error counting events by date range: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<int>> GetUpcomingEventsCountByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var now = DateTime.Now;
+                var count = await _context.Events
+                    .CountAsync(e => e.EventDate >= startDate && e.EventDate <= endDate && e.EventDate >= now);
+
+                return new DbResponse<int>
+                {
+                    Success = true,
+                    Data = count,
+                    Message = $"Found {count} upcoming events between {startDate:yyyy-MM-dd} and {endDate:yyyy-MM-dd}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error counting upcoming events by date range: {ex.ToString()}");
+                return new DbResponse<int>
+                {
+                    Success = false,
+                    Message = $"Error counting upcoming events by date range: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<Dictionary<DateTime, int>>> GetEventsGroupedByDateAsync(DateTime startDate, DateTime endDate, string groupBy = "day")
+        {
+            try
+            {
+                var query = _context.Events
+                    .Where(e => e.EventDate >= startDate && e.EventDate <= endDate);
+
+                Dictionary<DateTime, int> groupedData = new Dictionary<DateTime, int>();
+
+                if (groupBy.ToLower() == "day")
+                {
+                    groupedData = await query
+                        .GroupBy(e => e.EventDate.Date)
+                        .Select(g => new { Date = g.Key, Count = g.Count() })
+                        .ToDictionaryAsync(g => g.Date, g => g.Count);
+                }
+                else if (groupBy.ToLower() == "week")
+                {
+                    groupedData = await query
+                        .GroupBy(e => new {
+                            Year = e.EventDate.Year,
+                            Week = System.Globalization.CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(
+                                e.EventDate,
+                                System.Globalization.CalendarWeekRule.FirstDay,
+                                DayOfWeek.Sunday)
+                        })
+                        .Select(g => new {
+                            Date = new DateTime(g.Key.Year, 1, 1).AddDays((g.Key.Week - 1) * 7),
+                            Count = g.Count()
+                        })
+                        .ToDictionaryAsync(g => g.Date, g => g.Count);
+                }
+                else if (groupBy.ToLower() == "month")
+                {
+                    groupedData = await query
+                        .GroupBy(e => new { e.EventDate.Year, e.EventDate.Month })
+                        .Select(g => new { Date = new DateTime(g.Key.Year, g.Key.Month, 1), Count = g.Count() })
+                        .ToDictionaryAsync(g => g.Date, g => g.Count);
+                }
+                else if (groupBy.ToLower() == "year")
+                {
+                    groupedData = await query
+                        .GroupBy(e => e.EventDate.Year)
+                        .Select(g => new { Date = new DateTime(g.Key, 1, 1), Count = g.Count() })
+                        .ToDictionaryAsync(g => g.Date, g => g.Count);
+                }
+
+                return new DbResponse<Dictionary<DateTime, int>>
+                {
+                    Success = true,
+                    Data = groupedData,
+                    Message = $"Found {groupedData.Count} date groups"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching events grouped by date: {ex.ToString()}");
+                return new DbResponse<Dictionary<DateTime, int>>
+                {
+                    Success = false,
+                    Message = $"Error fetching events grouped by date: {ex.Message}"
+                };
+            }
+        }
+
+     
+        public async Task<DbResponse<List<Event>>> GetEventsForWeekAsync(DateTime date)
+        {
+            try
+            {
+                // Get Sunday of the week (assuming Sunday is first day of week)
+                var startOfWeek = date.AddDays(-(int)date.DayOfWeek);
+                var endOfWeek = startOfWeek.AddDays(7).AddSeconds(-1);
+
+                var events = await _context.Events
+                    .Where(e => e.EventDate >= startOfWeek && e.EventDate <= endOfWeek)
+                    .OrderBy(e => e.EventDate)
+                    .ToListAsync();
+
+                return new DbResponse<List<Event>>
+                {
+                    Success = true,
+                    Data = events,
+                    Message = $"Found {events.Count} events for week starting {startOfWeek:yyyy-MM-dd}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching events for week: {ex.ToString()}");
+                return new DbResponse<List<Event>>
+                {
+                    Success = false,
+                    Message = $"Error fetching events for week: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<List<Event>>> GetEventsForMonthAsync(int year, int month)
+        {
+            try
+            {
+                var startDate = new DateTime(year, month, 1);
+                var endDate = startDate.AddMonths(1).AddSeconds(-1);
+
+                var events = await _context.Events
+                    .Where(e => e.EventDate >= startDate && e.EventDate <= endDate)
+                    .OrderBy(e => e.EventDate)
+                    .ToListAsync();
+
+                return new DbResponse<List<Event>>
+                {
+                    Success = true,
+                    Data = events,
+                    Message = $"Found {events.Count} events in {startDate:MMMM yyyy}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching events for month: {ex.ToString()}");
+                return new DbResponse<List<Event>>
+                {
+                    Success = false,
+                    Message = $"Error fetching events for month: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<List<Event>>> GetEventsForYearAsync(int year)
+        {
+            try
+            {
+                var startDate = new DateTime(year, 1, 1);
+                var endDate = new DateTime(year, 12, 31, 23, 59, 59);
+
+                var events = await _context.Events
+                    .Where(e => e.EventDate >= startDate && e.EventDate <= endDate)
+                    .OrderBy(e => e.EventDate)
+                    .ToListAsync();
+
+                return new DbResponse<List<Event>>
+                {
+                    Success = true,
+                    Data = events,
+                    Message = $"Found {events.Count} events in {year}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching events for year: {ex.ToString()}");
+                return new DbResponse<List<Event>>
+                {
+                    Success = false,
+                    Message = $"Error fetching events for year: {ex.Message}"
+                };
+            }
+        }
+
+      
+    }
 }

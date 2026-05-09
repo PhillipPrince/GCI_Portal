@@ -40,59 +40,7 @@
         </div>
     </div>
 
-    <div class="col-md-3 col-6">
-        <div class="card border-0 shadow-sm stat-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-check-circle text-success fa-2x"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Active Members</h6>
-                        <h3 class="fw-bold mb-0" id="activeMembers">@Model.MemberStatus.ActiveMembers?.Count ?? 0</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3 col-6">
-        <div class="card border-0 shadow-sm stat-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-graduation-cap text-warning fa-2x"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Membership Class</h6>
-                        <h3 class="fw-bold mb-0" id="membershipClass">@Model.MemberStatus.MembershipClassMembers?.Count ?? 0</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3 col-6">
-        <div class="card border-0 shadow-sm stat-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-user-plus text-info fa-2x"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Non-Members</h6>
-                        <h3 class="fw-bold mb-0" id="nonMembers">@Model.MemberStatus.NonMembers?.Count </h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+   
 </div>
 
 <!-- Filter Bar -->
@@ -148,19 +96,19 @@
     <li class="nav-item" role="presentation">
         <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#activeMembers" type="button" role="tab">
             <i class="fa fa-check-circle me-1"></i>Active Members
-            <span class="badge bg-success ms-1">@Model.MemberStatus.ActiveMembers?.Count ?? 0</span>
+            <span class="badge bg-success ms-1">@Model.MemberStatus.ActiveMembers?.Count </span>
         </button>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="membership-tab" data-bs-toggle="tab" data-bs-target="#membershipClass" type="button" role="tab">
             <i class="fa fa-graduation-cap me-1"></i>Membership Class
-            <span class="badge bg-warning ms-1">@Model.MemberStatus.MembershipClassMembers?.Count ?? 0</span>
+            <span class="badge bg-warning ms-1">@Model.MemberStatus.MembershipClassMembers?.Count </span>
         </button>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="nonmembers-tab" data-bs-toggle="tab" data-bs-target="#nonMembers" type="button" role="tab">
             <i class="fa fa-user-plus me-1"></i>Non-Members
-            <span class="badge bg-info ms-1">@Model.MemberStatus.NonMembers?.Count ?? 0</span>
+            <span class="badge bg-info ms-1">@Model.MemberStatus.NonMembers?.Count </span>
         </button>
     </li>
 </ul>
@@ -201,20 +149,20 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#activeMembers" type="button" role="tab">
                 <i class="fa fa-check-circle text-success me-1"></i>Active Members
-                <span class="badge bg-primary ms-2">@Model.MemberStatus.ActiveMembers?.Count ?? 0</span>
+                <span class="badge bg-primary ms-2">@Model.MemberStatus.ActiveMembers?.Count </span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="membership-tab" data-bs-toggle="tab" data-bs-target="#membershipClass" type="button" role="tab">
                 <i class="fa fa-book text-warning me-1"></i>Membership Class
-                <span class="badge bg-warning ms-2">@Model.MemberStatus.MembershipClassMembers?.Count ?? 0</span>
+                <span class="badge bg-warning ms-2">@Model.MemberStatus.MembershipClassMembers?.Count </span>
             </button>
         </li>
             
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="inactive-tab" data-bs-toggle="tab" data-bs-target="#inactiveMembers" type="button" role="tab">
                 <i class="fa fa-pause-circle text-secondary me-1"></i>Inactive Members
-                <span class="badge bg-secondary ms-2">@Model.MemberStatus.InactiveMembers?.Count ?? 0</span>
+                <span class="badge bg-secondary ms-2">@Model.MemberStatus.InactiveMembers?.Count </span>
             </button>
         </li>
         <li class="nav-item dropdown">
@@ -225,20 +173,20 @@
                 <li>
                     <button class="dropdown-item" id="transferred-tab" data-bs-toggle="tab" data-bs-target="#transferredMembers" type="button" role="tab">
                         <i class="fa fa-exchange-alt text-primary me-2"></i>Transferred
-                        <span class="badge bg-primary ms-2">@Model.MemberStatus.TransferredMembers?.Count ?? 0</span>
+                        <span class="badge bg-primary ms-2">@Model.MemberStatus.TransferredMembers?.Count </span>
                     </button>
                 </li>
                 <li>
                     <button class="dropdown-item" id="glory-tab" data-bs-toggle="tab" data-bs-target="#promotedToGlory" type="button" role="tab">
                         <i class="fa fa-angel text-info me-2"></i>Promoted to Glory
-                        <span class="badge bg-info ms-2">@Model.MemberStatus.PromotedToGlory?.Count ?? 0</span>
+                        <span class="badge bg-info ms-2">@Model.MemberStatus.PromotedToGlory?.Count </span>
                     </button>
                 </li>
                     
                 <li>
                     <button class="dropdown-item" id="withdrawn-tab" data-bs-toggle="tab" data-bs-target="#withdrawnMembers" type="button" role="tab">
                         <i class="fa fa-sign-out-alt text-warning me-2"></i>Withdrawn
-                        <span class="badge bg-warning ms-2">@Model.MemberStatus.WithdrawnMembers?.Count ?? 0</span>
+                        <span class="badge bg-warning ms-2">@Model.MemberStatus.WithdrawnMembers?.Count </span>
                     </button>
                 </li>
                     

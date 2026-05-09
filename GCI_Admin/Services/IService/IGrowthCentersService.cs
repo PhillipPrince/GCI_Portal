@@ -1,4 +1,5 @@
-﻿using GCI_Admin.Models;
+﻿using Azure;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,5 +16,10 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<bool>> DeleteGrowthCenterAsync(int id);
         Task<ApiResponse<bool>> ToggleGrowthCenterStatusAsync(int id, bool isActive);
         Task<ApiResponse<List<GrowthCenterLeader>>> GetAllGrowthCenterLeadersAsync();
+        Task<ApiResponse<GrowthCenterLeader>> GetGCLeaderByIdAsync(int id);
+        Task<ApiResponse<GrowthCenterLeader>> GetGCLeaderByMemberAndCenterAsync(int memberId, int centerId);
+        Task<ApiResponse<GrowthCenterLeader>> CreateGCLeaderAsync(GrowthCenterLeader leader);
+        Task<ApiResponse<GrowthCenterLeader>> UpdateGCLeaderAsync(GrowthCenterLeader leader);
+        Task<ApiResponse<bool>> DeleteGCLeaderAsync(int id);
     }
 }

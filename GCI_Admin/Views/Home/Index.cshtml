@@ -19,7 +19,7 @@
     </div>
 </div>
 
-<!-- KPI CARDS - Enhanced with gradients and icons -->
+<!-- KPI CARDS - Enhanced with gradients and real percentages -->
 <div class="row g-4 mb-4">
     <div class="col-md-3">
         <div class="card border-0 shadow-sm h-100">
@@ -33,11 +33,22 @@
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">Total Members</h6>
                         <h3 class="fw-bold mb-0">@Model.TotalMembers.ToString("N0")</h3>
-                        <small class="text-success"><i class="fa fa-arrow-up me-1"></i>+12% from last month</small>
+                        @if (Model.MemberGrowthPercentage > 0)
+                        {
+                            <small class="text-success"><i class="fa fa-arrow-up me-1"></i>+@Model.MemberGrowthPercentage% from last month</small>
+                        }
+                        else if (Model.MemberGrowthPercentage < 0)
+                        {
+                            <small class="text-danger"><i class="fa fa-arrow-down me-1"></i>@Model.MemberGrowthPercentage% from last month</small>
+                        }
+                        else
+                        {
+                            <small class="text-muted"><i class="fa fa-minus me-1"></i>No change from last month</small>
+                        }
                     </div>
                 </div>
                 <div class="progress" style="height: 4px;">
-                    <div class="progress-bar bg-primary" style="width: 75%"></div>
+                    <div class="progress-bar bg-primary" style="width: @Model.TotalMembersPercentage%"></div>
                 </div>
             </div>
         </div>
@@ -55,17 +66,48 @@
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">Active Members</h6>
                         <h3 class="fw-bold mb-0">@Model.TotalActiveMembers.ToString("N0")</h3>
-                        <small class="text-success"><i class="fa fa-arrow-up me-1"></i>+8% from last month</small>
+                        @if (Model.ActiveMemberGrowthPercentage > 0)
+                        {
+                            <small class="text-success"><i class="fa fa-arrow-up me-1"></i>+@Model.ActiveMemberGrowthPercentage% from last month</small>
+                        }
+                        else if (Model.ActiveMemberGrowthPercentage < 0)
+                        {
+                            <small class="text-danger"><i class="fa fa-arrow-down me-1"></i>@Model.ActiveMemberGrowthPercentage% from last month</small>
+                        }
+                        else
+                        {
+                            <small class="text-muted"><i class="fa fa-minus me-1"></i>No change from last month</small>
+                        }
                     </div>
                 </div>
                 <div class="progress" style="height: 4px;">
-                    <div class="progress-bar bg-success" style="width: 82%"></div>
+                    <div class="progress-bar bg-success" style="width: @Model.ActiveMembersPercentage%"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-church fa-2x text-info"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Membership Class</h6>
+                        <h3 class="fw-bold mb-0">@Model.MemberStatus?.MembershipClassMembers?.Count</h3>
+                        <small class="text-info"><i class="fa fa-clock me-1"></i>Awaiting confirmation</small>
+                    </div>
+                </div>
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-info" style="width: @(Model.TotalActiveMembers > 0 ? Math.Round((decimal)(Model.MemberStatus?.MembershipClassMembers?.Count ) / Model.TotalActiveMembers * 100, 2) : 0)%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="col-md-3">
         <div class="card border-0 shadow-sm h-100">
@@ -79,11 +121,22 @@
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">Upcoming Events</h6>
                         <h3 class="fw-bold mb-0">@Model.UpcomingEvents.ToString("N0")</h3>
-                        <small class="text-danger"><i class="fa fa-arrow-down me-1"></i>2 this week</small>
+                        @if (Model.EventChangePercentage > 0)
+                        {
+                            <small class="text-danger"><i class="fa fa-arrow-up me-1"></i>+@Model.EventChangePercentage% from last month</small>
+                        }
+                        else if (Model.EventChangePercentage < 0)
+                        {
+                            <small class="text-success"><i class="fa fa-arrow-down me-1"></i>@Model.EventChangePercentage% from last month</small>
+                        }
+                        else
+                        {
+                            <small class="text-muted"><i class="fa fa-minus me-1"></i>Same as last month</small>
+                        }
                     </div>
                 </div>
                 <div class="progress" style="height: 4px;">
-                    <div class="progress-bar bg-warning" style="width: 45%"></div>
+                    <div class="progress-bar bg-warning" style="width: @Model.EventCompletionPercentage%"></div>
                 </div>
             </div>
         </div>
@@ -256,20 +309,20 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#activeMembers" type="button" role="tab">
                     <i class="fa fa-check-circle text-success me-1"></i>Active Members 
-                    <span class="badge bg-primary ms-2">@Model.MemberStatus.ActiveMembers?.Count ?? 0</span>
+                    <span class="badge bg-primary ms-2">@Model.MemberStatus.ActiveMembers?.Count </span>
                 </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="membership-tab" data-bs-toggle="tab" data-bs-target="#membershipClass" type="button" role="tab">
                     <i class="fa fa-book text-warning me-1"></i>Membership Class 
-                    <span class="badge bg-warning ms-2">@Model.MemberStatus.MembershipClassMembers?.Count ?? 0</span>
+                    <span class="badge bg-warning ms-2">@Model.MemberStatus.MembershipClassMembers?.Count </span>
                 </button>
             </li>
             
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="inactive-tab" data-bs-toggle="tab" data-bs-target="#inactiveMembers" type="button" role="tab">
                     <i class="fa fa-pause-circle text-secondary me-1"></i>Inactive Members 
-                    <span class="badge bg-secondary ms-2">@Model.MemberStatus.InactiveMembers?.Count ?? 0</span>
+                    <span class="badge bg-secondary ms-2">@Model.MemberStatus.InactiveMembers?.Count </span>
                 </button>
             </li>
             <li class="nav-item dropdown">
@@ -280,20 +333,20 @@
                     <li>
                         <button class="dropdown-item" id="transferred-tab" data-bs-toggle="tab" data-bs-target="#transferredMembers" type="button" role="tab">
                             <i class="fa fa-exchange-alt text-primary me-2"></i>Transferred
-                            <span class="badge bg-primary ms-2">@Model.MemberStatus.TransferredMembers?.Count ?? 0</span>
+                            <span class="badge bg-primary ms-2">@Model.MemberStatus.TransferredMembers?.Count </span>
                         </button>
                     </li>
                     <li>
                         <button class="dropdown-item" id="glory-tab" data-bs-toggle="tab" data-bs-target="#promotedToGlory" type="button" role="tab">
                             <i class="fa fa-angel text-info me-2"></i>Promoted to Glory
-                            <span class="badge bg-info ms-2">@Model.MemberStatus.PromotedToGlory?.Count ?? 0</span>
+                            <span class="badge bg-info ms-2">@Model.MemberStatus.PromotedToGlory?.Count </span>
                         </button>
                     </li>
                     
                     <li>
                         <button class="dropdown-item" id="withdrawn-tab" data-bs-toggle="tab" data-bs-target="#withdrawnMembers" type="button" role="tab">
                             <i class="fa fa-sign-out-alt text-warning me-2"></i>Withdrawn
-                            <span class="badge bg-warning ms-2">@Model.MemberStatus.WithdrawnMembers?.Count ?? 0</span>
+                            <span class="badge bg-warning ms-2">@Model.MemberStatus.WithdrawnMembers?.Count </span>
                         </button>
                     </li>
                     
@@ -328,14 +381,10 @@
                 @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.PromotedToGlory)
             </div>
             
-            
-            
             <!-- Withdrawn Members Tab -->
             <div class="tab-pane fade" id="withdrawnMembers" role="tabpanel">
                 @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.WithdrawnMembers)
             </div>
-            
-            
         </div>
     </div>
 </div>
@@ -657,66 +706,20 @@
 
             // Add event listeners for member growth chart buttons
             $('.btn-group .btn[data-chart="member-growth"]').on('click', function() {
-                // Update active state for this chart group
                 $('.btn-group .btn[data-chart="member-growth"]').removeClass('active');
                 $(this).addClass('active');
-
-                // Get selected period
                 const period = $(this).data('period');
-
-                // Reload chart with new period
                 loadMemberGrowthData(period);
             });
 
             // Add event listeners for full membership chart buttons
             $('.btn-group .btn[data-chart="full-membership"]').on('click', function() {
-                // Update active state for this chart group
                 $('.btn-group .btn[data-chart="full-membership"]').removeClass('active');
                 $(this).addClass('active');
-
-                // Get selected period
                 const period = $(this).data('period');
-
-                // Reload chart with new period
                 loadFullMembershipData(period);
             });
         });
-
-        // Function to filter by status
-        function filterByStatus(status) {
-            switch(status) {
-                case 'active':
-                    $('#active-tab').tab('show');
-                    break;
-                case 'membership_class':
-                    $('#membership-tab').tab('show');
-                    break;
-                case 'full_member':
-                    $('#fullmembers-tab').tab('show');
-                    break;
-                case 'inactive':
-                    $('#inactive-tab').tab('show');
-                    break;
-                case 'transferred':
-                    $('#transferred-tab').tab('show');
-                    break;
-                case 'promoted_to_glory':
-                    $('#glory-tab').tab('show');
-                    break;
-                case 'excommunicated':
-                    $('#excommunicated-tab').tab('show');
-                    break;
-                case 'withdrawn':
-                    $('#withdrawn-tab').tab('show');
-                    break;
-                case 'on_leave':
-                    $('#onleave-tab').tab('show');
-                    break;
-                case 'all':
-                    location.reload();
-                    break;
-            }
-        }
 
         // Function to load member growth chart data
         function loadMemberGrowthData(period = 'weekly') {
@@ -727,13 +730,8 @@
                 success: function(response) {
                     if (response.success) {
                         const ctx = document.getElementById('membersChart').getContext('2d');
+                        if (membersChart) membersChart.destroy();
 
-                        // Destroy existing chart if it exists
-                        if (membersChart) {
-                            membersChart.destroy();
-                        }
-
-                        // Create new chart with dynamic data
                         membersChart = new Chart(ctx, {
                             type: 'line',
                             data: {
@@ -757,9 +755,7 @@
                                 responsive: true,
                                 maintainAspectRatio: false,
                                 plugins: {
-                                    legend: {
-                                        display: false
-                                    },
+                                    legend: { display: false },
                                     tooltip: {
                                         callbacks: {
                                             label: function(context) {
@@ -776,10 +772,7 @@
                                             text: 'Number of Members',
                                             color: '#6c757d'
                                         },
-                                        grid: {
-                                            display: true,
-                                            color: 'rgba(0,0,0,0.05)'
-                                        }
+                                        grid: { display: true, color: 'rgba(0,0,0,0.05)' }
                                     },
                                     x: {
                                         title: {
@@ -787,9 +780,7 @@
                                             text: period === 'weekly' ? 'Day' : (period === 'monthly' ? 'Week' : 'Month'),
                                             color: '#6c757d'
                                         },
-                                        grid: {
-                                            display: false
-                                        }
+                                        grid: { display: false }
                                     }
                                 }
                             }
@@ -811,13 +802,8 @@
                 success: function(response) {
                     if (response.success) {
                         const ctx = document.getElementById('fullMembersChart').getContext('2d');
+                        if (fullMembersChart) fullMembersChart.destroy();
 
-                        // Destroy existing chart if it exists
-                        if (fullMembersChart) {
-                            fullMembersChart.destroy();
-                        }
-
-                        // Create new chart with dynamic data
                         fullMembersChart = new Chart(ctx, {
                             type: 'bar',
                             data: {
@@ -828,21 +814,14 @@
                                     borderColor: '#198754',
                                     backgroundColor: 'rgba(25, 135, 84, 0.2)',
                                     borderWidth: 2,
-                                    borderRadius: 5,
-                                    pointBackgroundColor: '#198754',
-                                    pointBorderColor: '#fff',
-                                    pointBorderWidth: 2,
-                                    pointRadius: 4,
-                                    pointHoverRadius: 6
+                                    borderRadius: 5
                                 }]
                             },
                             options: {
                                 responsive: true,
                                 maintainAspectRatio: false,
                                 plugins: {
-                                    legend: {
-                                        display: false
-                                    },
+                                    legend: { display: false },
                                     tooltip: {
                                         callbacks: {
                                             label: function(context) {
@@ -859,10 +838,7 @@
                                             text: 'Number of Full Members',
                                             color: '#6c757d'
                                         },
-                                        grid: {
-                                            display: true,
-                                            color: 'rgba(0,0,0,0.05)'
-                                        }
+                                        grid: { display: true, color: 'rgba(0,0,0,0.05)' }
                                     },
                                     x: {
                                         title: {
@@ -870,9 +846,7 @@
                                             text: period === 'weekly' ? 'Day' : (period === 'monthly' ? 'Week' : 'Month'),
                                             color: '#6c757d'
                                         },
-                                        grid: {
-                                            display: false
-                                        }
+                                        grid: { display: false }
                                     }
                                 }
                             }
@@ -889,13 +863,8 @@
         function convertImageToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                reader.onload = () => {
-                    const base64String = reader.result;
-                    resolve(base64String);
-                };
-                reader.onerror = (error) => {
-                    reject(error);
-                };
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = (error) => reject(error);
                 reader.readAsDataURL(file);
             });
         }
@@ -943,19 +912,16 @@
 
         // Open theme modal
         function openThemeModal() {
-            // Populate modal with current data
             document.getElementById('modalImage').src = document.getElementById('yearThemeImage').src;
             document.getElementById('modalTitle').innerText = document.getElementById('themeTitle').innerText;
             document.getElementById('modalVerse').innerText = document.getElementById('themeVerse').innerText;
             document.getElementById('modalDescription').innerText = document.getElementById('themeDescription').innerText;
 
-            // Reset to display mode
             document.getElementById('displayMode').style.display = 'block';
             document.getElementById('editMode').style.display = 'none';
             document.getElementById('editThemeButton').style.display = 'inline-block';
             document.getElementById('saveThemeButton').style.display = 'none';
 
-            // Show modal
             const modal = new bootstrap.Modal(document.getElementById('themeModal'));
             modal.show();
         }
@@ -963,18 +929,15 @@
         // Toggle between display and edit mode
         function toggleEditMode() {
             if (document.getElementById('editMode').style.display === 'none') {
-                // Populate edit fields with current values
                 document.getElementById('editYear').value = currentThemeData.year || '';
                 document.getElementById('editTitle').value = currentThemeData.theme || '';
                 document.getElementById('editVerse').value = currentThemeData.verse || '';
                 document.getElementById('editDescription').value = currentThemeData.description || '';
 
-                // Clear file input and preview
                 document.getElementById('editImageFile').value = '';
                 document.getElementById('imagePreview').style.display = 'none';
                 document.getElementById('imagePreview').src = '';
 
-                // Switch to edit mode
                 document.getElementById('displayMode').style.display = 'none';
                 document.getElementById('editMode').style.display = 'block';
                 document.getElementById('editThemeButton').style.display = 'none';
@@ -988,67 +951,43 @@
             const originalText = saveButton.innerHTML;
 
             try {
-                // Disable button and show loading
                 saveButton.disabled = true;
                 saveButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
 
-                // Get values from edit form
                 const year = document.getElementById('editYear').value;
                 const title = document.getElementById('editTitle').value;
                 const verse = document.getElementById('editVerse').value;
                 const description = document.getElementById('editDescription').value;
                 const imageFile = document.getElementById('editImageFile').files[0];
 
-                // Validate required fields
                 if (!year || !title) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Missing Fields',
-                        text: 'Please fill in both Year and Theme Title.'
-                    });
-
+                    Swal.fire({ icon: 'warning', title: 'Missing Fields', text: 'Please fill in both Year and Theme Title.' });
                     saveButton.disabled = false;
                     saveButton.innerHTML = originalText;
                     return;
                 }
 
-                // Keep existing image if no new image selected
                 let base64Image = currentThemeData.themeImage || '';
 
-                // Convert selected image to base64
                 if (imageFile) {
                     const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
-
                     if (!validTypes.includes(imageFile.type)) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Invalid File Type',
-                            text: 'Please select a valid image file (JPEG, PNG, JPG, or GIF).'
-                        });
-
+                        Swal.fire({ icon: 'error', title: 'Invalid File Type', text: 'Please select a valid image file (JPEG, PNG, JPG, or GIF).' });
                         saveButton.disabled = false;
                         saveButton.innerHTML = originalText;
                         return;
                     }
 
-                    // Validate size (5MB max)
                     if (imageFile.size > 5 * 1024 * 1024) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'File Too Large',
-                            text: 'Image size should be less than 5MB.'
-                        });
-
+                        Swal.fire({ icon: 'error', title: 'File Too Large', text: 'Image size should be less than 5MB.' });
                         saveButton.disabled = false;
                         saveButton.innerHTML = originalText;
                         return;
                     }
 
-                    // Convert image to base64 string
                     base64Image = await convertImageToBase64(imageFile);
                 }
 
-                // Prepare data
                 const themeData = {
                     Id: currentThemeData.id || 0,
                     Year: parseInt(year),
@@ -1058,66 +997,33 @@
                     ThemeImage: base64Image
                 };
 
-                // Send request
                 $.ajax({
                     url: '/Event/UpdateAnnualTheme?id=' + themeData.Id,
                     type: 'PUT',
                     contentType: 'application/json',
                     data: JSON.stringify(themeData),
-
                     success: function (response) {
                         if (response.isSuccess) {
-                            // Update current data
-                            currentThemeData = {
-                                ...themeData,
-                                themeImage: base64Image
-                            };
-
-                            // Update display
+                            currentThemeData = { ...themeData, themeImage: base64Image };
                             document.getElementById('themeYearTitle').innerText = "Theme of the Year " + year;
                             document.getElementById('themeTitle').innerText = title;
                             document.getElementById('themeVerse').innerText = verse;
                             document.getElementById('themeDescription').innerText = description;
-
-                            // Update images if available
                             if (base64Image) {
                                 document.getElementById('yearThemeImage').src = base64Image;
                                 document.getElementById('modalImage').src = base64Image;
                             }
-
-                            // Update modal text
-                            document.getElementById('modalTitle').innerText = title;
-                            document.getElementById('modalVerse').innerText = verse;
-                            document.getElementById('modalDescription').innerText = description;
-
-                            // Switch back to display mode
                             document.getElementById('displayMode').style.display = 'block';
                             document.getElementById('editMode').style.display = 'none';
                             document.getElementById('editThemeButton').style.display = 'inline-block';
                             document.getElementById('saveThemeButton').style.display = 'none';
-
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: 'Theme updated successfully.',
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
+                            Swal.fire({ icon: 'success', title: 'Success!', text: 'Theme updated successfully.', timer: 2000, showConfirmButton: false });
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Update Failed',
-                                text: response.message || 'An error occurred while updating the theme.'
-                            });
+                            Swal.fire({ icon: 'error', title: 'Update Failed', text: response.message || 'An error occurred while updating the theme.' });
                         }
                     },
                     error: function (xhr) {
-                        console.error('Error:', xhr);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Failed to update theme. Please try again.'
-                        });
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to update theme. Please try again.' });
                     },
                     complete: function () {
                         saveButton.disabled = false;
@@ -1126,11 +1032,7 @@
                 });
             } catch (error) {
                 console.error('Error converting image:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Failed to process image. Please try again.'
-                });
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to process image. Please try again.' });
                 saveButton.disabled = false;
                 saveButton.innerHTML = originalText;
             }
@@ -1153,22 +1055,15 @@
                         title: 'Loading...',
                         text: 'Preparing form',
                         allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
+                        didOpen: () => Swal.showLoading()
                     });
                     $.get('/Members/AddMembershipClassPartial', { memberId: memberId }, function (data) {
                         Swal.close();
                         $('#membershipClassModalBody').html(data);
                         const modal = new bootstrap.Modal(document.getElementById('membershipClassModal'));
                         modal.show();
-                    })
-                    .fail(function () {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Failed to load membership form.'
-                        });
+                    }).fail(function () {
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load membership form.' });
                     });
                 }
             });
@@ -1187,13 +1082,8 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.post('/Members/MakeFullMember', { id: memberId }, function() {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'Member upgraded successfully',
-                            icon: 'success',
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => location.reload());
+                        Swal.fire({ title: 'Success!', text: 'Member upgraded successfully', icon: 'success', timer: 2000, showConfirmButton: false })
+                            .then(() => location.reload());
                     });
                 }
             });

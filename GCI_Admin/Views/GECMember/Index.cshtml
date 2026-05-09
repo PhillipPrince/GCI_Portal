@@ -23,7 +23,7 @@
         <div class="card border-0 shadow-sm stat-card">
             <div class="card-body">
                 <h6 class="text-muted mb-1">Total Members</h6>
-                <h3 class="fw-bold mb-0">@Model?.Count ?? 0</h3>
+                <h3 class="fw-bold mb-0">@Model?.Count </h3>
             </div>
         </div>
     </div>
@@ -32,7 +32,7 @@
         <div class="card border-0 shadow-sm stat-card">
             <div class="card-body">
                 <h6 class="text-muted mb-1">Active Members</h6>
-                <h3 class="fw-bold mb-0 text-success">@Model?.Count(m => m.IsActive) ?? 0</h3>
+                <h3 class="fw-bold mb-0 text-success">@Model?.Count(m => m.IsActive) </h3>
             </div>
         </div>
     </div>
@@ -41,7 +41,7 @@
         <div class="card border-0 shadow-sm stat-card">
             <div class="card-body">
                 <h6 class="text-muted mb-1">Positions</h6>
-                <h3 class="fw-bold mb-0">@Model?.Select(m => m.PositionTitle).Distinct().Count() ?? 0</h3>
+                <h3 class="fw-bold mb-0">@Model?.Select(m => m.PositionTitle).Distinct().Count() </h3>
             </div>
         </div>
     </div>
@@ -50,7 +50,7 @@
         <div class="card border-0 shadow-sm stat-card">
             <div class="card-body">
                 <h6 class="text-muted mb-1">New This Month</h6>
-                <h3 class="fw-bold mb-0">@Model?.Count(m => m.CreatedAt >= DateTime.Now.AddDays(-30)) ?? 0</h3>
+                <h3 class="fw-bold mb-0">@Model?.Count(m => m.CreatedAt >= DateTime.Now.AddDays(-30)) </h3>
             </div>
         </div>
     </div>

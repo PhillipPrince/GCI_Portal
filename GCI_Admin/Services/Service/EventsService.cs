@@ -563,5 +563,30 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
+        public async Task<ApiResponse<List<Event>>> GetEventsByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var response = await _eventsRepository.GetEventsByDateRangeAsync(startDate, endDate);
+
+                return new ApiResponse<List<Event>>
+                {
+                    IsSuccess = response.Success,
+                    Message = response.Message,
+                    Data = response.Data
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"EventsService -> GetEventsByDateRangeAsync -> {ex}");
+
+                return new ApiResponse<List<Event>>
+                {
+                    IsSuccess = false,
+                    Message = $"An error occurred while fetching events: {ex.Message}",
+                    Data = null
+                };
+            }
         }
+    }
 }

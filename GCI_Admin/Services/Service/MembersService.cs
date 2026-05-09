@@ -570,5 +570,83 @@ namespace GCI_Admin.Services.Service
 
             return response;
         }
+
+        public async Task<ApiResponse<List<Member>>> GetMembersByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var response = await _membersRepository.GetMembersByDateRangeAsync(startDate, endDate);
+
+                return new ApiResponse<List<Member>>
+                {
+                    IsSuccess = response.Success,
+                    Message = response.Message,
+                    Data = response.Data
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"MembersService -> GetMembersByDateRangeAsync -> {ex}");
+
+                return new ApiResponse<List<Member>>
+                {
+                    IsSuccess = false,
+                    Message = $"An error occurred while fetching members: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<ApiResponse<List<Member>>> GetActiveMembersByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var response = await _membersRepository.GetActiveMembersByDateRangeAsync(startDate, endDate);
+
+                return new ApiResponse<List<Member>>
+                {
+                    IsSuccess = response.Success,
+                    Message = response.Message,
+                    Data = response.Data
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"MembersService -> GetActiveMembersByDateRangeAsync -> {ex}");
+
+                return new ApiResponse<List<Member>>
+                {
+                    IsSuccess = false,
+                    Message = $"An error occurred while fetching active members: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<ApiResponse<List<Member>>> GetFullMembersByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var response = await _membersRepository.GetFullMembersByDateRangeAsync(startDate, endDate);
+
+                return new ApiResponse<List<Member>>
+                {
+                    IsSuccess = response.Success,
+                    Message = response.Message,
+                    Data = response.Data
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"MembersService -> GetFullMembersByDateRangeAsync -> {ex}");
+
+                return new ApiResponse<List<Member>>
+                {
+                    IsSuccess = false,
+                    Message = $"An error occurred while fetching full members: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
     }
 }

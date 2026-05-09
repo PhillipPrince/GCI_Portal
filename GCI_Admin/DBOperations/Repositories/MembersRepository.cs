@@ -433,5 +433,263 @@ namespace GCI_Admin.DBOperations.Repositories
             }
 
         }
+        // Add these methods to your MembersRepository class
+
+        public async Task<DbResponse<List<Member>>> GetMembersByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var members = await _context.Members
+                    .Where(m => m.CreatedAt >= startDate && m.CreatedAt <= endDate)
+                    .OrderByDescending(m => m.CreatedAt)
+                    .ToListAsync();
+
+                return new DbResponse<List<Member>>
+                {
+                    Success = true,
+                    Data = members,
+                    Message = $"Found {members.Count} members created between {startDate:yyyy-MM-dd} and {endDate:yyyy-MM-dd}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching members by date range: {ex.ToString()}");
+                return new DbResponse<List<Member>>
+                {
+                    Success = false,
+                    Message = $"Error fetching members by date range: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<List<Member>>> GetActiveMembersByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var members = await _context.Members
+                    .Where(m => m.StatusId == 1 && m.CreatedAt >= startDate && m.CreatedAt <= endDate)
+                    .OrderByDescending(m => m.CreatedAt)
+                    .ToListAsync();
+
+                return new DbResponse<List<Member>>
+                {
+                    Success = true,
+                    Data = members,
+                    Message = $"Found {members.Count} active members created between {startDate:yyyy-MM-dd} and {endDate:yyyy-MM-dd}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching active members by date range: {ex.ToString()}");
+                return new DbResponse<List<Member>>
+                {
+                    Success = false,
+                    Message = $"Error fetching active members by date range: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<List<Member>>> GetFullMembersByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var members = await _context.Members
+                    .Where(m => m.StatusId == 1 && m.CreatedAt >= startDate && m.CreatedAt <= endDate)
+                    .OrderByDescending(m => m.CreatedAt)
+                    .ToListAsync();
+
+                return new DbResponse<List<Member>>
+                {
+                    Success = true,
+                    Data = members,
+                    Message = $"Found {members.Count} full members created between {startDate:yyyy-MM-dd} and {endDate:yyyy-MM-dd}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching full members by date range: {ex.ToString()}");
+                return new DbResponse<List<Member>>
+                {
+                    Success = false,
+                    Message = $"Error fetching full members by date range: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<List<Member>>> GetMembersByStatusAndDateRangeAsync(int statusId, DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var members = await _context.Members
+                    .Where(m => m.StatusId == statusId && m.CreatedAt >= startDate && m.CreatedAt <= endDate)
+                    .OrderByDescending(m => m.CreatedAt)
+                    .ToListAsync();
+
+                return new DbResponse<List<Member>>
+                {
+                    Success = true,
+                    Data = members,
+                    Message = $"Found {members.Count} members with status {statusId} created between {startDate:yyyy-MM-dd} and {endDate:yyyy-MM-dd}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching members by status and date range: {ex.ToString()}");
+                return new DbResponse<List<Member>>
+                {
+                    Success = false,
+                    Message = $"Error fetching members by status and date range: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<int>> GetMembersCountByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var count = await _context.Members
+                    .CountAsync(m => m.CreatedAt >= startDate && m.CreatedAt <= endDate);
+
+                return new DbResponse<int>
+                {
+                    Success = true,
+                    Data = count,
+                    Message = $"Found {count} members created between {startDate:yyyy-MM-dd} and {endDate:yyyy-MM-dd}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error counting members by date range: {ex.ToString()}");
+                return new DbResponse<int>
+                {
+                    Success = false,
+                    Message = $"Error counting members by date range: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<int>> GetActiveMembersCountByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var count = await _context.Members
+                    .CountAsync(m => m.StatusId == 1 && m.CreatedAt >= startDate && m.CreatedAt <= endDate);
+
+                return new DbResponse<int>
+                {
+                    Success = true,
+                    Data = count,
+                    Message = $"Found {count} active members created between {startDate:yyyy-MM-dd} and {endDate:yyyy-MM-dd}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error counting active members by date range: {ex.ToString()}");
+                return new DbResponse<int>
+                {
+                    Success = false,
+                    Message = $"Error counting active members by date range: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<Dictionary<DateTime, int>>> GetMembersGroupedByDateAsync(DateTime startDate, DateTime endDate, string groupBy = "day")
+        {
+            try
+            {
+                var query = _context.Members
+                    .Where(m => m.CreatedAt >= startDate && m.CreatedAt <= endDate);
+
+                Dictionary<DateTime, int> groupedData = new Dictionary<DateTime, int>();
+
+                if (groupBy.ToLower() == "day")
+                {
+                    groupedData = await query
+                        .GroupBy(m => m.CreatedAt.Date)
+                        .Select(g => new { Date = g.Key, Count = g.Count() })
+                        .ToDictionaryAsync(g => g.Date, g => g.Count);
+                }
+                else if (groupBy.ToLower() == "week")
+                {
+                    groupedData = await query
+                        .GroupBy(m => new {
+                            Year = m.CreatedAt.Year,
+                            Week = System.Globalization.CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(
+                                m.CreatedAt,
+                                System.Globalization.CalendarWeekRule.FirstDay,
+                                DayOfWeek.Sunday)
+                        })
+                        .Select(g => new {
+                            Date = new DateTime(g.Key.Year, 1, 1).AddDays((g.Key.Week - 1) * 7),
+                            Count = g.Count()
+                        })
+                        .ToDictionaryAsync(g => g.Date, g => g.Count);
+                }
+                else if (groupBy.ToLower() == "month")
+                {
+                    groupedData = await query
+                        .GroupBy(m => new { m.CreatedAt.Year, m.CreatedAt.Month })
+                        .Select(g => new { Date = new DateTime(g.Key.Year, g.Key.Month, 1), Count = g.Count() })
+                        .ToDictionaryAsync(g => g.Date, g => g.Count);
+                }
+                else if (groupBy.ToLower() == "year")
+                {
+                    groupedData = await query
+                        .GroupBy(m => m.CreatedAt.Year)
+                        .Select(g => new { Date = new DateTime(g.Key, 1, 1), Count = g.Count() })
+                        .ToDictionaryAsync(g => g.Date, g => g.Count);
+                }
+
+                return new DbResponse<Dictionary<DateTime, int>>
+                {
+                    Success = true,
+                    Data = groupedData,
+                    Message = $"Found {groupedData.Count} date groups"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching members grouped by date: {ex.ToString()}");
+                return new DbResponse<Dictionary<DateTime, int>>
+                {
+                    Success = false,
+                    Message = $"Error fetching members grouped by date: {ex.Message}"
+                };
+            }
+        }
+
+        // Optional: Method to get members who attained membership class within date range
+        public async Task<DbResponse<List<Member>>> GetMembersInMembershipClassByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                // Get member IDs that have additional info created within the date range
+                var memberIds = await _context.MemberAdditionalInformations
+                    .Where(info => info.CreatedAt >= startDate && info.CreatedAt <= endDate)
+                    .Select(info => info.MemberId)
+                    .ToListAsync();
+
+                var members = await _context.Members
+                    .Where(m => memberIds.Contains(m.Id) && m.StatusId == 2)
+                    .OrderByDescending(m => m.CreatedAt)
+                    .ToListAsync();
+
+                return new DbResponse<List<Member>>
+                {
+                    Success = true,
+                    Data = members,
+                    Message = $"Found {members.Count} members in membership class between {startDate:yyyy-MM-dd} and {endDate:yyyy-MM-dd}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching membership class members by date range: {ex.ToString()}");
+                return new DbResponse<List<Member>>
+                {
+                    Success = false,
+                    Message = $"Error fetching membership class members by date range: {ex.Message}"
+                };
+            }
+        }
     }
 }
