@@ -45,7 +45,7 @@
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label class="form-label fw-bold">Ministry <span class="text-danger">*</span></label>
-                <select asp-for="MinistryLeader.MinistryId" class="form-select" id="MinistryId" name="MinistryId" required>
+                <select asp-for="MinistryLeader.MinistryId" class="form-select" id="MinistryId" name="MinistryLeader.MinistryId" required>
                     <option value="">-- Select Ministry --</option>
                     @if (Model?.Ministries != null)
                     {
@@ -59,7 +59,7 @@
             </div>
             <div class="col-md-6 mb-3">
                 <label class="form-label fw-bold">Position Title <span class="text-danger">*</span></label>
-                <input asp-for="MinistryLeader.PositionTitle" class="form-control" id="PositionTitle" name="PositionTitle"
+                <input asp-for="MinistryLeader.PositionTitle" class="form-control" id="PositionTitle" name="MinistryLeader.PositionTitle"
                        placeholder="e.g., Worship Director, Youth Pastor, Outreach Coordinator" required />
                 <span asp-validation-for="MinistryLeader.PositionTitle" class="text-danger"></span>
                 <small class="text-muted">The role or title this person holds in the ministry</small>
@@ -69,7 +69,7 @@
         <div class="row">
             <div class="col-md-12 mb-3">
                 <label class="form-label fw-bold">Bio / Description</label>
-                <textarea asp-for="MinistryLeader.Bio" class="form-control" id="Bio" name="Bio" rows="3" maxlength="500"
+                <textarea asp-for="MinistryLeader.Bio" class="form-control" id="Bio" name="MinistryLeader.Bio" rows="3" maxlength="500"
                           placeholder="Brief biography, qualifications, or role description..."></textarea>
                 <span asp-validation-for="MinistryLeader.Bio" class="text-danger"></span>
                 <small class="text-muted">Optional: Provide a brief description of the leader's role and responsibilities</small>
@@ -79,13 +79,13 @@
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label class="form-label fw-bold">Start Date <span class="text-danger">*</span></label>
-                <input asp-for="MinistryLeader.StartDate" type="date" class="form-control" id="StartDate" name="StartDate" required
+                <input asp-for="MinistryLeader.StartDate" type="date" class="form-control" id="StartDate" name="MinistryLeader.StartDate" required
                        value="@(Model.MinistryLeader.StartDate?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))">
                     <span asp-validation-for="MinistryLeader.StartDate" class="text-danger"></span>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">End Date</label>
-                    <input asp-for="MinistryLeader.EndDate" type="date" class="form-control" id="EndDate" name="EndDate"
+                    <input asp-for="MinistryLeader.EndDate" type="date" class="form-control" id="EndDate" name="MinistryLeader.EndDate"
                            value="@(Model?.MinistryLeader?.EndDate?.ToString("yyyy-MM-dd"))">
                         <span asp-validation-for="MinistryLeader.EndDate" class="text-danger"></span>
                         <small class="text-muted">Leave empty if currently serving</small>
@@ -95,7 +95,7 @@
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <div class="form-check form-switch">
-                            <input asp-for="MinistryLeader.IsActive" class="form-check-input" type="checkbox" id="IsActive" name="IsActive"
+                            <input asp-for="MinistryLeader.IsActive" class="form-check-input" type="checkbox" id="IsActive" name="MinistryLeader.IsActive"
                                    checked="@(Model?.MinistryLeader?.IsActive ?? true)">
                                 <label class="form-check-label fw-bold" asp-for="MinistryLeader.IsActive">Active Leader</label>
                             </div>
@@ -113,7 +113,7 @@
                         e.preventDefault();
                         return false;
                     });
-        
+
                     // Initialize member selector if needed
                     if (typeof initializeCustomDropdown === 'function') {
                         initializeCustomDropdown('ministryLeaderMemberSelector');
@@ -123,7 +123,7 @@
                 // Function to show confirmation dialog before submission
                 function confirmAndSubmit() {
                     const isEdit = '@isEdit'.toLowerCase() === 'true';
-        
+
                     // Get all field values for the confirmation message
                     const memberDisplayName = $('#ministryLeaderMemberSelector_display').val();
                     const ministryName = $('#MinistryId option:selected').text();
@@ -132,15 +132,15 @@
                     const endDate = $('#EndDate').val();
                     const isActive = $('#IsActive').is(':checked');
                     const bio = $('#Bio').val();
-        
+
                     // Format dates for display
                     const formattedStartDate = startDate ? new Date(startDate).toLocaleDateString() : 'Not specified';
                     const formattedEndDate = endDate ? new Date(endDate).toLocaleDateString() : 'Currently serving';
-        
+
                     // Build confirmation message
                     let confirmationMessage = '';
                     let confirmationTitle = '';
-        
+
                     if (isEdit) {
                         confirmationTitle = 'Confirm Update';
                         confirmationMessage = `
@@ -176,7 +176,7 @@
                             </div>
                         `;
                     }
-        
+
                     // Show SweetAlert confirmation
                     Swal.fire({
                         title: confirmationTitle,
@@ -217,7 +217,7 @@
                         const isEdit = '@isEdit'.toLowerCase() === 'true';
                         const formId = isEdit ? 'editMinistryLeaderForm' : 'createMinistryLeaderForm';
                         const form = $('#' + formId);
-            
+
                         if (!form.length) {
                             console.error('Form not found:', formId);
                             reject('Form not found');
@@ -280,28 +280,31 @@
 
                         // Disable button and show loading
                         const $saveBtn = $('#saveMinistryLeaderBtn');
-                        const $loadingSpinner = $('#ministryLeaderLoading');
-                        const $btnText = $('#saveBtnText');
             
-                        $saveBtn.prop('disabled', true);
-                        $loadingSpinner.removeClass('d-none');
-                        const originalText = $btnText.text();
-                        $btnText.text('Saving...');
+                        if ($saveBtn.length) {
+                            $saveBtn.prop('disabled', true);
+                            const originalHtml = $saveBtn.html();
+                            $saveBtn.data('original-html', originalHtml);
+                            $saveBtn.html('<i class="fa fa-spinner fa-spin me-1"></i>Saving...');
+                        }
 
                         // Get anti-forgery token
                         const token = $('input[name="__RequestVerificationToken"]', form).val();
 
-                        // Prepare form data
+                        // Prepare form data - Note the naming convention matches the DTO structure
                         const formData = new FormData();
                         formData.append('__RequestVerificationToken', token);
-                        formData.append('MinistryLeaderId', ministryLeaderId);
-                        formData.append('MemberId', memberId);
-                        formData.append('MinistryId', ministryId);
-                        formData.append('PositionTitle', positionTitle.trim());
-                        formData.append('Bio', bio || '');
-                        formData.append('StartDate', startDate);
-                        formData.append('EndDate', endDate || '');
-                        formData.append('IsActive', isActive);
+            
+                        if (ministryLeaderId && ministryLeaderId !== '0') {
+                            formData.append('MinistryLeader.MinistryLeaderId', ministryLeaderId);
+                        }
+                        formData.append('MinistryLeader.MemberId', memberId);
+                        formData.append('MinistryLeader.MinistryId', ministryId);
+                        formData.append('MinistryLeader.PositionTitle', positionTitle.trim());
+                        formData.append('MinistryLeader.Bio', bio || '');
+                        formData.append('MinistryLeader.StartDate', startDate);
+                        formData.append('MinistryLeader.EndDate', endDate || '');
+                        formData.append('MinistryLeader.IsActive', isActive);
 
                         // Log form data to console
                         console.log("Submitting Ministry Leader form data:");
@@ -320,9 +323,13 @@
                                 console.log("Response:", response);
                     
                                 // Reset button state
-                                $saveBtn.prop('disabled', false);
-                                $loadingSpinner.addClass('d-none');
-                                $btnText.text(originalText);
+                                if ($saveBtn.length) {
+                                    $saveBtn.prop('disabled', false);
+                                    const originalHtml = $saveBtn.data('original-html');
+                                    if (originalHtml) {
+                                        $saveBtn.html(originalHtml);
+                                    }
+                                }
 
                                 if (response.success) {
                                     // Show success message
@@ -353,9 +360,13 @@
                             },
                             error: function(xhr, status, error) {
                                 // Reset button state
-                                $saveBtn.prop('disabled', false);
-                                $loadingSpinner.addClass('d-none');
-                                $btnText.text(originalText);
+                                if ($saveBtn.length) {
+                                    $saveBtn.prop('disabled', false);
+                                    const originalHtml = $saveBtn.data('original-html');
+                                    if (originalHtml) {
+                                        $saveBtn.html(originalHtml);
+                                    }
+                                }
                     
                                 // Handle different error scenarios
                                 let errorMessage = 'An unexpected error occurred.';
@@ -407,7 +418,9 @@
                     $('#StartDate').val(new Date().toISOString().split('T')[0]);
                     $('#EndDate').val('');
                     $('#IsActive').prop('checked', true);
-                    $('.dropdown-list').hide();
+                    if (typeof $('.dropdown-list').hide === 'function') {
+                        $('.dropdown-list').hide();
+                    }
                     $('#ministryLeaderMemberSelector_validation').text('');
                 });
             </script>

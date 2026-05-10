@@ -14,12 +14,20 @@
     public class ExcelEventDto
     {
         public int RowNumber { get; set; }
+
         public string Title { get; set; }
         public string Description { get; set; }
+
         public string EventDate { get; set; }
         public string Location { get; set; }
+
         public string IsPaid { get; set; }
         public string Price { get; set; }
+
+        public string RequireRegistration { get; set; }
+        public string AllowWalkIns { get; set; }
+        public string StartDateTime { get; set; }
+        public string EndDateTime { get; set; }
     }
 
 }

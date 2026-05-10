@@ -224,6 +224,198 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-       
+        // Add these methods to your MinistriesService class
+
+        // ✅ CREATE MINISTRY LEADER
+        public async Task<ApiResponse<MinistryLeader>> CreateMinistryLeaderAsync(MinistryLeaderDto dto)
+        {
+            var response = new ApiResponse<MinistryLeader>();
+
+            try
+            {
+                var result = await _ministriesRepository.CreateMinistryLeaderAsync(dto);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = result.Message;
+                response.Code = "200";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in CreateMinistryLeaderAsync service: {ex}");
+            }
+
+            return response;
+        }
+
+        // ✅ GET MINISTRY LEADER BY ID
+        public async Task<ApiResponse<MinistryLeader>> GetMinistryLeaderByIdAsync(int ministryLeaderId)
+        {
+            var response = new ApiResponse<MinistryLeader>();
+
+            try
+            {
+                var result = await _ministriesRepository.GetMinistryLeaderByIdAsync(ministryLeaderId);
+
+                if (!result.Success || result.Data == null)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = "Ministry leader not found";
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "Ministry leader retrieved successfully";
+                response.Code = "200";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in GetMinistryLeaderByIdAsync service: {ex}");
+            }
+
+            return response;
+        }
+
+        // ✅ UPDATE MINISTRY LEADER
+        public async Task<ApiResponse<MinistryLeader>> UpdateMinistryLeaderAsync(int ministryLeaderId, MinistryLeaderDto dto)
+        {
+            var response = new ApiResponse<MinistryLeader>();
+
+            try
+            {
+                var result = await _ministriesRepository.UpdateMinistryLeaderAsync(ministryLeaderId, dto);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = result.Message;
+                response.Code = "200";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in UpdateMinistryLeaderAsync service: {ex}");
+            }
+
+            return response;
+        }
+
+        // ✅ DELETE MINISTRY LEADER
+        public async Task<ApiResponse<bool>> DeleteMinistryLeaderAsync(int ministryLeaderId)
+        {
+            var response = new ApiResponse<bool>();
+
+            try
+            {
+                var result = await _ministriesRepository.DeleteMinistryLeaderAsync(ministryLeaderId);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = result.Message;
+                response.Code = "200";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in DeleteMinistryLeaderAsync service: {ex}");
+            }
+
+            return response;
+        }
+
+        // ✅ GET MINISTRY LEADERS BY MINISTRY
+        public async Task<ApiResponse<List<MinistryLeader>>> GetMinistryLeadersByMinistryAsync(int ministryId)
+        {
+            var response = new ApiResponse<List<MinistryLeader>>();
+
+            try
+            {
+                var result = await _ministriesRepository.GetMinistryLeadersByMinistryAsync(ministryId);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "Ministry leaders retrieved successfully";
+                response.Code = "200";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in GetMinistryLeadersByMinistryAsync service: {ex}");
+            }
+
+            return response;
+        }
+
+        // ✅ GET ACTIVE MINISTRY LEADERS
+        public async Task<ApiResponse<List<MinistryLeader>>> GetActiveMinistryLeadersAsync()
+        {
+            var response = new ApiResponse<List<MinistryLeader>>();
+
+            try
+            {
+                var result = await _ministriesRepository.GetActiveMinistryLeadersAsync();
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "Active ministry leaders retrieved successfully";
+                response.Code = "200";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in GetActiveMinistryLeadersAsync service: {ex}");
+            }
+
+            return response;
+        }
     }
 }

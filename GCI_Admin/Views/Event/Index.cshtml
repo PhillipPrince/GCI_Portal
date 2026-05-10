@@ -1109,42 +1109,65 @@
         }
 
 
-        // Export events to Excel
-        function exportEvents() {
-            const exportData = events.map(e => ({
-                'EventId': e.eventId,
-                'Title': e.title,
-                'Description': e.description,
-                'EventDate': moment(e.eventDate).format('YYYY-MM-DD HH:mm:ss'),
-                'Location': e.location,
-                'IsPaid': e.isPaid ? 'TRUE' : 'FALSE',
-                'Price': e.price || 0,
-                'CreatedAt': moment(e.createdAt).format('YYYY-MM-DD HH:mm:ss'),
-                'UpdatedAt': e.updatedAt ? moment(e.updatedAt).format('YYYY-MM-DD HH:mm:ss') : ''
-            }));
+       // Export events to Excel
+function exportEvents() {
+    const exportData = events.map(e => ({
+        'EventId': e.eventId,
+        'Title': e.title,
+        'Description': e.description,
+        'EventDate': e.eventDate
+            ? moment(e.eventDate).format('YYYY-MM-DD HH:mm:ss')
+            : '',
+        'Location': e.location,
+        'IsPaid': e.isPaid ? 'TRUE' : 'FALSE',
+        'Price': e.price || 0,
+        'CreatedAt': e.createdAt
+            ? moment(e.createdAt).format('YYYY-MM-DD HH:mm:ss')
+            : '',
+        'UpdatedAt': e.updatedAt
+            ? moment(e.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+            : '',
+        'IsActive': e.isActive ? 'TRUE' : 'FALSE',
+        'RequireRegistration': e.requireRegistration ? 'TRUE' : 'FALSE',
+        'AllowWalkIns': e.allowWalkIns ? 'TRUE' : 'FALSE',
+        'StartDateTime': e.startDateTime
+            ? moment(e.startDateTime).format('YYYY-MM-DD HH:mm:ss')
+            : '',
+        'EndDateTime': e.endDateTime
+            ? moment(e.endDateTime).format('YYYY-MM-DD HH:mm:ss')
+            : ''
+    }));
 
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(exportData);
 
-            // Set column widths
-            const colWidths = [
-                { wch: 10 }, // EventId
-                { wch: 30 }, // Title
-                { wch: 50 }, // Description
-                { wch: 20 }, // EventDate
-                { wch: 25 }, // Location
-                { wch: 10 }, // IsPaid
-                { wch: 10 }, // Price
-                { wch: 20 }, // CreatedAt
-                { wch: 20 }  // UpdatedAt
-            ];
-            ws['!cols'] = colWidths;
+    // Set column widths
+    ws['!cols'] = [
+        { wch: 10 }, // EventId
+        { wch: 35 }, // Title
+        { wch: 60 }, // Description
+        { wch: 22 }, // EventDate
+        { wch: 30 }, // Location
+        { wch: 12 }, // IsPaid
+        { wch: 12 }, // Price
+        { wch: 22 }, // CreatedAt
+        { wch: 22 }, // UpdatedAt
+        { wch: 12 }, // IsActive
+        { wch: 20 }, // RequireRegistration
+        { wch: 15 }, // AllowWalkIns
+        { wch: 22 }, // StartDateTime
+        { wch: 22 }  // EndDateTime
+    ];
 
-            XLSX.utils.book_append_sheet(wb, ws, 'Events');
-            XLSX.writeFile(wb, `Events_Export_${moment().format('YYYY-MM-DD')}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, 'Events');
 
-            showToast('Events exported successfully', 'success');
-        }
+    XLSX.writeFile(
+        wb,
+        `Events_Export_${moment().format('YYYY-MM-DD_HH-mm-ss')}.xlsx`
+    );
+
+    showToast('Events exported successfully', 'success');
+}
 
         // Handle delete confirmation from table
         window.deleteEvent = deleteEvent;

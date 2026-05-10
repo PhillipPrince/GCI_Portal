@@ -14,11 +14,15 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<Ministry>> GetMinistryByIdAsync(int ministryId);
         Task<ApiResponse<Ministry>> UpdateMinistryAsync(int ministryId, MinistryDto dto);
         Task<ApiResponse<bool>> DeleteMinistryAsync(int ministryId);
-
-        // ✅ Toggle active/inactive status
         Task<ApiResponse<bool>> ToggleMinistryStatusAsync(int ministryId, bool isActive);
 
-        // ✅ Ministry Leaders
+        // ✅ Ministry Leader CRUD
+        Task<ApiResponse<MinistryLeader>> CreateMinistryLeaderAsync(MinistryLeaderDto dto);
         Task<ApiResponse<List<MinistryLeader>>> GetAllMinistryLeadersAsync();
+        Task<ApiResponse<MinistryLeader>> GetMinistryLeaderByIdAsync(int ministryLeaderId);
+        Task<ApiResponse<MinistryLeader>> UpdateMinistryLeaderAsync(int ministryLeaderId, MinistryLeaderDto dto);
+        Task<ApiResponse<bool>> DeleteMinistryLeaderAsync(int ministryLeaderId);
+        Task<ApiResponse<List<MinistryLeader>>> GetMinistryLeadersByMinistryAsync(int ministryId);
+        Task<ApiResponse<List<MinistryLeader>>> GetActiveMinistryLeadersAsync();
     }
 }

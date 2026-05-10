@@ -26,10 +26,19 @@ namespace GCI_Admin.DBOperations.Repositories
                     Location = dto.Location,
                     IsPaid = dto.IsPaid,
                     Price = dto.IsPaid ? dto.Price : null,
-                    CreatedAt = DateTime.Now
+
+                    IsActive = dto.IsActive,
+                    RequireRegistration = dto.RequireRegistration,
+                    AllowWalkIns = dto.AllowWalkIns,
+                    StartDateTime = dto.StartDateTime,
+                    EndDateTime = dto.EndDateTime,
+
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = null
                 };
 
                 _context.Events.Add(newEvent);
+
                 await _context.SaveChangesAsync();
 
                 return new DbResponse<Event>
@@ -41,7 +50,8 @@ namespace GCI_Admin.DBOperations.Repositories
             }
             catch (Exception ex)
             {
-                Loggers.DoLogs($"Error in CreateEventAsync: {ex.ToString()}");
+                Loggers.DoLogs($"Error in CreateEventAsync: {ex}");
+
                 return new DbResponse<Event>
                 {
                     Success = false,

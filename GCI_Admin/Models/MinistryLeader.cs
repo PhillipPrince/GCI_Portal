@@ -28,6 +28,7 @@ namespace GCI_Admin.Models
         public bool IsActive { get; set; } = true;
 
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
+        public DateTime? UpdatedAt { get; set; }
 
         // Navigation property
         public  Ministry Ministry { get; set; }

@@ -18,10 +18,13 @@ namespace GCI_Admin.Models.DTOs
         public string? Location { get; set; }
 
         public bool IsPaid { get; set; }
+        public bool IsActive { get; set; }
 
         [Range(0, 1000000)]
         public decimal? Price { get; set; }
         public bool RequireRegistration { get; set; }
         public bool AllowWalkIns { get;set; }
+        public DateTime? StartDateTime { get; set; }
+        public DateTime? EndDateTime { get; set; }
     }
 }
