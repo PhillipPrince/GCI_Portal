@@ -67,22 +67,30 @@ namespace GCI_Admin.Controllers
                 dashboard.EventCompletionPercentage = dashboard.UpcomingEvents > 0 ?
                     Math.Round((decimal)events?.Data?.Count(e => e.EventDate >= DateTime.Now && e.EventDate <= DateTime.Now.AddDays(7)) / dashboard.UpcomingEvents * 100, 2) : 0;
 
-                // Calculate growth percentages (compared to previous month)
-                int previousTotalMembers = previousMonthMembers.Data.Count ;
-                int previousActiveMembers = previousMonthActiveMembers.Data.Count ;
-                int previousEvents = previousMonthEvents.Data.Count ;
+                int previousTotalMembers = previousMonthMembers?.Data?.Count ?? 0;
+                int previousActiveMembers = previousMonthActiveMembers?.Data?.Count ?? 0;
+                int previousEvents = previousMonthEvents?.Data?.Count ?? 0;
 
-                dashboard.MemberGrowthPercentage = previousTotalMembers > 0 ?
-                    Math.Round((decimal)(dashboard.TotalMembers - previousTotalMembers) / previousTotalMembers * 100, 2) :
-                    (dashboard.TotalMembers > 0 ? 100 : 0);
+                // Member growth percentage
+                dashboard.MemberGrowthPercentage = previousTotalMembers > 0
+                    ? Math.Round(
+                        (decimal)(dashboard.TotalMembers - previousTotalMembers)
+                        / previousTotalMembers * 100, 2)
+                    : (dashboard.TotalMembers > 0 ? 100 : 0);
 
-                dashboard.ActiveMemberGrowthPercentage = previousActiveMembers > 0 ?
-                    Math.Round((decimal)(dashboard.TotalActiveMembers - previousActiveMembers) / previousActiveMembers * 100, 2) :
-                    (dashboard.TotalActiveMembers > 0 ? 100 : 0);
+                // Active member growth percentage
+                dashboard.ActiveMemberGrowthPercentage = previousActiveMembers > 0
+                    ? Math.Round(
+                        (decimal)(dashboard.TotalActiveMembers - previousActiveMembers)
+                        / previousActiveMembers * 100, 2)
+                    : (dashboard.TotalActiveMembers > 0 ? 100 : 0);
 
-                dashboard.EventChangePercentage = previousEvents > 0 ?
-                    Math.Round((decimal)(dashboard.UpcomingEvents - previousEvents) / previousEvents * 100, 2) :
-                    (dashboard.UpcomingEvents > 0 ? 100 : 0);
+                // Event growth percentage
+                dashboard.EventChangePercentage = previousEvents > 0
+                    ? Math.Round(
+                        (decimal)(dashboard.UpcomingEvents - previousEvents)
+                        / previousEvents * 100, 2)
+                    : (dashboard.UpcomingEvents > 0 ? 100 : 0);
 
                 // Events
                 dashboard.UpcomingEvents = upcomingEvents.Count();
@@ -198,7 +206,7 @@ namespace GCI_Admin.Controllers
                         var membersOnDate = await _membersService.GetMembersByDateRangeAsync(
                             currentDate.Date,
                             currentDate.Date.AddDays(1).AddSeconds(-1));
-                        data.Add(membersOnDate.Data.Count );
+                        data.Add(membersOnDate?.Data?.Count ?? 0);
                     }
                 }
                 else if (period == "monthly")
@@ -273,7 +281,7 @@ namespace GCI_Admin.Controllers
                         var fullMembersOnDate = await _membersService.GetFullMembersByDateRangeAsync(
                             currentDate.Date,
                             currentDate.Date.AddDays(1).AddSeconds(-1));
-                        data.Add(fullMembersOnDate.Data.Count );
+                        data.Add(fullMembersOnDate?.Data?.Count ?? 0);
                     }
                 }
                 else if (period == "monthly")

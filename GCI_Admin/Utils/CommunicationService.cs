@@ -51,7 +51,7 @@ namespace Utils
                 var jsonPayload = JsonSerializer.Serialize(payload);
                 var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
-                var response = await _httpClient.PostAsync("_smsConfig.BaseUrl", content);
+                var response = await _httpClient.PostAsync(_smsConfig.BaseUrl, content);
 
                 var responseContent = await response.Content.ReadAsStringAsync();
                 Loggers.EventLogs($"SMS send attempt to {mobile}. Status: {(int)response.StatusCode}, Response: {responseContent}");

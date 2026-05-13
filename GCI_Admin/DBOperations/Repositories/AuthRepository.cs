@@ -160,13 +160,13 @@ namespace GCI_Admin.DBOperations.Repositories
                     .FirstOrDefaultAsync();
                 string userMessage = string.Empty;
 
-                string otpText =MessageTemplates.GenerateOtpMessage("GCI",otpCode, expiryMinutes);
+                string otpText = MessageTemplates.GenerateOtpMessage("GCI", otpCode, expiryMinutes);
 
                 if (OTPGenerator.IsPhoneNumber(emailOrPhone))
                 {
                     try
                     {
-                     //   var smsResult = await _communicationService.SendSmsAsync(emailOrPhone, otpText);
+                        var smsResult = await _communicationService.SendSmsAsync(emailOrPhone, otpText);
 
                         userMessage = "Your OTP code has been sent successfully!";
                     }
@@ -232,6 +232,8 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+
+
         public async Task<DbResponse<OTP>> ConfirmOrRegenerateOtpAsync(ConfirmOtpDto confirm)
         {
             try

@@ -5,21 +5,14 @@ namespace GCI_Admin.Models
     public class Member
     {
         public int Id { get; set; }
-
         public string FirstName { get; set; }
-        public string OtherNames { get; set; }
-
+        public string? OtherNames { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
-
         public string Gender { get; set; }
-
         public string PasswordHash { get; set; }
-
         public string? Assembly { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
         public int? StatusId { get; set; }
         public string? SocialMediaName { get; set; }
 
@@ -30,12 +23,12 @@ namespace GCI_Admin.Models
         public string? MaritalStatus { get; set; }
 
         public int? NumberOfChildren { get; set; }
+        public int UserRole { get; set; } = 3;
 
         public string? SpouseName { get; set; }
-        public int UserRole { get; set; }
+        public bool MustChangePassword { get; set; }
         [NotMapped]
         public string RoleName { get; set; }
-        public bool MustChangePassword { get; set; }
         [NotMapped]
         public bool UseOtp { get; set; }
         [NotMapped]
