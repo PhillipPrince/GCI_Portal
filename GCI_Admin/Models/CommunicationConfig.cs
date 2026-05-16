@@ -55,4 +55,5 @@ namespace GCI_Admin.Models
         public string Title { get; set; }
         public string Message { get; set; }
     }
+    
 }

@@ -35,7 +35,7 @@ namespace GCI_Admin.Controllers
 
             return Ok(result);
         }
-        [HttpPost("/ResendOtp")]
+        [HttpPost]
         public async Task<IActionResult> ResendOtp([FromBody] ResendOtpDto resendOtpDto)
         {
             var result = await _userService.ResendOtp(resendOtpDto);
@@ -51,7 +51,7 @@ namespace GCI_Admin.Controllers
         {
             return View();
         }
-        [HttpPost("/RequestPasswordReset")]
+        [HttpPost]
         public async Task<IActionResult> RequestPasswordReset([FromBody] PasswordResetRequestDto request)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.EmailOrPhone))
@@ -65,22 +65,10 @@ namespace GCI_Admin.Controllers
             return Ok(result);
         }
 
-        [HttpPost("/RequestPasswordReset")]
-        public async Task<IActionResult> RequestPassReset([FromBody] PasswordResetRequestDto request)
-        {
-            if (request == null || string.IsNullOrWhiteSpace(request.EmailOrPhone))
-                return BadRequest(new { IsSuccess = false, Message = "Email or Phone is required." });
-
-            var result = await _userService.RequestPasswordReset(request.EmailOrPhone);
-
-            if (!result.IsSuccess)
-                return BadRequest(result);
-
-            return Ok(result);
-        }
+        
 
         // Reset password using OTP
-        [HttpPost("/ResetPassword")]
+        [HttpPost]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto reset)
         {
             if (reset == null || string.IsNullOrWhiteSpace(reset.EmailOrPhone)

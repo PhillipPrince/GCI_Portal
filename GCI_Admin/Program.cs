@@ -14,34 +14,80 @@ using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<ConnectionStringProvider>();
 
+// DbContext
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 {
     var connProvider = serviceProvider.GetRequiredService<ConnectionStringProvider>();
-
     var connectionString = connProvider.BuildConnectionString().GetAwaiter().GetResult();
 
     options.UseSqlServer(connectionString);
 });
-// Configs
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-builder.Services.Configure<SmsConfig>(builder.Configuration.GetSection("SmsConfig"));
 
+// ================= CONFIGURATION =================
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+
+builder.Services.Configure<SmsConfig>(builder.Configuration.GetSection("SmsConfig"));
+builder.Services.Configure<DevelopmentSettings>(builder.Configuration.GetSection("DevelopmentSettings"));
 builder.Services.Configure<JwtSettings>(jwtSettings);
+
+// ================= AUTH SERVICES =================
 builder.Services.AddScoped<JwtTokenService>();
 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+
+        RoleClaimType = ClaimTypes.Role
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnChallenge = context =>
+        {
+            context.HandleResponse();
+            context.Response.Redirect("/Auth/Index");
+            return Task.CompletedTask;
+        },
+        OnForbidden = context =>
+        {
+            context.Response.Redirect("/Auth/Unauthorized");
+            return Task.CompletedTask;
+        }
+    };
+});
+
+// ================= INFRASTRUCTURE =================
 builder.Services.AddHttpClient<CommunicationService>();
-builder.Services.AddScoped<SessionManager>();
-
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddSession();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(20);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
-
-// Repositories (Scoped)
+// ================= REPOSITORIES =================
 builder.Services.AddScoped<EventsRepository>();
 builder.Services.AddScoped<MembersRepository>();
 builder.Services.AddScoped<GECMemberRepository>();
@@ -56,8 +102,9 @@ builder.Services.AddScoped<SystemConfigRepository>();
 builder.Services.AddScoped<RolesRepository>();
 builder.Services.AddScoped<AuthRepository>();
 builder.Services.AddScoped<RcpsRepository>();
+builder.Services.AddScoped<ReportsRepository>();
 
-// Services (Scoped)
+// ================= SERVICES =================
 builder.Services.AddScoped<IEventsService, EventsService>();
 builder.Services.AddScoped<IMembersService, MembersService>();
 builder.Services.AddScoped<IGECMemberService, GECMemberService>();
@@ -69,71 +116,17 @@ builder.Services.AddScoped<IPaymentsService, PaymentsService>();
 builder.Services.AddScoped<IBenevolenceService, BenevolenceService>();
 builder.Services.AddScoped<ILeadershipService, LeadershipService>();
 builder.Services.AddScoped<ISystemConfigService, SystemConfigService>();
-builder.Services.AddScoped<IRolesService,RolesService>();
+builder.Services.AddScoped<IRolesService, RolesService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRcpsService, RcpsService>();
+builder.Services.AddScoped<IReportsService, ReportsService>();
 
+builder.Services.AddScoped<SessionManager>();
 
-
-
-builder.Services.Configure<JwtSettings>(jwtSettings);
-builder.Services.AddScoped<JwtTokenService>();
-
-
-    builder.Services.AddSession(options =>
-    {
-        options.IdleTimeout = TimeSpan.FromMinutes(20); // Auto logout after 20 minutes
-        options.Cookie.HttpOnly = true;
-        options.Cookie.IsEssential = true;
-    }); ;
-
-var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-
-        RoleClaimType = ClaimTypes.Role // 🔥 IMPORTANT for your Roles = "1"
-    };
-    options.Events = new JwtBearerEvents
-    {
-        OnChallenge = context =>
-        {
-            context.HandleResponse();
-
-            // 🔥 Not logged in
-            context.Response.Redirect("/Auth/Index");
-            return Task.CompletedTask;
-        },
-        OnForbidden = context =>
-        {
-            // 🔥 Logged in but no role/permission
-            context.Response.Redirect("/Auth/Unauthorized");
-            return Task.CompletedTask;
-        }
-    };
-});
-
-
-
-
+// Build app
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ================= PIPELINE =================
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -145,11 +138,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// ⚠️ IMPORTANT: Authentication must come BEFORE Authorization
+app.UseAuthentication();
 app.UseAuthorization();
-app.UseAuthentication();   
 
 app.UseSession();
 
+// Routing
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

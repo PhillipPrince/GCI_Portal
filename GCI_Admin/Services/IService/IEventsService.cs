@@ -23,6 +23,7 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<AnnualTheme>> UpdateAnnualThemeAsync(int id, AnnualThemeDto dto);
         Task<ApiResponse<List<Event>>> GetUpcomingEventsAsync();
         Task<ApiResponse<List<Event>>> GetEventsByDateRangeAsync(DateTime startDate, DateTime endDate);
+        Task<ApiResponse<List<EventRegistration>>> GetEventRegistrationsByEventIdAsync(int eventId);
 
 
 

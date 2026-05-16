@@ -205,6 +205,7 @@ namespace GCI_Admin.DBOperations.Repositories
                     otpRecord.IsConfirmed = otp.IsConfirmed;
                     otpRecord.CreatedAt = otp.CreatedAt;
                     otpRecord.ExpiresAt = otp.ExpiresAt;
+                    otpRecord.EmailOrPhone = otp.EmailOrPhone;
                     await _context.SaveChangesAsync();
                 }
                 else

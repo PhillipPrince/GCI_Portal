@@ -63,11 +63,7 @@ namespace GCI_Admin.Controllers
             var membersResult = await _membersService.GetAllMembersAsync();
             if (membersResult.IsSuccess && membersResult.Data != null)
             {
-                dto.Members = membersResult.Data.Select(m => new SelectListItem
-                {
-                    Value = m.Id.ToString(),
-                    Text = $"{m.FirstName} {m.OtherNames} ({m.Email})"
-                }).ToList();
+                dto.Members = membersResult.Data;
             }
 
             // Get all active ministries
@@ -188,15 +184,6 @@ namespace GCI_Admin.Controllers
 
                 // Get all members (active members only)
                 var membersResult = await _membersService.GetAllMembersAsync();
-                if (membersResult.IsSuccess && membersResult.Data != null)
-                {
-                    dto.Members = membersResult.Data.Select(m => new SelectListItem
-                    {
-                        Value = m.Id.ToString(),
-                        Text = $"{m.FirstName} {m.OtherNames} ({m.Email})",
-                        Selected = (m.Id == leader.MemberId)
-                    }).ToList();
-                }
 
                 // Get all active ministries
                 var ministriesResult = await _ministriesService.GetAllMinistriesAsync();

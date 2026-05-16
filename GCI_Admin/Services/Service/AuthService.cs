@@ -4,6 +4,7 @@ using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using GCI_Admin.Utils;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,13 +21,15 @@ namespace GCI_Admin.Services.Service
         private readonly SystemConfigRepository _sys;
         private readonly string _imageBasePath = "";
         private readonly SessionManager _sessionManager;
+        private readonly DevelopmentSettings _devSettings;
 
-        public AuthService(AuthRepository userRepository, JwtTokenService jwtTokenService, SystemConfigRepository sys, SessionManager session)
+        public AuthService(AuthRepository userRepository, JwtTokenService jwtTokenService, SystemConfigRepository sys, SessionManager session, IOptions<DevelopmentSettings> devSettings)
         {
             _userRepository = userRepository;
             _jwtTokenService = jwtTokenService;
             _sys = sys;
             _imageBasePath = SystemConfigHelper.GetImageBasePathAsync(_sys).GetAwaiter().GetResult();
+            _devSettings = devSettings.Value;
             _sessionManager = session;
 
         }
@@ -64,11 +67,11 @@ namespace GCI_Admin.Services.Service
 
                 var profileImage = ImageHelper.ReadImage(_imageBasePath, user.Id.ToString());
 
-                await _userRepository.GenerateAndInsertOtpAsync(login.EmailOrPhone, 10);
 
                 var otp = await _sys.GetConfigByKeyAsync("USE_OTP");
 
-                if(otp.Data.ConfigValue == "true")
+
+                if(otp.Data.ConfigValue == "true" && !_devSettings.IsDev)
                 {
                     var otpExp=await _sys.GetConfigByKeyAsync("OTP_EXPIRY_MINUTES");
                     string phone = user.Phone;

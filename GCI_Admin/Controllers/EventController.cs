@@ -1,8 +1,9 @@
-using System.Diagnostics;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
+using GCI_Admin.Services.Service;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using Utils;
 
 namespace GCI_Admin.Controllers
@@ -82,26 +83,33 @@ namespace GCI_Admin.Controllers
             }
         }
 
+       
+
         [HttpGet]
-        public async Task<IActionResult> GetById(int eventId)
+        public async Task<IActionResult> EventDetails(int id)
         {
             try
             {
-                ApiResponse<Event> response = await _eventsService.GetEventByIdAsync(eventId);
+                EventViewModel eventData = null;
+                ApiResponse<Event> response = await _eventsService.GetEventByIdAsync(id);
+                if (response.Data == null)
+                {
+                    TempData["Error"] = "Event not found";
+                    return RedirectToAction("Index");
+                }
+                var registrationsResponse = await _eventsService.GetEventRegistrationsByEventIdAsync(id);
+                eventData = new EventViewModel
+                {
+                    Event = response.Data,
+                    Registrations = registrationsResponse.Data
+                };  
 
-                if (!response.IsSuccess)
-                    return NotFound(response);
-
-                return Ok(response);
+                return View(eventData);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ApiResponse<Event>
-                {
-                    IsSuccess = false,
-                    Code = "500",
-                    Message = ex.Message
-                });
+                TempData["Error"] = "Error loading event details: " + ex.Message;
+                return RedirectToAction("Index");
             }
         }
 
@@ -265,5 +273,56 @@ namespace GCI_Admin.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetRegistrations(int id)
+        {
+            try
+            {
+                var registrations = await _eventsService.GetEventRegistrationsByEventIdAsync(id);
+                return PartialView("_EventRegistrationsTable", registrations);
+            }
+            catch (Exception ex)
+            {
+                return Content($"<div class='alert alert-danger'>{ex.Message}</div>");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetStats(int id)
+        {
+            try
+            {
+                var stats = await _eventsService.GetEventRegistrationsByEventIdAsync(id);
+
+                return Json(new
+                {
+                    isSuccess = true,
+                    attendeeCount = stats.Data.Count(),
+                    attendedCount = stats.Data.Where(e=> e.HasAttended==true).Count(),
+                    pendingCount = stats.Data.Where(e=> e.HasAttended==false).Count(),
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+
+       
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> SendReminders(int id)
+        //{
+        //    try
+        //    {
+        //        var result = await _eventsService.SendRemindersToAllAsync(id);
+        //        return Json(new { isSuccess = true, message = $"Reminders sent to {result.Count} participants" });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { isSuccess = false, message = ex.Message });
+        //    }
+        //}
     }
 }

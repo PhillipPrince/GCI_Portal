@@ -9,7 +9,7 @@ namespace GCI_Admin.Models
         public string? OtherNames { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
-        public string Gender { get; set; }
+        public string? Gender { get; set; }
         public string PasswordHash { get; set; }
         public string? Assembly { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
@@ -27,6 +27,22 @@ namespace GCI_Admin.Models
 
         public string? SpouseName { get; set; }
         public bool MustChangePassword { get; set; }
+
+        
+        [NotMapped]
+        public bool UpdatePhoneNumber { get; set; }
+        
+        public string? GoogleId { get; set; }
+        public string? AuthProvider { get; set; }
+        public DateTime? LastLoginAt { get; set; }
+        public bool IsProfileComplete { get; set; } = false;
+
+        public int FailedLoginAttempts { get; set; }
+
+        public bool IsLocked { get; set; }
+
+        public DateTime? LockedUntil { get; set; }
+
         [NotMapped]
         public string RoleName { get; set; }
         [NotMapped]

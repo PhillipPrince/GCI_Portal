@@ -398,6 +398,28 @@ namespace GCI_Admin.Services.Service
             }
         }
 
+        public Task<ApiResponse<List<EventRegistration>>> GetEventRegistrationsByEventIdAsync(int eventId)
+        {
+            var response = _eventsRepository.GetEventRegistrationsByEventIdAsync(eventId);
+            if (!response.Result.Success)
+            {
+                return Task.FromResult(new ApiResponse<List<EventRegistration>>
+                {
+                    IsSuccess = false,
+                    Code = "400",
+                    Message = response.Result.Message ?? "Failed to retrieve event registrations"
+                });
+            }
+
+            return Task.FromResult(new ApiResponse<List<EventRegistration>>
+            {
+                IsSuccess = true,
+                Code = "200",
+                Message = response.Result.Message ?? "Event registrations retrieved successfully",
+                Data = response.Result.Data
+            });
+        }
+
         public Task<ApiResponse<List<EventRegistration>>> GetEventRegistrationsAsync()
         {
             throw new NotImplementedException();

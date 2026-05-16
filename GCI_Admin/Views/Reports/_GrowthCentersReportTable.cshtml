@@ -1,0 +1,105 @@
+﻿@model List<GCI_Admin.Models.GrowthCenterMeeting>
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="growthCentersTable" class="table table-striped table-hover align-middle datatable">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Growth Center</th>
+                    <th>Meeting Date</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Bible Study Topic</th>
+                    <th>Members</th>
+                    <th>Visitors</th>
+                    <th>Total Attendance</th>
+                    <th>Children</th>
+                    <th>Offering</th>
+                    <th>Actions</th>
+                </tr>
+                <!-- Filter Row -->
+                <tr>
+                    <th></th>
+                    <th><input type="text" placeholder="Search Center" class="form-control form-control-sm" /></th>
+                    <th><input type="text" placeholder="Search Date" class="form-control form-control-sm" /></th>
+                    <th></th>
+                    <th></th>
+                    <th><input type="text" placeholder="Search Topic" class="form-control form-control-sm" /></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    int count = 1;
+                    foreach (var meeting in Model.OrderByDescending(m => m.MeetingDate))
+                    {
+                        <tr>
+                            <td>@count</td>
+                            <td>@meeting.GrowthCenter?.CenterName</td>
+                            <td>@meeting.MeetingDate.ToString("dd MMM yyyy")</td>
+                            <td>@meeting.StartingTime.ToString(@"hh\:mm")</td>
+                            <td>@meeting.FinishingTime.ToString(@"hh\:mm")</td>
+                            <td>@meeting.BibleStudyTopic</td>
+                            <td class="text-center">
+                                <span class="badge bg-primary">@meeting.TotalMembers</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-success">@meeting.TotalVisitors</span>
+                            </td>
+                            <td class="text-center fw-bold">
+                                @(meeting.TotalMembers + meeting.TotalVisitors)
+                            </td>
+                            <td class="text-center">@meeting.NumberOfChildren</td>
+                            <td class="text-end fw-bold text-success">
+                                KES @meeting.OfferingCollected.ToString("N2")
+                            </td>
+                            <td class="text-center">
+                                <a href="@Url.Action("GrowthCenterMeetingDetails", "Reports", new { id = meeting.GrowthCenterMeetingId })"
+                                       class="btn btn-sm btn-outline-info"
+                                       data-bs-toggle="tooltip"
+                                       title="View Meeting Details">
+                                    <i class="fa fa-eye me-1"></i> Details
+                                </a>
+                            </td>
+                        </tr>
+                        count++;
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="12" class="text-center text-muted py-4">
+                            <i class="fa fa-chart-line fa-2x mb-2 d-block"></i>
+                            No meeting records found
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="table-light fw-bold">
+                    <td colspan="6" class="text-end">Totals:</td>
+                    <td class="text-center">@Model?.Sum(m => m.TotalMembers)</td>
+                    <td class="text-center">@Model?.Sum(m => m.TotalVisitors)</td>
+                    <td class="text-center">@Model?.Sum(m => m.TotalMembers + m.TotalVisitors)</td>
+                    <td class="text-center">@Model?.Sum(m => m.NumberOfChildren)</td>
+                    <td class="text-end text-success">KES @(Model?.Sum(m => m.OfferingCollected).ToString("N2") ?? "0.00")</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Initialize tooltips
+        $('[data-bs-toggle="tooltip"]').tooltip();
+    });
+</script>

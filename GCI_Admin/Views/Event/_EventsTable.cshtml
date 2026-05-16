@@ -85,44 +85,48 @@
                         </td>
 
                         <!-- Created -->
-                        <td>@e.CreatedAt</td>
+                        <td>@e.CreatedAt?.ToString("dd MMM yyyy")</td>
+                        
                         <!-- Actions -->
                         <td class="text-end">
-
-                            <!-- View -->
-                            <button class="btn btn-sm btn-outline-info"
-                                    onclick="openEventModal('@Url.Action("Details", new { id = e.EventId })')">
+                            <!-- View - Using anchor tag like MemberDetails -->
+                            <a href="@Url.Action("EventDetails", "Event", new { id = e.EventId })"
+                                   class="btn btn-sm btn-outline-info"
+                                   title="View Event Details">
                                 <i class="fa fa-eye"></i>
-                            </button>
+                            </a>
 
                             <!-- Edit -->
-                            <button class="btn btn-sm btn-outline-warning"
-                                    onclick="openEventModal('@Url.Action("Edit", new { id = e.EventId })')">
+                            <a href="@Url.Action("Edit", "Event", new { id = e.EventId })"
+                                   class="btn btn-sm btn-outline-warning"
+                                   title="Edit Event">
                                 <i class="fa fa-edit"></i>
-                            </button>
+                            </a>
 
                             <!-- Activate / Deactivate -->
                             @if (e.IsActive)
                             {
                                 <button class="btn btn-sm btn-outline-secondary"
-                                        onclick="toggleEventStatus(@e.EventId, false)">
+                                        onclick="toggleEventStatus(@e.EventId, false)"
+                                        title="Deactivate Event">
                                     <i class="fa fa-ban"></i>
                                 </button>
                             }
                             else
                             {
                                 <button class="btn btn-sm btn-outline-success"
-                                        onclick="toggleEventStatus(@e.EventId, true)">
+                                        onclick="toggleEventStatus(@e.EventId, true)"
+                                        title="Activate Event">
                                     <i class="fa fa-check"></i>
                                 </button>
                             }
 
                             <!-- Delete -->
                             <button class="btn btn-sm btn-outline-danger"
-                                    onclick="deleteEvent(@e.EventId)">
+                                    onclick="deleteEvent(@e.EventId)"
+                                    title="Delete Event">
                                 <i class="fa fa-trash"></i>
                             </button>
-
                         </td>
                     </tr>
                 }
@@ -131,4 +135,103 @@
     </div>
 </div>
 
+<script>
+    // Initialize DataTable with custom filtering
+    $(document).ready(function() {
+        var table = $('#eventsTable').DataTable({
+            pageLength: 10,
+            language: {
+                search: "Search:",
+                lengthMenu: "Show _MENU_ entries",
+                info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                emptyTable: "No events found",
+                zeroRecords: "No matching events found"
+            },
+            order: [[2, 'desc']], // Sort by date descending
+            columnDefs: [
+                { orderable: false, targets: [8] } // Disable sorting on actions column
+            ]
+        });
+        
+        // Setup column search
+        $('#eventsTable thead tr:eq(1) th').each(function(index) {
+            var input = $(this).find('input, select');
+            if (input.length) {
+                input.on('keyup change', function() {
+                    table.column(index).search(this.value).draw();
+                });
+            }
+        });
+    });
 
+    function toggleEventStatus(eventId, isActive) {
+        const action = isActive ? 'activate' : 'deactivate';
+        
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `You are about to ${action} this event.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: `Yes, ${action} it`
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/Event/ToggleStatus',
+                    type: 'POST',
+                    data: { id: eventId, isActive: isActive },
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.isSuccess) {
+                            Swal.fire('Success', response.message, 'success')
+                                .then(() => {
+                                    window.location.reload();
+                                });
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Operation failed. Please try again.', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    function deleteEvent(eventId) {
+        Swal.fire({
+            title: 'Delete Event?',
+            text: 'This action cannot be undone!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/Event/Delete',
+                    type: 'POST',
+                    data: { id: eventId },
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.isSuccess) {
+                            Swal.fire('Deleted!', response.message, 'success')
+                                .then(() => {
+                                    window.location.reload();
+                                });
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Delete failed. Please try again.', 'error');
+                    }
+                });
+            }
+        });
+    }
+</script>

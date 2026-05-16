@@ -1,0 +1,475 @@
+﻿@model GCI_Admin.Models.EventViewModel
+
+@{
+    ViewData["Title"] = "Event Details - " + Model.Event.Title;
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">@Model.Event.Title</h2>
+        <p class="text-muted mb-0">Event Details</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="@Url.Action("Index", "Event")" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left me-2"></i>Back to Events
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa fa-info-circle me-2 text-primary"></i>
+                    Event Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <div class="border-bottom pb-3 mb-3">
+                            <h6 class="text-muted mb-2">Title</h6>
+                            <p class="fs-5 fw-medium mb-0">@Model.Event.Title</p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="border-bottom pb-3 mb-3">
+                            <h6 class="text-muted mb-2">Description</h6>
+                            <p class="mb-0">@Model.Event.Description</p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="border-bottom pb-3 mb-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fa fa-calendar me-1"></i> Event Date
+                            </h6>
+                            <p class="mb-0 fw-medium">
+                                @Model.Event.EventDate.ToString("dddd, MMMM dd, yyyy hh:mm tt")
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="border-bottom pb-3 mb-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fa fa-map-marker me-1"></i> Location
+                            </h6>
+                            <p class="mb-0 fw-medium">@Model.Event.Location</p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="border-bottom pb-3 mb-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fa fa-tag me-1"></i> Payment
+                            </h6>
+                            @if (Model.Event.IsPaid && Model.Event.Price.HasValue)
+                            {
+                                <p class="mb-0 fw-medium text-primary">
+                                    KES @Model.Event.Price.Value.ToString("N2")
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="mb-0 fw-medium text-success">
+                                    <i class="fa fa-check-circle"></i> Free Event
+                                </p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="border-bottom pb-3 mb-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fa fa-toggle-on me-1"></i> Status
+                            </h6>
+                            @if (Model.Event.IsActive)
+                            {
+                                <span class="badge bg-success fs-6 px-3 py-2">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger fs-6 px-3 py-2">Inactive</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="border-bottom pb-3 mb-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fa fa-clipboard-list me-1"></i> Registration
+                            </h6>
+                            @if (Model.Event.RequireRegistration)
+                            {
+                                <p class="mb-0 fw-medium text-primary">
+                                    <i class="fa fa-check-circle"></i> Registration Required
+                                </p>
+                                <small class="text-muted">
+                                    Total Registrations: <strong id="totalRegistrations">@(Model.Registrations?.Count ?? 0)</strong>
+                                </small>
+                            }
+                            else
+                            {
+                                <p class="mb-0 fw-medium text-muted">
+                                    <i class="fa fa-times-circle"></i> No Registration Required
+                                </p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="border-bottom pb-3 mb-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fa fa-door-open me-1"></i> Walk-ins
+                            </h6>
+                            @if (Model.Event.AllowWalkIns)
+                            {
+                                <p class="mb-0 fw-medium text-success">Allowed</p>
+                            }
+                            else
+                            {
+                                <p class="mb-0 fw-medium text-danger">Not Allowed</p>
+                            }
+                        </div>
+                    </div>
+
+                    @if (Model.Event.StartDateTime.HasValue || Model.Event.EndDateTime.HasValue)
+                    {
+                        <div class="col-md-6">
+                            <div class="border-bottom pb-3 mb-3">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fa fa-hourglass-half me-1"></i> Duration
+                                </h6>
+                                @if (Model.Event.StartDateTime.HasValue)
+                                {
+                                    <p class="mb-1">
+                                        <strong>Start:</strong> @Model.Event.StartDateTime.Value.ToString("dd MMM yyyy hh:mm tt")
+                                    </p>
+                                }
+                                @if (Model.Event.EndDateTime.HasValue)
+                                {
+                                    <p class="mb-0">
+                                        <strong>End:</strong> @Model.Event.EndDateTime.Value.ToString("dd MMM yyyy hh:mm tt")
+                                    </p>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <div class="col-md-12">
+                        <div class="border-bottom pb-3 mb-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fa fa-clock me-1"></i> Created
+                            </h6>
+                            <p class="mb-0">@Model.Event.CreatedAt?.ToString("dd MMM yyyy hh:mm tt")</p>
+                        </div>
+                    </div>
+
+                    @if (Model.Event.UpdatedAt.HasValue)
+                    {
+                        <div class="col-md-12">
+                            <div class="border-bottom pb-3 mb-3">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fa fa-edit me-1"></i> Last Updated
+                                </h6>
+                                <p class="mb-0">@Model.Event.UpdatedAt.Value.ToString("dd MMM yyyy hh:mm tt")</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa fa-cog me-2 text-secondary"></i>
+                    Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="@Url.Action("Edit", "Event", new { id = Model.Event.EventId })"
+                           class="btn btn-warning">
+                        <i class="fa fa-edit me-2"></i> Edit Event
+                    </a>
+                    
+                    @if (Model.Event.IsActive)
+                    {
+                        <button class="btn btn-outline-secondary"
+                                onclick="toggleEventStatus(@Model.Event.EventId, false)">
+                            <i class="fa fa-ban me-2"></i> Deactivate Event
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-outline-success"
+                                onclick="toggleEventStatus(@Model.Event.EventId, true)">
+                            <i class="fa fa-check me-2"></i> Activate Event
+                        </button>
+                    }
+                    
+                    <button class="btn btn-outline-danger"
+                            onclick="deleteEvent(@Model.Event.EventId)">
+                        <i class="fa fa-trash me-2"></i> Delete Event
+                    </button>
+                    
+                    @if (Model.Event.RequireRegistration)
+                    {
+                        <hr>
+                        <button class="btn btn-outline-primary"
+                                onclick="exportRegistrations(@Model.Event.EventId)">
+                            <i class="fa fa-download me-2"></i> Export Registrations
+                        </button>
+                        <button class="btn btn-outline-secondary"
+                                onclick="sendReminders(@Model.Event.EventId)">
+                            <i class="fa fa-envelope me-2"></i> Send Reminders
+                        </button>
+                    }
+                    
+                    <hr>
+                    
+                    <button class="btn btn-outline-info"
+                            onclick="window.print()">
+                        <i class="fa fa-print me-2"></i> Print Details
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa fa-chart-bar me-2 text-info"></i>
+                    Quick Stats
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="display-4 text-primary fw-bold" id="attendeeCount">-</div>
+                    <div class="text-muted">Registered Attendees</div>
+                </div>
+                <div class="text-center mb-3">
+                    <div class="display-4 text-success fw-bold" id="attendedCount">-</div>
+                    <div class="text-muted">Marked Attended</div>
+                </div>
+                <div class="text-center">
+                    <div class="display-4 text-warning fw-bold" id="pendingCount">-</div>
+                    <div class="text-muted">Pending Payments</div>
+                </div>
+                @if (Model.Event.IsPaid)
+                {
+                    <div class="text-center mt-3 pt-3 border-top">
+                        <div class="display-4 text-info fw-bold" id="revenue">-</div>
+                        <div class="text-muted">Revenue Generated</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Registrations Section - Only shown if registration is required -->
+@if (Model.Event.RequireRegistration)
+{
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fa fa-users me-2 text-primary"></i>
+                        Event Registrations
+                        <span class="badge bg-primary ms-2" id="registrationBadge">@(Model.Registrations?.Count ?? 0)</span>
+                    </h5>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary me-2" onclick="refreshRegistrations()">
+                            <i class="fa fa-refresh me-1"></i> Refresh
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" onclick="exportRegistrations(@Model.Event.EventId)">
+                            <i class="fa fa-file-excel me-1"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div id="registrationsTableContainer">
+                        @await Html.PartialAsync("_EventRegistrationsTable", Model.Registrations)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Global variables
+        let autoRefreshInterval = null;
+        const eventId = @Model.Event.EventId;
+        const requireRegistration = @Json.Serialize(Model.Event.RequireRegistration);
+
+        function toggleEventStatus(eventId, isActive) {
+            const action = isActive ? 'activate' : 'deactivate';
+            
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `You are about to ${action} this event.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: `Yes, ${action} it`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Event/ToggleStatus',
+                        type: 'POST',
+                        data: { id: eventId, isActive: isActive },
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            if (response.isSuccess) {
+                                Swal.fire('Success', response.message, 'success')
+                                    .then(() => {
+                                        window.location.reload();
+                                    });
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'Operation failed. Please try again.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function deleteEvent(eventId) {
+            Swal.fire({
+                title: 'Delete Event?',
+                text: 'This action cannot be undone!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Event/Delete',
+                        type: 'POST',
+                        data: { id: eventId },
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            if (response.isSuccess) {
+                                Swal.fire('Deleted!', response.message, 'success')
+                                    .then(() => {
+                                        window.location.href = '/Event/Index';
+                                    });
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'Delete failed. Please try again.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function exportRegistrations(eventId) {
+            window.location.href = `/Event/ExportRegistrations/${eventId}`;
+        }
+
+        function sendReminders(eventId) {
+            Swal.fire({
+                title: 'Send Reminders?',
+                text: 'This will send email reminders to all registered participants.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, send reminders'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Event/SendReminders',
+                        type: 'POST',
+                        data: { id: eventId },
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            if (response.isSuccess) {
+                                Swal.fire('Success', response.message, 'success');
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'Failed to send reminders.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function refreshRegistrations() {
+            if (!requireRegistration) return;
+            
+            $('#registrationsTableContainer').html('<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-2x"></i><p class="mt-2">Loading registrations...</p></div>');
+            
+            $.ajax({
+                url: `/Event/GetRegistrations/${eventId}`,
+                type: 'GET',
+                success: function(response) {
+                    $('#registrationsTableContainer').html(response);
+                    $('#registrationBadge').text($('#eventRegistrationsTable tbody tr').length);
+                    fetchStats(); // Refresh stats after loading registrations
+                },
+                error: function() {
+                    $('#registrationsTableContainer').html('<div class="alert alert-danger m-3">Failed to load registrations.</div>');
+                }
+            });
+        }
+
+        function fetchStats() {
+            $.ajax({
+                url: '/Event/GetStats/' + eventId,
+                type: 'GET',
+                success: function(response) {
+                    if (response.isSuccess) {
+                        $('#attendeeCount').text(response.attendeeCount || 0);
+                        $('#attendedCount').text(response.attendedCount || 0);
+                        $('#pendingCount').text(response.pendingCount || 0);
+                        if (response.revenue) {
+                            $('#revenue').text(`KES ${response.revenue.toLocaleString()}`);
+                        }
+                    }
+                }
+            });
+        }
+
+     
+
+        // Initialize on page load
+        $(document).ready(function() {
+            fetchStats();
+            
+            if (requireRegistration) {
+                
+                // Stop auto-refresh when page is hidden, restart when visible
+               
+            }
+        });
+
+        // Cleanup on page unload
+        $(window).on('beforeunload', function() {
+            stopAutoRefresh();
+        });
+    </script>
+}

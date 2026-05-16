@@ -1,21 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Utils
 {
     public static class Loggers
     {
+        private static readonly object _lock = new object();
         private static string _methodName = string.Empty;
+
+        // =========================
+        // ERROR MESSAGE FORMATTER
+        // =========================
         private static string PrepareErrorMessage(string methodName, Exception exception)
         {
             try
             {
-                var message = $"{methodName} - Line No:{GetErrorLineNumber(exception)} - {exception.Message}";
-                return message;
+                return $"{methodName} - Line No:{GetErrorLineNumber(exception)} - {exception.Message}";
             }
             catch (Exception ex)
             {
@@ -23,44 +24,57 @@ namespace Utils
             }
         }
 
+        // =========================
+        // DAILY LOG PATH (ADMIN)
+        // =========================
+        private static string GetAdminLogPath(string fileName)
+        {
+            string basePath = @"C:\GCI\GCI_Logs";
+
+            string folder = Path.Combine(basePath, DateTime.Now.ToString("yyyyMMdd"));
+
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            return Path.Combine(folder, fileName);
+        }
+
+        // =========================
+        // ADMIN ERROR LOG
+        // =========================
         public static void DoLogs(string errMsg)
         {
             try
             {
-                DateTime currtime = DateTime.Now;
-                errMsg = errMsg + currtime;
-
-                string appPath = Path.GetDirectoryName("C:\\GCI");
-                appPath = appPath + "\\GCI_Logs\\" + DateTime.Now.ToString("yyyyMMdd");
-                if (!Directory.Exists(appPath))
-                    Directory.CreateDirectory(appPath);
-                appPath = appPath + "\\AdminErrorlogs.log";
-                using (StreamWriter sw = File.AppendText(appPath))
+                lock (_lock)
                 {
-                    sw.WriteLine(errMsg);
+                    string path = GetAdminLogPath("AdminErrorLogs.log");
+
+                    errMsg = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} | {errMsg}";
+
+                    File.AppendAllText(path, errMsg + Environment.NewLine);
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                DoLogs(ex.Message);
+                // avoid recursive crash
             }
         }
 
+        // =========================
+        // ADMIN EVENT LOG
+        // =========================
         public static void EventLogs(string errMsg)
         {
             try
             {
-                DateTime currtime = DateTime.Now;
-                errMsg = errMsg + currtime;
-
-                string appPath = Path.GetDirectoryName("C:\\GCI");
-                appPath = appPath + "\\GCI_Logs\\" + DateTime.Now.ToString("yyyyMMdd");
-                if (!Directory.Exists(appPath))
-                    Directory.CreateDirectory(appPath);
-                appPath = appPath + "\\AdminEventLogs.log";
-                using (StreamWriter sw = File.AppendText(appPath))
+                lock (_lock)
                 {
-                    sw.WriteLine(errMsg);
+                    string path = GetAdminLogPath("AdminEventLogs.log");
+
+                    errMsg = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} | {errMsg}";
+
+                    File.AppendAllText(path, errMsg + Environment.NewLine);
                 }
             }
             catch (Exception ex)
@@ -69,12 +83,14 @@ namespace Utils
             }
         }
 
+        // =========================
+        // METHOD ERROR LOGGING
+        // =========================
         public static void LogMethodsErrorDetails(string method, Exception exception)
         {
             try
             {
                 _methodName = method;
-
                 DoLogs(PrepareErrorMessage(_methodName, exception));
             }
             catch (Exception ex)
@@ -85,6 +101,9 @@ namespace Utils
             }
         }
 
+        // =========================
+        // GET LINE NUMBER
+        // =========================
         private static string GetErrorLineNumber(Exception ex)
         {
             try
@@ -92,11 +111,10 @@ namespace Utils
                 var line = Convert.ToInt32(ex.StackTrace.Substring(ex.StackTrace.LastIndexOf(' ')));
                 return line.ToString();
             }
-            catch (Exception)
+            catch
             {
                 return string.Empty;
             }
         }
     }
-
 }

@@ -1,0 +1,1465 @@
+﻿@{
+    ViewData["Title"] = "Reports Dashboard";
+}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">
+            <i class="fa fa-chart-line me-2 text-primary"></i>Reports Dashboard
+        </h2>
+        <p class="text-muted mb-0">Comprehensive church analytics, attendance tracking, and performance metrics</p>
+    </div>
+    <div class="col-md-4 d-flex justify-content-end gap-2">
+        <button class="btn btn-outline-primary" onclick="refreshActiveTab()">
+            <i class="fa fa-refresh me-2"></i>Refresh
+        </button>
+        <button class="btn btn-primary" onclick="exportCurrentReport()">
+            <i class="fa fa-download me-2"></i>Export Report
+        </button>
+    </div>
+</div>
+
+<!-- Tabs Navigation -->
+<ul class="nav nav-tabs mb-4" id="reportTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="church-tab" data-bs-toggle="tab" data-bs-target="#church" type="button" role="tab">
+            <i class="fa fa-church me-2"></i>Church Reports
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="ministry-tab" data-bs-toggle="tab" data-bs-target="#ministry" type="button" role="tab">
+            <i class="fa fa-cross me-2"></i>Ministry Reports
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="growthcenter-tab" data-bs-toggle="tab" data-bs-target="#growthcenter" type="button" role="tab">
+            <i class="fa fa-seedling me-2"></i>Growth Centers Reports
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">
+            <i class="fa fa-calendar-alt me-2"></i>Events Reports
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="reportTabsContent">
+    
+    <!-- ================= CHURCH REPORTS TAB ================= -->
+    <div class="tab-pane fade show active" id="church" role="tabpanel">
+        <!-- Key Metrics Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm stat-card bg-gradient-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 opacity-75">Total Members</h6>
+                                <h3 class="fw-bold mb-0" id="totalMembers">0</h3>
+                            </div>
+                            <i class="fa fa-users fa-2x opacity-50"></i>
+                        </div>
+                        <small class="opacity-75 mt-2 d-block">
+                            <i class="fa fa-user-plus me-1"></i> New this month: <span id="newMembers">0</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm stat-card bg-gradient-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 opacity-75">Total Ministries</h6>
+                                <h3 class="fw-bold mb-0" id="totalMinistries">0</h3>
+                            </div>
+                            <i class="fa fa-cross fa-2x opacity-50"></i>
+                        </div>
+                        <small class="opacity-75 mt-2 d-block">
+                            <i class="fa fa-trophy me-1"></i> Active ministries
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm stat-card bg-gradient-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 opacity-75">Total Events</h6>
+                                <h3 class="fw-bold mb-0" id="totalEvents">0</h3>
+                            </div>
+                            <i class="fa fa-calendar-alt fa-2x opacity-50"></i>
+                        </div>
+                        <small class="opacity-75 mt-2 d-block">
+                            <i class="fa fa-calendar-week me-1"></i> This month: <span id="monthlyEvents">0</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm stat-card bg-gradient-warning text-dark">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 opacity-75">Total Offerings</h6>
+                                <h3 class="fw-bold mb-0" id="totalOfferingsChurch">KES 0</h3>
+                            </div>
+                            <i class="fa fa-money-bill-wave fa-2x opacity-50"></i>
+                        </div>
+                        <small class="opacity-75 mt-2 d-block">
+                            <i class="fa fa-trend-up me-1"></i> <span id="offeringGrowth">0</span>% vs last month
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Highest Attendance Section -->
+        <div class="alert alert-success mb-4" id="highestAttendanceAlert" style="display: none;">
+            <i class="fa fa-trophy me-2"></i>
+            <strong>Highest Attendance:</strong> 
+            <span id="highestAttendanceText"></span>
+        </div>
+        
+        <!-- Gender Distribution Section -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-venus-mars me-2 text-primary"></i>Gender Distribution
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <canvas id="genderDistributionChart" height="200"></canvas>
+                            </div>
+                            <div class="col-md-6">
+                                <div id="genderStatsDetails" class="mt-3">
+                                    <div class="text-center">
+                                        <div class="mb-3">
+                                            <div class="progress mb-2" style="height: 25px;">
+                                                <div class="progress-bar bg-primary" role="progressbar" id="maleProgressBar" style="width: 0%">
+                                                    Males: 0%
+                                                </div>
+                                            </div>
+                                            <div class="progress" style="height: 25px;">
+                                                <div class="progress-bar bg-danger" role="progressbar" id="femaleProgressBar" style="width: 0%">
+                                                    Females: 0%
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-chart-line me-2 text-success"></i>Age Demographics
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="ageDemographicsChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ministry with Most Members & Top Events -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-trophy me-2 text-warning"></i>Top Ministries by Members
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="topMinistriesTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Ministry Name</th>
+                                        <th>Total Members</th>
+                                        <th>Leader</th>
+                                        <th>Growth</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                            Loading...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-calendar-check me-2 text-success"></i>Top Events by Attendance
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="topEventsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Event Name</th>
+                                        <th>Date</th>
+                                        <th>Attendance</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                            Loading...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Church Metrics -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-hand-holding-heart me-2 text-info"></i>Marital Status
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="maritalStatusChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-graduation-cap me-2 text-primary"></i>Education Level
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="educationChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-briefcase me-2 text-warning"></i>Employment Status
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="employmentChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Member Growth Trend -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fa fa-chart-line me-2 text-info"></i>Member Growth Trend (Last 12 Months)
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="memberGrowthChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ================= MINISTRY REPORTS TAB ================= -->
+    <div class="tab-pane fade" id="ministry" role="tabpanel">
+        <!-- Ministry Statistics -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm bg-gradient-primary text-white">
+                    <div class="card-body">
+                        <h6 class="mb-1 opacity-75">Active Ministries</h6>
+                        <h3 class="fw-bold mb-0" id="ministryActiveCount">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm bg-gradient-success text-white">
+                    <div class="card-body">
+                        <h6 class="mb-1 opacity-75">Total Ministry Members</h6>
+                        <h3 class="fw-bold mb-0" id="ministryTotalMembers">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm bg-gradient-info text-white">
+                    <div class="card-body">
+                        <h6 class="mb-1 opacity-75">Avg Members/Ministry</h6>
+                        <h3 class="fw-bold mb-0" id="avgMinistryMembers">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm bg-gradient-warning text-dark">
+                    <div class="card-body">
+                        <h6 class="mb-1 opacity-75">Highest Attendance</h6>
+                        <h3 class="fw-bold mb-0" id="highestMinistryAttendance">0</h3>
+                        <small id="highestMinistryName"></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Highest Attendance Ministry Highlight -->
+        <div class="alert alert-warning mb-4" id="highestMinistryAlert" style="display: none;">
+            <i class="fa fa-crown me-2"></i>
+            <strong>🏆 Highest Attendance Ministry:</strong> 
+            <span id="topMinistryText"></span>
+        </div>
+        
+        <!-- Ministry Gender Distribution -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-venus-mars me-2 text-primary"></i>Ministry Gender Distribution
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="ministryGenderChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-chart-bar me-2 text-success"></i>Top Ministries by Gender
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="ministryGenderTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Ministry</th>
+                                        <th>Male</th>
+                                        <th>Female</th>
+                                        <th>Ratio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- All Ministries List -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fa fa-list me-2 text-primary"></i>All Ministries Details
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 datatable" id="allMinistriesTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Ministry Name</th>
+                                <th>Leader</th>
+                                <th>Total Members</th>
+                                <th>Male</th>
+                                <th>Female</th>
+                                <th>Youth</th>
+                                <th>Weekly Meetings</th>
+                                <th>Avg Attendance</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="11" class="text-center text-muted py-4">
+                                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                    Loading...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ministry Performance Chart -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fa fa-chart-bar me-2 text-success"></i>Ministry Performance Comparison
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="ministryPerformanceChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ================= GROWTH CENTERS REPORTS TAB ================= -->
+    <div class="tab-pane fade" id="growthcenter" role="tabpanel">
+        <!-- Growth Center Statistics -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm bg-gradient-primary text-white">
+                    <div class="card-body">
+                        <h6 class="mb-1 opacity-75">Total Centers</h6>
+                        <h3 class="fw-bold mb-0" id="gcTotalCenters">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm bg-gradient-success text-white">
+                    <div class="card-body">
+                        <h6 class="mb-1 opacity-75">Total Meetings</h6>
+                        <h3 class="fw-bold mb-0" id="gcTotalMeetings">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm bg-gradient-info text-white">
+                    <div class="card-body">
+                        <h6 class="mb-1 opacity-75">Total Attendance</h6>
+                        <h3 class="fw-bold mb-0" id="gcTotalAttendance">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm bg-gradient-warning text-dark">
+                    <div class="card-body">
+                        <h6 class="mb-1 opacity-75">Highest Attendance</h6>
+                        <h3 class="fw-bold mb-0" id="highestGCAttendance">0</h3>
+                        <small id="highestGCName"></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Highest Attendance Center Highlight -->
+        <div class="alert alert-warning mb-4" id="highestGCAlert" style="display: none;">
+            <i class="fa fa-crown me-2"></i>
+            <strong>🏆 Highest Attendance Growth Center:</strong> 
+            <span id="topGCText"></span>
+        </div>
+        
+        <!-- Growth Center Attendance Distribution -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-chart-pie me-2 text-primary"></i>Attendance Distribution
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="gcDistributionChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-chart-line me-2 text-info"></i>Attendance Trends by Center
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="gcAttendanceTrendsChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Growth Centers Performance Table -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fa fa-seedling me-2 text-primary"></i>Growth Centers Performance
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 datatable" id="growthCentersPerformanceTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Center Name</th>
+                                <th>Total Meetings</th>
+                                <th>Total Attendance</th>
+                                <th>Avg Attendance</th>
+                                <th>Members</th>
+                                <th>Visitors</th>
+                                <th>Children</th>
+                                <th>Total Offerings</th>
+                                <th>Performance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="11" class="text-center text-muted py-4">
+                                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                    Loading...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ================= EVENTS REPORTS TAB ================= -->
+    <div class="tab-pane fade" id="events" role="tabpanel">
+        <!-- Events Statistics -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm bg-gradient-primary text-white">
+                    <div class="card-body">
+                        <h6 class="mb-1 opacity-75">Total Events</h6>
+                        <h3 class="fw-bold mb-0" id="eventsTotalCount">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm bg-gradient-success text-white">
+                    <div class="card-body">
+                        <h6 class="mb-1 opacity-75">Total Attendance</h6>
+                        <h3 class="fw-bold mb-0" id="eventsTotalAttendance">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm bg-gradient-info text-white">
+                    <div class="card-body">
+                        <h6 class="mb-1 opacity-75">Upcoming Events</h6>
+                        <h3 class="fw-bold mb-0" id="upcomingEvents">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card border-0 shadow-sm bg-gradient-warning text-dark">
+                    <div class="card-body">
+                        <h6 class="mb-1 opacity-75">Avg Attendance/Event</h6>
+                        <h3 class="fw-bold mb-0" id="avgEventAttendance">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Highest Attendance Event Highlight -->
+        <div class="alert alert-warning mb-4" id="highestEventAlert" style="display: none;">
+            <i class="fa fa-crown me-2"></i>
+            <strong>🏆 Highest Attendance Event:</strong> 
+            <span id="topEventText"></span>
+        </div>
+        
+        <!-- Event Performance Charts -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-chart-bar me-2 text-primary"></i>Top Events by Attendance
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="topEventsChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-chart-line me-2 text-success"></i>Event Attendance Trends
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="eventTrendsChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Events by Category -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-chart-pie me-2 text-info"></i>Events by Category
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="eventCategoryChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fa fa-chart-line me-2 text-warning"></i>Monthly Event Attendance
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="monthlyEventAttendanceChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- All Events Table -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fa fa-calendar-alt me-2 text-primary"></i>All Events
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 datatable" id="allEventsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Event Name</th>
+                                <th>Category</th>
+                                <th>Event Date</th>
+                                <th>Location</th>
+                                <th>Attendance</th>
+                                <th>Capacity</th>
+                                <th>Fill Rate</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="10" class="text-center text-muted py-4">
+                                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                    Loading...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Chart instances
+        let genderDistributionChart = null;
+        let ageDemographicsChart = null;
+        let maritalStatusChart = null;
+        let educationChart = null;
+        let employmentChart = null;
+        let memberGrowthChart = null;
+        let ministryGenderChart = null;
+        let ministryPerformanceChart = null;
+        let gcDistributionChart = null;
+        let gcAttendanceTrendsChart = null;
+        let topEventsChart = null;
+        let eventTrendsChart = null;
+        let eventCategoryChart = null;
+        let monthlyEventAttendanceChart = null;
+        
+        let currentActiveTab = 'church';
+        
+        $(document).ready(function() {
+            // Load initial data
+            loadChurchReports();
+            loadMinistryReports();
+            loadGrowthCenterReports();
+            loadEventsReports();
+            
+            // Tab change event
+            $('#reportTabs button').on('shown.bs.tab', function(e) {
+                currentActiveTab = $(e.target).attr('aria-controls');
+                refreshActiveTab();
+            });
+        });
+        
+        function refreshActiveTab() {
+            switch(currentActiveTab) {
+                case 'church':
+                    loadChurchReports();
+                    break;
+                case 'ministry':
+                    loadMinistryReports();
+                    break;
+                case 'growthcenter':
+                    loadGrowthCenterReports();
+                    break;
+                case 'events':
+                    loadEventsReports();
+                    break;
+            }
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Refreshed',
+                text: `${currentActiveTab.charAt(0).toUpperCase() + currentActiveTab.slice(1)} reports updated`,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+        
+        // ================= CHURCH REPORTS FUNCTIONS =================
+        function loadChurchReports() {
+            $.ajax({
+                url: '@Url.Action("GetChurchReports", "Reports")',
+                type: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        updateChurchStats(response.data);
+                        loadGenderDistribution(response.data.genderDistribution);
+                        loadAgeDemographics(response.data.ageDemographics);
+                        loadMaritalStatus(response.data.maritalStatus);
+                        loadEducationLevel(response.data.educationLevel);
+                        loadEmploymentStatus(response.data.employmentStatus);
+                        loadTopMinistries(response.data.topMinistries);
+                        loadTopEvents(response.data.topEvents);
+                        loadMemberGrowthTrend(response.data.growthTrend);
+                        
+                        // Show highest attendance alert if available
+                        if (response.data.highestAttendance) {
+                            $('#highestAttendanceAlert').show();
+                            $('#highestAttendanceText').html(`
+                                <strong>${response.data.highestAttendance.name}</strong> 
+                                with ${response.data.highestAttendance.attendance.toLocaleString()} attendees
+                            `);
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading church reports:', error);
+                }
+            });
+        }
+        
+        function updateChurchStats(data) {
+            $('#totalMembers').text(data.totalMembers?.toLocaleString() || 0);
+            $('#newMembers').text(data.newMembersThisMonth?.toLocaleString() || 0);
+            $('#totalMinistries').text(data.totalMinistries || 0);
+            $('#totalEvents').text(data.totalEvents || 0);
+            $('#monthlyEvents').text(data.monthlyEvents || 0);
+            
+            const totalOfferings = data.totalOfferings || 0;
+            $('#totalOfferingsChurch').html(`KES ${totalOfferings.toLocaleString('en-KE', {minimumFractionDigits: 2})}`);
+            
+            const growth = data.offeringGrowth || 0;
+            $('#offeringGrowth').html(`${growth >= 0 ? '+' : ''}${growth}`);
+        }
+        
+        function loadGenderDistribution(genderData) {
+            const ctx = document.getElementById('genderDistributionChart').getContext('2d');
+            
+            if (genderDistributionChart) {
+                genderDistributionChart.destroy();
+            }
+            
+            const data = genderData || { male: 0, female: 0 };
+            const total = data.male + data.female;
+            const malePercent = total > 0 ? ((data.male / total) * 100).toFixed(1) : 0;
+            const femalePercent = total > 0 ? ((data.female / total) * 100).toFixed(1) : 0;
+            
+            genderDistributionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: [`Male (${malePercent}%)`, `Female (${femalePercent}%)`],
+                    datasets: [{
+                        data: [data.male, data.female],
+                        backgroundColor: ['rgb(59, 130, 246)', 'rgb(236, 72, 153)'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+            
+            $('#maleProgressBar').css('width', `${malePercent}%`).html(`Males: ${malePercent}% (${data.male.toLocaleString()})`);
+            $('#femaleProgressBar').css('width', `${femalePercent}%`).html(`Females: ${femalePercent}% (${data.female.toLocaleString()})`);
+        }
+        
+        function loadAgeDemographics(ageData) {
+            const ctx = document.getElementById('ageDemographicsChart').getContext('2d');
+            if (ageDemographicsChart) ageDemographicsChart.destroy();
+            
+            const data = ageData || { children: 0, youth: 0, adults: 0, seniors: 0 };
+            
+            ageDemographicsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Children (0-12)', 'Youth (13-25)', 'Adults (26-55)', 'Seniors (56+)'],
+                    datasets: [{
+                        label: 'Number of Members',
+                        data: [data.children, data.youth, data.adults, data.seniors],
+                        backgroundColor: ['rgba(249, 115, 22, 0.8)', 'rgba(34, 197, 94, 0.8)', 'rgba(59, 130, 246, 0.8)', 'rgba(168, 85, 247, 0.8)'],
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true } } }
+            });
+        }
+        
+        function loadMaritalStatus(maritalData) {
+            const ctx = document.getElementById('maritalStatusChart').getContext('2d');
+            if (maritalStatusChart) maritalStatusChart.destroy();
+            
+            const data = maritalData || { single: 0, married: 0, divorced: 0, widowed: 0 };
+            
+            maritalStatusChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Single', 'Married', 'Divorced', 'Widowed'],
+                    datasets: [{
+                        data: [data.single, data.married, data.divorced, data.widowed],
+                        backgroundColor: ['rgb(59, 130, 246)', 'rgb(34, 197, 94)', 'rgb(249, 115, 22)', 'rgb(168, 85, 247)'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+        
+        function loadEducationLevel(educationData) {
+            const ctx = document.getElementById('educationChart').getContext('2d');
+            if (educationChart) educationChart.destroy();
+            
+            const data = educationData || { none: 0, primary: 0, secondary: 0, tertiary: 0, university: 0 };
+            
+            educationChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['No Formal', 'Primary', 'Secondary', 'Tertiary', 'University'],
+                    datasets: [{
+                        label: 'Members',
+                        data: [data.none, data.primary, data.secondary, data.tertiary, data.university],
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, scales: { x: { beginAtZero: true } } }
+            });
+        }
+        
+        function loadEmploymentStatus(employmentData) {
+            const ctx = document.getElementById('employmentChart').getContext('2d');
+            if (employmentChart) employmentChart.destroy();
+            
+            const data = employmentData || { employed: 0, selfEmployed: 0, unemployed: 0, student: 0, retired: 0 };
+            
+            employmentChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Employed', 'Self-Employed', 'Unemployed', 'Student', 'Retired'],
+                    datasets: [{
+                        data: [data.employed, data.selfEmployed, data.unemployed, data.student, data.retired],
+                        backgroundColor: ['rgb(34, 197, 94)', 'rgb(59, 130, 246)', 'rgb(239, 68, 68)', 'rgb(249, 115, 22)', 'rgb(168, 85, 247)'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+        
+        function loadTopMinistries(ministries) {
+            const tbody = $('#topMinistriesTable tbody');
+            tbody.empty();
+            
+            if (ministries && ministries.length > 0) {
+                $.each(ministries, function(i, ministry) {
+                    const growthClass = ministry.growth >= 0 ? 'text-success' : 'text-danger';
+                    const growthIcon = ministry.growth >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+                    const crownIcon = i === 0 ? '<i class="fa fa-crown text-warning me-1"></i>' : '';
+                    
+                    tbody.append(`
+                        <tr>
+                            <td><span class="badge bg-warning text-dark">${i + 1}</span>${crownIcon}</span>
+                            <td><strong>${ministry.ministryName}</strong></span>
+                            <td><span class="badge bg-primary">${ministry.totalMembers.toLocaleString()}</span></span>
+                            <td>${ministry.leaderName || 'N/A'}</span>
+                            <td class="${growthClass}"><i class="fa ${growthIcon} me-1"></i>${Math.abs(ministry.growth)}%</span>
+                         </span>
+                    `);
+                });
+            } else {
+                tbody.html('<tr><td colspan="5" class="text-center text-muted">No ministry data available</span></tr>');
+            }
+        }
+        
+        function loadTopEvents(events) {
+            const tbody = $('#topEventsTable tbody');
+            tbody.empty();
+            
+            if (events && events.length > 0) {
+                $.each(events, function(i, event) {
+                    const eventDate = new Date(event.eventDate);
+                    const statusBadge = event.status === 'Completed' ? 'bg-success' : (event.status === 'Ongoing' ? 'bg-warning' : 'bg-info');
+                    const crownIcon = i === 0 ? '<i class="fa fa-crown text-warning me-1"></i>' : '';
+                    
+                    tbody.append(`
+                        <tr>
+                            <td><span class="badge bg-secondary">${i + 1}</span>${crownIcon}</span>
+                            <td><strong>${event.eventName}</strong></span>
+                            <td>${eventDate.toLocaleDateString('en-KE')}</span>
+                            <td><span class="badge bg-primary">${event.attendance.toLocaleString()}</span></span>
+                            <td><span class="badge ${statusBadge}">${event.status}</span></span>
+                         </span>
+                    `);
+                });
+            } else {
+                tbody.html('<tr><td colspan="5" class="text-center text-muted">No event data available</span></tr>');
+            }
+        }
+        
+        function loadMemberGrowthTrend(trendData) {
+            const ctx = document.getElementById('memberGrowthChart').getContext('2d');
+            if (memberGrowthChart) memberGrowthChart.destroy();
+            
+            const data = trendData || [];
+            
+            memberGrowthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(item => item.month),
+                    datasets: [
+                        { label: 'New Members', data: data.map(item => item.newMembers), borderColor: 'rgb(34, 197, 94)', backgroundColor: 'rgba(34, 197, 94, 0.1)', tension: 0.4, fill: true },
+                        { label: 'Total Members', data: data.map(item => item.totalMembers), borderColor: 'rgb(59, 130, 246)', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4, fill: true }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: true, interaction: { mode: 'index', intersect: false } }
+            });
+        }
+        
+        // ================= MINISTRY REPORTS FUNCTIONS =================
+        function loadMinistryReports() {
+            $.ajax({
+                url: '@Url.Action("GetMinistryReports", "Reports")',
+                type: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        updateMinistryStats(response.data);
+                        loadMinistryGenderChart(response.data.genderDistribution);
+                        loadMinistryGenderTable(response.data.ministryGenderData);
+                        loadAllMinistries(response.data.ministries);
+                        loadMinistryPerformanceChart(response.data.performance);
+                        
+                        // Show highest attendance ministry
+                        if (response.data.highestAttendance) {
+                            $('#highestMinistryAlert').show();
+                            $('#topMinistryText').html(`
+                                <strong>${response.data.highestAttendance.ministryName}</strong> 
+                                with ${response.data.highestAttendance.attendance.toLocaleString()} average attendance
+                            `);
+                            $('#highestMinistryAttendance').text(response.data.highestAttendance.attendance.toLocaleString());
+                            $('#highestMinistryName').html(`<small>${response.data.highestAttendance.ministryName}</small>`);
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading ministry reports:', error);
+                }
+            });
+        }
+        
+        function updateMinistryStats(data) {
+            $('#ministryActiveCount').text(data.activeMinistries || 0);
+            $('#ministryTotalMembers').text(data.totalMinistryMembers?.toLocaleString() || 0);
+            $('#avgMinistryMembers').text(Math.round(data.averageMembersPerMinistry || 0));
+            
+            const malePercent = data.malePercentage || 50;
+            const femalePercent = data.femalePercentage || 50;
+            $('#ministryGenderRatio').html(`${malePercent}% <i class="fa fa-mars text-primary"></i> : ${femalePercent}% <i class="fa fa-venus text-danger"></i>`);
+        }
+        
+        function loadMinistryGenderChart(genderData) {
+            const ctx = document.getElementById('ministryGenderChart').getContext('2d');
+            if (ministryGenderChart) ministryGenderChart.destroy();
+            
+            const data = genderData || { male: 0, female: 0 };
+            ministryGenderChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Male', 'Female'],
+                    datasets: [{ data: [data.male, data.female], backgroundColor: ['rgb(59, 130, 246)', 'rgb(236, 72, 153)'], borderWidth: 2, borderColor: '#fff' }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+        
+        function loadMinistryGenderTable(genderData) {
+            const tbody = $('#ministryGenderTable tbody');
+            tbody.empty();
+            
+            if (genderData && genderData.length > 0) {
+                $.each(genderData, function(i, item) {
+                    const ratio = item.male + item.female > 0 ? ((item.male / (item.male + item.female)) * 100).toFixed(0) : 50;
+                    tbody.append(`
+                        <tr>
+                            <td><strong>${item.ministryName}</strong></span>
+                            <td>${item.male.toLocaleString()}</span>
+                            <td>${item.female.toLocaleString()}</span>
+                            <td><div class="progress" style="height: 20px;"><div class="progress-bar bg-primary" style="width: ${ratio}%">M:${ratio}%</div><div class="progress-bar bg-danger" style="width: ${100-ratio}%">F:${100-ratio}%</div></div></span>
+                         </span>
+                    `);
+                });
+            }
+        }
+        
+        function loadAllMinistries(ministries) {
+            const tbody = $('#allMinistriesTable tbody');
+            tbody.empty();
+            
+            if (ministries && ministries.length > 0) {
+                $.each(ministries, function(i, ministry) {
+                    const statusBadge = ministry.isActive ? 'bg-success' : 'bg-secondary';
+                    const crownIcon = i === 0 ? '<i class="fa fa-crown text-warning me-1"></i>' : '';
+                    
+                    tbody.append(`
+                        <tr>
+                            <td>${i + 1} ${crownIcon}</span>
+                            <td><strong>${ministry.ministryName}</strong></span>
+                            <td>${ministry.leaderName || 'N/A'}</span>
+                            <td><span class="badge bg-primary">${ministry.totalMembers.toLocaleString()}</span></span>
+                            <td>${ministry.maleCount?.toLocaleString() || 0}</span>
+                            <td>${ministry.femaleCount?.toLocaleString() || 0}</span>
+                            <td>${ministry.youthCount?.toLocaleString() || 0}</span>
+                            <td>${ministry.weeklyMeetings || 0}</span>
+                            <td>${Math.round(ministry.averageAttendance || 0)}</span>
+                            <td><span class="badge ${statusBadge}">${ministry.isActive ? 'Active' : 'Inactive'}</span></span>
+                            <td><button class="btn btn-sm btn-outline-info" onclick="viewMinistryDetails(${ministry.ministryId})"><i class="fa fa-eye"></i></button></span>
+                         </span>
+                    `);
+                });
+            }
+        }
+        
+        function loadMinistryPerformanceChart(performanceData) {
+            const ctx = document.getElementById('ministryPerformanceChart').getContext('2d');
+            if (ministryPerformanceChart) ministryPerformanceChart.destroy();
+            
+            const data = performanceData || [];
+            ministryPerformanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => item.ministryName),
+                    datasets: [
+                        { label: 'Total Members', data: data.map(item => item.totalMembers), backgroundColor: 'rgba(59, 130, 246, 0.8)' },
+                        { label: 'Average Attendance', data: data.map(item => item.averageAttendance), backgroundColor: 'rgba(34, 197, 94, 0.8)' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true } } }
+            });
+        }
+        
+        // ================= GROWTH CENTERS REPORTS FUNCTIONS =================
+        function loadGrowthCenterReports() {
+            $.ajax({
+                url: '@Url.Action("GetGrowthCenterReports", "Reports")',
+                type: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        updateGrowthCenterStats(response.data);
+                        loadGCDistribution(response.data.distribution);
+                        loadGCAttendanceTrends(response.data.trends);
+                        loadGrowthCentersPerformance(response.data.centers);
+                        
+                        // Show highest attendance center
+                        if (response.data.highestAttendance) {
+                            $('#highestGCAlert').show();
+                            $('#topGCText').html(`
+                                <strong>${response.data.highestAttendance.centerName}</strong> 
+                                with ${response.data.highestAttendance.attendance.toLocaleString()} total attendance
+                            `);
+                            $('#highestGCAttendance').text(response.data.highestAttendance.attendance.toLocaleString());
+                            $('#highestGCName').html(`<small>${response.data.highestAttendance.centerName}</small>`);
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading growth center reports:', error);
+                }
+            });
+        }
+        
+        function updateGrowthCenterStats(data) {
+            $('#gcTotalCenters').text(data.totalCenters || 0);
+            $('#gcTotalMeetings').text(data.totalMeetings?.toLocaleString() || 0);
+            $('#gcTotalAttendance').text(data.totalAttendance?.toLocaleString() || 0);
+            const totalOfferings = data.totalOfferings || 0;
+            $('#gcTotalOfferings').html(`KES ${totalOfferings.toLocaleString('en-KE', {minimumFractionDigits: 2})}`);
+        }
+        
+        function loadGCDistribution(distributionData) {
+            const ctx = document.getElementById('gcDistributionChart').getContext('2d');
+            if (gcDistributionChart) gcDistributionChart.destroy();
+            
+            const data = distributionData || { members: 0, visitors: 0, children: 0 };
+            gcDistributionChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Members', 'Visitors', 'Children'],
+                    datasets: [{ data: [data.members, data.visitors, data.children], backgroundColor: ['rgb(59, 130, 246)', 'rgb(34, 197, 94)', 'rgb(249, 115, 22)'], borderWidth: 2, borderColor: '#fff' }]
+                },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+        
+        function loadGCAttendanceTrends(trendsData) {
+            const ctx = document.getElementById('gcAttendanceTrendsChart').getContext('2d');
+            if (gcAttendanceTrendsChart) gcAttendanceTrendsChart.destroy();
+            
+            const data = trendsData || [];
+            gcAttendanceTrendsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(item => item.month),
+                    datasets: [
+                        { label: 'Total Attendance', data: data.map(item => item.attendance), borderColor: 'rgb(59, 130, 246)', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4, fill: true },
+                        { label: 'New Visitors', data: data.map(item => item.newVisitors), borderColor: 'rgb(34, 197, 94)', backgroundColor: 'rgba(34, 197, 94, 0.1)', tension: 0.4, fill: true }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: true }
+            });
+        }
+        
+        function loadGrowthCentersPerformance(centers) {
+            const tbody = $('#growthCentersPerformanceTable tbody');
+            tbody.empty();
+            
+            if (centers && centers.length > 0) {
+                $.each(centers, function(i, center) {
+                    const crownIcon = i === 0 ? '<i class="fa fa-crown text-warning me-1"></i>' : '';
+                    const performanceClass = center.averageAttendance > 50 ? 'text-success' : (center.averageAttendance > 25 ? 'text-warning' : 'text-danger');
+                    
+                    tbody.append(`
+                        <tr>
+                            <td>${i + 1} ${crownIcon}</span>
+                            <td><strong>${center.centerName}</strong></span>
+                            <td>${center.totalMeetings}</span>
+                            <td>${center.totalAttendance.toLocaleString()}</span>
+                            <td>${Math.round(center.averageAttendance)}</span>
+                            <td>${center.totalMembers?.toLocaleString() || 0}</span>
+                            <td>${center.totalVisitors?.toLocaleString() || 0}</span>
+                            <td>${center.totalChildren?.toLocaleString() || 0}</span>
+                            <td class="text-success">KES ${center.totalOfferings.toLocaleString('en-KE', {minimumFractionDigits: 2})}</span>
+                            <td class="${performanceClass}">${center.averageAttendance > 50 ? 'High' : (center.averageAttendance > 25 ? 'Medium' : 'Low')}</span>
+                            <td><a href="@Url.Action("GrowthCenters", "Reports")?centerId=${center.centerId}" class="btn btn-sm btn-outline-primary"><i class="fa fa-chart-line"></i></a></span>
+                         </span>
+                    `);
+                });
+            }
+        }
+        
+        // ================= EVENTS REPORTS FUNCTIONS =================
+        function loadEventsReports() {
+            $.ajax({
+                url: '@Url.Action("GetEventsReports", "Reports")',
+                type: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        updateEventsStats(response.data);
+                        loadTopEventsChart(response.data.topEvents);
+                        loadEventTrendsChart(response.data.trends);
+                        loadEventCategoryChart(response.data.categories);
+                        loadMonthlyEventAttendanceChart(response.data.monthlyAttendance);
+                        loadAllEventsTable(response.data.allEvents);
+                        
+                        // Show highest attendance event
+                        if (response.data.highestAttendance) {
+                            $('#highestEventAlert').show();
+                            $('#topEventText').html(`
+                                <strong>${response.data.highestAttendance.eventName}</strong> 
+                                with ${response.data.highestAttendance.attendance.toLocaleString()} attendees
+                            `);
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading events reports:', error);
+                }
+            });
+        }
+        
+        function updateEventsStats(data) {
+            $('#eventsTotalCount').text(data.totalEvents || 0);
+            $('#eventsTotalAttendance').text(data.totalAttendance?.toLocaleString() || 0);
+            $('#upcomingEvents').text(data.upcomingEvents || 0);
+            $('#avgEventAttendance').text(Math.round(data.averageAttendance || 0));
+        }
+        
+        function loadTopEventsChart(eventsData) {
+            const ctx = document.getElementById('topEventsChart').getContext('2d');
+            if (topEventsChart) topEventsChart.destroy();
+            
+            const data = eventsData || [];
+            topEventsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => item.eventName),
+                    datasets: [{
+                        label: 'Attendance',
+                        data: data.map(item => item.attendance),
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Number of Attendees' } } },
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+        }
+        
+        function loadEventTrendsChart(trendsData) {
+            const ctx = document.getElementById('eventTrendsChart').getContext('2d');
+            if (eventTrendsChart) eventTrendsChart.destroy();
+            
+            const data = trendsData || [];
+            eventTrendsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(item => item.month),
+                    datasets: [{
+                        label: 'Total Event Attendance',
+                        data: data.map(item => item.attendance),
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+        
+        function loadEventCategoryChart(categoryData) {
+            const ctx = document.getElementById('eventCategoryChart').getContext('2d');
+            if (eventCategoryChart) eventCategoryChart.destroy();
+            
+            const data = categoryData || [];
+            eventCategoryChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: data.map(item => item.category),
+                    datasets: [{
+                        data: data.map(item => item.count),
+                        backgroundColor: ['rgb(59, 130, 246)', 'rgb(34, 197, 94)', 'rgb(249, 115, 22)', 'rgb(168, 85, 247)', 'rgb(236, 72, 153)'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+        
+        function loadMonthlyEventAttendanceChart(monthlyData) {
+            const ctx = document.getElementById('monthlyEventAttendanceChart').getContext('2d');
+            if (monthlyEventAttendanceChart) monthlyEventAttendanceChart.destroy();
+            
+            const data = monthlyData || [];
+            monthlyEventAttendanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(item => item.month),
+                    datasets: [{
+                        label: 'Monthly Event Attendance',
+                        data: data.map(item => item.attendance),
+                        borderColor: 'rgb(249, 115, 22)',
+                        backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+        
+        function loadAllEventsTable(events) {
+            const tbody = $('#allEventsTable tbody');
+            tbody.empty();
+            
+            if (events && events.length > 0) {
+                $.each(events, function(i, event) {
+                    const eventDate = new Date(event.eventDate);
+                    const statusBadge = event.status === 'Completed' ? 'bg-success' : (event.status === 'Ongoing' ? 'bg-warning' : 'bg-info');
+                    const fillRate = event.capacity > 0 ? ((event.attendance / event.capacity) * 100).toFixed(1) : 0;
+                    const fillRateClass = fillRate >= 80 ? 'text-success' : (fillRate >= 50 ? 'text-warning' : 'text-danger');
+                    
+                    tbody.append(`
+                        <tr>
+                            <td>${i + 1}</span>
+                            <td><strong>${event.eventName}</strong></span>
+                            <td>${event.category || 'General'}</span>
+                            <td>${eventDate.toLocaleDateString('en-KE')}</span>
+                            <td>${event.location || 'N/A'}</span>
+                            <td><span class="badge bg-primary">${event.attendance.toLocaleString()}</span></span>
+                            <td>${event.capacity?.toLocaleString() || 'N/A'}</span>
+                            <td class="${fillRateClass} fw-bold">${fillRate}%</span>
+                            <td><span class="badge ${statusBadge}">${event.status}</span></span>
+                            <td><button class="btn btn-sm btn-outline-info" onclick="viewEventDetails(${event.eventId})"><i class="fa fa-eye"></i></button></span>
+                         </span>
+                    `);
+                });
+            } else {
+                tbody.html('<tr><td colspan="10" class="text-center text-muted">No event data available</span></tr>');
+            }
+        }
+        
+        // Helper Functions
+        function viewMinistryDetails(ministryId) {
+            window.location.href = '@Url.Action("Details", "Ministries")/' + ministryId;
+        }
+        
+        function viewEventDetails(eventId) {
+            window.location.href = '@Url.Action("Details", "Event")/' + eventId;
+        }
+        
+        function exportCurrentReport() {
+            window.location.href = `@Url.Action("ExportReport", "Reports")?reportType=${currentActiveTab}`;
+        }
+    </script>
+    
+    <style>
+        .bg-gradient-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .bg-gradient-success { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
+        .bg-gradient-info { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); }
+        .bg-gradient-warning { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
+        
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+        
+        .nav-tabs .nav-link {
+            font-weight: 600;
+            color: #6c757d;
+            border: none;
+            padding: 0.75rem 1.5rem;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            color: #0d6efd;
+            background: transparent;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: #0d6efd;
+            border-bottom: 3px solid #0d6efd;
+            background: transparent;
+        }
+        
+        .progress {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            line-height: 25px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border-left: 4px solid;
+        }
+        
+        .alert-warning {
+            border-left-color: #f59e0b;
+        }
+        
+        .alert-success {
+            border-left-color: #10b981;
+        }
+        
+        @@media (max-width: 768px) {
+            .stat-card h3 { font-size: 1.25rem; }
+            .nav-tabs .nav-link { padding: 0.5rem 0.75rem; font-size: 0.875rem; }
+        }
+    </style>
+}

@@ -1,0 +1,131 @@
+﻿@model List<GCI_Admin.Models.DeaconDutySummaryReport>
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="deaconsReportTable" class="table table-striped table-hover align-middle datatable">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Deacon Name</th>
+                    <th>Report Date</th>
+                    <th>Tuesday Prayers</th>
+                    <th>Thursday Bible Study</th>
+                    <th>Friday Kesha</th>
+                    <th>Sunday Services</th>
+                    <th>Other Events</th>
+                    <th>Key Issues</th>
+                </tr>
+                <!-- Filter Row -->
+                <tr>
+                    <th></th>
+                    <th><input type="text" placeholder="Search Deacon" class="form-control form-control-sm" /></th>
+                    <th><input type="text" placeholder="Search Date" class="form-control form-control-sm" /></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th><input type="text" placeholder="Search Issues" class="form-control form-control-sm" /></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    int count = 1;
+                    foreach (var report in Model.OrderByDescending(r => r.ReportDate))
+                    {
+                        <tr>
+                            <td>@count</td>
+                            <td>
+                                <strong>@ViewBag.DeaconNames?[report.DeaconId]</strong>
+                            </td>
+                            <td>@report.ReportDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(report.TuesdayPrayersObservation))
+                                {
+                                    <span class="badge bg-info" data-bs-toggle="tooltip" title="@report.TuesdayPrayersObservation">
+                                        <i class="fa fa-check-circle"></i> Reported
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">No Report</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(report.ThursdayBibleStudyObservation))
+                                {
+                                    <span class="badge bg-info" data-bs-toggle="tooltip" title="@report.ThursdayBibleStudyObservation">
+                                        <i class="fa fa-check-circle"></i> Reported
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">No Report</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(report.FridayKeshaObservation))
+                                {
+                                    <span class="badge bg-info" data-bs-toggle="tooltip" title="@report.FridayKeshaObservation">
+                                        <i class="fa fa-check-circle"></i> Reported
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">No Report</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(report.SundayServicesObservation))
+                                {
+                                    <span class="badge bg-info" data-bs-toggle="tooltip" title="@report.SundayServicesObservation">
+                                        <i class="fa fa-check-circle"></i> Reported
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">No Report</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(report.OtherWeeklyEventsObservation))
+                                {
+                                    <span class="badge bg-warning text-dark" data-bs-toggle="tooltip" title="@report.OtherWeeklyEventsObservation">
+                                        <i class="fa fa-calendar"></i> Has Events
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark">None</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(report.KeyIssuesForAttention))
+                                {
+                                    <span class="text-danger" data-bs-toggle="tooltip" title="@report.KeyIssuesForAttention">
+                                        <i class="fa fa-exclamation-triangle"></i> @(report.KeyIssuesForAttention.Length > 30 ? report.KeyIssuesForAttention.Substring(0, 30) + "..." : report.KeyIssuesForAttention)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No Issues</span>
+                                }
+                            </td>
+                        </tr>
+                        count++;
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            <i class="fa fa-file-alt fa-2x mb-2 d-block"></i>
+                            No deacon reports found
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

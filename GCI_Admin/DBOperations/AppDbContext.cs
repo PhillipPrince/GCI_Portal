@@ -43,6 +43,10 @@ namespace GCI_Admin.DBOperations
         public DbSet<CareRequest> CareRequests { get; set; }
         public DbSet<Rcps> Rcps { get; set; }
         public DbSet<RcpsPledges> RcpsPledges { get; set; }
+        public DbSet<GrowthCenterMeeting> GrowthCenterMeetings { get; set; }
+        public DbSet<GrowthCenterMeetingAttendee> GrowthCenterMeetingAttendees { get; set; }
+        public DbSet<GrowthCenterMeetingVisitor> GrowthCenterMeetingVisitors { get; set; }
+        public DbSet<DeaconDutySummaryReport> DeaconDutySummaryReports { get; set; }
 
     }
 }

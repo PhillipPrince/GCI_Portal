@@ -174,25 +174,27 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="ministryLeaderModalBody">
-                <!-- Content will be loaded here -->
-                <div class="text-center p-4" id="leaderLoadingSpinner">
+            
+            <!-- Content will be loaded here -->
+            <div id="ministryLeaderModalContent">
+                <div class="text-center p-4">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                     <p class="mt-2">Loading form...</p>
                 </div>
             </div>
+            
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="submitMinistryLeaderForm()" id="saveMinistryLeaderBtn">
-                    <i class="fa fa-save me-1"></i>Save Leader
+                <button type="button" class="btn btn-primary" onclick="confirmAndSubmit()" id="saveMinistryLeaderBtn">
+                    <i class="fa fa-save me-1"></i><span id="saveLeaderBtnText">Save Leader</span>
+                    <span id="ministryLeaderLoading" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                 </button>
             </div>
         </div>
     </div>
 </div>
-
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
@@ -254,33 +256,46 @@
             $('#modalTitleMinistry').text('Add New Ministry');
         }
 
-        function openMinistryLeaderModal() {
-            // Show modal with loading spinner
-            $('#ministryLeaderModal').modal('show');
-            $('#modalTitleMinistryLeader').text('Add New Ministry Leader');
-            
-            // Reset modal body with loading spinner
-            $('#ministryLeaderModalBody').html(`
-                <div class="text-center p-4" id="leaderLoadingSpinner">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-2">Loading form...</p>
+       
+            function openMinistryLeaderModal() {
+    // Show modal with loading spinner
+    $('#ministryLeaderModal').modal('show');
+    $('#modalTitleMinistryLeader').text('Add New Ministry Leader');
+    
+    // Reset modal body with loading spinner
+    $('#ministryLeaderModalContent').html(`
+        <div class="text-center p-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading form...</p>
+        </div>
+    `);
+    
+    // Reset button state
+    $('#saveMinistryLeaderBtn').prop('disabled', false);
+    $('#saveLeaderBtnText').text('Save Leader');
+    $('#ministryLeaderLoading').addClass('d-none');
+
+    // Load the form via AJAX
+    $.ajax({
+        url: '@Url.Action("LoadCreateForm", "Ministries")',
+        type: 'GET',
+        success: function(response) {
+            $('#ministryLeaderModalContent').html(response);
+        },
+        error: function(xhr, status, error) {
+            $('#ministryLeaderModalContent').html(`
+                <div class="alert alert-danger m-3">
+                    <i class="fa fa-exclamation-triangle me-2"></i>
+                    Error loading form. Please try again.
+                    <br><small>${error}</small>
                 </div>
             `);
-            
-            $('#saveMinistryLeaderBtn').prop('disabled', false);
-
-            // Load the form via AJAX
-            $.get('@Url.Action("LoadCreateForm", "Ministries")', function (data) {
-                $('#ministryLeaderModalBody').html(data);
-            }).fail(function () {
-                $('#ministryLeaderModalBody').html(
-                    '<div class="alert alert-danger m-3">Failed to load form. Please try again.</div>'
-                );
-            });
+            console.error("Error loading partial view:", error);
         }
-
+    });
+}
         // ================= FORM SUBMISSION =================
 
         function submitMinistryForm(e) {

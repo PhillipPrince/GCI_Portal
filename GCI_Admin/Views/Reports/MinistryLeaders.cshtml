@@ -1,0 +1,178 @@
+﻿@* @model List<GCI_Admin.Models.MinistryLeaderReport>
+
+@{
+    ViewData["Title"] = "Ministry Leaders Report";
+}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Ministry Leaders Report</h2>
+        <p class="text-muted mb-0">Track ministry activities, attendance, and impact</p>
+    </div>
+    <div class="col-md-4 d-flex justify-content-end">
+        <button class="btn btn-primary btn-lg" id="exportReportBtn">
+            <i class="fa fa-download me-2"></i>Export Report
+        </button>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Total Reports</h6>
+                <h3 class="fw-bold mb-0">@Model?.Count</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Active Ministries</h6>
+                <h3 class="fw-bold mb-0 text-success">@Model?.Select(m => m.MinistryId).Distinct().Count()</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Total Members</h6>
+                <h3 class="fw-bold mb-0">@Model?.Sum(m => m.TotalMembers)</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">New Members</h6>
+                <h3 class="fw-bold mb-0 text-info">@Model?.Sum(m => m.NewMembersThisMonth)</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Date From</label>
+                <input type="date" class="form-control" id="dateFrom">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Date To</label>
+                <input type="date" class="form-control" id="dateTo">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Ministry</label>
+                <select class="form-select" id="ministryFilter">
+                    <option value="">All Ministries</option>
+                </select>
+            </div>
+            <div class="col-md-3 text-end">
+                <button class="btn btn-outline-secondary me-2" onclick="clearFilters()">
+                    <i class="fa fa-times me-1"></i>Clear
+                </button>
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fa fa-filter me-1"></i>Apply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reports Table -->
+<div id="ministryLeadersTableContainer">
+    @await Html.PartialAsync("_MinistryLeadersReportTable", Model)
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            loadMinistries();
+            
+            $('#exportReportBtn').on('click', function() {
+                exportReport();
+            });
+        });
+        
+        function loadMinistries() {
+            $.get('@Url.Action("GetMinistriesList", "Reports")', function(data) {
+                var select = $('#ministryFilter');
+                $.each(data, function(i, ministry) {
+                    select.append($('<option></option>').val(ministry.id).text(ministry.name));
+                });
+            });
+        }
+        
+        function applyFilters() {
+            const dateFrom = $('#dateFrom').val();
+            const dateTo = $('#dateTo').val();
+            const ministryId = $('#ministryFilter').val();
+            
+            $.get('@Url.Action("FilterMinistryLeadersReport", "Reports")', {
+                dateFrom: dateFrom,
+                dateTo: dateTo,
+                ministryId: ministryId
+            }, function(data) {
+                $('#ministryLeadersTableContainer').html(data);
+                if ($.fn.DataTable.isDataTable('#ministryLeadersReportTable')) {
+                    $('#ministryLeadersReportTable').DataTable().destroy();
+                }
+                initializeDataTable();
+            });
+        }
+        
+        function clearFilters() {
+            $('#dateFrom').val('');
+            $('#dateTo').val('');
+            $('#ministryFilter').val('');
+            applyFilters();
+        }
+        
+        function exportReport() {
+            const dateFrom = $('#dateFrom').val();
+            const dateTo = $('#dateTo').val();
+            const ministryId = $('#ministryFilter').val();
+            
+            window.location.href = '@Url.Action("ExportMinistryLeadersReport", "Reports")' +
+                '?dateFrom=' + dateFrom + '&dateTo=' + dateTo + '&ministryId=' + ministryId;
+        }
+        
+        function initializeDataTable() {
+            if ($.fn.DataTable.isDataTable('#ministryLeadersReportTable')) {
+                $('#ministryLeadersReportTable').DataTable().destroy();
+            }
+            
+            $('#ministryLeadersReportTable').DataTable({
+                pageLength: 10,
+                responsive: true,
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excel',
+                        text: '<i class="fa fa-file-excel"></i> Excel',
+                        className: 'btn btn-sm btn-success'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="fa fa-file-pdf"></i> PDF',
+                        className: 'btn btn-sm btn-danger'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fa fa-print"></i> Print',
+                        className: 'btn btn-sm btn-secondary'
+                    }
+                ]
+            });
+        }
+        
+        setTimeout(initializeDataTable, 100);
+    </script>
+} *@

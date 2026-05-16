@@ -1,0 +1,205 @@
+﻿@model ICollection<GCI_Admin.Models.GrowthCenterMeetingVisitor>
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle" id="visitorsTable">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Visitor Name</th>
+                    <th>Check-in Time</th>
+                    <th>Follow-up Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int count = 1;
+                    foreach (var visitor in Model.OrderBy(v => v.CreatedAt))
+                    {
+                        <tr>
+                            <td>@count</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle-visitor me-2">
+                                        <i class="fa fa-user fa-sm"></i>
+                                    </div>
+                                    <div>
+                                        <span class="fw-semibold">@visitor.VisitorName</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <i class="fa fa-clock text-muted me-1"></i>
+                                @visitor.CreatedAt.ToString("hh:mm tt")
+                                <br />
+                                <small class="text-muted">@visitor.CreatedAt.ToString("dd MMM yyyy")</small>
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm followup-status" data-visitor="@visitor.VisitorName" style="width: auto;">
+                                    <option value="pending">Pending</option>
+                                    <option value="contacted">Contacted</option>
+                                    <option value="followed_up">Followed Up</option>
+                                    <option value="joined">Joined Church</option>
+                                </select>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-success"
+                                        onclick="recordFollowUp('@visitor.VisitorName')"
+                                        data-bs-toggle="tooltip"
+                                        title="Record Follow-up">
+                                    <i class="fa fa-phone"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-info"
+                                        onclick="addVisitorNote('@visitor.VisitorName')"
+                                        data-bs-toggle="tooltip"
+                                        title="Add Note">
+                                    <i class="fa fa-sticky-note"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        count++;
+                    }
+                }
+            </tbody>
+            <tfoot class="table-light">
+                <tr>
+                    <td colspan="5" class="text-end fw-bold">
+                        Total Visitors: @Model.Count
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="fa fa-user-plus fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">No visitors recorded</h5>
+        <p class="text-muted small">No visitors were recorded for this meeting</p>
+    </div>
+}
+
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable for visitors
+        if ($.fn.DataTable && $('#visitorsTable').length && $('#visitorsTable tbody tr').length > 0) {
+            $('#visitorsTable').DataTable({
+                pageLength: 10,
+                responsive: true,
+                language: {
+                    search: "<i class='fa fa-search'></i> Search:",
+                    lengthMenu: "Show _MENU_ entries"
+                },
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+            });
+        }
+        
+        // Save follow-up status when changed
+        $('.followup-status').on('change', function() {
+            var visitorName = $(this).data('visitor');
+            var status = $(this).val();
+            saveFollowUpStatus(visitorName, status);
+        });
+    });
+    
+    function recordFollowUp(visitorName) {
+        Swal.fire({
+            title: 'Record Follow-up',
+            html: `
+                <div class="text-start">
+                    <label class="form-label">Visitor: <strong>${visitorName}</strong></label>
+                    <textarea id="followupNotes" class="form-control mt-2" rows="3" placeholder="Enter follow-up notes..."></textarea>
+                    <select id="followupAction" class="form-control mt-2">
+                        <option value="call">Phone Call</option>
+                        <option value="visit">Home Visit</option>
+                        <option value="message">Text Message</option>
+                        <option value="email">Email</option>
+                    </select>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Save Follow-up',
+            preConfirm: () => {
+                return {
+                    notes: document.getElementById('followupNotes').value,
+                    action: document.getElementById('followupAction').value
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire('Success!', 'Follow-up recorded successfully', 'success');
+                // Here you would save to database
+            }
+        });
+    }
+    
+    function addVisitorNote(visitorName) {
+        Swal.fire({
+            title: `Add Note for ${visitorName}`,
+            input: 'textarea',
+            inputPlaceholder: 'Enter your notes here...',
+            inputAttributes: {
+                'aria-label': 'Notes'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Save Note',
+            preConfirm: (note) => {
+                if (!note) {
+                    Swal.showValidationMessage('Please enter some notes');
+                }
+                return note;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire('Success!', 'Note added successfully', 'success');
+                // Here you would save to database
+            }
+        });
+    }
+    
+    function saveFollowUpStatus(visitorName, status) {
+        // Here you would save to database
+        console.log(`Visitor: ${visitorName}, Status: ${status}`);
+        // Optional: Show a temporary notification
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000
+        });
+        Toast.fire({
+            icon: 'success',
+            title: `Status updated to ${status}`
+        });
+    }
+</script>
+
+<style>
+    .avatar-circle-visitor {
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, #48c6ef 0%, #6f86d6 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    
+    .followup-status {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+    }
+    
+        .followup-status option {
+            font-size: 0.875rem;
+        }
+</style>

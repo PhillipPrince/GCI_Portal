@@ -27,108 +27,100 @@
     <!-- ================= SIDEBAR ================= -->
     <div class="sidebar">
         <!-- Dashboard link (always visible) -->
-        <a href="@Url.Action("Index", "Home")" class="menu-link">
+        <a href="@Url.Action("Index", "Home")" class="menu-link" data-controller="home">
             <i class="fa fa-home me-2"></i> Dashboard
         </a>
 
         <!-- MEMBERS -->
-        <a data-bs-toggle="collapse" href="#membersMenu" class="menu-link" data-parent="members">
+        <a data-bs-toggle="collapse" href="#membersMenu" class="menu-link" data-controller="members">
             <i class="fa fa-users me-2"></i> Members
         </a>
         <div id="membersMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "Members")">All Members</a>
+            <a href="@Url.Action("Index", "Members")" data-controller="members">All Members</a>
         </div>
 
         <!-- CHURCH STRUCTURE -->
-        <a data-bs-toggle="collapse" href="#churchMenu" class="menu-link" data-parent="church">
+        <a data-bs-toggle="collapse" href="#churchMenu" class="menu-link" data-controller="church">
             <i class="fa fa-church me-2"></i> Church Structure
         </a>
         <div id="churchMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "Assemblies")">Assemblies</a>
-            <a href="@Url.Action("Index", "GrowthCenters")">Growth Centers</a>
+            <a href="@Url.Action("Index", "Assemblies")" data-controller="assemblies">Assemblies</a>
+            <a href="@Url.Action("Index", "GrowthCenters")" data-controller="growthcenters">Growth Centers</a>
         </div>
 
         <!-- RCP & PLEDGES MENU -->
-        <a data-bs-toggle="collapse" href="#rcpsMenu" class="menu-link" data-parent="rcps">
+        <a data-bs-toggle="collapse" href="#rcpsMenu" class="menu-link" data-controller="rcps">
             <i class="fa fa-seedling me-2"></i> Rapid Church Planting (RCPS)
         </a>
         <div id="rcpsMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "Rcps")">Active Rcpss</a>
-            <a href="@Url.Action("RcpsPledges", "Rcps")">Pledges & Giving</a>
-            @* <a href="@Url.Action("Reports", "Rcps")">RCPS Reports</a> *@
+            <a href="@Url.Action("Index", "Rcps")" data-controller="rcps">Active Rcpss</a>
+            <a href="@Url.Action("RcpsPledges", "Rcps")" data-controller="rcpspledges">Pledges & Giving</a>
         </div>
 
         <!-- LEADERSHIP -->
-        <a data-bs-toggle="collapse" href="#leadershipMenu" class="menu-link" data-parent="leadership">
+        <a data-bs-toggle="collapse" href="#leadershipMenu" class="menu-link" data-controller="leadership">
             <i class="fa fa-user-tie me-2"></i> Leadership
         </a>
         <div id="leadershipMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "GECMember")">Central Leadership</a>
-            <a href="@Url.Action("Elders", "Leadership")">Elders</a>
-            <a href="@Url.Action("Deacons", "Leadership")">Deacons</a>
-            @* <a href="@Url.Action("Index", "BranchLeaders")">Branch Leaders</a> *@
-            @* <a href="@Url.Action("Index", "GrowthCenterLeaders")">Growth Center Leaders</a> *@
+            <a href="@Url.Action("Index", "GECMember")" data-controller="gecmember">Central Leadership</a>
+            <a href="@Url.Action("Elders", "Leadership")" data-controller="elders">Elders</a>
+            <a href="@Url.Action("Deacons", "Leadership")" data-controller="deacons">Deacons</a>
         </div>
 
         <!-- MINISTRIES -->
-        <a data-bs-toggle="collapse" href="#ministriesMenu" class="menu-link" data-parent="ministries">
+        <a data-bs-toggle="collapse" href="#ministriesMenu" class="menu-link" data-controller="ministries">
             <i class="fa fa-cross me-2"></i> Ministries
         </a>
         <div id="ministriesMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "Ministries")">All Ministries</a>
-            @* <a href="@Url.Action("Requests", "Ministries")">Join Requests</a>
-            <a href="@Url.Action("Members", "Ministries")">Ministry Members</a> *@
+            <a href="@Url.Action("Index", "Ministries")" data-controller="ministries">All Ministries</a>
         </div>
 
         <!-- EVENTS -->
-        <a data-bs-toggle="collapse" href="#eventsMenu" class="menu-link" data-parent="events">
+        <a data-bs-toggle="collapse" href="#eventsMenu" class="menu-link" data-controller="events">
             <i class="fa fa-calendar me-2"></i> Events
         </a>
         <div id="eventsMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "Event")">Annual Calendar</a>
-            <a href="@Url.Action("EventRegistrations", "Event")">Registrations</a>
+            <a href="@Url.Action("Index", "Event")" data-controller="event">Annual Calendar</a>
+            <a href="@Url.Action("Index", "EventRegistrations")" data-controller="eventregistrations">Event Registrations</a>
         </div>
 
         <!-- CONTENT -->
-        <a data-bs-toggle="collapse" href="#contentMenu" class="menu-link" data-parent="content">
+        <a data-bs-toggle="collapse" href="#contentMenu" class="menu-link" data-controller="content">
             <i class="fa fa-bullhorn me-2"></i> Content & Media
         </a>
         <div id="contentMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "Announcements")">Announcements</a>
-            @* <a href="@Url.Action("Index", "BibleVerse")">Daily Bible Verse</a>
-            <a href="@Url.Action("Index", "Sermons")">Sermons</a>
-            <a href="@Url.Action("Index", "Notifications")">Notifications</a> *@
+            <a href="@Url.Action("Index", "Announcements")" data-controller="announcements">Announcements</a>
+        </div>
+
+        <!-- REPORTS MENU -->
+        <a data-bs-toggle="collapse" href="#reportsMenu" class="menu-link" data-controller="reports">
+            <i class="fa fa-chart-bar me-2"></i> Reports
+        </a>
+        <div id="reportsMenu" class="collapse submenu">
+            <a href="@Url.Action("Index", "Reports")" data-controller="reportsdashboard">All Reports</a>
+            <a href="@Url.Action("GrowthCenters", "Reports")" data-controller="growthcenterreports">Growth Centers Report</a>
+            <a href="@Url.Action("Deacons", "Reports")" data-controller="deaconsreports">Deacons Report</a>
+            <a href="@Url.Action("MinistryLeaders", "Reports")" data-controller="ministryleadersreports">Ministry Leaders Report</a>
         </div>
 
         <!-- FINANCE -->
-        <a data-bs-toggle="collapse" href="#finance" class="menu-link" data-parent="finance">
+        <a data-bs-toggle="collapse" href="#finance" class="menu-link" data-controller="finance">
             <i class="fa fa-money-bill-wave me-2"></i> Finance
         </a>
         <div id="finance" class="collapse submenu">
-            <a href="@Url.Action("Index", "Finance")">Payments</a>
-            @* <a href="@Url.Action("Reports", "Finance")">Reports</a> *@
+            <a href="@Url.Action("Index", "Finance")" data-controller="finance">Payments</a>
         </div>
+
         <!-- BENEVOLENCE -->
-        <a data-bs-toggle="collapse" href="#benevolence" class="menu-link" data-parent="benevolence">
+        <a data-bs-toggle="collapse" href="#benevolence" class="menu-link" data-controller="benevolence">
             <i class="fa fa-hand-holding-heart me-2"></i> Benevolence
         </a>
         <div id="benevolence" class="collapse submenu">
-            <a href="@Url.Action("Index", "Benevolence")">Benevolence Members</a>
-            @* <a href="@Url.Action("Reports", "Benevolence")">Reports</a> *@
+            <a href="@Url.Action("Index", "Benevolence")" data-controller="benevolence">Benevolence Members</a>
         </div>
 
-        <!-- SECURITY -->
-        @* <a data-bs-toggle="collapse" href="#securityMenu" class="menu-link" data-parent="security">
-            <i class="fa fa-shield-alt me-2"></i> Security & RBAC
-        </a>
-        <div id="securityMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "Roles")">Roles</a>
-            <a href="@Url.Action("Index", "Admins")">Admin Accounts</a>
-            <a href="@Url.Action("Index", "AuditLogs")">Audit Logs</a>
-        </div> *@
-
         <!-- SETTINGS -->
-        <a href="@Url.Action("Index", "SystemConfig")" class="menu-link">
+        <a href="@Url.Action("Index", "SystemConfig")" class="menu-link" data-controller="systemconfig">
             <i class="fa fa-cogs me-2"></i> System Settings
         </a>
     </div>
@@ -161,6 +153,7 @@
             </ul>
         </div>
     </div>
+
     <!-- ================= CONTENT ================= -->
     <div class="content">
         @RenderBody()
@@ -206,97 +199,161 @@
     <!-- Custom JS -->
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    <!-- Active menu fix -->
+    <!-- Active menu fix - Dynamic version -->
     <script>
         (function() {
-        function getActiveMenuFromUrl() {
-        var currentPath = window.location.pathname.toLowerCase();
-        var menuItems = {
-        'members': { parentId: 'membersMenu', triggerSelector: '[href="#membersMenu"]' },
-        'assemblies': { parentId: 'churchMenu', triggerSelector: '[href="#churchMenu"]' },
-        'growthcenters': { parentId: 'churchMenu', triggerSelector: '[href="#churchMenu"]' },
-        'rcps': { parentId: 'rcpsMenu', triggerSelector: '[href="#rcpsMenu"]' },
-        'rcpspledges': { parentId: 'rcpsMenu', triggerSelector: '[href="#rcpsMenu"]' },
-        'gecmember': { parentId: 'leadershipMenu', triggerSelector: '[href="#leadershipMenu"]' },
-        'elders': { parentId: 'leadershipMenu', triggerSelector: '[href="#leadershipMenu"]' },
-        'deacons': { parentId: 'leadershipMenu', triggerSelector: '[href="#leadershipMenu"]' },
-        'branchleaders': { parentId: 'leadershipMenu', triggerSelector: '[href="#leadershipMenu"]' },
-        'growthcenterleaders': { parentId: 'leadershipMenu', triggerSelector: '[href="#leadershipMenu"]' },
-        'ministries': { parentId: 'ministriesMenu', triggerSelector: '[href="#ministriesMenu"]' },
-        'event': { parentId: 'eventsMenu', triggerSelector: '[href="#eventsMenu"]' },
-        'eventregistrations': { parentId: 'eventsMenu', triggerSelector: '[href="#eventsMenu"]' },
-        'announcements': { parentId: 'contentMenu', triggerSelector: '[href="#contentMenu"]' },
-        'bibleverse': { parentId: 'contentMenu', triggerSelector: '[href="#contentMenu"]' },
-        'sermons': { parentId: 'contentMenu', triggerSelector: '[href="#contentMenu"]' },
-        'notifications': { parentId: 'contentMenu', triggerSelector: '[href="#contentMenu"]' },
-        'finance': { parentId: 'finance', triggerSelector: '[href="#finance"]' },
-        'benevolence': { parentId: 'benevolence', triggerSelector: '[href="#benevolence"]' },
-        'roles': { parentId: 'securityMenu', triggerSelector: '[href="#securityMenu"]' },
-        'admins': { parentId: 'securityMenu', triggerSelector: '[href="#securityMenu"]' },
-        'auditlogs': { parentId: 'securityMenu', triggerSelector: '[href="#securityMenu"]' },
-        'systemconfig': { parentId: null, isSingle: true }
-        };
-        for (var key in menuItems) {
-        if (currentPath.includes(key)) {
-        return menuItems[key];
-        }
-        }
-        if (currentPath === '/' || currentPath === '/home' || currentPath === '/home/index') {
-        return { parentId: null, isDashboard: true };
-        }
-        return null;
-        }
-
-        function openActiveSubmenu() {
-        var active = getActiveMenuFromUrl();
-        if (active && active.parentId) {
-        var submenuDiv = document.getElementById(active.parentId);
-        var triggerLink = document.querySelector(active.triggerSelector);
-        if (submenuDiv && !submenuDiv.classList.contains('show')) {
-        var bsCollapse = new bootstrap.Collapse(submenuDiv, { toggle: false });
-        bsCollapse.show();
-        if (triggerLink) {
-        triggerLink.setAttribute('aria-expanded', 'true');
-        triggerLink.classList.add('active');
-        }
-        } else if (triggerLink && !triggerLink.classList.contains('active')) {
-        triggerLink.classList.add('active');
-        }
-        } else if (active && active.isDashboard) {
-        var dashLink = document.querySelector('.sidebar a[href*="Home"]');
-        if (dashLink) dashLink.classList.add('active');
-        }
-
-        var allSubLinks = document.querySelectorAll('.submenu a');
-        allSubLinks.forEach(function(link) {
-        var linkHref = link.getAttribute('href');
-        if (linkHref && (window.location.pathname.endsWith(linkHref.split('/').pop()) ||
-        window.location.pathname.toLowerCase() === linkHref.toLowerCase())) {
-        link.classList.add('active-link');
-        var parentCollapse = link.closest('.collapse');
-        if (parentCollapse && !parentCollapse.classList.contains('show')) {
-        var parentId = parentCollapse.getAttribute('id');
-        var triggerBtn = document.querySelector('[data-bs-toggle="collapse"][href="#' + parentId + '"]');
-        if (triggerBtn) {
-        var bsCollapse = new bootstrap.Collapse(parentCollapse, { toggle: false });
-        bsCollapse.show();
-        triggerBtn.setAttribute('aria-expanded', 'true');
-        triggerBtn.classList.add('active');
-        }
-        } else if (parentCollapse && parentCollapse.classList.contains('show')) {
-        var parentTrigger = document.querySelector('[data-bs-toggle="collapse"][href="#' + parentCollapse.id + '"]');
-        if (parentTrigger) parentTrigger.classList.add('active');
-        }
-        }
-        });
-        }
-
-        if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', openActiveSubmenu);
-        } else {
-        openActiveSubmenu();
-        }
-        setTimeout(openActiveSubmenu, 100);
+            // Dynamically build menuItems from the DOM using data-controller attributes
+            function buildMenuItems() {
+                var menuItems = {};
+                
+                // Process all elements with data-controller attribute
+                document.querySelectorAll('[data-controller]').forEach(function(el) {
+                    var controller = el.getAttribute('data-controller');
+                    
+                    // Skip if already processed
+                    if (menuItems[controller]) return;
+                    
+                    // Check if it's a submenu link (inside .collapse)
+                    var parentCollapse = el.closest('.collapse');
+                    if (parentCollapse) {
+                        var parentId = parentCollapse.id;
+                        menuItems[controller] = {
+                            parentId: parentId,
+                            triggerSelector: '[data-controller="' + controller + '"]'
+                        };
+                    } 
+                    // Check if it's a standalone menu link (no data-bs-toggle)
+                    else if (el.classList.contains('menu-link') && !el.hasAttribute('data-bs-toggle')) {
+                        menuItems[controller] = { 
+                            parentId: null, 
+                            isSingle: true 
+                        };
+                    }
+                    // Check if it's a trigger link (has data-bs-toggle)
+                    else if (el.hasAttribute('data-bs-toggle')) {
+                        // This is a parent menu item
+                        var targetId = el.getAttribute('href').replace('#', '');
+                        if (targetId) {
+                            menuItems[controller] = {
+                                parentId: targetId,
+                                triggerSelector: '[data-controller="' + controller + '"]',
+                                isParent: true
+                            };
+                        }
+                    }
+                });
+                
+                // Add dashboard special case
+                var dashLink = document.querySelector('.sidebar a[data-controller="home"]');
+                if (dashLink) {
+                    menuItems['home'] = { parentId: null, isDashboard: true };
+                }
+                
+                return menuItems;
+            }
+            
+            function getActiveMenuFromUrl() {
+                var currentPath = window.location.pathname.toLowerCase();
+                var menuItems = buildMenuItems();
+                
+                // Find matching menu item by checking each controller name against URL
+                for (var key in menuItems) {
+                    if (currentPath.includes(key)) {
+                        return menuItems[key];
+                    }
+                }
+                
+                // Special handling for child items that might have different controller names
+                var allLinks = document.querySelectorAll('.submenu a[data-controller]');
+                for (var i = 0; i < allLinks.length; i++) {
+                    var link = allLinks[i];
+                    var href = link.getAttribute('href');
+                    if (href && (currentPath.endsWith(href.split('/').pop()) || 
+                        currentPath.toLowerCase() === href.toLowerCase())) {
+                        var controller = link.getAttribute('data-controller');
+                        if (menuItems[controller]) {
+                            return menuItems[controller];
+                        }
+                    }
+                }
+                
+                // Check for dashboard
+                if (currentPath === '/' || currentPath === '/home' || currentPath === '/home/index') {
+                    return { parentId: null, isDashboard: true };
+                }
+                
+                return null;
+            }
+            
+            function openActiveSubmenu() {
+                var active = getActiveMenuFromUrl();
+                
+                // Handle parent menu activation
+                if (active && active.parentId) {
+                    var submenuDiv = document.getElementById(active.parentId);
+                    var triggerLink = document.querySelector(active.triggerSelector);
+                    
+                    if (submenuDiv && !submenuDiv.classList.contains('show')) {
+                        var bsCollapse = new bootstrap.Collapse(submenuDiv, { toggle: false });
+                        bsCollapse.show();
+                        if (triggerLink) {
+                            triggerLink.setAttribute('aria-expanded', 'true');
+                            triggerLink.classList.add('active');
+                        }
+                    } else if (triggerLink && !triggerLink.classList.contains('active')) {
+                        triggerLink.classList.add('active');
+                    }
+                } else if (active && active.isDashboard) {
+                    var dashLink = document.querySelector('.sidebar a[data-controller="home"]');
+                    if (dashLink) dashLink.classList.add('active');
+                }
+                
+                // Highlight the actual active link
+                var allSubLinks = document.querySelectorAll('.submenu a');
+                allSubLinks.forEach(function(link) {
+                    var linkHref = link.getAttribute('href');
+                    if (linkHref && (window.location.pathname.endsWith(linkHref.split('/').pop()) ||
+                        window.location.pathname.toLowerCase() === linkHref.toLowerCase())) {
+                        
+                        link.classList.add('active-link');
+                        
+                        var parentCollapse = link.closest('.collapse');
+                        if (parentCollapse && !parentCollapse.classList.contains('show')) {
+                            var parentId = parentCollapse.getAttribute('id');
+                            var triggerBtn = document.querySelector('[data-bs-toggle="collapse"][href="#' + parentId + '"]');
+                            if (triggerBtn) {
+                                var bsCollapse = new bootstrap.Collapse(parentCollapse, { toggle: false });
+                                bsCollapse.show();
+                                triggerBtn.setAttribute('aria-expanded', 'true');
+                                triggerBtn.classList.add('active');
+                            }
+                        } else if (parentCollapse && parentCollapse.classList.contains('show')) {
+                            var parentTrigger = document.querySelector('[data-bs-toggle="collapse"][href="#' + parentCollapse.id + '"]');
+                            if (parentTrigger) parentTrigger.classList.add('active');
+                        }
+                    }
+                });
+                
+                // Also check standalone links (not in submenus)
+                var standaloneLinks = document.querySelectorAll('.sidebar > .menu-link:not([data-bs-toggle])');
+                standaloneLinks.forEach(function(link) {
+                    var linkHref = link.getAttribute('href');
+                    if (linkHref && (window.location.pathname.endsWith(linkHref.split('/').pop()) ||
+                        window.location.pathname.toLowerCase() === linkHref.toLowerCase())) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+            
+            // Initialize when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', openActiveSubmenu);
+            } else {
+                openActiveSubmenu();
+            }
+            
+            // Small delay to ensure Bootstrap is fully initialized
+            setTimeout(openActiveSubmenu, 100);
         })();
     </script>
 

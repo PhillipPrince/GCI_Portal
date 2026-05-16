@@ -6,31 +6,31 @@
 
 @Html.AntiForgeryToken()
 
-<div class="card shadow-sm">
+@if (Model != null && Model.Any())
+{
     <div class="table-responsive p-3">
         <table id="eventRegistrationsTable" class="table table-striped table-hover align-middle datatable">
-
             <thead class="table-light">
                 <tr>
                     <th>#</th>
                     <th>Member</th>
-                    <th>Event</th>
+                    <th>Email</th>
+                    <th>Phone</th>
                     <th>Amount Paid</th>
-                    <th>Payment</th>
+                    <th>Payment Status</th>
                     <th>Attended</th>
-                    <th>Registered</th>
+                    <th>Registered Date</th>
                     <th class="text-end">Actions</th>
                 </tr>
-
-                <!-- Filter Row -->
                 <tr>
                     <th></th>
                     <th>
                         <input type="text" placeholder="Search Member" class="form-control form-control-sm" />
                     </th>
                     <th>
-                        <input type="text" placeholder="Search Event" class="form-control form-control-sm" />
+                        <input type="text" placeholder="Search Email" class="form-control form-control-sm" />
                     </th>
+                    <th></th>
                     <th></th>
                     <th>
                         <select class="form-select form-select-sm">
@@ -43,41 +43,63 @@
                     <th>
                         <select class="form-select form-select-sm">
                             <option value="">All</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
+                            <option value="true">Attended</option>
+                            <option value="false">Not Attended</option>
                         </select>
                     </th>
-                    <th></th>
+                    <th>
+                        <input type="date" class="form-control form-control-sm" />
+                    </th>
                     <th></th>
                 </tr>
             </thead>
 
             <tbody>
-                @if (Model != null && Model.Any())
-                {
+                @{
                     int count = 1;
-                    foreach (var r in Model)
+                    foreach (var r in Model.OrderByDescending(r => r.RegistrationDate))
                     {
                         <tr>
                             <td>@count</td>
-
-                            <td>@($"{r.Member?.FirstName} {r.Member?.OtherNames}")</td>
-                            <td>@r.Event?.Title</td>
-                            <td>₵@r.AmountPaid.ToString("N2")</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm me-2">
+                                        <div class="avatar-title bg-primary bg-opacity-10 rounded-circle">
+                                            <i class="fa fa-user text-primary"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <strong>@($"{r.Member?.FirstName} {r.Member?.OtherNames}")</strong>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <small class="text-muted">@(r.Member?.Email ?? "N/A")</small>
+                            </td>
+                            <td>
+                                <small class="text-muted">@(r.Member?.Phone ?? "N/A")</small>
+                            </td>
+                            <td class="fw-medium">KES @r.AmountPaid.ToString("N2")</td>
 
                             <!-- Payment Badge -->
                             <td>
-                                @if (r.PaymentStatusId == 1)
+                                @if (r.PaymentStatusId == 4)
                                 {
-                                    <span class="badge bg-success">Paid</span>
+                                    <span class="badge bg-success">
+                                        <i class="fa fa-check-circle me-1"></i>Paid
+                                    </span>
                                 }
                                 else if (r.PaymentStatusId == 2)
                                 {
-                                    <span class="badge bg-warning text-dark">Pending</span>
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fa fa-clock me-1"></i>Pending
+                                    </span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-danger">Failed</span>
+                                    <span class="badge bg-danger">
+                                        <i class="fa fa-times-circle me-5"></i>Failed
+                                    </span>
                                 }
                             </td>
 
@@ -85,26 +107,40 @@
                             <td>
                                 @if (r.HasAttended == true)
                                 {
-                                    <span class="badge bg-success">Yes</span>
+                                    <span class="badge bg-success">
+                                        <i class="fa fa-check-circle me-1"></i>Yes
+                                    </span>
                                 }
                                 else if (r.HasAttended == false)
                                 {
-                                    <span class="badge bg-secondary">No</span>
+                                    <span class="badge bg-secondary">
+                                        <i class="fa fa-circle me-1"></i>No
+                                    </span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-warning">Unknown</span>
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fa fa-question-circle me-1"></i>Unknown
+                                    </span>
                                 }
                             </td>
 
-                            <td>@r.RegistrationDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <small>@r.RegistrationDate.ToString("dd MMM yyyy hh:mm tt")</small>
+                            </td>
 
                             <!-- Actions -->
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm">
+                                    <!-- View Details -->
+                                    <button class="btn btn-outline-info"
+                                            title="View Details"
+                                            onclick="viewRegistration(@r.RegistrationId)">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
 
                                     <!-- Mark Attendance -->
-                                    @if (r.HasAttended == false)
+                                    @if (r.HasAttended != true)
                                     {
                                         <button class="btn btn-outline-success"
                                                 title="Mark as Attended"
@@ -113,38 +149,100 @@
                                         </button>
                                     }
 
+                                    <!-- Send Reminder -->
+                                    <button class="btn btn-outline-warning"
+                                            title="Send Reminder"
+                                            onclick="sendRegistrationReminder(@r.RegistrationId, '@(r.Member?.Email)')">
+                                        <i class="fa fa-envelope"></i>
+                                    </button>
+
                                     <!-- Delete -->
                                     <button class="btn btn-outline-danger"
-                                            title="Delete"
+                                            title="Delete Registration"
                                             onclick="deleteRegistration(@r.RegistrationId)">
                                         <i class="fa fa-trash"></i>
                                     </button>
-
                                 </div>
                             </td>
                         </tr>
                         count++;
                     }
                 }
-                else
-                {
-                    <tr>
-                        <td class="text-center text-muted py-4">
-                            No event registrations At the moment found
-                        </td>
-                    </tr>
-                }
             </tbody>
         </table>
     </div>
-</div>
+    
+    <!-- Summary Footer -->
+    <div class="card-footer bg-white border-top-0 py-3">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <div class="border-end">
+                    <h6 class="text-muted mb-1">Total Registrations</h6>
+                    <h4 class="mb-0">@Model.Count</h4>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="border-end">
+                    <h6 class="text-muted mb-1">Paid</h6>
+                    <h4 class="mb-0 text-success">@Model.Count(r => r.PaymentStatusId == 1)</h4>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="border-end">
+                    <h6 class="text-muted mb-1">Pending</h6>
+                    <h4 class="mb-0 text-warning">@Model.Count(r => r.PaymentStatusId == 2)</h4>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <h6 class="text-muted mb-1">Attended</h6>
+                <h4 class="mb-0 text-primary">@Model.Count(r => r.HasAttended == true)</h4>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="fa fa-users fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">No Registrations Yet</h5>
+        <p class="text-muted">When members register for this event, they will appear here.</p>
+    </div>
+}
 
-@section Scripts {
-    <script>
-        // MARK ATTENDANCE
-        async function markAttended(id) {
-            if (!confirm("Mark this member as attended?")) return;
+<style>
+    .avatar-sm {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .avatar-title {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .table > :not(caption) > * > * {
+        padding: 12px 8px;
+    }
+</style>
 
+<script>
+    // MARK ATTENDANCE
+    async function markAttended(id) {
+        const result = await Swal.fire({
+            title: 'Mark Attendance',
+            text: 'Mark this member as attended?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, mark attended',
+            cancelButtonText: 'Cancel'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
             const response = await fetch('@Url.Action("MarkAttended", "EventRegistration")', {
                 method: 'POST',
                 headers: {
@@ -154,44 +252,148 @@
                 body: JSON.stringify({ id: id })
             });
 
-            const result = await response.json();
+            const data = await response.json();
 
-            if (result.success) {
-                location.reload();
+            if (data.success) {
+                Swal.fire('Success', 'Attendance marked successfully!', 'success');
+                if (typeof refreshRegistrations === 'function') {
+                    refreshRegistrations();
+                } else {
+                    location.reload();
+                }
             } else {
-                alert(result.message || "Failed to update attendance.");
+                Swal.fire('Error', data.message || 'Failed to update attendance.', 'error');
             }
+        } catch (error) {
+            Swal.fire('Error', 'An error occurred. Please try again.', 'error');
         }
+    }
 
-        // DELETE REGISTRATION
-        async function deleteRegistration(id) {
-            if (!confirm("Are you sure you want to delete this registration?")) return;
+    // VIEW REGISTRATION DETAILS
+    async function viewRegistration(id) {
+        Swal.fire({
+            title: 'Loading...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
 
+        try {
+            const response = await fetch(`/EventRegistration/Details/${id}`, {
+                method: 'GET'
+            });
+            
+            const html = await response.text();
+            
+            Swal.fire({
+                title: 'Registration Details',
+                html: html,
+                width: '800px',
+                showConfirmButton: true,
+                confirmButtonText: 'Close'
+            });
+        } catch (error) {
+            Swal.fire('Error', 'Failed to load registration details.', 'error');
+        }
+    }
+
+    // SEND REGISTRATION REMINDER
+    async function sendRegistrationReminder(registrationId, email) {
+        const result = await Swal.fire({
+            title: 'Send Reminder',
+            text: `Send reminder to ${email}?`,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Send',
+            cancelButtonText: 'Cancel'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            const response = await fetch('@Url.Action("SendReminder", "EventRegistration")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify({ id: registrationId })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                Swal.fire('Success', 'Reminder sent successfully!', 'success');
+            } else {
+                Swal.fire('Error', data.message || 'Failed to send reminder.', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'An error occurred. Please try again.', 'error');
+        }
+    }
+
+    // DELETE REGISTRATION
+    async function deleteRegistration(id) {
+        const result = await Swal.fire({
+            title: 'Delete Registration?',
+            text: 'This action cannot be undone!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it',
+            cancelButtonText: 'Cancel'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
             const response = await fetch('@Url.Action("Delete", "EventRegistration")/' + id, {
-                method: 'POST'
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                }
             });
 
             if (response.ok) {
-                location.reload();
+                Swal.fire('Deleted!', 'Registration has been deleted.', 'success');
+                if (typeof refreshRegistrations === 'function') {
+                    refreshRegistrations();
+                } else {
+                    location.reload();
+                }
             } else {
-                alert("Failed to delete registration.");
+                const data = await response.json();
+                Swal.fire('Error', data.message || 'Failed to delete registration.', 'error');
             }
+        } catch (error) {
+            Swal.fire('Error', 'An error occurred. Please try again.', 'error');
         }
+    }
 
-        // OPTIONAL: Initialize DataTables for search/filter inputs
-        $(document).ready(function () {
-            var table = $('#eventRegistrationsTable').DataTable({
-                orderCellsTop: true,
-                fixedHeader: true
-            });
+    // Initialize DataTable for search/filter
+    $(document).ready(function () {
+        var table = $('#eventRegistrationsTable').DataTable({
+            orderCellsTop: true,
+            fixedHeader: true,
+            pageLength: 10,
+            language: {
+                search: "Search:",
+                lengthMenu: "Show _MENU_ entries",
+                info: "Showing _START_ to _END_ of _TOTAL_ registrations"
+            }
+        });
 
-            $('#eventRegistrationsTable thead tr:eq(1) th').each(function (i) {
-                $('input, select', this).on('keyup change', function () {
+        // Setup column filtering
+        $('#eventRegistrationsTable thead tr:eq(1) th').each(function (i) {
+            var input = $(this).find('input, select');
+            if (input.length) {
+                input.on('keyup change', function () {
                     if (table.column(i).search() !== this.value) {
                         table.column(i).search(this.value).draw();
                     }
                 });
-            });
+            }
         });
-    </script>
-}
+    });
+</script>

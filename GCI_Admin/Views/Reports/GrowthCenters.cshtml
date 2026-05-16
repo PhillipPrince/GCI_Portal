@@ -1,0 +1,179 @@
+﻿@model List<GCI_Admin.Models.GrowthCenterMeeting>
+
+@{
+    ViewData["Title"] = "Growth Centers Report";
+}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Growth Centers Report</h2>
+        <p class="text-muted mb-0">Track growth center meetings, attendance, and offerings</p>
+    </div>
+    <div class="col-md-4 d-flex justify-content-end">
+        <button class="btn btn-primary btn-lg" id="exportReportBtn">
+            <i class="fa fa-download me-2"></i>Export Report
+        </button>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Total Meetings</h6>
+                <h3 class="fw-bold mb-0">@Model?.Count</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Total Attendance</h6>
+                <h3 class="fw-bold mb-0 text-success">@Model?.Sum(m => m.TotalMembers + m.TotalVisitors)</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Total Offerings</h6>
+                <h3 class="fw-bold mb-0">
+                    KES @(Model?.Sum(m => m.OfferingCollected).ToString("#,##0.00") ?? "0.00")
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Avg. Attendance/Meeting</h6>
+                <h3 class="fw-bold mb-0">@(Model != null && Model.Any() ? Math.Round(Model.Average(m => m.TotalMembers + m.TotalVisitors), 0) : 0)</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Date From</label>
+                <input type="date" class="form-control" id="dateFrom">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Date To</label>
+                <input type="date" class="form-control" id="dateTo">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Growth Center</label>
+                <select class="form-select" id="growthCenterFilter">
+                    <option value="">All Centers</option>
+                </select>
+            </div>
+            <div class="col-md-3 text-end">
+                <button class="btn btn-outline-secondary me-2" onclick="clearFilters()">
+                    <i class="fa fa-times me-1"></i>Clear
+                </button>
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fa fa-filter me-1"></i>Apply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Meetings Table -->
+<div id="growthCentersTableContainer">
+    @await Html.PartialAsync("_GrowthCentersReportTable", Model)
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            loadGrowthCenters();
+            
+            $('#exportReportBtn').on('click', function() {
+                exportReport();
+            });
+        });
+        
+        function loadGrowthCenters() {
+            $.get('@Url.Action("GetGrowthCentersList", "Reports")', function(data) {
+                var select = $('#growthCenterFilter');
+                $.each(data, function(i, center) {
+                    select.append($('<option></option>').val(center.id).text(center.name));
+                });
+            });
+        }
+        
+        function applyFilters() {
+            const dateFrom = $('#dateFrom').val();
+            const dateTo = $('#dateTo').val();
+            const growthCenterId = $('#growthCenterFilter').val();
+            
+            $.get('@Url.Action("FilterGrowthCentersReport", "Reports")', {
+                dateFrom: dateFrom,
+                dateTo: dateTo,
+                growthCenterId: growthCenterId
+            }, function(data) {
+                $('#growthCentersTableContainer').html(data);
+                if ($.fn.DataTable.isDataTable('#growthCentersTable')) {
+                    $('#growthCentersTable').DataTable().destroy();
+                }
+                initializeDataTable();
+            });
+        }
+        
+        function clearFilters() {
+            $('#dateFrom').val('');
+            $('#dateTo').val('');
+            $('#growthCenterFilter').val('');
+            applyFilters();
+        }
+        
+        function exportReport() {
+            const dateFrom = $('#dateFrom').val();
+            const dateTo = $('#dateTo').val();
+            const growthCenterId = $('#growthCenterFilter').val();
+            
+            window.location.href = '@Url.Action("ExportGrowthCentersReport", "Reports")' +
+                '?dateFrom=' + dateFrom + '&dateTo=' + dateTo + '&growthCenterId=' + growthCenterId;
+        }
+        
+        function initializeDataTable() {
+            if ($.fn.DataTable.isDataTable('#growthCentersTable')) {
+                $('#growthCentersTable').DataTable().destroy();
+            }
+            
+            $('#growthCentersTable').DataTable({
+                pageLength: 10,
+                responsive: true,
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excel',
+                        text: '<i class="fa fa-file-excel"></i> Excel',
+                        className: 'btn btn-sm btn-success'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="fa fa-file-pdf"></i> PDF',
+                        className: 'btn btn-sm btn-danger'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fa fa-print"></i> Print',
+                        className: 'btn btn-sm btn-secondary'
+                    }
+                ]
+            });
+        }
+        
+        setTimeout(initializeDataTable, 100);
+    </script>
+}

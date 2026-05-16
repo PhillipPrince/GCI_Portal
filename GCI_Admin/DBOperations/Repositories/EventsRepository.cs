@@ -844,7 +844,34 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+        //get even registrations by event id
+        public async Task<DbResponse<List<EventRegistration>>> GetEventRegistrationsByEventIdAsync(int eventId)
+        {
+            try
+            {
+                var registrations = await _context.EventRegistrations
+                    .Where(r => r.EventId == eventId)
+                    .Include(r => r.Member)
+                    .OrderByDescending(r => r.RegistrationDate)
+                    .ToListAsync();
+                return new DbResponse<List<EventRegistration>>
+                {
+                    Success = true,
+                    Data = registrations,
+                    Message = $"Found {registrations.Count} registrations for event ID {eventId}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching registrations for event ID {eventId}: {ex.ToString()}");
+                return new DbResponse<List<EventRegistration>>
+                {
+                    Success = false,
+                    Message = $"Error fetching registrations for event ID {eventId}: {ex.Message}"
+                };
+            }
+        }
 
-      
-    }
+
+        }
 }

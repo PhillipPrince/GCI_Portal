@@ -1,0 +1,116 @@
+﻿@model ICollection<GCI_Admin.Models.GrowthCenterMeetingAttendee>
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle" id="attendeesTable">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Member Name</th>
+                    <th>Check-in Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int count = 1;
+                    foreach (var attendee in Model.OrderBy(a => a.CreatedAt))
+                    {
+                        <tr>
+                            <td>@count</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-2">
+                                        <span class="initials">@(attendee.MemberName?.Substring(0, Math.Min(2, attendee.MemberName.Length)).ToUpper())</span>
+                                    </div>
+                                    <div>
+                                        <span class="fw-semibold">@attendee.MemberName</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <i class="fa fa-clock text-muted me-1"></i>
+                                @attendee.CreatedAt.ToString("hh:mm tt")
+                                <br />
+                                <small class="text-muted">@attendee.CreatedAt.ToString("dd MMM yyyy")</small>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info"
+                                        onclick="viewMemberDetails('@attendee.MemberName')"
+                                        data-bs-toggle="tooltip"
+                                        title="View Member Details">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        count++;
+                    }
+                }
+            </tbody>
+            <tfoot class="table-light">
+                <tr>
+                    <td colspan="4" class="text-end fw-bold">
+                        Total Attendees: @Model.Count
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="fa fa-users fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">No attendance records found</h5>
+        <p class="text-muted small">No members checked in for this meeting</p>
+    </div>
+}
+
+<script>
+    function viewMemberDetails(memberName) {
+        // You can implement member details modal or redirect
+        Swal.fire({
+            title: 'Member Details',
+            text: `Viewing details for ${memberName}`,
+            icon: 'info',
+            confirmButtonText: 'OK'
+        });
+    }
+    
+    // Initialize DataTable for attendees
+    $(document).ready(function() {
+        if ($.fn.DataTable && $('#attendeesTable').length && $('#attendeesTable tbody tr').length > 0) {
+            $('#attendeesTable').DataTable({
+                pageLength: 10,
+                responsive: true,
+                language: {
+                    search: "<i class='fa fa-search'></i> Search:",
+                    lengthMenu: "Show _MENU_ entries"
+                },
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+            });
+        }
+    });
+</script>
+
+<style>
+    .avatar-circle {
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    
+    .initials {
+        font-weight: 600;
+    }
+</style>

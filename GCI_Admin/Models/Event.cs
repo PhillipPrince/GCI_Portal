@@ -31,4 +31,11 @@
         public DateTime? EndDateTime { get; set; }
     }
 
+    public class EventViewModel
+    {
+        public Event Event { get; set; }
+        public List<EventRegistration> Registrations { get; set; }
+
+    }
+
 }

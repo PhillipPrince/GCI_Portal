@@ -1,0 +1,178 @@
+﻿@model List<GCI_Admin.Models.DeaconDutySummaryReport>
+
+@{
+    ViewData["Title"] = "Deacons Duty Report";
+}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Deacons Duty Summary Report</h2>
+        <p class="text-muted mb-0">Track deacon observations and weekly activities</p>
+    </div>
+    <div class="col-md-4 d-flex justify-content-end">
+        <button class="btn btn-primary btn-lg" id="exportReportBtn">
+            <i class="fa fa-download me-2"></i>Export Report
+        </button>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Total Reports</h6>
+                <h3 class="fw-bold mb-0">@Model?.Count</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Active Deacons</h6>
+                <h3 class="fw-bold mb-0 text-success">@Model?.Select(m => m.DeaconId).Distinct().Count()</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">This Month</h6>
+                <h3 class="fw-bold mb-0">@Model?.Count(m => m.ReportDate >= DateTime.Now.AddDays(-30))</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card border-0 shadow-sm stat-card">
+            <div class="card-body">
+                <h6 class="text-muted mb-1">Issues Reported</h6>
+                <h3 class="fw-bold mb-0 text-warning">@Model?.Count(m => !string.IsNullOrEmpty(m.KeyIssuesForAttention))</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Date From</label>
+                <input type="date" class="form-control" id="dateFrom">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Date To</label>
+                <input type="date" class="form-control" id="dateTo">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Deacon</label>
+                <select class="form-select" id="deaconFilter">
+                    <option value="">All Deacons</option>
+                </select>
+            </div>
+            <div class="col-md-3 text-end">
+                <button class="btn btn-outline-secondary me-2" onclick="clearFilters()">
+                    <i class="fa fa-times me-1"></i>Clear
+                </button>
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fa fa-filter me-1"></i>Apply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reports Table -->
+<div id="deaconsReportTableContainer">
+    @await Html.PartialAsync("_DeaconsReportTable", Model)
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            loadDeacons();
+            
+            $('#exportReportBtn').on('click', function() {
+                exportReport();
+            });
+        });
+        
+        function loadDeacons() {
+            $.get('@Url.Action("GetDeaconsList", "Reports")', function(data) {
+                var select = $('#deaconFilter');
+                $.each(data, function(i, deacon) {
+                    select.append($('<option></option>').val(deacon.id).text(deacon.name));
+                });
+            });
+        }
+        
+        function applyFilters() {
+            const dateFrom = $('#dateFrom').val();
+            const dateTo = $('#dateTo').val();
+            const deaconId = $('#deaconFilter').val();
+            
+            $.get('@Url.Action("FilterDeaconsReport", "Reports")', {
+                dateFrom: dateFrom,
+                dateTo: dateTo,
+                deaconId: deaconId
+            }, function(data) {
+                $('#deaconsReportTableContainer').html(data);
+                if ($.fn.DataTable.isDataTable('#deaconsReportTable')) {
+                    $('#deaconsReportTable').DataTable().destroy();
+                }
+                initializeDataTable();
+            });
+        }
+        
+        function clearFilters() {
+            $('#dateFrom').val('');
+            $('#dateTo').val('');
+            $('#deaconFilter').val('');
+            applyFilters();
+        }
+        
+        function exportReport() {
+            const dateFrom = $('#dateFrom').val();
+            const dateTo = $('#dateTo').val();
+            const deaconId = $('#deaconFilter').val();
+            
+            window.location.href = '@Url.Action("ExportDeaconsReport", "Reports")' +
+                '?dateFrom=' + dateFrom + '&dateTo=' + dateTo + '&deaconId=' + deaconId;
+        }
+        
+        function initializeDataTable() {
+            if ($.fn.DataTable.isDataTable('#deaconsReportTable')) {
+                $('#deaconsReportTable').DataTable().destroy();
+            }
+            
+            $('#deaconsReportTable').DataTable({
+                pageLength: 10,
+                responsive: true,
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excel',
+                        text: '<i class="fa fa-file-excel"></i> Excel',
+                        className: 'btn btn-sm btn-success'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="fa fa-file-pdf"></i> PDF',
+                        className: 'btn btn-sm btn-danger'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fa fa-print"></i> Print',
+                        className: 'btn btn-sm btn-secondary'
+                    }
+                ]
+            });
+        }
+        
+        setTimeout(initializeDataTable, 100);
+    </script>
+}
