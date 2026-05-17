@@ -150,6 +150,176 @@ namespace GCI_Admin.DBOperations.Repositories
 
         #endregion
 
+        #region MINISTRY LEADER REPORTS
+
+        public async Task<DbResponse<List<MinistryLeaderReport>>> GetAllMinistryLeaderReportsAsync()
+        {
+            try
+            {
+                var reports = await _context.MinistryLeaderReports
+    .Include(x => x.Ministry)
+    .Include(x => x.SubmittedByMinistryLeader)
+    .OrderByDescending(x => x.ReportingMonth)
+    .ToListAsync();
+
+                var memberIds = reports
+                    .Where(x => x.SubmittedByMinistryLeader != null)
+                    .Select(x => x.SubmittedByMinistryLeader.MemberId)
+                    .Distinct()
+                    .ToList();
+
+                var members = await _context.Members
+                    .Where(x => memberIds.Contains(x.Id))
+                    .ToListAsync();
+
+                foreach (var report in reports)
+                {
+                    var member = members.FirstOrDefault(x =>
+                        x.Id == report.SubmittedByMinistryLeader.MemberId);
+
+                    report.SubmittedByMinistryLeaderName = member != null
+                        ? $"{member.FirstName} {member.OtherNames}"
+                        : "Unknown Leader";
+                }
+
+                return new DbResponse<List<MinistryLeaderReport>>
+                {
+                    Success = true,
+                    Data = reports
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error GetAllMinistryLeaderReportsAsync: {ex}");
+                return new DbResponse<List<MinistryLeaderReport>>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<MinistryLeaderReport>> GetMinistryLeaderReportByIdAsync(int reportId)
+        {
+            try
+            {
+                var report = await _context.MinistryLeaderReports
+                    .Include(x => x.Ministry)
+                    .Include(x => x.SubmittedByMinistryLeader)
+                    .FirstOrDefaultAsync(x => x.MinistryLeaderReportId == reportId);
+
+                if (report == null)
+                {
+                    return new DbResponse<MinistryLeaderReport>
+                    {
+                        Success = false,
+                        Message = "Report not found"
+                    };
+                }
+
+                return new DbResponse<MinistryLeaderReport>
+                {
+                    Success = true,
+                    Data = report
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error GetMinistryLeaderReportByIdAsync: {ex}");
+                return new DbResponse<MinistryLeaderReport>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<List<MinistryLeaderReport>>> GetMinistryLeaderReportsByMinistryIdAsync(int ministryId)
+        {
+            try
+            {
+                var reports = await _context.MinistryLeaderReports
+                    .Where(x => x.MinistryId == ministryId)
+                    .Include(x => x.Ministry)
+                    .Include(x => x.SubmittedByMinistryLeader)
+                    .OrderByDescending(x => x.ReportingMonth)
+                    .ToListAsync();
+
+                return new DbResponse<List<MinistryLeaderReport>>
+                {
+                    Success = true,
+                    Data = reports
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error GetMinistryLeaderReportsByMinistryIdAsync: {ex}");
+                return new DbResponse<List<MinistryLeaderReport>>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<List<MinistryLeaderReport>>> GetMinistryLeaderReportsByLeaderIdAsync(int leaderId)
+        {
+            try
+            {
+                var reports = await _context.MinistryLeaderReports
+                    .Where(x => x.SubmittedByMinistryLeaderId == leaderId)
+                    .Include(x => x.Ministry)
+                    .Include(x => x.SubmittedByMinistryLeader)
+                    .OrderByDescending(x => x.ReportingMonth)
+                    .ToListAsync();
+
+                return new DbResponse<List<MinistryLeaderReport>>
+                {
+                    Success = true,
+                    Data = reports
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error GetMinistryLeaderReportsByLeaderIdAsync: {ex}");
+                return new DbResponse<List<MinistryLeaderReport>>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<List<MinistryLeaderReport>>> GetMinistryLeaderReportsByDateRangeAsync(DateTime from, DateTime to)
+        {
+            try
+            {
+                var reports = await _context.MinistryLeaderReports
+                    .Where(x => x.ReportingMonth >= from && x.ReportingMonth <= to)
+                    .Include(x => x.Ministry)
+                    .Include(x => x.SubmittedByMinistryLeader)
+                    .OrderByDescending(x => x.ReportingMonth)
+                    .ToListAsync();
+
+                return new DbResponse<List<MinistryLeaderReport>>
+                {
+                    Success = true,
+                    Data = reports
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error GetMinistryLeaderReportsByDateRangeAsync: {ex}");
+                return new DbResponse<List<MinistryLeaderReport>>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        #endregion
+
         #region DEACON DUTY REPORTS
 
         public async Task<DbResponse<List<DeaconDutySummaryReport>>> GetAllDeaconDutyReportsAsync()

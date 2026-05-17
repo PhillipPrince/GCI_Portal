@@ -1,16 +1,18 @@
 ﻿using GCI_Admin.DBOperations;
-using Utils;
-using Microsoft.EntityFrameworkCore;
+using GCI_Admin.DBOperations.Repositories;
+using GCI_Admin.Models;
+using GCI_Admin.Services;
 using GCI_Admin.Services.IService;
 using GCI_Admin.Services.Service;
-using GCI_Admin.DBOperations.Repositories;
-using Repo_GCI;
-using GCI_Admin.Services;
-using GCI_Admin.Models;
+using GCI_Admin.Utils;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Repo_GCI;
 using System.Security.Claims;
+using System.Text;
+using Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,10 +40,24 @@ builder.Services.Configure<JwtSettings>(jwtSettings);
 // ================= AUTH SERVICES =================
 builder.Services.AddScoped<JwtTokenService>();
 
+// Add BOTH Cookie and JWT authentication
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddCookie(options =>
+{
+    options.Cookie.Name = "GCI_Auth_Cookie";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.LoginPath = "/Auth/Index";
+    options.LogoutPath = "/Auth/Logout";
+    options.AccessDeniedPath = "/Auth/Unauthorized";
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    options.SlidingExpiration = true;
 })
 .AddJwtBearer(options =>
 {
@@ -63,15 +79,39 @@ builder.Services.AddAuthentication(options =>
 
     options.Events = new JwtBearerEvents
     {
+        OnMessageReceived = context =>
+        {
+            // Try to get token from cookie or authorization header
+            var token = context.Request.Cookies["GCI_Token"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                context.Token = token;
+            }
+            return Task.CompletedTask;
+        },
         OnChallenge = context =>
         {
             context.HandleResponse();
-            context.Response.Redirect("/Auth/Index");
+            if (context.Request.Path.StartsWithSegments("/api"))
+            {
+                context.Response.StatusCode = 401;
+            }
+            else
+            {
+                context.Response.Redirect("/Auth/Index");
+            }
             return Task.CompletedTask;
         },
         OnForbidden = context =>
         {
-            context.Response.Redirect("/Auth/Unauthorized");
+            if (context.Request.Path.StartsWithSegments("/api"))
+            {
+                context.Response.StatusCode = 403;
+            }
+            else
+            {
+                context.Response.Redirect("/Auth/Unauthorized");
+            }
             return Task.CompletedTask;
         }
     };
@@ -137,6 +177,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseMiddleware<SessionCleanupMiddleware>();
+
 
 // ⚠️ IMPORTANT: Authentication must come BEFORE Authorization
 app.UseAuthentication();

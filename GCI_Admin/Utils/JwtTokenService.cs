@@ -19,21 +19,22 @@ namespace Utils
             _jwtSettings = jwtSettings.Value;
         }
 
-
         public string GenerateToken(string username, string email, int roleId, List<string> permissions)
         {
             var claims = new List<Claim>
-    {
-        new Claim(JwtRegisteredClaimNames.Sub, email),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        new Claim("username", username),
-        new Claim(ClaimTypes.Name, username),
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("username", username),
+                new Claim(ClaimTypes.Name, username),
+                new Claim(ClaimTypes.Email, email),
+                // Add RoleId as a separate claim for easy access
+                new Claim("RoleId", roleId.ToString()),
+                // Also add as Role claim for compatibility
+                new Claim(ClaimTypes.Role, roleId.ToString())
+            };
 
-        // 🔥 Role
-        new Claim(ClaimTypes.Role, roleId.ToString())
-    };
-
-            // 🔥 Add permissions as claims
+            // Add permissions as claims
             foreach (var permission in permissions)
             {
                 claims.Add(new Claim("permission", permission));

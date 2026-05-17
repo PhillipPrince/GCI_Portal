@@ -10,10 +10,12 @@ namespace GCI_Admin.Services.Service
     public class ReportsService : IReportsService
     {
         private readonly ReportsRepository _reportsRepository;
+        private readonly MembersRepository _membersRepository;
 
-        public ReportsService(ReportsRepository reportsRepository)
+        public ReportsService(ReportsRepository reportsRepository, MembersRepository membersRepository)
         {
             _reportsRepository = reportsRepository;
+            _membersRepository = membersRepository;
         }
 
         // =========================
@@ -136,6 +138,141 @@ namespace GCI_Admin.Services.Service
                 response.IsSuccess = false;
                 response.Code = "500";
                 response.Message = "Error fetching visitors";
+            }
+
+            return response;
+        }
+
+        // =========================
+        // Ministry Leader Reports
+        // =========================
+
+        public async Task<ApiResponse<List<MinistryLeaderReport>>> GetAllMinistryLeaderReportsAsync()
+        {
+            var response = new ApiResponse<List<MinistryLeaderReport>>();
+
+            try
+            {
+                var result = await _reportsRepository.GetAllMinistryLeaderReportsAsync();
+
+                response.IsSuccess = result.Success;
+                response.Code = result.Success ? "200" : "400";
+                response.Message = result.Message;
+                response.Data = result.Data;
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"GetAllMinistryLeaderReportsAsync Exception: {ex}");
+
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = "Error fetching ministry leader reports";
+            }
+
+            return response;
+        }
+
+        public async Task<ApiResponse<MinistryLeaderReport>> GetMinistryLeaderReportByIdAsync(int reportId)
+        {
+            var response = new ApiResponse<MinistryLeaderReport>();
+
+            try
+            {
+                var result = await _reportsRepository.GetMinistryLeaderReportByIdAsync(reportId);
+                
+                if (result.Data != null)
+                {
+                    var leader = await _membersRepository.GetMemberByIdAsync(result.Data.SubmittedByMinistryLeader.MemberId);
+                    result.Data.SubmittedByMinistryLeaderName = leader.Success ? leader.Data.FirstName + " " + leader.Data.OtherNames : "Unknown Leader";
+                }
+
+                response.IsSuccess = result.Success;
+                response.Code = result.Success ? "200" : "400";
+                response.Message = result.Message;
+                response.Data = result.Data;
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"GetMinistryLeaderReportByIdAsync Exception: {ex}");
+
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = "Error fetching ministry leader report";
+            }
+
+            return response;
+        }
+
+        public async Task<ApiResponse<List<MinistryLeaderReport>>> GetMinistryLeaderReportsByMinistryIdAsync(int ministryId)
+        {
+            var response = new ApiResponse<List<MinistryLeaderReport>>();
+
+            try
+            {
+                var result = await _reportsRepository.GetMinistryLeaderReportsByMinistryIdAsync(ministryId);
+
+                response.IsSuccess = result.Success;
+                response.Code = result.Success ? "200" : "400";
+                response.Message = result.Message;
+                response.Data = result.Data;
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"GetMinistryLeaderReportsByMinistryIdAsync Exception: {ex}");
+
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = "Error fetching ministry reports by ministry";
+            }
+
+            return response;
+        }
+
+        public async Task<ApiResponse<List<MinistryLeaderReport>>> GetMinistryLeaderReportsByLeaderIdAsync(int leaderId)
+        {
+            var response = new ApiResponse<List<MinistryLeaderReport>>();
+
+            try
+            {
+                var result = await _reportsRepository.GetMinistryLeaderReportsByLeaderIdAsync(leaderId);
+
+                response.IsSuccess = result.Success;
+                response.Code = result.Success ? "200" : "400";
+                response.Message = result.Message;
+                response.Data = result.Data;
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"GetMinistryLeaderReportsByLeaderIdAsync Exception: {ex}");
+
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = "Error fetching ministry reports by leader";
+            }
+
+            return response;
+        }
+
+        public async Task<ApiResponse<List<MinistryLeaderReport>>> GetMinistryLeaderReportsByDateRangeAsync(DateTime from, DateTime to)
+        {
+            var response = new ApiResponse<List<MinistryLeaderReport>>();
+
+            try
+            {
+                var result = await _reportsRepository.GetMinistryLeaderReportsByDateRangeAsync(from, to);
+
+                response.IsSuccess = result.Success;
+                response.Code = result.Success ? "200" : "400";
+                response.Message = result.Message;
+                response.Data = result.Data;
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"GetMinistryLeaderReportsByDateRangeAsync Exception: {ex}");
+
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = "Error fetching ministry reports by date range";
             }
 
             return response;

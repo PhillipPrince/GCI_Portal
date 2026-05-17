@@ -456,8 +456,6 @@
             <div class="logo-section">
                 <div class="church-logo">
                     <img src="@Url.Content("~/images/church-logo.png")" alt="Logo" />
-
-                 
                 </div>
                 <h3>Gospel Centers International</h3>
                 <p>Admin Portal</p>
@@ -618,6 +616,16 @@
         let timeLeft = 120;
         let otpModalInstance;
 
+        // Role-based redirect mapping
+        const roleRedirects = {
+            1: '/Home/',      // Church Admin
+            2: '/Home/',      // Branch Admin
+            3: '/Member/Dashboard',            // Member
+            4: '/GrowthCenter/Dashboard',      // Growth Center Leader
+            5: '/Pastoral/Dashboard',          // Pastor
+            6: '/Finance'            // Finance
+        };
+
         function switchLoginType(type) {
             loginType = type;
             $('#loginType').val(type);
@@ -660,15 +668,17 @@
         function normalizePhoneNumber(phone) {
             if (!phone) return phone;
             phone = phone.trim();
-            // Check if it starts with 0 (local format like 0712345678)
             if (phone.startsWith('0')) {
                 return '+254' + phone.substring(1);
             }
-            // Check if it starts with 254 without +
             if (phone.startsWith('254') && !phone.startsWith('+')) {
                 return '+' + phone;
             }
             return phone;
+        }
+
+        function getRedirectUrlByRole(roleId) {
+            return roleRedirects[roleId] || '/Home/Index';
         }
 
         function submitLogin() {
@@ -715,56 +725,80 @@
             btn.html('<span class="spinner-border spinner-border-sm me-2"></span>Verifying...');
             btn.prop('disabled', true);
 
-        $.ajax({
-        url: '/Auth/Login',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(loginData),
-        success: function (response) {
-        if (response.data.useOtp) {
-        // OTP is required, show the OTP modal
-        loginIdentifier = emailOrPhone;
-        btn.html(originalHtml);
-        btn.prop('disabled', false);
-        showOtpModal();
-        }
-        else if (response.isSuccess) {
-
-        if (response.data.UserRole == 6) {
-        window.location.href = response.redirectUrl || '/Finance';
-        return; // stop here
-        }
-
-        // Direct login success (no OTP required)
-        window.location.href = response.redirectUrl || '/Home';
-        }
-        else {
-        btn.html(originalHtml);
-        btn.prop('disabled', false);
-        showError(response.message || 'Invalid credentials');
-        }
-        },
-        error: function (xhr) {
-        btn.html(originalHtml);
-        btn.prop('disabled', false);
-
-        const errorMsg =
-        xhr.responseJSON?.message ||
-        'An error occurred. Please try again.';
-
-        showError(errorMsg);
-        }
-        });
+            $.ajax({
+                url: '/Auth/Login',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(loginData),
+                success: function (response) {
+                    if (response.isSuccess && response.data) {
+                        if (response.data.useOtp) {
+                            // OTP is required
+                            loginIdentifier = emailOrPhone;
+                            btn.html(originalHtml);
+                            btn.prop('disabled', false);
+                            
+                            // Store temp data for OTP verification
+                            sessionStorage.setItem('tempLoginIdentifier', loginIdentifier);
+                            
+                            showOtpModal();
+                            
+                            // Auto-send OTP
+                            setTimeout(() => {
+                                sendOtp();
+                            }, 500);
+                        } 
+                        else {
+                            // Direct login - role-based redirect
+                            const roleId = response.data.userRoleId;
+                            const redirectUrl = response.data.redirectUrl || getRedirectUrlByRole(roleId);
+                            const userRole = response.data.userRole;
+                            const userName = response.data.userName;
+                            
+                            // Show welcome message
+                            Swal.fire({
+                                icon: 'success',
+                                title: `Welcome ${userName || 'User'}!`,
+                                text: `Redirecting to ${userRole || 'your'} dashboard...`,
+                                timer: 1500,
+                                showConfirmButton: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            }).then(() => {
+                                window.location.href = redirectUrl;
+                            });
+                        }
+                    } 
+                    else {
+                        btn.html(originalHtml);
+                        btn.prop('disabled', false);
+                        showError(response.message || 'Invalid credentials');
+                        $('#passwordInput').val(''); // Clear password for security
+                    }
+                },
+                error: function (xhr) {
+                    btn.html(originalHtml);
+                    btn.prop('disabled', false);
+                    
+                    let errorMsg = 'An error occurred. Please try again.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    } else if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+                        errorMsg = xhr.responseJSON.data.message;
+                    }
+                    
+                    showError(errorMsg);
+                    $('#passwordInput').val('');
+                }
+            });
         }
 
         function showOtpModal() {
-            // Clear previous OTP inputs
             clearOtpInputs();
-            // Hide any error messages
             $('#otpError').hide();
-            // Set destination display
             $('#otpDestination').text(loginIdentifier);
-            // Show appropriate icon based on login type
+            
             if (loginType === 'email') {
                 $('.fa-envelope-open-text').removeClass('d-none');
                 $('.fa-phone-alt').addClass('d-none');
@@ -772,7 +806,7 @@
                 $('.fa-envelope-open-text').addClass('d-none');
                 $('.fa-phone-alt').removeClass('d-none');
             }
-            // Show modal
+            
             otpModalInstance = new bootstrap.Modal(document.getElementById('otpModal'));
             otpModalInstance.show();
         }
@@ -798,8 +832,7 @@
             });
         }
 
-            function verifyOtp() {
-            // Get OTP from input fields
+        function verifyOtp() {
             const otp = $('#otp1').val() + $('#otp2').val() + $('#otp3').val() +
                         $('#otp4').val() + $('#otp5').val() + $('#otp6').val();
 
@@ -808,7 +841,6 @@
                 return;
             }
 
-            // Disable verify button and show loading
             const verifyBtn = $('#verifyOtpBtn');
             const originalBtnHtml = verifyBtn.html();
             verifyBtn.html('<span class="spinner-border spinner-border-sm me-2"></span>Verifying...');
@@ -821,29 +853,36 @@
                 dataType: 'json',
                 data: JSON.stringify({
                     EmailOrPhone: loginIdentifier,
-                    OTPCode: otp   // ✅ matches your C# DTO exactly
+                    OTPCode: otp
                 }),
                 success: function (response) {
-                    if (response.isSuccess) {
-                        // Close modal and redirect
+                    if (response.isSuccess && response.data) {
                         otpModalInstance.hide();
-
+                        
+                        const roleId = response.data.userRoleId;
+                        const redirectUrl = response.data.redirectUrl || getRedirectUrlByRole(roleId);
+                        const userRole = response.data.userRole;
+                        const userName = response.data.userName;
+                        
+                        // Clear temp storage
+                        sessionStorage.removeItem('tempLoginIdentifier');
+                        
                         Swal.fire({
                             icon: 'success',
-                            title: 'Success!',
-                            text: 'Login successful',
+                            title: 'Verification Successful!',
+                            text: `Welcome ${userName || 'User'}! Redirecting to ${userRole || 'your'} dashboard...`,
                             timer: 1500,
-                            showConfirmButton: false
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
                         }).then(() => {
-                            window.location.href = response.redirectUrl || '/Home';
+                            window.location.href = redirectUrl;
                         });
                     } else {
                         verifyBtn.html(originalBtnHtml);
                         verifyBtn.prop('disabled', false);
-
                         showErrorInModal(response.message || 'Invalid OTP. Please try again.');
-
-                        // Clear OTP inputs
                         clearOtpInputs();
                         $('#otp1').focus();
                     }
@@ -851,20 +890,19 @@
                 error: function (xhr) {
                     verifyBtn.html(originalBtnHtml);
                     verifyBtn.prop('disabled', false);
-
+                    
                     let errorMsg = 'Failed to verify OTP. Please try again.';
-
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMsg = xhr.responseJSON.message;
                     }
-
+                    
                     showErrorInModal(errorMsg);
-
                     clearOtpInputs();
                     $('#otp1').focus();
                 }
             });
         }
+
         function resendOtp() {
             $('#resendOtpBtn').prop('disabled', true);
             $('#resendOtpBtn').html('<span class="spinner-border spinner-border-sm me-1"></span>Sending...');
@@ -939,6 +977,7 @@
             $('#resendOtpBtn').html('<i class="fas fa-redo-alt me-1"></i>Resend Code');
             $('#verifyOtpBtn').prop('disabled', false);
             $('#verifyOtpBtn').html('<i class="fas fa-check me-2"></i>Verify');
+            sessionStorage.removeItem('tempLoginIdentifier');
         }
 
         function clearOtpInputs() {
@@ -953,17 +992,13 @@
             }, 5000);
         }
 
-        // OTP Input Handlers
         function handleOtpInput(current, nextId) {
             if (current.value.length === 1) {
-                // Auto-move to next input
                 const nextInput = document.getElementById(nextId);
                 if (nextInput) {
                     nextInput.focus();
                 }
-                // If this is the last input, optionally auto-verify
                 if (nextId === 'otp6') {
-                    // Check if all fields are filled
                     const otp1 = $('#otp1').val();
                     const otp2 = $('#otp2').val();
                     const otp3 = $('#otp3').val();
@@ -971,7 +1006,6 @@
                     const otp5 = $('#otp5').val();
                     const otp6 = $('#otp6').val();
                     if (otp1 && otp2 && otp3 && otp4 && otp5 && otp6) {
-                        // Auto-verify after a short delay
                         setTimeout(() => {
                             verifyOtp();
                         }, 300);
@@ -982,7 +1016,6 @@
 
         function handleOtpInputComplete(current) {
             if (current.value.length === 1) {
-                // Check if all fields are filled
                 const otp1 = $('#otp1').val();
                 const otp2 = $('#otp2').val();
                 const otp3 = $('#otp3').val();
@@ -990,7 +1023,6 @@
                 const otp5 = $('#otp5').val();
                 const otp6 = $('#otp6').val();
                 if (otp1 && otp2 && otp3 && otp4 && otp5 && otp6) {
-                    // Auto-verify after a short delay
                     setTimeout(() => {
                         verifyOtp();
                     }, 300);
@@ -1038,7 +1070,6 @@
             if ($(this).val() && loginType !== 'phone') switchLoginType('phone');
         });
 
-        // Allow Enter key to submit OTP
         $(document).on('keypress', '.otp-input', function(e) {
             if (e.which === 13) {
                 e.preventDefault();

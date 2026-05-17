@@ -76,7 +76,7 @@ namespace Repo_GCI
             try
             {
                 var result = await _context.Payments
-                    .Where(x => !string.IsNullOrEmpty(x.AccountReference))
+                    .Where(x => !string.IsNullOrEmpty(x.AccountReference)&& x.PaymentStatusId==2)
                     .GroupBy(x => x.AccountReference)
                     .Select(g => new AccountReferenceSummaryDto
                     {

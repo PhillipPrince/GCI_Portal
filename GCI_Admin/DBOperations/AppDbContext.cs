@@ -47,6 +47,7 @@ namespace GCI_Admin.DBOperations
         public DbSet<GrowthCenterMeetingAttendee> GrowthCenterMeetingAttendees { get; set; }
         public DbSet<GrowthCenterMeetingVisitor> GrowthCenterMeetingVisitors { get; set; }
         public DbSet<DeaconDutySummaryReport> DeaconDutySummaryReports { get; set; }
+        public DbSet<MinistryLeaderReport> MinistryLeaderReports { get; set; }
 
     }
 }

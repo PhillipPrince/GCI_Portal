@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+@using System.Linq
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -18,111 +20,368 @@
 
     <!-- Custom CSS -->
     <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
-
-    
 </head>
 
 <body>
 
     <!-- ================= SIDEBAR ================= -->
     <div class="sidebar">
-        <!-- Dashboard link (always visible) -->
-        <a href="@Url.Action("Index", "Home")" class="menu-link" data-controller="home">
-            <i class="fa fa-home me-2"></i> Dashboard
-        </a>
-
-        <!-- MEMBERS -->
-        <a data-bs-toggle="collapse" href="#membersMenu" class="menu-link" data-controller="members">
-            <i class="fa fa-users me-2"></i> Members
-        </a>
-        <div id="membersMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "Members")" data-controller="members">All Members</a>
-        </div>
-
-        <!-- CHURCH STRUCTURE -->
-        <a data-bs-toggle="collapse" href="#churchMenu" class="menu-link" data-controller="church">
-            <i class="fa fa-church me-2"></i> Church Structure
-        </a>
-        <div id="churchMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "Assemblies")" data-controller="assemblies">Assemblies</a>
-            <a href="@Url.Action("Index", "GrowthCenters")" data-controller="growthcenters">Growth Centers</a>
-        </div>
-
-        <!-- RCP & PLEDGES MENU -->
-        <a data-bs-toggle="collapse" href="#rcpsMenu" class="menu-link" data-controller="rcps">
-            <i class="fa fa-seedling me-2"></i> Rapid Church Planting (RCPS)
-        </a>
-        <div id="rcpsMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "Rcps")" data-controller="rcps">Active Rcpss</a>
-            <a href="@Url.Action("RcpsPledges", "Rcps")" data-controller="rcpspledges">Pledges & Giving</a>
-        </div>
-
-        <!-- LEADERSHIP -->
-        <a data-bs-toggle="collapse" href="#leadershipMenu" class="menu-link" data-controller="leadership">
-            <i class="fa fa-user-tie me-2"></i> Leadership
-        </a>
-        <div id="leadershipMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "GECMember")" data-controller="gecmember">Central Leadership</a>
-            <a href="@Url.Action("Elders", "Leadership")" data-controller="elders">Elders</a>
-            <a href="@Url.Action("Deacons", "Leadership")" data-controller="deacons">Deacons</a>
-        </div>
-
-        <!-- MINISTRIES -->
-        <a data-bs-toggle="collapse" href="#ministriesMenu" class="menu-link" data-controller="ministries">
-            <i class="fa fa-cross me-2"></i> Ministries
-        </a>
-        <div id="ministriesMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "Ministries")" data-controller="ministries">All Ministries</a>
-        </div>
-
-        <!-- EVENTS -->
-        <a data-bs-toggle="collapse" href="#eventsMenu" class="menu-link" data-controller="events">
-            <i class="fa fa-calendar me-2"></i> Events
-        </a>
-        <div id="eventsMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "Event")" data-controller="event">Annual Calendar</a>
-            <a href="@Url.Action("Index", "EventRegistrations")" data-controller="eventregistrations">Event Registrations</a>
-        </div>
-
-        <!-- CONTENT -->
-        <a data-bs-toggle="collapse" href="#contentMenu" class="menu-link" data-controller="content">
-            <i class="fa fa-bullhorn me-2"></i> Content & Media
-        </a>
-        <div id="contentMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "Announcements")" data-controller="announcements">Announcements</a>
-        </div>
-
-        <!-- REPORTS MENU -->
-        <a data-bs-toggle="collapse" href="#reportsMenu" class="menu-link" data-controller="reports">
-            <i class="fa fa-chart-bar me-2"></i> Reports
-        </a>
-        <div id="reportsMenu" class="collapse submenu">
-            <a href="@Url.Action("Index", "Reports")" data-controller="reportsdashboard">All Reports</a>
-            <a href="@Url.Action("GrowthCenters", "Reports")" data-controller="growthcenterreports">Growth Centers Report</a>
-            <a href="@Url.Action("Deacons", "Reports")" data-controller="deaconsreports">Deacons Report</a>
-            <a href="@Url.Action("MinistryLeaders", "Reports")" data-controller="ministryleadersreports">Ministry Leaders Report</a>
-        </div>
-
-        <!-- FINANCE -->
-        <a data-bs-toggle="collapse" href="#finance" class="menu-link" data-controller="finance">
-            <i class="fa fa-money-bill-wave me-2"></i> Finance
-        </a>
-        <div id="finance" class="collapse submenu">
-            <a href="@Url.Action("Index", "Finance")" data-controller="finance">Payments</a>
-        </div>
-
-        <!-- BENEVOLENCE -->
-        <a data-bs-toggle="collapse" href="#benevolence" class="menu-link" data-controller="benevolence">
-            <i class="fa fa-hand-holding-heart me-2"></i> Benevolence
-        </a>
-        <div id="benevolence" class="collapse submenu">
-            <a href="@Url.Action("Index", "Benevolence")" data-controller="benevolence">Benevolence Members</a>
-        </div>
-
-        <!-- SETTINGS -->
-        <a href="@Url.Action("Index", "SystemConfig")" class="menu-link" data-controller="systemconfig">
-            <i class="fa fa-cogs me-2"></i> System Settings
-        </a>
+        @{
+            // Debug: Check if user is authenticated
+            var isAuthenticated = User.Identity.IsAuthenticated;
+            
+            // Get role from multiple possible claim types
+            var roleIdClaim = User.FindFirst("RoleId")?.Value ?? 
+                             User.FindFirst(ClaimTypes.Role)?.Value ?? 
+                             "0";
+            
+            int.TryParse(roleIdClaim, out int roleId);
+            
+            // Debug output (remove in production)
+            
+            
+            // Define menu items with their required roles (using role IDs)
+            var menuItems = new Dictionary<string, dynamic>
+            {
+                ["dashboard"] = new { 
+                    Title = "Dashboard", 
+                    Icon = "fa-home", 
+                    Url = Url.Action("Index", "Home"), 
+                    Controller = "home",
+                    IsParent = false,
+                    Roles = new[] { 1, 2, 3, 4, 5} // All roles
+                },
+                ["members"] = new { 
+                    Title = "Members", 
+                    Icon = "fa-users", 
+                    IsParent = true,
+                    ParentId = "membersMenu",
+                    Controller = "members",
+                    Roles = new[] { 1, 2, 4, 5 }, // Church Admin, Branch Admin, Growth Center Leader, Pastor
+                    Children = new[] {
+                        new { Title = "All Members", Url = Url.Action("Index", "Members"), Controller = "members", Roles = new[] { 1, 2, 4, 5 } }
+                    }
+                },
+                ["churchStructure"] = new { 
+                    Title = "Church Structure", 
+                    Icon = "fa-church", 
+                    IsParent = true,
+                    ParentId = "churchMenu",
+                    Controller = "church",
+                    Roles = new[] { 1, 2 }, // Church Admin, Branch Admin only
+                    Children = new[] {
+                        new { Title = "Assemblies", Url = Url.Action("Index", "Assemblies"), Controller = "assemblies", Roles = new[] { 1, 2 } },
+                        new { Title = "Growth Centers", Url = Url.Action("Index", "GrowthCenters"), Controller = "growthcenters", Roles = new[] { 1, 2, 4 } }
+                    }
+                },
+                ["rcps"] = new { 
+                    Title = "Rapid Church Planting (RCPS)", 
+                    Icon = "fa-seedling", 
+                    IsParent = true,
+                    ParentId = "rcpsMenu",
+                    Controller = "rcps",
+                    Roles = new[] { 1, 2, 5 }, // Church Admin, Branch Admin, Pastor
+                    Children = new[] {
+                        new { Title = "Active Rcpss", Url = Url.Action("Index", "Rcps"), Controller = "rcps", Roles = new[] { 1, 2, 5 } },
+                        new { Title = "Pledges & Giving", Url = Url.Action("RcpsPledges", "Rcps"), Controller = "rcpspledges", Roles = new[] { 1, 2, 6 } }
+                    }
+                },
+                ["leadership"] = new { 
+                    Title = "Leadership", 
+                    Icon = "fa-user-tie", 
+                    IsParent = true,
+                    ParentId = "leadershipMenu",
+                    Controller = "leadership",
+                    Roles = new[] { 1, 2, 5 }, // Church Admin, Branch Admin, Pastor
+                    Children = new[] {
+                        new { Title = "Central Leadership", Url = Url.Action("Index", "GECMember"), Controller = "gecmember", Roles = new[] { 1, 2 } },
+                        new { Title = "Elders", Url = Url.Action("Elders", "Leadership"), Controller = "elders", Roles = new[] { 1, 2, 5 } },
+                        new { Title = "Deacons", Url = Url.Action("Deacons", "Leadership"), Controller = "deacons", Roles = new[] { 1, 2, 5 } }
+                    }
+                },
+                ["ministries"] = new { 
+                    Title = "Ministries", 
+                    Icon = "fa-cross", 
+                    IsParent = true,
+                    ParentId = "ministriesMenu",
+                    Controller = "ministries",
+                    Roles = new[] { 1, 2, 4, 5 }, // Church Admin, Branch Admin, Growth Center Leader, Pastor
+                    Children = new[] {
+                        new { Title = "All Ministries", Url = Url.Action("Index", "Ministries"), Controller = "ministries", Roles = new[] { 1, 2, 4, 5 } }
+                    }
+                },
+                ["events"] = new { 
+                    Title = "Events", 
+                    Icon = "fa-calendar", 
+                    IsParent = true,
+                    ParentId = "eventsMenu",
+                    Controller = "events",
+                    Roles = new[] { 1, 2, 3, 4, 5 }, // Almost all roles except Finance
+                    Children = new[] {
+                        new { Title = "Annual Calendar", Url = Url.Action("Index", "Event"), Controller = "event", Roles = new[] { 1, 2, 3, 4, 5 } },
+                        new { Title = "Event Registrations", Url = Url.Action("Index", "EventRegistrations"), Controller = "eventregistrations", Roles = new[] { 1, 2 } }
+                    }
+                },
+                ["content"] = new { 
+                    Title = "Content & Media", 
+                    Icon = "fa-bullhorn", 
+                    IsParent = true,
+                    ParentId = "contentMenu",
+                    Controller = "content",
+                    Roles = new[] { 1, 2 }, // Church Admin, Branch Admin
+                    Children = new[] {
+                        new { Title = "Announcements", Url = Url.Action("Index", "Announcements"), Controller = "announcements", Roles = new[] { 1, 2 } }
+                    }
+                },
+                ["reports"] = new { 
+                    Title = "Reports", 
+                    Icon = "fa-chart-bar", 
+                    IsParent = true,
+                    ParentId = "reportsMenu",
+                    Controller = "reports",
+                    Roles = new[] { 1, 2, 4, 5, 6 }, // Church Admin, Branch Admin, Growth Center Leader, Pastor, Finance
+                    Children = new[] {
+                        new { Title = "All Reports", Url = Url.Action("Index", "Reports"), Controller = "reportsdashboard", Roles = new[] { 1, 2 } },
+                        new { Title = "Growth Centers Report", Url = Url.Action("GrowthCenters", "Reports"), Controller = "growthcenterreports", Roles = new[] { 1, 2, 4 } },
+                        new { Title = "Deacons Report", Url = Url.Action("Deacons", "Reports"), Controller = "deaconsreports", Roles = new[] { 1, 2, 5 } },
+                        new { Title = "Ministry Leaders Report", Url = Url.Action("MinistryLeaderReports", "Reports"), Controller = "ministryleadersreports", Roles = new[] { 1, 2, 4 } }
+                    }
+                },
+                ["finance"] = new { 
+                    Title = "Finance", 
+                    Icon = "fa-money-bill-wave", 
+                    IsParent = true,
+                    ParentId = "finance",
+                    Controller = "finance",
+                    Roles = new[] {6 }, // Church Admin, Branch Admin, Finance
+                    Children = new[] {
+                        new { Title = "Payments", Url = Url.Action("Index", "Finance"), Controller = "finance", Roles = new[] { 1, 2, 6 } }
+                    }
+                },
+                ["benevolence"] = new { 
+                    Title = "Benevolence", 
+                    Icon = "fa-hand-holding-heart", 
+                    IsParent = true,
+                    ParentId = "benevolence",
+                    Controller = "benevolence",
+                    Roles = new[] { 1, 2, 5 }, // Church Admin, Branch Admin, Pastor
+                    Children = new[] {
+                        new { Title = "Benevolence Members", Url = Url.Action("Index", "Benevolence"), Controller = "benevolence", Roles = new[] { 1, 2, 5 } }
+                    }
+                },
+                ["settings"] = new { 
+                    Title = "System Settings", 
+                    Icon = "fa-cogs", 
+                    Url = Url.Action("Index", "SystemConfig"), 
+                    Controller = "systemconfig",
+                    IsParent = false,
+                    Roles = new[] { 1 } // Only Church Admin
+                }
+            };
+            
+            // Helper function to check if user has access to a menu item
+            bool HasAccess(int[] allowedRoles)
+            {
+                if (!isAuthenticated || roleId == 0) return false;
+                return allowedRoles.Contains(roleId);
+            }
+        }
+        
+        <!-- Dashboard link (always visible if authenticated) -->
+        @if (isAuthenticated)
+        {
+            <!-- Dashboard -->
+            if (HasAccess(menuItems["dashboard"].Roles))
+            {
+                <a href="@menuItems["dashboard"].Url" class="menu-link" data-controller="@menuItems["dashboard"].Controller">
+                    <i class="fa @menuItems["dashboard"].Icon me-2"></i> @menuItems["dashboard"].Title
+                </a>
+            }
+            
+            <!-- MEMBERS -->
+            if (HasAccess(menuItems["members"].Roles))
+            {
+                <a data-bs-toggle="collapse" href="#@menuItems["members"].ParentId" class="menu-link" data-controller="@menuItems["members"].Controller">
+                    <i class="fa @menuItems["members"].Icon me-2"></i> @menuItems["members"].Title
+                </a>
+                <div id="@menuItems["members"].ParentId" class="collapse submenu">
+                    @foreach (var child in menuItems["members"].Children)
+                    {
+                        if (HasAccess(child.Roles))
+                        {
+                            <a href="@child.Url" data-controller="@child.Controller">@child.Title</a>
+                        }
+                    }
+                </div>
+            }
+            
+            <!-- CHURCH STRUCTURE -->
+            @if (HasAccess(menuItems["churchStructure"].Roles))
+            {
+                <a data-bs-toggle="collapse" href="#@menuItems["churchStructure"].ParentId" class="menu-link" data-controller="@menuItems["churchStructure"].Controller">
+                    <i class="fa @menuItems["churchStructure"].Icon me-2"></i> @menuItems["churchStructure"].Title
+                </a>
+                <div id="@menuItems["churchStructure"].ParentId" class="collapse submenu">
+                    @foreach (var child in menuItems["churchStructure"].Children)
+                    {
+                        if (HasAccess(child.Roles))
+                        {
+                            <a href="@child.Url" data-controller="@child.Controller">@child.Title</a>
+                        }
+                    }
+                </div>
+            }
+            
+            <!-- RCP & PLEDGES MENU -->
+            @if (HasAccess(menuItems["rcps"].Roles))
+            {
+                <a data-bs-toggle="collapse" href="#@menuItems["rcps"].ParentId" class="menu-link" data-controller="@menuItems["rcps"].Controller">
+                    <i class="fa @menuItems["rcps"].Icon me-2"></i> @menuItems["rcps"].Title
+                </a>
+                <div id="@menuItems["rcps"].ParentId" class="collapse submenu">
+                    @foreach (var child in menuItems["rcps"].Children)
+                    {
+                        if (HasAccess(child.Roles))
+                        {
+                            <a href="@child.Url" data-controller="@child.Controller">@child.Title</a>
+                        }
+                    }
+                </div>
+            }
+            
+            <!-- LEADERSHIP -->
+            @if (HasAccess(menuItems["leadership"].Roles))
+            {
+                <a data-bs-toggle="collapse" href="#@menuItems["leadership"].ParentId" class="menu-link" data-controller="@menuItems["leadership"].Controller">
+                    <i class="fa @menuItems["leadership"].Icon me-2"></i> @menuItems["leadership"].Title
+                </a>
+                <div id="@menuItems["leadership"].ParentId" class="collapse submenu">
+                    @foreach (var child in menuItems["leadership"].Children)
+                    {
+                        if (HasAccess(child.Roles))
+                        {
+                            <a href="@child.Url" data-controller="@child.Controller">@child.Title</a>
+                        }
+                    }
+                </div>
+            }
+            
+            <!-- MINISTRIES -->
+            @if (HasAccess(menuItems["ministries"].Roles))
+            {
+                <a data-bs-toggle="collapse" href="#@menuItems["ministries"].ParentId" class="menu-link" data-controller="@menuItems["ministries"].Controller">
+                    <i class="fa @menuItems["ministries"].Icon me-2"></i> @menuItems["ministries"].Title
+                </a>
+                <div id="@menuItems["ministries"].ParentId" class="collapse submenu">
+                    @foreach (var child in menuItems["ministries"].Children)
+                    {
+                        if (HasAccess(child.Roles))
+                        {
+                            <a href="@child.Url" data-controller="@child.Controller">@child.Title</a>
+                        }
+                    }
+                </div>
+            }
+            
+            <!-- EVENTS -->
+            @if (HasAccess(menuItems["events"].Roles))
+            {
+                <a data-bs-toggle="collapse" href="#@menuItems["events"].ParentId" class="menu-link" data-controller="@menuItems["events"].Controller">
+                    <i class="fa @menuItems["events"].Icon me-2"></i> @menuItems["events"].Title
+                </a>
+                <div id="@menuItems["events"].ParentId" class="collapse submenu">
+                    @foreach (var child in menuItems["events"].Children)
+                    {
+                        if (HasAccess(child.Roles))
+                        {
+                            <a href="@child.Url" data-controller="@child.Controller">@child.Title</a>
+                        }
+                    }
+                </div>
+            }
+            
+            <!-- CONTENT -->
+            @if (HasAccess(menuItems["content"].Roles))
+            {
+                <a data-bs-toggle="collapse" href="#@menuItems["content"].ParentId" class="menu-link" data-controller="@menuItems["content"].Controller">
+                    <i class="fa @menuItems["content"].Icon me-2"></i> @menuItems["content"].Title
+                </a>
+                <div id="@menuItems["content"].ParentId" class="collapse submenu">
+                    @foreach (var child in menuItems["content"].Children)
+                    {
+                        if (HasAccess(child.Roles))
+                        {
+                            <a href="@child.Url" data-controller="@child.Controller">@child.Title</a>
+                        }
+                    }
+                </div>
+            }
+            
+            <!-- REPORTS MENU -->
+            @if (HasAccess(menuItems["reports"].Roles))
+            {
+                <a data-bs-toggle="collapse" href="#@menuItems["reports"].ParentId" class="menu-link" data-controller="@menuItems["reports"].Controller">
+                    <i class="fa @menuItems["reports"].Icon me-2"></i> @menuItems["reports"].Title
+                </a>
+                <div id="@menuItems["reports"].ParentId" class="collapse submenu">
+                    @foreach (var child in menuItems["reports"].Children)
+                    {
+                        if (HasAccess(child.Roles))
+                        {
+                            <a href="@child.Url" data-controller="@child.Controller">@child.Title</a>
+                        }
+                    }
+                </div>
+            }
+            
+            <!-- FINANCE -->
+            @if (HasAccess(menuItems["finance"].Roles))
+            {
+                <a data-bs-toggle="collapse" href="#@menuItems["finance"].ParentId" class="menu-link" data-controller="@menuItems["finance"].Controller">
+                    <i class="fa @menuItems["finance"].Icon me-2"></i> @menuItems["finance"].Title
+                </a>
+                <div id="@menuItems["finance"].ParentId" class="collapse submenu">
+                    @foreach (var child in menuItems["finance"].Children)
+                    {
+                        if (HasAccess(child.Roles))
+                        {
+                            <a href="@child.Url" data-controller="@child.Controller">@child.Title</a>
+                        }
+                    }
+                </div>
+            }
+            
+            <!-- BENEVOLENCE -->
+            @if (HasAccess(menuItems["benevolence"].Roles))
+            {
+                <a data-bs-toggle="collapse" href="#@menuItems["benevolence"].ParentId" class="menu-link" data-controller="@menuItems["benevolence"].Controller">
+                    <i class="fa @menuItems["benevolence"].Icon me-2"></i> @menuItems["benevolence"].Title
+                </a>
+                <div id="@menuItems["benevolence"].ParentId" class="collapse submenu">
+                    @foreach (var child in menuItems["benevolence"].Children)
+                    {
+                        if (HasAccess(child.Roles))
+                        {
+                            <a href="@child.Url" data-controller="@child.Controller">@child.Title</a>
+                        }
+                    }
+                </div>
+            }
+            
+            <!-- SETTINGS -->
+            @if (HasAccess(menuItems["settings"].Roles))
+            {
+                <a href="@menuItems["settings"].Url" class="menu-link" data-controller="@menuItems["settings"].Controller">
+                    <i class="fa @menuItems["settings"].Icon me-2"></i> @menuItems["settings"].Title
+                </a>
+            }
+        }
+        else
+        {
+            <div style="color: white; padding: 10px; text-align: center;">
+                Please log in to access the menu
+            </div>
+        }
     </div>
 
     <!-- ================= TOPBAR ================= -->

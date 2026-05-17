@@ -554,6 +554,122 @@ namespace GCI_Admin.Controllers
             }
         }
 
+        // ======================================
+        // MINISTRY LEADER REPORTS
+        // ======================================
+
+        // GET: Reports/MinistryLeaderReports
+        public async Task<IActionResult> MinistryLeaderReports()
+        {
+            try
+            {
+                var response = await _reportsService.GetAllMinistryLeaderReportsAsync();
+
+                if (response == null || !response.IsSuccess || response.Data == null)
+                {
+                    TempData["Warning"] = response?.Message ?? "No ministry leader reports found";
+                    return View(new List<MinistryLeaderReport>());
+                }
+
+                return View(response.Data);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "An error occurred while loading ministry leader reports";
+                return View(new List<MinistryLeaderReport>());
+            }
+        }
+
+        // GET: Reports/MinistryLeaderReportDetails/5
+        public async Task<IActionResult> MinistryLeaderReportDetails(int id)
+        {
+            try
+            {
+                var reportResult = await _reportsService.GetMinistryLeaderReportByIdAsync(id);
+
+                if (!reportResult.IsSuccess || reportResult.Data == null)
+                {
+                    TempData["Error"] = reportResult.Message ?? "Ministry leader report not found";
+                    return RedirectToAction("MinistryLeaderReports");
+                }
+
+                var report = reportResult.Data;
+
+                if (report.Ministry == null && report.MinistryId > 0)
+                {
+                    report.Ministry = await _context.Ministries
+                        .FirstOrDefaultAsync(x => x.MinistryId == report.MinistryId);
+                }
+
+                if (report.SubmittedByMinistryLeader == null && report.SubmittedByMinistryLeaderId > 0)
+                {
+                    report.SubmittedByMinistryLeader = await _context.MinistryLeaders
+                        .Include(x => x.Member)
+                        .FirstOrDefaultAsync(x => x.MinistryLeaderId == report.SubmittedByMinistryLeaderId);
+                }
+
+                return View(report);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in MinistryLeaderReportDetails: {ex.Message}");
+
+                TempData["Error"] = "An error occurred while loading ministry leader report details";
+
+                return RedirectToAction("MinistryLeaderReports");
+            }
+        }
+
+        // GET: Reports/MinistryLeaderReportsByMinistry/5
+        public async Task<IActionResult> MinistryLeaderReportsByMinistry(int id)
+        {
+            try
+            {
+                var response = await _reportsService.GetMinistryLeaderReportsByMinistryIdAsync(id);
+
+                if (response == null || !response.IsSuccess || response.Data == null)
+                {
+                    TempData["Warning"] = response?.Message ?? "No reports found for this ministry";
+                    return View("MinistryLeaderReports", new List<MinistryLeaderReport>());
+                }
+
+                ViewBag.MinistryId = id;
+
+                return View("MinistryLeaderReports", response.Data);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "An error occurred while loading ministry reports";
+
+                return View("MinistryLeaderReports", new List<MinistryLeaderReport>());
+            }
+        }
+
+        // GET: Reports/MinistryLeaderReportsByLeader/5
+        public async Task<IActionResult> MinistryLeaderReportsByLeader(int id)
+        {
+            try
+            {
+                var response = await _reportsService.GetMinistryLeaderReportsByLeaderIdAsync(id);
+
+                if (response == null || !response.IsSuccess || response.Data == null)
+                {
+                    TempData["Warning"] = response?.Message ?? "No reports found for this leader";
+                    return View("MinistryLeaderReports", new List<MinistryLeaderReport>());
+                }
+
+                ViewBag.LeaderId = id;
+
+                return View("MinistryLeaderReports", response.Data);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "An error occurred while loading leader reports";
+
+                return View("MinistryLeaderReports", new List<MinistryLeaderReport>());
+            }
+        }
+
         // GET: Reports/Deacons
         public async Task<IActionResult> Deacons()
         {

@@ -1,68 +1,113 @@
-﻿<style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #f4f6f9;
-    }
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Access Denied";
+}
 
-    .access-denied-wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GCI Admin</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
 
-    .access-denied-card {
-        background: #ffffff;
-        padding: 40px 60px;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        max-width: 400px;
-        width: 100%;
-    }
+        .access-denied-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
-    .icon {
-        font-size: 50px;
-        color: #e74c3c;
-        margin-bottom: 15px;
-    }
+        .access-denied-card {
+            background: #ffffff;
+            padding: 40px 60px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            animation: fadeInUp 0.5s ease-out;
+        }
 
-    .title {
-        font-size: 26px;
-        font-weight: bold;
-        color: #e74c3c;
-        margin-bottom: 10px;
-    }
+       
 
-    .message {
-        color: #555;
-        margin-bottom: 25px;
-    }
+        .icon {
+            font-size: 80px;
+            color: #e74c3c;
+            margin-bottom: 15px;
+        }
 
-    .btn {
-        display: inline-block;
-        padding: 10px 20px;
-        background: #0b5394;
-        color: white;
-        border-radius: 8px;
-        text-decoration: none;
-        transition: 0.3s ease;
-    }
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            color: #555;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+        }
 
         .btn:hover {
-            background: #094174;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
-</style>
 
-<div class="access-denied-wrapper">
-    <div class="access-denied-card">
-        <div class="icon">🚫</div>
-        <div class="title">Access Denied</div>
-        <div class="message">
-            Your account does not have permission to view this page.
+        .btn-secondary {
+            background: #6c757d;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="access-denied-wrapper">
+        <div class="access-denied-card">
+            <div class="icon">
+                <i class="fas fa-ban"></i>
+            </div>
+            <div class="title">Access Denied</div>
+            <div class="message">
+                <p>Your account does not have permission to view this page.</p>
+                <p style="font-size: 14px; color: #999;">Please contact your administrator.</p>
+            </div>
+
+            <a href="/Auth/Index" class="btn">Go to Login</a>
         </div>
-
-        <a href="/Auth" class="btn">Go to Login</a>
     </div>
-</div>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</body>
+</html>

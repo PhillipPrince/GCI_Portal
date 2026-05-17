@@ -18,6 +18,20 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<List<GrowthCenterMeetingVisitor>>> GetVisitorsByMeetingIdAsync(int meetingId);
 
         // =========================
+        // Ministry Leader Reports
+        // =========================
+
+        Task<ApiResponse<List<MinistryLeaderReport>>> GetAllMinistryLeaderReportsAsync();
+
+        Task<ApiResponse<MinistryLeaderReport>> GetMinistryLeaderReportByIdAsync(int reportId);
+
+        Task<ApiResponse<List<MinistryLeaderReport>>> GetMinistryLeaderReportsByMinistryIdAsync(int ministryId);
+
+        Task<ApiResponse<List<MinistryLeaderReport>>> GetMinistryLeaderReportsByLeaderIdAsync(int leaderId);
+
+        Task<ApiResponse<List<MinistryLeaderReport>>> GetMinistryLeaderReportsByDateRangeAsync(DateTime from, DateTime to);
+
+        // =========================
         // Deacon Duty Reports
         // =========================
         Task<ApiResponse<List<DeaconDutySummaryReport>>> GetAllDeaconDutyReportsAsync();

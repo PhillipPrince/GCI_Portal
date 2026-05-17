@@ -19,23 +19,39 @@ namespace GCI_Admin.Utils
             var sessionService = context.HttpContext.RequestServices
                 .GetService(typeof(SessionManager)) as SessionManager;
 
-            var user = sessionService?.GetUserSession<Member>();
+            if (sessionService == null)
+            {
+                context.Result = new RedirectToActionResult("Index", "Auth", null);
+                return;
+            }
 
-            // Not logged in
+            // Check if user is logged in via session
+            var isLoggedIn = sessionService.IsUserLoggedIn();
+
+            if (!isLoggedIn)
+            {
+                context.Result = new RedirectToActionResult("Index", "Auth", null);
+                return;
+            }
+
+            // Get user from session
+            var user = sessionService.GetUserSession<Member>();
+
             if (user == null)
             {
                 context.Result = new RedirectToActionResult("Index", "Auth", null);
                 return;
             }
 
+            // Get permissions based on user role
             var permissions = PermissionHelper.GetPermissions(user.UserRole);
 
             if (!permissions.Contains(_permission))
             {
                 context.Result = new RedirectToActionResult(
-                    "Unauthorized",
+                    "UnauthorizedAccess",
                     "Auth",
-                    null
+                    new { area = "" }
                 );
                 return;
             }

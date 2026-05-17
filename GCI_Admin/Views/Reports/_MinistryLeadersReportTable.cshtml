@@ -1,4 +1,4 @@
-﻿@* @model List<GCI_Admin.Models.MinistryLeaderReport>
+﻿@model List<GCI_Admin.Models.MinistryLeaderReport>
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
@@ -8,25 +8,27 @@
                     <th>#</th>
                     <th>Ministry Name</th>
                     <th>Leader Name</th>
-                    <th>Report Date</th>
-                    <th>Weekly Meetings</th>
-                    <th>Total Members</th>
-                    <th>New Members</th>
-                    <th>Activities</th>
-                    <th>Challenges</th>
-                    <th>Prayer Requests</th>
+                    <th>Reporting Month</th>
+                    <th>Calendar Activity</th>
+                    <th>Calendar Attendance</th>
+                    <th>Other Meetings</th>
+                    <th>Other Attendance</th>
+                    <th>Total Registered Members</th>
+                    <th>Supported Pillar</th>
+                    <th>Actions</th>
                 </tr>
                 <!-- Filter Row -->
                 <tr>
                     <th></th>
                     <th><input type="text" placeholder="Search Ministry" class="form-control form-control-sm" /></th>
                     <th><input type="text" placeholder="Search Leader" class="form-control form-control-sm" /></th>
-                    <th><input type="text" placeholder="Search Date" class="form-control form-control-sm" /></th>
+                    <th><input type="text" placeholder="Search Month" class="form-control form-control-sm" /></th>
+                    <th><input type="text" placeholder="Search Activity" class="form-control form-control-sm" /></th>
+                    <th></th>
+                    <th><input type="text" placeholder="Search Meetings" class="form-control form-control-sm" /></th>
                     <th></th>
                     <th></th>
-                    <th></th>
-                    <th></th>
-                    <th><input type="text" placeholder="Search Challenges" class="form-control form-control-sm" /></th>
+                    <th><input type="text" placeholder="Search Pillar" class="form-control form-control-sm" /></th>
                     <th></th>
                 </tr>
             </thead>
@@ -34,56 +36,89 @@
                 @if (Model != null && Model.Any())
                 {
                     int count = 1;
-                    foreach (var report in Model.OrderByDescending(r => r.ReportDate))
+                    foreach (var report in Model.OrderByDescending(r => r.ReportingMonth))
                     {
                         <tr>
                             <td>@count</td>
                             <td>
-                                <strong>@report.Ministry?.Name</strong>
+                                <strong>@report.Ministry?.MinistryName</strong>
                             </td>
-                            <td>@report.LeaderName</td>
-                            <td>@report.ReportDate.ToString("dd MMM yyyy")</td>
-                            <td class="text-center">@report.WeeklyMeetings</td>
-                            <td class="text-center">
-                                <span class="badge bg-primary">@report.TotalMembers</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge bg-success">@report.NewMembersThisMonth</span>
-                            </td>
+                            <td>@report.SubmittedByMinistryLeaderName</td>
+                            <td>@report.ReportingMonth.ToString("MMM yyyy")</td>
                             <td>
-                                @if (!string.IsNullOrEmpty(report.KeyActivities))
+                                @if (report.HadCalendarActivity)
                                 {
-                                    <span class="text-info" data-bs-toggle="tooltip" title="@report.KeyActivities">
-                                        <i class="fa fa-tasks"></i> @(report.KeyActivities.Length > 40 ? report.KeyActivities.Substring(0, 40) + "..." : report.KeyActivities)
+                                    <span class="badge bg-success">
+                                        <i class="fa fa-check-circle"></i> Yes
                                     </span>
+                                    <div class="small text-muted mt-1">@report.CalendarActivity</div>
                                 }
                                 else
                                 {
-                                    <span class="text-muted">No activities</span>
+                                    <span class="badge bg-secondary">
+                                        <i class="fa fa-times-circle"></i> No
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (report.HadCalendarActivity && report.CalendarActivityAttendance.HasValue)
+                                {
+                                    <span class="badge bg-info">@report.CalendarActivityAttendance</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
                                 }
                             </td>
                             <td>
-                                @if (!string.IsNullOrEmpty(report.Challenges))
+                                @if (report.HadOtherMeetings)
                                 {
-                                    <span class="text-warning" data-bs-toggle="tooltip" title="@report.Challenges">
-                                        <i class="fa fa-exclamation-circle"></i> @(report.Challenges.Length > 40 ? report.Challenges.Substring(0, 40) + "..." : report.Challenges)
+                                    <span class="badge bg-success">
+                                        <i class="fa fa-check-circle"></i> Yes
                                     </span>
+                                    <div class="small text-muted mt-1">@report.OtherMeetingDescription</div>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">No</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (report.HadOtherMeetings && report.OtherMeetingAttendance.HasValue)
+                                {
+                                    <span class="badge bg-warning text-dark">@report.OtherMeetingAttendance</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-primary">@report.TotalRegisteredMembers</span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(report.SupportedPillar))
+                                {
+                                    <span class="badge bg-dark">@report.SupportedPillar</span>
+                                    @if (!string.IsNullOrEmpty(report.PillarSupportDescription))
+                                    {
+                                        <div class="small text-muted mt-1" data-bs-toggle="tooltip" title="@report.PillarSupportDescription">
+                                            <i class="fa fa-info-circle"></i> View
+                                        </div>
+                                    }
                                 }
                                 else
                                 {
                                     <span class="text-muted">None</span>
                                 }
                             </td>
-                            <td>
-                                @if (!string.IsNullOrEmpty(report.PrayerRequests))
-                                {
-                                    <i class="fa fa-pray text-success" data-bs-toggle="tooltip" title="@report.PrayerRequests"></i>
-                                    <span class="text-muted ms-1">Submitted</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">None</span>
-                                }
+                            <td class="text-center">
+                                <a href="@Url.Action("MinistryLeaderReportDetails", "Reports", new { id = report.MinistryLeaderReportId })"
+                                       class="btn btn-sm btn-outline-info"
+                                       data-bs-toggle="tooltip"
+                                       title="View Report Details">
+                                    <i class="fa fa-eye me-1"></i> Details
+                                </a>
                             </td>
                         </tr>
                         count++;
@@ -92,7 +127,7 @@
                 else
                 {
                     <tr>
-                        <td colspan="10" class="text-center text-muted py-4">
+                        <td colspan="11" class="text-center text-muted py-4">
                             <i class="fa fa-church fa-2x mb-2 d-block"></i>
                             No ministry reports found
                         </td>
@@ -101,12 +136,11 @@
             </tbody>
             <tfoot class="table-light fw-bold">
                 <tr>
-                    <td colspan="5" class="text-end">Totals/Averages:</td>
-                    <td class="text-center">@Model?.Sum(m => m.TotalMembers)</td>
-                    <td class="text-center">@Model?.Sum(m => m.NewMembersThisMonth)</td>
-                    <td colspan="3"></td>
+                    <td colspan="8" class="text-end">Total Registered Members (All Ministries):</td>
+                    <td class="text-center">@Model?.Sum(m => m.TotalRegisteredMembers)</td>
+                    <td colspan="2"></td>
                 </tr>
             </tfoot>
-        </table>
-    </div>
-</div> *@
+            <table>
+            </div>
+        </div>

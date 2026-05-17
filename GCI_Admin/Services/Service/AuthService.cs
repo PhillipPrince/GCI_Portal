@@ -1,5 +1,4 @@
-﻿
-using GCI_Admin.DBOperations.Repositories;
+﻿using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
@@ -31,13 +30,29 @@ namespace GCI_Admin.Services.Service
             _imageBasePath = SystemConfigHelper.GetImageBasePathAsync(_sys).GetAwaiter().GetResult();
             _devSettings = devSettings.Value;
             _sessionManager = session;
-
         }
 
-       
-        public async Task<ApiResponse<Member>> ValidateUser(LoginDto login)
+
+        // Create login response data with redirect info
+        private LoginResponseData CreateLoginResponseData(Member user, string token,  bool useOtp = false)
         {
-            var response = new ApiResponse<Member>();
+            return new LoginResponseData
+            {
+                UseOtp = useOtp,
+                UserRoleId = user.UserRole,
+                UserRole = user.RoleName,
+                UserName = $"{user.FirstName} {user.OtherNames}".Trim(),
+                Email = user.Email,
+                Phone = user.Phone,
+                RedirectUrl = useOtp ? null : PermissionHelper.GetRedirectUrlByRoleId(user.UserRole),
+                Token = token,
+                IsAuthenticated = !useOtp
+            };
+        }
+
+        public async Task<ApiResponse<LoginResponseData>> ValidateUser(LoginDto login)
+        {
+            var response = new ApiResponse<LoginResponseData>();
 
             try
             {
@@ -67,35 +82,35 @@ namespace GCI_Admin.Services.Service
 
                 var profileImage = ImageHelper.ReadImage(_imageBasePath, user.Id.ToString());
 
-
                 var otp = await _sys.GetConfigByKeyAsync("USE_OTP");
+                bool useOtp = false;
 
-
-                if(otp.Data.ConfigValue == "true" && !_devSettings.IsDev)
+                if (otp.Data?.ConfigValue == "true" && !_devSettings.IsDev)
                 {
-                    var otpExp=await _sys.GetConfigByKeyAsync("OTP_EXPIRY_MINUTES");
+                    var otpExp = await _sys.GetConfigByKeyAsync("OTP_EXPIRY_MINUTES");
                     string phone = user.Phone;
 
                     await _userRepository.GenerateAndInsertOtpAsync(phone, int.Parse(otpExp.Data.ConfigValue));
+                    useOtp = true;
                     user.UseOtp = true;
                 }
                 else
                 {
                     _sessionManager.SetUserSession(user);
-
                 }
-
-
 
                 user.Token = token;
                 user.ProfileImage = profileImage;
 
-                response.IsSuccess = true;
-                response.Message = "Login successful";
-                response.Code = "200";
-                response.Data = user;
+                // Create response data with role-based redirect info
+                var responseData = CreateLoginResponseData(user, token, useOtp);
 
-                Loggers.DoLogs($"Login successful for {login.EmailOrPhone}");
+                response.IsSuccess = true;
+                response.Message = useOtp ? "OTP verification required" : "Login successful";
+                response.Code = "200";
+                response.Data = responseData;
+
+                Loggers.DoLogs($"Login successful for {login.EmailOrPhone}, Role: {user.UserRole}, UseOTP: {useOtp}");
                 return response;
             }
             catch (Exception ex)
@@ -108,9 +123,10 @@ namespace GCI_Admin.Services.Service
                 return response;
             }
         }
-        public async Task<ApiResponse<OTP>> ConfirmOtp(ConfirmOtpDto confirm)
+
+        public async Task<ApiResponse<LoginResponseData>> ConfirmOtp(ConfirmOtpDto confirm)
         {
-            var response = new ApiResponse<OTP>();
+            var response = new ApiResponse<LoginResponseData>();
 
             try
             {
@@ -122,14 +138,60 @@ namespace GCI_Admin.Services.Service
 
                     if (userResponse.Success && userResponse.Data != null)
                     {
-                        _sessionManager.SetUserSession(userResponse.Data);
+                        var user = userResponse.Data;
+
+                        // Set user session after successful OTP verification
+                        _sessionManager.SetUserSession(user);
+
+                        // Generate token for the user
+                        var permissions = PermissionHelper.GetPermissions(user.UserRole);
+                        var token = _jwtTokenService.GenerateToken(
+                            user.FirstName + " " + user.OtherNames,
+                            user.Email,
+                            user.UserRole,
+                            permissions
+                        );
+
+                        var profileImage = ImageHelper.ReadImage(_imageBasePath, user.Id.ToString());
+
+                        // Create response data with redirect URL
+                        var responseData = new LoginResponseData
+                        {
+                            UseOtp = false,
+                            UserRoleId = user.UserRole,
+                            UserRole = user.RoleName,
+                            UserName = $"{user.FirstName} {user.OtherNames}".Trim(),
+                            Email = user.Email,
+                            Phone = user.Phone,
+                            RedirectUrl = PermissionHelper.GetRedirectUrlByRoleId(user.UserRole),
+                            Token = token,
+                            IsAuthenticated = true
+                        };
+
+                        response.IsSuccess = true;
+                        response.Message = "OTP verified successfully";
+                        response.Code = "200";
+                        response.Data = responseData;
+
+                        Loggers.DoLogs($"OTP confirmed successfully for {confirm.EmailOrPhone}, Role: {user.UserRole}");
+                    }
+                    else
+                    {
+                        response.IsSuccess = false;
+                        response.Message = userResponse?.Message ?? "User not found";
+                        response.Code = "400";
+                        response.Data = null;
                     }
                 }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.Message = dbResponse.Message ?? "Invalid or expired OTP";
+                    response.Code = "400";
+                    response.Data = null;
 
-                response.IsSuccess = dbResponse.Success;
-                response.Message = dbResponse.Message;
-                response.Code = dbResponse.Success ? "200" : "400";
-                response.Data = dbResponse.Data;
+                    Loggers.DoLogs($"OTP confirmation failed for {confirm.EmailOrPhone}: {dbResponse.Message}");
+                }
 
                 return response;
             }
@@ -171,7 +233,6 @@ namespace GCI_Admin.Services.Service
             }
         }
 
-        // Reset password using OTP
         public async Task<ApiResponse<Member>> ResetPassword(ResetPasswordDto dto)
         {
             var response = new ApiResponse<Member>();
@@ -198,6 +259,7 @@ namespace GCI_Admin.Services.Service
                 return response;
             }
         }
+
         public async Task<ApiResponse<OTP>> ResendOtp(ResendOtpDto resendOtpDto)
         {
             var response = new ApiResponse<OTP>();
@@ -221,5 +283,5 @@ namespace GCI_Admin.Services.Service
                 return response;
             }
         }
-        }
+    }
 }

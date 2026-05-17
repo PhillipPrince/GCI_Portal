@@ -19,4 +19,20 @@
     {
         public string EmailOrPhone { get; set; }
     }
+
+   
+    public class LoginResponseData
+    {
+        public bool UseOtp { get; set; }
+        public int UserRoleId { get; set; }
+        public string UserRole { get; set; }
+        public string UserName { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public string RedirectUrl { get; set; }
+        public string Token { get; set; }
+        public string ProfileImage { get; set; }
+        public bool IsAuthenticated { get; set; }
+        public int? UserId { get; set; }  // Make sure this exists
+    }
 }

@@ -12,10 +12,10 @@ namespace GCI_Admin.Services.IService
 {
     public interface IAuthService
     {
-        Task<ApiResponse<Member>> ValidateUser(LoginDto login);
-        Task<ApiResponse<OTP>> ConfirmOtp(ConfirmOtpDto confirm);
-        Task<ApiResponse<Member>> ResetPassword(ResetPasswordDto dto);
+        Task<ApiResponse<LoginResponseData>> ValidateUser(LoginDto login);
+        Task<ApiResponse<LoginResponseData>> ConfirmOtp(ConfirmOtpDto confirm);
         Task<ApiResponse<OTP>> RequestPasswordReset(string emailOrPhone);
+        Task<ApiResponse<Member>> ResetPassword(ResetPasswordDto dto);
         Task<ApiResponse<OTP>> ResendOtp(ResendOtpDto resendOtpDto);
     }
 }
