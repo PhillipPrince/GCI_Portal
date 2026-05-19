@@ -1,17 +1,17 @@
-﻿@model GCI_Admin.Models.MinistryLeaderReport
+﻿@model GCI_Admin.Models.GrowthCenterMeeting
 
 @{
-    ViewData["Title"] = "Ministry Leader Report Details";
+    ViewData["Title"] = "Growth Center Meeting Details";
 }
 
 <!-- Page Header -->
 <div class="row mb-4">
     <div class="col-md-8">
-        <h2 class="fw-bold mb-1">Ministry Leader Report Details</h2>
-        <p class="text-muted mb-0">View complete ministry report information, activities, and feedback</p>
+        <h2 class="fw-bold mb-1">Growth Center Meeting Details</h2>
+        <p class="text-muted mb-0">View complete meeting information, attendance, and visitors</p>
     </div>
     <div class="col-md-4 d-flex justify-content-end gap-2">
-        <a href="@Url.Action("MinistryLeaderReports", "Reports")" class="btn btn-outline-secondary btn-lg">
+        <a href="@Url.Action("GrowthCenters", "Reports")" class="btn btn-outline-secondary btn-lg">
             <i class="fa fa-arrow-left me-2"></i>Back to Reports
         </a>
         <button class="btn btn-primary btn-lg" onclick="window.print()">
@@ -20,11 +20,11 @@
     </div>
 </div>
 
-<!-- Report Information Card -->
+<!-- Meeting Details Card -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-white py-3">
         <h5 class="mb-0 fw-bold">
-            <i class="fa fa-info-circle me-2 text-primary"></i>Report Information
+            <i class="fa fa-calendar-alt me-2 text-primary"></i>Meeting Information
         </h5>
     </div>
     <div class="card-body">
@@ -32,32 +32,28 @@
             <div class="col-md-6">
                 <table class="table table-borderless">
                     <tr>
-                        <td class="text-muted fw-semibold" style="width: 180px;">Ministry:</td>
-                        <td class="fw-bold">@Model.Ministry?.MinistryName</td>
+                        <td class="text-muted fw-semibold" style="width: 150px;">Growth Center:</td>
+                        <td class="fw-bold">@Model.GrowthCenter?.CenterName</td>
                     </tr>
                     <tr>
-                        <td class="text-muted fw-semibold">Submitted By:</td>
+                        <td class="text-muted fw-semibold">Meeting Date:</td>
+                        <td class="fw-bold">@Model.MeetingDate.ToString("dddd, dd MMMM yyyy")</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted fw-semibold">Time:</td>
                         <td class="fw-bold">
-                            @if (Model.SubmittedByMinistryLeader?.Member != null)
-                            {
-                                @($"{Model.SubmittedByMinistryLeader.Member.FirstName} {Model.SubmittedByMinistryLeader.Member.OtherNames}")
+                            @{
+                                // Format TimeSpan to 12-hour format with AM/PM
+                                var startTime = DateTime.Today.Add(Model.StartingTime);
+                                var endTime = DateTime.Today.Add(Model.FinishingTime);
                             }
-                            else
-                            {
-                                <span class="text-muted">Not available</span>
-                            }
+                            @startTime.ToString("hh:mm tt") - @endTime.ToString("hh:mm tt")
                         </td>
                     </tr>
                     <tr>
-                        <td class="text-muted fw-semibold">Reporting Month:</td>
+                        <td class="text-muted fw-semibold">Bible Study Topic:</td>
                         <td>
-                            <span class="badge bg-primary fs-6">@Model.ReportingMonth.ToString("MMMM yyyy")</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted fw-semibold">Total Registered Members:</td>
-                        <td>
-                            <span class="badge bg-success fs-6">@Model.TotalRegisteredMembers</span>
+                            <span class="badge bg-info text-dark">@Model.BibleStudyTopic</span>
                         </td>
                     </tr>
                 </table>
@@ -65,18 +61,33 @@
             <div class="col-md-6">
                 <table class="table table-borderless">
                     <tr>
-                        <td class="text-muted fw-semibold" style="width: 180px;">Leadership Support Comments:</td>
+                        <td class="text-muted fw-semibold" style="width: 150px;">Total Members:</td>
                         <td>
-                            @if (!string.IsNullOrEmpty(Model.LeadershipSupportComments))
-                            {
-                                <div class="p-2 bg-light rounded">
-                                    @Model.LeadershipSupportComments
-                                </div>
-                            }
-                            else
-                            {
-                                <span class="text-muted">No comments provided</span>
-                            }
+                            <span class="badge bg-primary fs-6">@Model.TotalMembers</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted fw-semibold">Total Visitors:</td>
+                        <td>
+                            <span class="badge bg-success fs-6">@Model.TotalVisitors</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted fw-semibold">Total Attendance:</td>
+                        <td>
+                            <span class="badge bg-warning text-dark fs-6">@(Model.TotalMembers + Model.TotalVisitors)</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted fw-semibold">Children Present:</td>
+                        <td>
+                            <span class="badge bg-secondary fs-6">@Model.NumberOfChildren</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted fw-semibold">Offering Collected:</td>
+                        <td>
+                            <span class="badge bg-success fs-6">KES @Model.OfferingCollected.ToString("N2")</span>
                         </td>
                     </tr>
                 </table>
@@ -90,8 +101,7 @@
                     <hr />
                     <small class="text-muted">
                         <i class="fa fa-clock me-1"></i>
-                        Created on: @Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt") | 
-                        Last Updated: @(Model.UpdatedAt?.ToString("dd MMM yyyy, hh:mm tt") ?? "Never") |
+                        Recorded on: @Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt") | 
                         Status: @(Model.IsActive ? "Active" : "Inactive")
                     </small>
                 </div>
@@ -100,137 +110,41 @@
     </div>
 </div>
 
-<!-- Calendar Activity Card -->
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-white py-3">
-        <h5 class="mb-0 fw-bold">
-            <i class="fa fa-calendar-check-o me-2 text-success"></i>Calendar Activity
-        </h5>
-    </div>
-    <div class="card-body">
-        @if (Model.HadCalendarActivity)
-        {
-            <div class="row g-4">
-                <div class="col-md-12 mb-3">
-                    <label class="text-muted fw-semibold mb-2">Activity Description</label>
-                    <div class="p-3 bg-light rounded">@Model.CalendarActivity</div>
-                </div>
-                <div class="col-md-6">
-                    <table class="table table-borderless">
-                        <tr>
-                            <td class="text-muted fw-semibold" style="width: 120px;">Attendance:</td>
-                            <td>
-                                <span class="badge bg-info fs-6">@(Model.CalendarActivityAttendance?.ToString() ?? "Not recorded")</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted fw-semibold">Status:</td>
-                            <td>
-                                <span class="badge bg-success">
-                                    <i class="fa fa-check-circle me-1"></i> Activity Held
-                                </span>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
+<!-- Members Attendance Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fa fa-users me-2 text-primary"></i>Members Attendance
+                    <span class="badge bg-primary ms-2">@(Model.Attendees?.Count ?? 0)</span>
+                </h5>
             </div>
-        }
-        else
-        {
-            <div class="text-center py-5">
-                <i class="fa fa-calendar-times-o fa-4x text-muted mb-3"></i>
-                <p class="text-muted mb-0">No calendar activity reported for this month</p>
+            <div class="card-body">
+                @await Html.PartialAsync("_MeetingAttendeesTable", Model.Attendees)
             </div>
-        }
+        </div>
     </div>
 </div>
 
-<!-- Other Meetings Card -->
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-white py-3">
-        <h5 class="mb-0 fw-bold">
-            <i class="fa fa-users me-2 text-warning"></i>Other Meetings
-        </h5>
-    </div>
-    <div class="card-body">
-        @if (Model.HadOtherMeetings)
-        {
-            <div class="row g-4">
-                <div class="col-md-12 mb-3">
-                    <label class="text-muted fw-semibold mb-2">Meeting Description</label>
-                    <div class="p-3 bg-light rounded">@Model.OtherMeetingDescription</div>
-                </div>
-                <div class="col-md-6">
-                    <table class="table table-borderless">
-                        <tr>
-                            <td class="text-muted fw-semibold" style="width: 120px;">Attendance:</td>
-                            <td>
-                                <span class="badge bg-warning text-dark fs-6">@(Model.OtherMeetingAttendance?.ToString() ?? "Not recorded")</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted fw-semibold">Status:</td>
-                            <td>
-                                <span class="badge bg-success">
-                                    <i class="fa fa-check-circle me-1"></i> Meeting Held
-                                </span>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
+<!-- Visitors Section -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fa fa-user-plus me-2 text-success"></i>Visitors
+                    <span class="badge bg-success ms-2">@(Model.Visitors?.Count ?? 0)</span>
+                </h5>
             </div>
-        }
-        else
-        {
-            <div class="text-center py-5">
-                <i class="fa fa-users-slash fa-4x text-muted mb-3"></i>
-                <p class="text-muted mb-0">No other meetings reported for this month</p>
+            <div class="card-body">
+                @await Html.PartialAsync("_MeetingVisitorsTable", Model.Visitors)
             </div>
-        }
+        </div>
     </div>
 </div>
 
-<!-- Pillar Support Card -->
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-white py-3">
-        <h5 class="mb-0 fw-bold">
-            <i class="fa fa-flag me-2 text-info"></i>Pillar Support
-        </h5>
-    </div>
-    <div class="card-body">
-        @if (!string.IsNullOrEmpty(Model.SupportedPillar))
-        {
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <table class="table table-borderless">
-                        <tr>
-                            <td class="text-muted fw-semibold" style="width: 120px;">Pillar:</td>
-                            <td>
-                                <span class="badge bg-dark fs-6">@Model.SupportedPillar</span>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                @if (!string.IsNullOrEmpty(Model.PillarSupportDescription))
-                {
-                    <div class="col-md-12">
-                        <label class="text-muted fw-semibold mb-2">Support Description</label>
-                        <div class="p-3 bg-light rounded">
-                            @Model.PillarSupportDescription
-                        </div>
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            <div class="text-center py-5">
-                <i class="fa fa-flag-o fa-4x text-muted mb-3"></i>
-                <p class="text-muted mb-0">No pillar support reported</p>
-            </div>
-        }
-    </div>
-</div>
+<!-- Quick Stats Cards -->
 
 @section Scripts {
     <script>
@@ -247,7 +161,7 @@
     
     <style>
         @@media print {
-            .btn, .topbar, .sidebar, footer, .dropdown {
+            .btn, .topbar, .sidebar, footer, .dropdown, .stat-card {
                 display: none !important;
             }
             .content {
@@ -263,20 +177,13 @@
             }
         }
         
-        .bg-light {
-            background-color: #f8f9fa !important;
+        .stat-card {
+            transition: transform 0.2s;
+            cursor: default;
         }
         
-        .table-borderless td {
-            padding: 0.5rem 0;
-        }
-        
-        .table-borderless td:first-child {
-            font-weight: 600;
-        }
-        
-        .card-header {
-            border-bottom: 1px solid rgba(0,0,0,.125);
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
     </style>
 }

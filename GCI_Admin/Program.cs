@@ -143,6 +143,7 @@ builder.Services.AddScoped<RolesRepository>();
 builder.Services.AddScoped<AuthRepository>();
 builder.Services.AddScoped<RcpsRepository>();
 builder.Services.AddScoped<ReportsRepository>();
+builder.Services.AddScoped<MeetingsRepository>();
 
 // ================= SERVICES =================
 builder.Services.AddScoped<IEventsService, EventsService>();
@@ -160,6 +161,7 @@ builder.Services.AddScoped<IRolesService, RolesService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRcpsService, RcpsService>();
 builder.Services.AddScoped<IReportsService, ReportsService>();
+builder.Services.AddScoped<IMeetingsService, MeetingsService>();
 
 builder.Services.AddScoped<SessionManager>();
 

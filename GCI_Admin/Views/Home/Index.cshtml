@@ -143,6 +143,193 @@
     </div>
 </div>
 
+<!-- 🆕 ATTENDANCE KPI CARDS - New Section -->
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <h5 class="fw-bold mb-3"><i class="fa fa-church me-2 text-primary"></i>Church Attendance Overview</h5>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-calendar-alt fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Meetings</h6>
+                        <h3 class="fw-bold mb-0">@Model.TotalMeetings.ToString("N0")</h3>
+                        <small class="text-muted"><i class="fa fa-clock me-1"></i>@Model.MeetingTypesCount meeting types</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-users fa-2x text-success"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Attendance</h6>
+                        <h3 class="fw-bold mb-0">@Model.TotalAttendees.ToString("N0")</h3>
+                        @if (Model.AttendanceGrowthPercentage > 0)
+                        {
+                            <small class="text-success"><i class="fa fa-arrow-up me-1"></i>+@Model.AttendanceGrowthPercentage% from last month</small>
+                        }
+                        else if (Model.AttendanceGrowthPercentage < 0)
+                        {
+                            <small class="text-danger"><i class="fa fa-arrow-down me-1"></i>@Model.AttendanceGrowthPercentage% from last month</small>
+                        }
+                        else
+                        {
+                            <small class="text-muted"><i class="fa fa-minus me-1"></i>No change</small>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-chart-line fa-2x text-info"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Avg. Attendance/Meeting</h6>
+                        <h3 class="fw-bold mb-0">@Model.AverageAttendance.ToString("N0")</h3>
+                        <small class="text-muted"><i class="fa fa-calendar me-1"></i>Per service</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-chart-bar fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Last 30 Days</h6>
+                        <h3 class="fw-bold mb-0">@Model.AttendeesLast30Days.ToString("N0")</h3>
+                        <small class="text-muted"><i class="fa fa-calendar me-1"></i>@Model.MeetingsLast30Days meetings</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🆕 GENDER BREAKDOWN SECTION -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <h6 class="fw-bold mb-0"><i class="fa fa-venus-mars me-2 text-primary"></i>Gender Distribution</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="genderChart" height="200"></canvas>
+                <div class="row mt-3 text-center">
+                    <div class="col-4">
+                        <div class="border rounded p-2">
+                            <small class="text-muted">Male</small>
+                            <h5 class="mb-0 text-primary">@Model.TotalMaleAttendees.ToString("N0")</h5>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border rounded p-2">
+                            <small class="text-muted">Female</small>
+                            <h5 class="mb-0 text-success">@Model.TotalFemaleAttendees.ToString("N0")</h5>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border rounded p-2">
+                            <small class="text-muted">Children</small>
+                            <h5 class="mb-0 text-warning">@Model.TotalChildrenAttendees.ToString("N0")</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0"><i class="fa fa-line-chart me-2 text-primary"></i>Monthly Attendance Trend</h6>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="attendanceTrendChart" height="180"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🆕 RECENT MEETINGS SECTION -->
+@if (Model.RecentMeetings != null && Model.RecentMeetings.Any())
+{
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold mb-0"><i class="fa fa-history me-2 text-primary"></i>Recent Meetings</h6>
+                        <a href="@Url.Action("Index", "Meetings")" class="btn btn-link btn-sm p-0">View All →</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="recentMeetingsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Meeting Type</th>
+                                    <th>Total</th>
+                                    <th>Male</th>
+                                    <th>Female</th>
+                                    <th>Children</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var meeting in Model.RecentMeetings)
+                                {
+                                    <tr>
+                                        <td>@meeting.MeetingDate.ToString("MMM dd, yyyy")</td>
+                                        <td><span class="badge bg-primary bg-opacity-10 text-primary">@meeting.MeetingType</span></td>
+                                        <td><strong>@meeting.TotalAttendees</strong></td>
+                                        <td>@meeting.MaleCount</td>
+                                        <td>@meeting.FemaleCount</td>
+                                        <td>@meeting.ChildrenCount</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <!-- CHARTS SECTION - Two charts side by side -->
 <div class="row g-4 mb-4">
     <div class="col-md-6">
@@ -672,40 +859,30 @@
 
     <script>
         let currentThemeData = {};
-        let membersChart;
-        let fullMembersChart;
+        let membersChart = null;
+        let fullMembersChart = null;
+        let genderChart = null;
+        let attendanceTrendChart = null;
+        let chartsInitialized = false;
 
         $(document).ready(function () {
             loadCurrentYearTheme();
+            
+            // Initialize charts only once
+            if (!chartsInitialized) {
+                initializeAllCharts();
+                chartsInitialized = true;
+            }
 
             // Load initial chart data
             loadMemberGrowthData('weekly');
             loadFullMembershipData('weekly');
 
-            // Initialize DataTable
-            if ($.fn.DataTable.isDataTable('#membersTable')) {
-                $('#membersTable').DataTable().destroy();
-            }
-            
-            var table = $('#membersTable').DataTable({
-                responsive: true,
-                pageLength: 10,
-                order: [[1, "asc"]],
-                language: {
-                    search: "Search members:",
-                    lengthMenu: "Show _MENU_ entries",
-                    info: "Showing _START_ to _END_ of _TOTAL_ members",
-                    paginate: {
-                        first: '<i class="fa fa-angle-double-left"></i>',
-                        previous: '<i class="fa fa-angle-left"></i>',
-                        next: '<i class="fa fa-angle-right"></i>',
-                        last: '<i class="fa fa-angle-double-right"></i>'
-                    }
-                }
-            });
+            // Initialize DataTable only once and only if the table exists
+            initializeDataTable();
 
             // Add event listeners for member growth chart buttons
-            $('.btn-group .btn[data-chart="member-growth"]').on('click', function() {
+            $('.btn-group .btn[data-chart="member-growth"]').off('click').on('click', function() {
                 $('.btn-group .btn[data-chart="member-growth"]').removeClass('active');
                 $(this).addClass('active');
                 const period = $(this).data('period');
@@ -713,13 +890,257 @@
             });
 
             // Add event listeners for full membership chart buttons
-            $('.btn-group .btn[data-chart="full-membership"]').on('click', function() {
+            $('.btn-group .btn[data-chart="full-membership"]').off('click').on('click', function() {
                 $('.btn-group .btn[data-chart="full-membership"]').removeClass('active');
                 $(this).addClass('active');
                 const period = $(this).data('period');
                 loadFullMembershipData(period);
             });
         });
+
+        // Initialize all charts at once
+        function initializeAllCharts() {
+            loadGenderChart();
+            loadAttendanceTrendChart();
+        }
+
+        // Initialize DataTable safely
+        function initializeDataTable() {
+            // Check if the table exists in any active tab
+            var $table = $('#membersTable');
+            
+            if ($table.length === 0) {
+                console.log('Members table not found, skipping DataTable initialization');
+                return;
+            }
+            
+            // Destroy existing DataTable if it exists
+            if ($.fn.DataTable.isDataTable('#membersTable')) {
+                $('#membersTable').DataTable().destroy();
+            }
+            
+            // Only initialize if table has data
+            if ($table.find('tbody tr').length > 0) {
+                try {
+                    $('#membersTable').DataTable({
+                        responsive: true,
+                        pageLength: 10,
+                        order: [[1, "asc"]],
+                        language: {
+                            search: "Search members:",
+                            lengthMenu: "Show _MENU_ entries",
+                            info: "Showing _START_ to _END_ of _TOTAL_ members",
+                            paginate: {
+                                first: '<i class="fa fa-angle-double-left"></i>',
+                                previous: '<i class="fa fa-angle-left"></i>',
+                                next: '<i class="fa fa-angle-right"></i>',
+                                last: '<i class="fa fa-angle-double-right"></i>'
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error initializing DataTable:', e);
+                }
+            }
+        }
+
+        // Reinitialize DataTable when tabs are shown
+        $(document).on('shown.bs.tab', 'button[data-bs-toggle="tab"]', function() {
+            setTimeout(function() {
+                if ($.fn.DataTable.isDataTable('#membersTable')) {
+                    $('#membersTable').DataTable().destroy();
+                }
+                initializeDataTable();
+            }, 100);
+        });
+
+        // 🆕 Load Gender Distribution Chart
+        function loadGenderChart() {
+            const canvas = document.getElementById('genderChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            const maleCount = @Model.TotalMaleAttendees;
+            const femaleCount = @Model.TotalFemaleAttendees;
+            const childrenCount = @Model.TotalChildrenAttendees;
+            
+            // Destroy existing chart if it exists
+            if (genderChart) {
+                genderChart.destroy();
+                genderChart = null;
+            }
+            
+            // Only create chart if there's data
+            if (maleCount === 0 && femaleCount === 0 && childrenCount === 0) {
+                // Show message if no data
+                ctx.fillStyle = '#6c757d';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('No attendance data available', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            
+            genderChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Male', 'Female', 'Children'],
+                    datasets: [{
+                        data: [maleCount, femaleCount, childrenCount],
+                        backgroundColor: ['#0d6efd', '#198754', '#ffc107'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: { size: 12 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = maleCount + femaleCount + childrenCount;
+                                    const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                    return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 🆕 Load Attendance Trend Chart
+        function loadAttendanceTrendChart() {
+            const canvas = document.getElementById('attendanceTrendChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (attendanceTrendChart) {
+                attendanceTrendChart.destroy();
+                attendanceTrendChart = null;
+            }
+            
+            // Get monthly trend data from model
+            const monthlyData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.MonthlyAttendanceTrend ?? new List<MonthlyTrendStats>()));
+            
+            if (!monthlyData || monthlyData.length === 0) {
+                // Show message if no data
+                ctx.fillStyle = '#6c757d';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('No trend data available', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            
+            const labels = monthlyData.map(m => `${m.monthName} ${m.year}`);
+            const attendees = monthlyData.map(m => m.totalAttendees);
+            const meetings = monthlyData.map(m => m.totalMeetings);
+            
+            attendanceTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Total Attendees',
+                            data: attendees,
+                            borderColor: '#0d6efd',
+                            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            yAxisID: 'y',
+                            pointBackgroundColor: '#0d6efd',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Number of Meetings',
+                            data: meetings,
+                            borderColor: '#ffc107',
+                            backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: false,
+                            yAxisID: 'y1',
+                            borderDash: [5, 5],
+                            pointBackgroundColor: '#ffc107',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 3,
+                            pointHoverRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    let value = context.parsed.y;
+                                    if (context.dataset.label === 'Total Attendees') {
+                                        return `${label}: ${value} attendees`;
+                                    } else {
+                                        return `${label}: ${value} meetings`;
+                                    }
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                boxWidth: 10
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Total Attendees',
+                                color: '#0d6efd'
+                            },
+                            grid: { display: true, color: 'rgba(0,0,0,0.05)' }
+                        },
+                        y1: {
+                            position: 'right',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Meetings',
+                                color: '#ffc107'
+                            },
+                            grid: { display: false }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Month',
+                                color: '#6c757d'
+                            },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
 
         // Function to load member growth chart data
         function loadMemberGrowthData(period = 'weekly') {
@@ -729,8 +1150,14 @@
                 data: { period: period },
                 success: function(response) {
                     if (response.success) {
-                        const ctx = document.getElementById('membersChart').getContext('2d');
-                        if (membersChart) membersChart.destroy();
+                        const canvas = document.getElementById('membersChart');
+                        if (!canvas) return;
+                        
+                        const ctx = canvas.getContext('2d');
+                        if (membersChart) {
+                            membersChart.destroy();
+                            membersChart = null;
+                        }
 
                         membersChart = new Chart(ctx, {
                             type: 'line',
@@ -753,7 +1180,7 @@
                             },
                             options: {
                                 responsive: true,
-                                maintainAspectRatio: false,
+                                maintainAspectRatio: true,
                                 plugins: {
                                     legend: { display: false },
                                     tooltip: {
@@ -801,8 +1228,14 @@
                 data: { period: period },
                 success: function(response) {
                     if (response.success) {
-                        const ctx = document.getElementById('fullMembersChart').getContext('2d');
-                        if (fullMembersChart) fullMembersChart.destroy();
+                        const canvas = document.getElementById('fullMembersChart');
+                        if (!canvas) return;
+                        
+                        const ctx = canvas.getContext('2d');
+                        if (fullMembersChart) {
+                            fullMembersChart.destroy();
+                            fullMembersChart = null;
+                        }
 
                         fullMembersChart = new Chart(ctx, {
                             type: 'bar',
@@ -819,7 +1252,7 @@
                             },
                             options: {
                                 responsive: true,
-                                maintainAspectRatio: false,
+                                maintainAspectRatio: true,
                                 plugins: {
                                     legend: { display: false },
                                     tooltip: {
@@ -1097,8 +1530,23 @@
             });
         }
         
+        // Clean up charts when page is unloaded
+        $(window).on('beforeunload', function() {
+            if (membersChart) {
+                membersChart.destroy();
+            }
+            if (fullMembersChart) {
+                fullMembersChart.destroy();
+            }
+            if (genderChart) {
+                genderChart.destroy();
+            }
+            if (attendanceTrendChart) {
+                attendanceTrendChart.destroy();
+            }
+        });
+        
         // Make functions globally available
-        window.filterByStatus = filterByStatus;
         window.joinMembershipClass = joinMembershipClass;
         window.makeFullMember = makeFullMember;
         window.openAddMemberModal = openAddMemberModal;

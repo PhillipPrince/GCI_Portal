@@ -122,6 +122,18 @@
                         new { Title = "Event Registrations", Url = Url.Action("Index", "EventRegistrations"), Controller = "eventregistrations", Roles = new[] { 1, 2 } }
                     }
                 },
+                ["meetings"] = new { 
+                    Title = "Meetings", 
+                    Icon = "fa-church", 
+                    IsParent = true,
+                    ParentId = "meetingsMenu",
+                    Controller = "meeting",
+                    Roles = new[] { 1, 2, 4, 5 }, // Church Admin, Branch Admin, Growth Center Leader, Pastor
+                    Children = new[] {
+                        new { Title = "Meeting Attendance", Url = Url.Action("Index", "Meetings"), Controller = "meeting", Roles = new[] { 1, 2, 4, 5 } },
+                        new { Title = "Add Meeting", Url = Url.Action("CreateMeeting", "Meeting"), Controller = "meeting", Roles = new[] { 1, 2, 4, 5 } }
+                    }
+                },
                 ["content"] = new { 
                     Title = "Content & Media", 
                     Icon = "fa-bullhorn", 
@@ -291,6 +303,23 @@
                 </a>
                 <div id="@menuItems["events"].ParentId" class="collapse submenu">
                     @foreach (var child in menuItems["events"].Children)
+                    {
+                        if (HasAccess(child.Roles))
+                        {
+                            <a href="@child.Url" data-controller="@child.Controller">@child.Title</a>
+                        }
+                    }
+                </div>
+            }
+            
+            <!-- 🆕 MEETINGS MENU - Added without breaking existing code -->
+            @if (HasAccess(menuItems["meetings"].Roles))
+            {
+                <a data-bs-toggle="collapse" href="#@menuItems["meetings"].ParentId" class="menu-link" data-controller="@menuItems["meetings"].Controller">
+                    <i class="fa @menuItems["meetings"].Icon me-2"></i> @menuItems["meetings"].Title
+                </a>
+                <div id="@menuItems["meetings"].ParentId" class="collapse submenu">
+                    @foreach (var child in menuItems["meetings"].Children)
                     {
                         if (HasAccess(child.Roles))
                         {

@@ -1,0 +1,65 @@
+﻿@model List<GCI_Admin.Models.ServiceCashBreakdown>
+
+@{
+    // Helper function to format Kenyan Shillings
+    Func<decimal, string> formatKES = (amount) => string.Format(new System.Globalization.CultureInfo("en-KE"), "{0:C2}", amount);
+}
+
+@if (Model != null && Model.Any())
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="fw-bold mb-0">
+                <i class="fa fa-money-bill me-2 text-info"></i>Cash Breakdown (KES)
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Denomination</th>
+                            <th>Quantity</th>
+                            <th class="text-end">Total (KES)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cash in Model)
+                        {
+                            <tr>
+                                <td>
+                                    KES @cash.Denomination.ToString("N0")
+                                    @if (cash.Denomination >= 1000)
+                                    {
+                                        <span class="badge bg-secondary ms-2">note</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info ms-2">coin</span>
+                                    }
+                                </td>
+                                <td>@cash.Quantity.ToString("N0")</td>
+                                <td class="text-end">@formatKES(cash.Total)</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light fw-bold">
+                        <tr>
+                            <td colspan="2" class="text-end">Total Cash:</td>
+                            <td class="text-end">@formatKES(Model.Sum(x => x.Total))</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body text-center text-muted py-4">
+            <i class="fa fa-money-bill fa-2x mb-2 d-block"></i>
+            No cash breakdown records found
+        </div>
+    </div>
+}

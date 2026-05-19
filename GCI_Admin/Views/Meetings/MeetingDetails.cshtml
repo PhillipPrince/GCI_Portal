@@ -1,0 +1,343 @@
+﻿@model GCI_Admin.Models.MeetingFullDetails
+
+@{
+    ViewData["Title"] = "Meeting Details - " + Model.Meeting.MeetingType;
+}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">
+            <i class="fa fa-church me-2 text-primary"></i>Meeting Details
+        </h2>
+        <p class="text-muted mb-0">Complete meeting information including attendance and financial data</p>
+    </div>
+    <div class="col-md-4 d-flex justify-content-end gap-2">
+        <a href="@Url.Action("Index", "Meetings")" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left me-2"></i>Back to List
+        </a>
+        <a href="@Url.Action("EditMeeting", "Meeting", new { id = Model.Meeting.MeetingAttendancesId })" class="btn btn-warning">
+            <i class="fa fa-edit me-2"></i>Edit Meeting
+        </a>
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="fa fa-print me-2"></i>Print
+        </button>
+    </div>
+</div>
+
+<!-- Stats Cards Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-primary bg-opacity-10">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Total Attendance</h6>
+                        <h2 class="fw-bold mb-0 text-primary">@Model.Meeting.TotalAttendees.ToString("N0")</h2>
+                    </div>
+                    <div class="bg-primary p-3 rounded-circle">
+                        <i class="fa fa-users fa-2x text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-info bg-opacity-10">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Male</h6>
+                        <h2 class="fw-bold mb-0 text-info">@(Model.Meeting.MaleCount?.ToString("N0") ?? "0")</h2>
+                        @if (Model.Meeting.TotalAttendees > 0)
+                        {
+                            var malePercent = (Model.Meeting.MaleCount ?? 0) / (decimal)Model.Meeting.TotalAttendees * 100;
+                            <small class="text-muted">@malePercent.ToString("F1")% of total</small>
+                        }
+                    </div>
+                    <div class="bg-info p-3 rounded-circle">
+                        <i class="fa fa-mars fa-2x text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-success bg-opacity-10">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Female</h6>
+                        <h2 class="fw-bold mb-0 text-success">@(Model.Meeting.FemaleCount?.ToString("N0") ?? "0")</h2>
+                        @if (Model.Meeting.TotalAttendees > 0)
+                        {
+                            var femalePercent = (Model.Meeting.FemaleCount ?? 0) / (decimal)Model.Meeting.TotalAttendees * 100;
+                            <small class="text-muted">@femalePercent.ToString("F1")% of total</small>
+                        }
+                    </div>
+                    <div class="bg-success p-3 rounded-circle">
+                        <i class="fa fa-venus fa-2x text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Children</h6>
+                        <h2 class="fw-bold mb-0 text-warning">@(Model.Meeting.ChildrenCount?.ToString("N0") ?? "0")</h2>
+                        @if (Model.Meeting.TotalAttendees > 0)
+                        {
+                            var childrenPercent = (Model.Meeting.ChildrenCount ?? 0) / (decimal)Model.Meeting.TotalAttendees * 100;
+                            <small class="text-muted">@childrenPercent.ToString("F1")% of total</small>
+                        }
+                    </div>
+                    <div class="bg-warning p-3 rounded-circle">
+                        <i class="fa fa-child fa-2x text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Meeting Information Card -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 py-3">
+        <h5 class="fw-bold mb-0">
+            <i class="fa fa-info-circle me-2 text-primary"></i>Meeting Information
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-borderless">
+                    <tr>
+                        <th style="width: 150px;">Meeting Type:</th>
+                        <td>
+                            @if (Model.Meeting.MeetingType == "Sunday Service")
+                            {
+                                <span class="badge bg-primary px-3 py-2">Sunday Service</span>
+                            }
+                            else if (Model.Meeting.MeetingType == "Midweek Service")
+                            {
+                                <span class="badge bg-info text-dark px-3 py-2">Midweek Service</span>
+                            }
+                            else if (Model.Meeting.MeetingType == "Bible Study")
+                            {
+                                <span class="badge bg-success px-3 py-2">Bible Study</span>
+                            }
+                            else if (Model.Meeting.MeetingType == "Prayer Meeting")
+                            {
+                                <span class="badge bg-warning text-dark px-3 py-2">Prayer Meeting</span>
+                            }
+                            else if (Model.Meeting.MeetingType == "Youth Service")
+                            {
+                                <span class="badge bg-danger px-3 py-2">Youth Service</span>
+                            }
+                            else if (Model.Meeting.MeetingType == "Children's Church")
+                            {
+                                <span class="badge bg-secondary px-3 py-2">Children's Church</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-dark px-3 py-2">@Model.Meeting.MeetingType</span>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Meeting Date:</th>
+                        <td><strong>@Model.Meeting.MeetingDate.ToString("dddd, MMMM dd, yyyy")</strong></td>
+                    </tr>
+                    <tr>
+                        <th>Time:</th>
+                        <td>@Model.Meeting.MeetingDate.ToString("hh:mm tt")</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-borderless">
+                    <tr>
+                        <th style="width: 150px;">Recorded By:</th>
+                        <td>User ID: @Model.Meeting.RecordedBy</td>
+                    </tr>
+                    <tr>
+                        <th>Created At:</th>
+                        <td>@Model.Meeting.CreatedAt.ToString("dddd, MMMM dd, yyyy hh:mm tt")</td>
+                    </tr>
+                    @if (!string.IsNullOrEmpty(Model.Meeting.Remarks))
+                    {
+                        <tr>
+                            <th>Remarks:</th>
+                            <td>
+                                <div class="alert alert-light mb-0">
+                                    <i class="fa fa-comment me-2"></i>@Model.Meeting.Remarks
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Summary Cards (Not a table) -->
+@if (Model.FinancialSummary != null)
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="fw-bold mb-0">
+                <i class="fa fa-chart-pie me-2 text-success"></i>Financial Summary
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="border rounded p-3 text-center bg-light">
+                        <small class="text-muted text-uppercase">Tithes</small>
+                        <h4 class="text-primary mb-0">@Model.FinancialSummary.Tithes.ToString("N2")</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-3 text-center bg-light">
+                        <small class="text-muted text-uppercase">Offerings</small>
+                        <h4 class="text-success mb-0">@Model.FinancialSummary.Offerings.ToString("N2")</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-3 text-center bg-light">
+                        <small class="text-muted text-uppercase">Sunday School</small>
+                        <h4 class="text-info mb-0">@Model.FinancialSummary.SundaySchool.ToString("N2")</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-3 text-center bg-light">
+                        <small class="text-muted text-uppercase">Thanksgiving</small>
+                        <h4 class="text-warning mb-0">@Model.FinancialSummary.Thanksgiving.ToString("N2")</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-3 text-center bg-light">
+                        <small class="text-muted text-uppercase">Missions</small>
+                        <h4 class="text-danger mb-0">@Model.FinancialSummary.Missions.ToString("N2")</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-3 text-center bg-light">
+                        <small class="text-muted text-uppercase">Projects</small>
+                        <h4 class="text-secondary mb-0">@Model.FinancialSummary.Projects.ToString("N2")</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-3 text-center bg-light">
+                        <small class="text-muted text-uppercase">Youth</small>
+                        <h4 class="text-dark mb-0">@Model.FinancialSummary.Youth.ToString("N2")</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-3 text-center bg-light">
+                        <small class="text-muted text-uppercase">Widows/Orphans</small>
+                        <h4 class="text-muted mb-0">@Model.FinancialSummary.WidowsOrphans.ToString("N2")</h4>
+                    </div>
+                </div>
+                @if (Model.FinancialSummary.Others > 0)
+                {
+                    <div class="col-md-3">
+                        <div class="border rounded p-3 text-center bg-light">
+                            <small class="text-muted text-uppercase">Others</small>
+                            <h4 class="text-purple mb-0">@Model.FinancialSummary.Others.ToString("N2")</h4>
+                        </div>
+                    </div>
+                }
+                <div class="col-12 mt-3">
+                    <div class="bg-primary text-white rounded p-3 text-center">
+                        <h5 class="mb-0">Total Collections: @((Model.FinancialSummary.Tithes + Model.FinancialSummary.Offerings + Model.FinancialSummary.SundaySchool + Model.FinancialSummary.Thanksgiving + Model.FinancialSummary.Missions + Model.FinancialSummary.Projects + Model.FinancialSummary.Youth + Model.FinancialSummary.WidowsOrphans + Model.FinancialSummary.Others).ToString("N2"))</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Cash Breakdown Partial View -->
+<div id="cashBreakdownContainer">
+    @await Html.PartialAsync("_CashBreakdownTable", Model.CashBreakdowns)
+</div>
+
+<!-- Bank Collections Partial View -->
+<div id="bankCollectionsContainer">
+    @await Html.PartialAsync("_BankCollectionsTable", Model.BankCollections)
+</div>
+
+<!-- Signatures Partial View -->
+<div id="signaturesContainer">
+    @await Html.PartialAsync("_SignaturesTable", Model.Signatures)
+</div>
+
+<style>
+    .text-purple {
+        color: #6f42c1;
+    }
+    
+    .table-borderless th {
+        font-weight: 600;
+        color: #4a5568;
+    }
+    
+    .bg-primary.bg-opacity-10 {
+        background-color: rgba(13, 110, 253, 0.1) !important;
+    }
+    
+    .bg-info.bg-opacity-10 {
+        background-color: rgba(13, 202, 240, 0.1) !important;
+    }
+    
+    .bg-success.bg-opacity-10 {
+        background-color: rgba(25, 135, 84, 0.1) !important;
+    }
+    
+    .bg-warning.bg-opacity-10 {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+    }
+    
+    .border {
+        transition: transform 0.2s ease-in-out;
+    }
+    
+        .border:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+        }
+    
+    @@media print {
+        .btn, .topbar, .sidebar, footer {
+            display: none !important;
+        }
+
+        .content {
+            margin-left: 0 !important;
+            padding: 0 !important;
+        }
+
+        .card {
+            break-inside: avoid;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Initialize any tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
+}

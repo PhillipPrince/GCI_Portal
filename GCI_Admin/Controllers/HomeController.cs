@@ -13,10 +13,12 @@ namespace GCI_Admin.Controllers
     {
         private readonly IMembersService _membersService;
         private readonly IEventsService _eventsService;
-        public HomeController(IMembersService membersService, IEventsService eventsService)
+        private readonly MeetingsRepository _meetingsRepository;
+        public HomeController(IMembersService membersService, IEventsService eventsService, MeetingsRepository meetingsRepository)
         {
             _membersService = membersService;
             _eventsService = eventsService;
+            _meetingsRepository = meetingsRepository;
         }
 
         // GET: HomeController1
@@ -32,14 +34,18 @@ namespace GCI_Admin.Controllers
                 var previousMonthActiveMembers = await _membersService.GetActiveMembersByDateRangeAsync(DateTime.Now.AddMonths(-1), DateTime.Now);
                 var previousMonthEvents = await _eventsService.GetEventsByDateRangeAsync(DateTime.Now.AddMonths(-1), DateTime.Now);
 
+                // 🆕 Get meeting statistics
+                var meetingsStats = await _meetingsRepository.GetDashboardStatsAsync();
+                var monthlyTrend = await _meetingsRepository.GetMonthlyAttendanceTrendAsync(6);
+                var recentMeetings = await _meetingsRepository.GetAllMeetingsAsync(1, 5);
+
                 var members = allMembers?.Data ?? new List<Member>();
 
                 if (dashboard.MemberStatus == null)
                 {
                     dashboard.MemberStatus = new MemberStatusModel();
                 }
-                var upcomingEvents = events.Data.Where(e=>e.IsActive);
-                
+                var upcomingEvents = events.Data.Where(e => e.IsActive);
 
                 // Assign members to respective status lists
                 dashboard.MemberStatus.AllMembers = members;
@@ -96,6 +102,82 @@ namespace GCI_Admin.Controllers
                 dashboard.UpcomingEvents = upcomingEvents.Count();
                 dashboard.UpcomingEvent = upcomingEvents.ToList();
 
+                // 🆕 Populate Meeting & Attendance Stats
+                if (meetingsStats.Success && meetingsStats.Data != null)
+                {
+                    dashboard.TotalMeetings = meetingsStats.Data.TotalMeetings;
+                    dashboard.TotalAttendees = meetingsStats.Data.TotalAttendees;
+                    dashboard.AverageAttendance = Math.Round(meetingsStats.Data.AverageAttendance, 2);
+                    dashboard.TotalMaleAttendees = meetingsStats.Data.TotalMale;
+                    dashboard.TotalFemaleAttendees = meetingsStats.Data.TotalFemale;
+                    dashboard.TotalChildrenAttendees = meetingsStats.Data.TotalChildren;
+                    dashboard.MeetingsLast30Days = meetingsStats.Data.MeetingsLast30Days;
+                    dashboard.AttendeesLast30Days = meetingsStats.Data.AttendeesLast30Days;
+                    dashboard.MeetingTypesCount = meetingsStats.Data.MeetingTypesCount;
+
+                    // Calculate attendance growth percentage
+                    var previousMonthMeetings = await _meetingsRepository.GetMeetingsByDateRangeAsync(
+                        DateTime.Now.AddMonths(-2), DateTime.Now.AddMonths(-1));
+
+                    int previousMonthAttendees = previousMonthMeetings.Success
+                        ? previousMonthMeetings.Data.Sum(m => m.TotalAttendees)
+                        : 0;
+
+                    dashboard.AttendanceGrowthPercentage = previousMonthAttendees > 0
+                        ? Math.Round((decimal)(dashboard.TotalAttendees - previousMonthAttendees) / previousMonthAttendees * 100, 2)
+                        : (dashboard.TotalAttendees > 0 ? 100 : 0);
+                }
+                else
+                {
+                    // Set default values if meeting stats fail
+                    dashboard.TotalMeetings = 0;
+                    dashboard.TotalAttendees = 0;
+                    dashboard.AverageAttendance = 0;
+                    dashboard.TotalMaleAttendees = 0;
+                    dashboard.TotalFemaleAttendees = 0;
+                    dashboard.TotalChildrenAttendees = 0;
+                    dashboard.MeetingsLast30Days = 0;
+                    dashboard.AttendeesLast30Days = 0;
+                    dashboard.MeetingTypesCount = 0;
+                    dashboard.AttendanceGrowthPercentage = 0;
+                }
+
+                // 🆕 Populate monthly attendance trend
+                if (monthlyTrend.Success && monthlyTrend.Data != null)
+                {
+                    dashboard.MonthlyAttendanceTrend = monthlyTrend.Data.Select(m => new MonthlyTrendStats
+                    {
+                        MonthName = m.MonthName,
+                        Year = m.Year,
+                        TotalMeetings = m.TotalMeetings,
+                        TotalAttendees = m.TotalAttendees,
+                        AverageAttendance = m.AverageAttendance
+                    }).ToList();
+                }
+                else
+                {
+                    dashboard.MonthlyAttendanceTrend = new List<MonthlyTrendStats>();
+                }
+
+                // 🆕 Populate recent meetings
+                if (recentMeetings.Success && recentMeetings.Data != null && recentMeetings.Data.Items != null)
+                {
+                    dashboard.RecentMeetings = recentMeetings.Data.Items.Select(m => new RecentMeetingStats
+                    {
+                        MeetingId = m.MeetingAttendancesId,
+                        MeetingType = m.MeetingType,
+                        MeetingDate = m.MeetingDate,
+                        TotalAttendees = m.TotalAttendees,
+                        MaleCount = m.MaleCount ?? 0,
+                        FemaleCount = m.FemaleCount ?? 0,
+                        ChildrenCount = m.ChildrenCount ?? 0
+                    }).ToList();
+                }
+                else
+                {
+                    dashboard.RecentMeetings = new List<RecentMeetingStats>();
+                }
+
                 return View(dashboard);
             }
             catch (Exception ex)
@@ -113,7 +195,20 @@ namespace GCI_Admin.Controllers
                     EventCompletionPercentage = 0,
                     MemberGrowthPercentage = 0,
                     ActiveMemberGrowthPercentage = 0,
-                    EventChangePercentage = 0
+                    EventChangePercentage = 0,
+                    // 🆕 Default meeting stats for error case
+                    TotalMeetings = 0,
+                    TotalAttendees = 0,
+                    AverageAttendance = 0,
+                    TotalMaleAttendees = 0,
+                    TotalFemaleAttendees = 0,
+                    TotalChildrenAttendees = 0,
+                    MeetingsLast30Days = 0,
+                    AttendeesLast30Days = 0,
+                    MeetingTypesCount = 0,
+                    AttendanceGrowthPercentage = 0,
+                    RecentMeetings = new List<RecentMeetingStats>(),
+                    MonthlyAttendanceTrend = new List<MonthlyTrendStats>()
                 });
             }
         }

@@ -1,0 +1,48 @@
+﻿@model List<GCI_Admin.Models.ServiceBankCollection>
+
+@if (Model != null && Model.Any())
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="fw-bold mb-0">
+                <i class="fa fa-building-columns me-2 text-primary"></i>Bank Collections
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-end">Amount</th>
+                            <th>Reference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var bank in Model)
+                        {
+                            <tr>
+                                <td class="text-end">@bank.Amount.ToString("N2")</td>
+                                <td>@(string.IsNullOrEmpty(bank.Reference) ? "—" : bank.Reference)</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light fw-bold">
+                        <tr>
+                            <td class="text-end">Total Bank:</td>
+                            <td>@Model.Sum(x => x.Amount).ToString("N2")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body text-center text-muted py-4">
+            <i class="fa fa-building-columns fa-2x mb-2 d-block"></i>
+            No bank collection records found
+        </div>
+    </div>
+}
