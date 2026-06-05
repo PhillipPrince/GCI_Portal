@@ -19,10 +19,11 @@ namespace GCI_Admin.Services.Service
         private readonly MembersRepository _membersRepository;
 
 
-        public GECMemberService(GECMemberRepository gecMemberRepository, AppDbContext context, MembersRepository membersRepository)
+        public GECMemberService(GECMemberRepository gecMemberRepository, AppDbContext context, MembersRepository membersRepository, SystemConfigRepository systemConfigRepository)
         {
             _gecMemberRepository = gecMemberRepository;
             _context = context;
+            _systemConfig = systemConfigRepository;
             _imageBasePath = SystemConfigHelper.GetImageBasePathAsync(_systemConfig).GetAwaiter().GetResult();
             _membersRepository = membersRepository;
         }
@@ -43,6 +44,9 @@ namespace GCI_Admin.Services.Service
                     response.Message = "Failed to create GEC member";
                     return response;
                 }
+                string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), _imageBasePath, $"{result.Data.MemberId}", "jpg");
+                Loggers.EventLogs($"Saved profile image for deacon {result.Data.GECId} at {saved}");
+
 
                 response.Data = result.Data;
                 response.Message = "GEC member created successfully";
@@ -67,7 +71,7 @@ namespace GCI_Admin.Services.Service
                 var dbResponse = await _gecMemberRepository.GetGECMembersAsync();
                 foreach (var gecMember in dbResponse.Data)
                 {
-                    gecMember.Photo = ImageHelper.ReadImage(_imageBasePath, gecMember.MemberId.ToString());
+                    gecMember.Member.ProfileImage = ImageHelper.ReadImage(_imageBasePath, gecMember.MemberId.ToString());
                 }
 
                 response.IsSuccess = dbResponse.Success;
@@ -104,6 +108,12 @@ namespace GCI_Admin.Services.Service
                     response.Message = "GEC member not found";
                     return response;
                 }
+                var member = _membersRepository.GetMemberByIdAsync(result.Data.MemberId);
+                string imageFolder = await SystemConfigHelper.GetImageBasePathAsync(_systemConfig);
+
+                member.Result.Data.ProfileImage = ImageHelper.ReadImage(imageFolder, member.Result.Data.Id.ToString());
+                result.Data.Member = member.Result.Data;
+
 
                 response.Data = result.Data;
                 response.Message = "GEC member retrieved successfully";

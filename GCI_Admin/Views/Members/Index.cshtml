@@ -648,66 +648,171 @@
 
         // Upload members
         function uploadMembers() {
-            const fileInput = document.getElementById('excelFile');
-            const uploadOption = document.querySelector('input[name="uploadOption"]:checked').value;
-            const progressBar = document.getElementById('uploadProgress');
-            const progressBarInner = progressBar.querySelector('.progress-bar');
+    const fileInput = document.getElementById('excelFile');
+    const uploadOption = document.querySelector('input[name="uploadOption"]:checked').value;
+    const progressBar = document.getElementById('uploadProgress');
+    const progressBarInner = progressBar.querySelector('.progress-bar');
 
-            if (fileInput.files.length === 0) {
-                Swal.fire('Warning', 'Please select an Excel file.', 'warning');
-                return;
+    if (fileInput.files.length === 0) {
+        Swal.fire('Warning', 'Please select an Excel file.', 'warning');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    formData.append('uploadOption', uploadOption);
+
+    progressBar.style.display = 'block';
+    progressBarInner.style.width = '0%';
+    progressBarInner.innerText = '0%';
+
+    $.ajax({
+        url: '/Members/UploadMembersExcel',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+
+        xhr: function () {
+            const xhr = new window.XMLHttpRequest();
+
+            xhr.upload.addEventListener('progress', function (evt) {
+                if (evt.lengthComputable) {
+                    const percentComplete = Math.round(
+                        (evt.loaded / evt.total) * 100
+                    );
+
+                    progressBarInner.style.width =
+                        percentComplete + '%';
+
+                    progressBarInner.innerText =
+                        percentComplete + '%';
+                }
+            }, false);
+
+            return xhr;
+        },
+
+        success: function (response) {
+
+            progressBar.style.display = 'none';
+
+            const hasFailedFile =
+                response.data &&
+                response.data.failedRecords > 0 &&
+                response.data.failedRecordsFileBase64;
+
+            let html = `
+                <b>Total:</b> ${response.data.totalRecords}<br/>
+                <b>Successful:</b> ${response.data.successfulRecords}<br/>
+                <b>Failed:</b> ${response.data.failedRecords}
+            `;
+
+            if (hasFailedFile) {
+                html += `
+                    <br/><br/>
+                    <button id="downloadFailedRecords"
+                            class="btn btn-danger">
+                        <i class="fa fa-download me-1"></i>
+                        Download Failed Records
+                    </button>
+                `;
             }
 
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-            formData.append('uploadOption', uploadOption);
+            Swal.fire({
+                icon: 'success',
+                title: 'Upload Completed',
+                html: html,
+                confirmButtonText: 'OK',
 
-            progressBar.style.display = 'block';
-            progressBarInner.style.width = '0%';
-            progressBarInner.innerText = '0%';
+                didOpen: function () {
 
-            $.ajax({
-                url: '/Members/UploadMembersExcel',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                xhr: function() {
-                    const xhr = new window.XMLHttpRequest();
-                    xhr.upload.addEventListener('progress', function(evt) {
-                        if (evt.lengthComputable) {
-                            const percentComplete = Math.round((evt.loaded / evt.total) * 100);
-                            progressBarInner.style.width = percentComplete + '%';
-                            progressBarInner.innerText = percentComplete + '%';
-                        }
-                    }, false);
-                    return xhr;
-                },
-                success: function(response) {
-                    progressBar.style.display = 'none';
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Upload Completed',
-                        html: `
-                            <b>Total:</b> ${response.data.totalRecords} <br/>
-                            <b>Successful:</b> ${response.data.successfulRecords} <br/>
-                            <b>Failed:</b> ${response.data.failedRecords}
-                        `
-                    }).then(() => {
-                        location.reload();
-                    });
-                },
-                error: function(xhr) {
-                    progressBar.style.display = 'none';
-                    let errorMessage = 'Upload failed.';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
+                    if (hasFailedFile) {
+
+                        document
+                            .getElementById('downloadFailedRecords')
+                            .addEventListener('click', function () {
+
+                                try {
+
+                                    const byteCharacters =
+                                        atob(response.data.failedRecordsFileBase64);
+
+                                    const byteNumbers =
+                                        new Array(byteCharacters.length);
+
+                                    for (let i = 0; i < byteCharacters.length; i++) {
+                                        byteNumbers[i] =
+                                            byteCharacters.charCodeAt(i);
+                                    }
+
+                                    const byteArray =
+                                        new Uint8Array(byteNumbers);
+
+                                    const blob = new Blob(
+                                        [byteArray],
+                                        {
+                                            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                                        });
+
+                                    const url =
+                                        window.URL.createObjectURL(blob);
+
+                                    const link =
+                                        document.createElement('a');
+
+                                    link.href = url;
+
+                                    link.download =
+                                        response.data.failedRecordsFileName ||
+                                        'FailedMembers.xlsx';
+
+                                    document.body.appendChild(link);
+
+                                    link.click();
+
+                                    document.body.removeChild(link);
+
+                                    window.URL.revokeObjectURL(url);
+
+                                } catch (e) {
+                                    console.error(e);
+
+                                    Swal.fire(
+                                        'Error',
+                                        'Unable to download failed records file.',
+                                        'error'
+                                    );
+                                }
+                            });
                     }
-                    Swal.fire('Error', errorMessage, 'error');
                 }
+            }).then(() => {
+                location.reload();
             });
-        }
+        },
 
+        error: function (xhr) {
+
+            progressBar.style.display = 'none';
+
+            let errorMessage = 'Upload failed.';
+
+            if (xhr.responseJSON &&
+                xhr.responseJSON.message) {
+
+                errorMessage =
+                    xhr.responseJSON.message;
+            }
+
+            Swal.fire(
+                'Error',
+                errorMessage,
+                'error'
+            );
+        }
+    });
+}
         // Toggle between views
         function toggleView(view) {
             currentView = view;

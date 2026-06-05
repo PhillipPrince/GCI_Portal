@@ -97,5 +97,19 @@ namespace GCI_Admin.Utils
                 return null;
             }
         }
+
+        public static byte[] RemoveBase64Prefix(string base64String)
+        {
+
+            if (base64String!=null && base64String.StartsWith("data:image"))
+            {
+                int commaIndex = base64String.IndexOf(',');
+                if (commaIndex >= 0)
+                {
+                    return Convert.FromBase64String(base64String.Substring(commaIndex + 1));
+                }
+            }
+            return Convert.FromBase64String(base64String);
+        }
     }
 }

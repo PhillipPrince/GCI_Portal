@@ -87,11 +87,12 @@
                             <td class="text-end">
 
                                 <!-- View -->
-                                <button class="btn btn-sm btn-outline-info"
-                                        onclick="openModal('@Url.Action("Profile", "GECMember", new { id = m.GECId })')">
+                                
+                                <a href="@Url.Action("Details", "GECMember", new { id = m.GECId })"
+                                       class="btn btn-sm btn-outline-info"
+                                       title="View Details">
                                     <i class="fa fa-eye"></i>
-                                </button>
-
+                                </a>
                                 <!-- Edit -->
                                 <button class="btn btn-sm btn-outline-warning"
                                         onclick="openModal('@Url.Action("Edit", "GECMember", new { id = m.GECId })')">

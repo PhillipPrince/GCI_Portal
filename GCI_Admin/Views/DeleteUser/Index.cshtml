@@ -1,0 +1,574 @@
+﻿@{
+    ViewData["Title"] = "Account Deletion";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Request Account Deletion | Gospel Centres International</title>
+    <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                background: #f8fafc;
+                font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+                line-height: 1.5;
+                color: #1e293b;
+                padding: 24px 16px;
+            }
+
+            .request-container {
+                max-width: 880px;
+                margin: 0 auto;
+                background: #ffffff;
+                border-radius: 28px;
+                box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.02);
+                overflow: hidden;
+            }
+
+            .request-header {
+                background: linear-gradient(135deg, #1e4a6b 0%, #0f2c3f 100%);
+                padding: 28px 24px;
+                text-align: center;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+
+                .request-header h1 {
+                    font-size: 1.85rem;
+                    font-weight: 700;
+                    color: white;
+                    margin-bottom: 8px;
+                }
+
+            .church-name {
+                font-size: 1rem;
+                font-weight: 500;
+                color: #cbd5e6;
+                background: rgba(255,255,255,0.15);
+                display: inline-block;
+                padding: 4px 14px;
+                border-radius: 40px;
+            }
+
+            .last-updated {
+                margin-top: 14px;
+                font-size: 0.8rem;
+                color: #b9d0f0;
+            }
+
+            .request-content {
+                padding: 32px 28px 44px;
+            }
+
+            .info-notice {
+                background: #fef9e3;
+                border-left: 4px solid #e6b12e;
+                padding: 16px 20px;
+                border-radius: 16px;
+                margin-bottom: 28px;
+                display: flex;
+                gap: 12px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+
+            .info-notice-icon {
+                font-size: 1.6rem;
+            }
+
+            .info-notice-text {
+                flex: 1;
+                color: #7c5c1c;
+            }
+
+            .data-badge {
+                background: #eef2ff;
+                border-radius: 24px;
+                padding: 16px 20px;
+                margin: 24px 0 28px;
+                border: 1px solid #d9e2ef;
+                display: flex;
+                gap: 14px;
+                align-items: flex-start;
+            }
+
+            .data-badge-icon {
+                background: #1e4a6b20;
+                border-radius: 50px;
+                padding: 8px;
+                font-size: 1.3rem;
+            }
+
+            .data-badge-text {
+                flex: 1;
+                font-weight: 500;
+                color: #1c3c53;
+            }
+
+            .form-group {
+                margin-bottom: 28px;
+            }
+
+            label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 10px;
+                font-size: 1rem;
+                color: #0f2c3f;
+            }
+
+            .phone-input-wrapper {
+                display: flex;
+                align-items: center;
+                background: #ffffff;
+                border: 1.5px solid #e2edf2;
+                border-radius: 60px;
+                transition: all 0.2s;
+                padding: 4px 8px 4px 20px;
+            }
+
+                .phone-input-wrapper:focus-within {
+                    border-color: #2c7da0;
+                    box-shadow: 0 0 0 3px rgba(44,125,160,0.2);
+                }
+
+            .country-code {
+                font-weight: 500;
+                color: #1e4a6b;
+                background: #f1f5f9;
+                padding: 8px 12px;
+                border-radius: 40px;
+                font-size: 0.9rem;
+                margin-right: 12px;
+            }
+
+            #phoneNumber {
+                flex: 1;
+                border: none;
+                padding: 14px 0;
+                font-size: 1rem;
+                background: transparent;
+                outline: none;
+                font-family: inherit;
+                color: #1e293b;
+            }
+
+                #phoneNumber::placeholder {
+                    color: #94a3b8;
+                }
+
+            .helper-text {
+                font-size: 0.75rem;
+                color: #5c6f87;
+                margin-top: 8px;
+                margin-left: 20px;
+            }
+
+            .error-message {
+                color: #b91c1c;
+                background: #fee2e2;
+                padding: 10px 16px;
+                border-radius: 60px;
+                font-size: 0.8rem;
+                margin-top: 12px;
+                display: inline-block;
+            }
+
+            .btn-group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 16px;
+                margin: 28px 0 20px;
+            }
+
+            .btn-primary {
+                background: #b91c1c;
+                color: white;
+                border: none;
+                padding: 14px 32px;
+                border-radius: 60px;
+                font-weight: 700;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+                .btn-primary:hover:not(:disabled) {
+                    background: #991b1b;
+                    transform: scale(0.98);
+                }
+
+                .btn-primary:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                }
+
+            .btn-secondary {
+                background: #f1f5f9;
+                color: #1e4a6b;
+                border: 1px solid #cbd5e1;
+                padding: 14px 28px;
+                border-radius: 60px;
+                font-weight: 600;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: 0.2s;
+            }
+
+                .btn-secondary:hover {
+                    background: #e6edf4;
+                }
+
+            .success-card {
+                background: #e6f7ec;
+                border-left: 5px solid #15803d;
+                border-radius: 24px;
+                padding: 20px 24px;
+                margin-top: 24px;
+                display: flex;
+                gap: 14px;
+                align-items: center;
+                animation: fadeSlide 0.3s ease;
+            }
+
+                .success-card .success-icon {
+                    font-size: 2rem;
+                }
+
+          
+
+            hr {
+                margin: 28px 0 20px;
+                border: none;
+                border-top: 1px solid #e2edf2;
+            }
+
+            .deletion-info-list {
+                background: #f8fafd;
+                border-radius: 20px;
+                padding: 18px 24px;
+                margin-top: 20px;
+                border: 1px solid #eef2f6;
+            }
+
+                .deletion-info-list h3 {
+                    font-size: 1.1rem;
+                    color: #0f2c3f;
+                    margin-bottom: 12px;
+                }
+
+                .deletion-info-list ul {
+                    margin-left: 20px;
+                    color: #2d3e50;
+                }
+
+                .deletion-info-list li {
+                    margin: 6px 0;
+                }
+
+            .footer-note {
+                text-align: center;
+                font-size: 0.75rem;
+                color: #5c6f87;
+                background: #f8fafd;
+                margin-top: 32px;
+                padding: 16px;
+                border-radius: 20px;
+                border: 1px solid #eef2f6;
+            }
+
+            .spinner {
+                display: inline-block;
+                width: 18px;
+                height: 18px;
+                border: 2px solid rgba(255,255,255,0.3);
+                border-radius: 50%;
+                border-top-color: white;
+                animation: spin 0.6s linear infinite;
+            }
+
+           
+    </style>
+</head>
+<body>
+    <div class="request-container">
+        <div class="request-header">
+            <h1>Request Account Deletion</h1>
+            <div class="church-name">Gospel Centres International</div>
+            <div class="last-updated">Permanently remove your data & account</div>
+        </div>
+
+        <div class="request-content">
+            <div class="info-notice">
+                <div class="info-notice-icon">⚠️</div>
+                <div class="info-notice-text">
+                    <strong>Account deletion is irreversible.</strong> All your personal information, church records, event history, and membership data will be permanently erased from our systems within 30 days after verification. This action cannot be undone.
+                </div>
+            </div>
+
+            <div class="data-badge">
+                <div class="data-badge-icon">🔐</div>
+                <div class="data-badge-text">
+                    <strong>Your privacy matters:</strong> As stated in our Privacy Policy, your data is never shared with third parties. When you delete your account, all associated information will be removed.
+                </div>
+            </div>
+
+            <div class="deletion-form">
+                <div class="form-group">
+                    <label for="phoneNumber">📞 Enter registered phone number</label>
+                    <div class="phone-input-wrapper">
+                        <span class="country-code">+254</span>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="712345678" autocomplete="tel" value="">
+                    </div>
+                    <div class="helper-text">We'll send a verification code to this number to confirm identity before deletion.</div>
+                    <div id="phoneError" class="error-message" style="display: none;"></div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" id="requestDeletionBtn" class="btn-primary">
+                        <span id="btnText">Request deletion</span>
+                        <span id="btnSpinner" style="display: none;"><span class="spinner"></span></span>
+                    </button>
+                    <button type="button" id="clearFormBtn" class="btn-secondary">Clear</button>
+                </div>
+
+                <div id="statusMessageContainer"></div>
+
+                <hr />
+                <div class="deletion-info-list">
+                    <h3>📄 What happens after you request deletion?</h3>
+                    <ul>
+                        <li>We will send a 6-digit verification code via SMS to the phone number you provide.</li>
+                        <li>After verification, a final confirmation link will be emailed to your registered email address.</li>
+                        <li>Your account will be scheduled for permanent deletion.</li>
+                        <li>You will lose access to all church resources and event registrations.</li>
+                    </ul>
+                </div>
+
+                <div class="footer-note">
+                    <strong>Gospel Centres International – Data Deletion Request</strong><br />
+                    This request is subject to the terms described in our Privacy Policy. By submitting your phone number, you confirm that you are the account owner.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+            (function() {
+                const phoneInput = document.getElementById('phoneNumber');
+                const requestBtn = document.getElementById('requestDeletionBtn');
+                const clearBtn = document.getElementById('clearFormBtn');
+                const phoneErrorDiv = document.getElementById('phoneError');
+                const statusContainer = document.getElementById('statusMessageContainer');
+                const btnTextSpan = document.getElementById('btnText');
+                const btnSpinner = document.getElementById('btnSpinner');
+
+                // Get anti-forgery token for CSRF protection
+                const tokenMeta = document.querySelector('meta[name="anti-forgery-token"]');
+                const csrfToken = tokenMeta ? tokenMeta.getAttribute('content') : null;
+
+                // Normalize phone number (Kenyan format +254XXXXXXXXX)
+                function normalizePhoneNumber(rawValue) {
+                    let digitsOnly = rawValue.replace(/\D/g, '');
+                
+                    // If starts with 0 (e.g., 0712345678), replace with +254
+                    if (digitsOnly.startsWith('0') && digitsOnly.length === 10) {
+                        digitsOnly = '254' + digitsOnly.substring(1);
+                    }
+                    // If it's 9 digits (e.g., 712345678), add 254 prefix
+                    if (digitsOnly.length === 9) {
+                        digitsOnly = '254' + digitsOnly;
+                    }
+                    // If it's 12 digits starting with 254, keep as is
+                    if (digitsOnly.length === 12 && digitsOnly.startsWith('254')) {
+                        return '+' + digitsOnly;
+                    }
+                    // If it already has +, keep as is
+                    if (rawValue.startsWith('+')) {
+                        return rawValue.replace(/\s/g, '');
+                    }
+                    return '+' + digitsOnly;
+                }
+
+                function isValidPhone(phone) {
+                    if (!phone) return false;
+                    const digitsOnly = phone.replace(/\D/g, '');
+                    // Kenyan numbers: 254XXXXXXXXX (12 digits) or +254 format
+                    return digitsOnly.length >= 11 && digitsOnly.length <= 13;
+                }
+
+                function showError(message) {
+                    phoneErrorDiv.textContent = message;
+                    phoneErrorDiv.style.display = 'block';
+                    setTimeout(() => {
+                        phoneErrorDiv.style.display = 'none';
+                    }, 5000);
+                }
+
+                function clearStatusMessages() {
+                    statusContainer.innerHTML = '';
+                }
+
+                function escapeHtml(str) {
+                    if (!str) return '';
+                    return str.replace(/[&<>]/g, function(m) {
+                        if (m === '&') return '&amp;';
+                        if (m === '<') return '&lt;';
+                        if (m === '>') return '&gt;';
+                        return m;
+                    });
+                }
+
+                function showStatusMessage(type, title, message) {
+                    clearStatusMessages();
+                    const wrapperDiv = document.createElement('div');
+                    if (type === 'success') {
+                        wrapperDiv.className = 'success-card';
+                        wrapperDiv.innerHTML = `
+                            <div class="success-icon">✅</div>
+                            <div><strong>${escapeHtml(title)}</strong><br>${escapeHtml(message)}</div>
+                        `;
+                    } else if (type === 'error') {
+                        wrapperDiv.className = 'info-notice';
+                        wrapperDiv.style.background = '#fee2e2';
+                        wrapperDiv.style.borderLeftColor = '#b91c1c';
+                        wrapperDiv.innerHTML = `
+                            <div class="info-notice-icon">❌</div>
+                            <div class="info-notice-text"><strong>${escapeHtml(title)}</strong><br>${escapeHtml(message)}</div>
+                        `;
+                    }
+                    statusContainer.appendChild(wrapperDiv);
+                    setTimeout(() => {
+                        if (wrapperDiv.parentNode) wrapperDiv.remove();
+                    }, 8000);
+                }
+
+                function maskPhoneNumber(phone) {
+                    const digitsOnly = phone.replace(/\D/g, '');
+                    if (digitsOnly.length <= 7) return '***-****';
+                    const start = digitsOnly.substring(0, 3);
+                    const end = digitsOnly.substring(digitsOnly.length - 4);
+                    return `${start}***${end}`;
+                }
+
+                // Call MVC Controller instead of external API
+                async function callDeleteController(phoneNumber) {
+                    const controllerUrl = '/DeleteUser/DeleteAccount';
+                
+                    const requestBody = {
+                        phoneNumber: phoneNumber
+                    };
+
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    };
+                
+                    // Add CSRF token if available
+                    if (csrfToken) {
+                        headers['RequestVerificationToken'] = csrfToken;
+                    }
+
+                    const response = await fetch(controllerUrl, {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    let responseData;
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        responseData = await response.json();
+                    } else {
+                        responseData = { message: await response.text() };
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(responseData.message || responseData.error || `HTTP ${response.status}`);
+                    }
+
+                    return { success: true, data: responseData };
+                }
+
+                async function handleRequestDeletion() {
+                    phoneErrorDiv.style.display = 'none';
+                    clearStatusMessages();
+
+                    let rawPhone = phoneInput.value.trim();
+                    if (!rawPhone) {
+                        showError("Please enter your phone number.");
+                        return;
+                    }
+
+                    const normalizedPhone = normalizePhoneNumber(rawPhone);
+                
+                    if (!isValidPhone(normalizedPhone)) {
+                        showError("Please enter a valid phone number (e.g., 0712345678 or 712345678).");
+                        return;
+                    }
+
+                    requestBtn.disabled = true;
+                    btnTextSpan.style.display = 'none';
+                    btnSpinner.style.display = 'inline-block';
+
+                    try {
+                        const response = await callDeleteController(normalizedPhone);
+                    
+                        if (response.success) {
+                            const message = response.data?.message || 'Your account deletion request has been received.';
+                            showStatusMessage('success', 'Account Deletion Requested',
+                                `${message} A verification code has been sent to ${maskPhoneNumber(normalizedPhone)}.`);
+                            phoneInput.value = '';
+                        }
+                    } catch (err) {
+                        console.error('Controller Error:', err);
+                        let errorMessage = err.message || 'Network or server issue.';
+                    
+                        if (err.message?.includes('Failed to fetch')) {
+                            errorMessage = 'Unable to connect to the server. Please check your connection.';
+                        } else if (err.message?.includes('404')) {
+                            errorMessage = 'The deletion service could not be found. Please contact church administration.';
+                        }
+                    
+                        showStatusMessage('error', 'Deletion Request Failed', errorMessage);
+                    } finally {
+                        requestBtn.disabled = false;
+                        btnTextSpan.style.display = 'inline';
+                        btnSpinner.style.display = 'none';
+                    }
+                }
+
+                function clearForm() {
+                    phoneInput.value = '';
+                    phoneErrorDiv.style.display = 'none';
+                    clearStatusMessages();
+                }
+
+                requestBtn.addEventListener('click', handleRequestDeletion);
+                clearBtn.addEventListener('click', clearForm);
+
+                phoneInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleRequestDeletion();
+                    }
+                });
+
+                phoneInput.addEventListener('input', () => {
+                    if (phoneErrorDiv.style.display === 'block') {
+                        phoneErrorDiv.style.display = 'none';
+                    }
+                });
+            })();
+    </script>
+</body>
+</html>

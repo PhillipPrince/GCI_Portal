@@ -17,8 +17,11 @@ namespace GCI_Admin.Models
         [ForeignKey("MemberId")]
         public Member Member { get; set; }
 
-        [NotMapped]
-        public byte[]? Photo { get; set; }
        
+       
+    }
+    public class GECMemberDetailsViewModel
+    {
+        public GECMember GECMember { get; set; }
     }
 }

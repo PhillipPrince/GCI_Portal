@@ -56,6 +56,11 @@ namespace GCI_Admin.Models
         public decimal Youth { get; set; }
         public decimal WidowsOrphans { get; set; }
         public decimal Others { get; set; }
+        public bool IsVerified { get; set; }
+
+        public int VerifiedBy { get; set; }
+        public DateTime? VerifiedAt{get; set;}
+
 
 
     }

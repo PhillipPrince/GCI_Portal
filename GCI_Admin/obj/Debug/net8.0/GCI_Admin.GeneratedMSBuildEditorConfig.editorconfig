@@ -82,6 +82,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmVuZXZvbGVuY2VcX0JlbmV2b2xlbmNlVGFibGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/DeleteUser/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGVsZXRlVXNlclxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Event/EventDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXZlbnRcRXZlbnREZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -114,8 +118,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmluYW5jZVxfR2l2aW5nc1RhYmxlUGFydGlhbC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/GECMember/AddNewGecMember.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR0VDTWVtYmVyXEFkZE5ld0dlY01lbWJlci5jc2h0bWw=
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/GECMember/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR0VDTWVtYmVyXERldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/GECMember/Index.cshtml]
@@ -342,6 +346,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Shared/_ImagePicker.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9JbWFnZVBpY2tlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Shared/_MemberSelector.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9NZW1iZXJTZWxlY3Rvci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -352,6 +360,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/SystemConfig/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3lzdGVtQ29uZmlnXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/TermsAndConditions/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVybXNBbmRDb25kaXRpb25zXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/_ViewImports.cshtml]

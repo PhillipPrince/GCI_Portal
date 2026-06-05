@@ -1,8 +1,11 @@
-﻿using GCI_Admin.Models;
+﻿using GCI_Admin.DBOperations;
+using GCI_Admin.DBOperations.Repositories;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using GCI_Admin.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace GCI_Admin.Controllers
@@ -12,10 +15,14 @@ namespace GCI_Admin.Controllers
     public class FinanceController : Controller
     {
         private readonly IPaymentsService _paymentsService;
+        private readonly AuthRepository _authRepository;
+        private readonly AppDbContext _context;
 
-        public FinanceController(IPaymentsService paymentsService)
+        public FinanceController(IPaymentsService paymentsService, AuthRepository authRepository, AppDbContext context)
         {
             _paymentsService = paymentsService;
+            _authRepository = authRepository;
+            _context = context;
         }
 
         public async Task<IActionResult> Index()
@@ -204,5 +211,59 @@ namespace GCI_Admin.Controllers
                 return StatusCode(500, new { error = ex.Message });
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> SendOtp([FromBody] SendOtpRequest request)
+        {
+            try
+            {
+               var otp= await _authRepository.GenerateAndInsertOtpAsync(request.EmailOrPhone,10);
+                if (otp != null)
+                {
+
+                    return Ok(new { isSuccess = true, message = "OTP sent successfully" });
+                }
+                else
+                {
+                    return Ok(new { isSuccess = false, message = "Failed to send OTP" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { isSuccess = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyCollection([FromBody] VerifyCollectionRequest request)
+        {
+            try
+            {
+                var verified = _paymentsService.VerifyCollection(request);
+                if (verified.Result.IsSuccess)
+                {
+
+                
+
+                    return Ok(new { isSuccess = true, message = verified.Result.Message});
+
+
+                }
+
+                else
+                {
+                    return Ok(new { isSuccess = false, message = verified.Result.Message });
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { isSuccess = false, message = ex.Message });
+            }
+        }
+
+       
+        
+      
     }
 }

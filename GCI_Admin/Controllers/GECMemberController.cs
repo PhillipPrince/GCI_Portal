@@ -72,17 +72,7 @@ namespace GCI_Admin.Controllers
             return Json(response);
         }
 
-        // ✅ GET BY ID (For Edit)
-        [HttpGet]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var response = await _gecMemberService.GetGECMemberByIdAsync(id);
-
-            if (!response.IsSuccess)
-                return NotFound(response.Message);
-
-            return Json(response.Data);
-        }
+      
 
         public async Task<IActionResult> LoadCreateForm()
         {
@@ -94,7 +84,7 @@ namespace GCI_Admin.Controllers
             return PartialView("_CreateGECMemberPartial", dto);
         }
 
-        
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -207,6 +197,21 @@ namespace GCI_Admin.Controllers
                     message = "An error occurred while updating the member. Please try again."
                 });
             }
+        }
+        //add get by id
+        public async Task<IActionResult> Details(int id)
+        {
+            GECMemberDetailsViewModel member=new GECMemberDetailsViewModel();
+            var response = await _gecMemberService.GetGECMemberByIdAsync(id);
+
+            if (response == null)
+            {
+                TempData["ErrorMessage"] = "Deacon not found.";
+                return RedirectToAction(nameof(Index));
+            }
+            member.GECMember = response.Data;
+
+            return View(member);
         }
     }
 }

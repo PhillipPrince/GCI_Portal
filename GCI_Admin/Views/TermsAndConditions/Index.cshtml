@@ -1,0 +1,238 @@
+﻿@{
+    ViewData["Title"] = "Terms And Conditions";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Privacy Policy | Gospel Centres International</title>
+    <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                background: #f8fafc;
+                font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+                line-height: 1.5;
+                color: #1e293b;
+                padding: 24px 16px;
+            }
+
+            .policy-container {
+                max-width: 880px;
+                margin: 0 auto;
+                background: #ffffff;
+                border-radius: 28px;
+                box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.02);
+                overflow: hidden;
+                transition: all 0.2s ease;
+            }
+
+            /* header / app-like bar */
+            .policy-header {
+                background: #1e4a6b;
+                background: linear-gradient(135deg, #1e4a6b 0%, #0f2c3f 100%);
+                padding: 28px 24px;
+                text-align: center;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+
+                .policy-header h1 {
+                    font-size: 1.85rem;
+                    font-weight: 700;
+                    letter-spacing: -0.3px;
+                    color: white;
+                    margin-bottom: 8px;
+                }
+
+                .policy-header .church-name {
+                    font-size: 1rem;
+                    font-weight: 500;
+                    color: #cbd5e6;
+                    background: rgba(255,255,255,0.15);
+                    display: inline-block;
+                    padding: 4px 14px;
+                    border-radius: 40px;
+                    backdrop-filter: blur(2px);
+                }
+
+            .last-updated {
+                margin-top: 14px;
+                font-size: 0.8rem;
+                color: #b9d0f0;
+            }
+
+            /* content area */
+            .policy-content {
+                padding: 28px 28px 44px;
+            }
+
+            /* section styling matching the dialog terms but only privacy relevant extracted from data usage & policy text */
+            .privacy-section {
+                margin-bottom: 28px;
+                border-left: 3px solid #2c7da0;
+                padding-left: 18px;
+                background: #fefefe;
+            }
+
+                .privacy-section h2 {
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    color: #0f2c3f;
+                    margin-bottom: 12px;
+                    letter-spacing: -0.2px;
+                }
+
+                .privacy-section h3 {
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    color: #1e4a6b;
+                    margin: 18px 0 8px 0;
+                }
+
+                .privacy-section p {
+                    font-size: 1rem;
+                    color: #2d3e50;
+                    margin-bottom: 12px;
+                }
+
+            .data-badge {
+                background: #eef2ff;
+                border-radius: 24px;
+                padding: 14px 20px;
+                margin: 24px 0 20px;
+                border: 1px solid #d9e2ef;
+                display: flex;
+                gap: 12px;
+                align-items: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .data-badge-icon {
+                background: #1e4a6b20;
+                border-radius: 50px;
+                padding: 8px;
+            }
+
+            .data-badge-text {
+                flex: 1;
+                font-weight: 500;
+                color: #1c3c53;
+            }
+
+            .highlight {
+                background: #fef9e3;
+                border-left: 4px solid #e6b12e;
+                padding: 14px 20px;
+                border-radius: 16px;
+                margin: 20px 0;
+                font-size: 0.95rem;
+            }
+
+            hr {
+                margin: 24px 0;
+                border: none;
+                border-top: 1px solid #e2edf2;
+            }
+
+            .footer-note {
+                text-align: center;
+                font-size: 0.75rem;
+                color: #5c6f87;
+                background: #f8fafd;
+                margin-top: 24px;
+                padding: 16px;
+                border-radius: 20px;
+                border: 1px solid #eef2f6;
+            }
+
+            
+            a {
+                color: #2c7da0;
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+                a:hover {
+                    text-decoration: underline;
+                }
+
+            /* simulate app-like scroll */
+            ::selection {
+                background: #1e4a6b30;
+            }
+    </style>
+</head>
+<body>
+    <div class="policy-container">
+        <div class="policy-header">
+            <h1>Privacy & Data Policy</h1>
+            <div class="church-name">Gospel Centres International</div>
+        </div>
+        <div class="policy-content">
+    
+            <div class="privacy-section">
+                <h2>1. Data Usage and Privacy</h2>
+                <p>Your personal information is collected and used by Gospel Centres International for church administration, communication, pastoral care, and event coordination purposes. The church may use your information to send you updates, newsletters, and important announcements.</p>
+      
+                <h2>2. Data Sharing Policy</h2>
+                <p>Your data is NOT shared with third parties, advertisers, or external organizations. Your information remains confidential within the church administration. Only authorized church personnel have access to your information for legitimate church purposes.</p>
+      
+                <h2>3. Communication Consent</h2>
+                <p>By registering, you consent to receive communications from the church via email, SMS, or push notifications regarding church activities, events, and important updates. You may opt out of non-essential communications at any time.</p>
+      
+                <div class="data-badge">
+                    <div class="data-badge-icon">🔒</div>
+                    <div class="data-badge-text">
+                        <strong>Confidentiality commitment:</strong> Your information is used exclusively for church-related purposes (pastoral care, events, administration). No third-party marketing, no data selling.
+                    </div>
+                </div>
+      
+                <h2>4. How We Use Your Information</h2>
+                <p>Gospel Centres International collects personal details such as name, contact information, gender, marital status, assembly affiliation, and optional data (social media name, address, date of birth, family details). This information is used for church membership records, coordinating local assemblies, pastoral follow-up, and facilitating church events. The legal basis for processing is your consent given at registration and the legitimate interests of church administration.</p>
+      
+                <div class="highlight">
+                    <strong>📌 Important – No External Sharing:</strong> As stated in the app’s sign-up terms: “Your data is NOT shared with third parties, advertisers, or external organizations. Your information remains confidential within the church administration.”
+                </div>
+      
+                <h2>5. Data Retention & Security</h2>
+                <p>Your account data is stored securely and retained as long as your membership remains active or as necessary to fulfill the purposes described in this policy. You may request account deletion or data correction by contacting the church administration. Appropriate technical and organizational measures are in place to safeguard your personal data against unauthorized access, alteration, or loss.</p>
+      
+                <h2>6. User Responsibilities and Account Security</h2>
+                <p>You are responsible for maintaining the confidentiality of your account password. You must notify the church immediately of any unauthorized use of your account. Gospel Centres International will not be liable for any loss or damage arising from failure to comply with this security obligation.</p>
+      
+                <h2>7. Code of Conduct & Appropriate Use</h2>
+                <p>You agree to use the app in a manner consistent with Christian values and principles. Any misuse, harassment, or inappropriate behavior may result in account termination. Data provided must be accurate and complete as per the registration requirements.</p>
+      
+                <h2>8. Modifications to this Privacy Policy</h2>
+                <p>Gospel Centres International reserves the right to update this privacy policy at any time. You will be notified of significant changes within the app, and continued use of the application constitutes acceptance of the updated terms.</p>
+      
+                <hr />
+      
+                <h3>❓ Your Rights (Access, Correction, Deletion)</h3>
+                <p>You have the right to request access to your personal data held by the church, request correction of inaccurate information, and under certain circumstances request deletion of your data (unless retention is required for legal or legitimate church administration purposes). To exercise these rights, please contact your local assembly administrator or email the church data protection officer via the app’s support channels.</p>
+      
+                <h3>📱 Children's Data</h3>
+                <p>Gospel Centres International does not knowingly collect personal data from children under the age of 13 without parental consent. If you believe we have inadvertently collected such data, please contact us immediately so we can take appropriate action.</p>
+      
+                <h3>📍 Location & Assembly Association</h3>
+                <p>If you select a specific assembly, that information helps us connect you with local church activities, events, and pastoral support. Assembly leaders may have access to limited profile information for coordination of church services and community care.</p>
+      
+                <div class="footer-note">
+                    <strong>Gospel Centres International – Privacy Commitment</strong><br />
+                    This policy derives directly from the Terms and Conditions presented during account registration (excerpts: Data Usage and Privacy, Data Sharing Policy, User Responsibilities). No changes have been made; the original text from the app’s “Terms and Conditions” dialog and related data disclosures is reflected above.
+                </div>
+            </div>
+    
+           
+    
+          
+        </div>
+    </div>
+</body>
+</html>
