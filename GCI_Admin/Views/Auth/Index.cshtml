@@ -567,11 +567,11 @@
                     <!-- OTP Input Fields -->
                     <div class="otp-input-group">
                         <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp2')" onkeydown="handleBackspace(this, 'otp1')" id="otp1">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp3')" onkeydown="handleBackspace(this, 'otp1')" id="otp2">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp4')" onkeydown="handleBackspace(this, 'otp2')" id="otp3">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp5')" onkeydown="handleBackspace(this, 'otp3')" id="otp4">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp6')" onkeydown="handleBackspace(this, 'otp4')" id="otp5">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInputComplete(this)" onkeydown="handleBackspace(this, 'otp5')" id="otp6">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp3')" onkeydown="handleBackspace(this, 'otp2')" id="otp2">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp4')" onkeydown="handleBackspace(this, 'otp3')" id="otp3">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp5')" onkeydown="handleBackspace(this, 'otp4')" id="otp4">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp6')" onkeydown="handleBackspace(this, 'otp5')" id="otp5">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInputComplete(this)" onkeydown="handleBackspace(this, 'otp6')" id="otp6">
                     </div>
 
                     <!-- Timer -->
@@ -1060,6 +1060,45 @@
             $('.login-body').prepend(alertHtml);
             setTimeout(() => $('.alert-custom').fadeOut(300, function() { $(this).remove(); }), 5000);
         }
+
+        // Handle Enter key on login form inputs
+        $(document).ready(function() {
+            // Listen for Enter key on Email input
+            $('input[name="Email"]').on('keypress', function(e) {
+                if (e.which === 13 || e.keyCode === 13) {
+                    e.preventDefault();
+                    submitLogin();
+                    return false;
+                }
+            });
+            
+            // Listen for Enter key on Phone input
+            $('input[name="Phone"]').on('keypress', function(e) {
+                if (e.which === 13 || e.keyCode === 13) {
+                    e.preventDefault();
+                    submitLogin();
+                    return false;
+                }
+            });
+            
+            // Listen for Enter key on Password input
+            $('input[name="Password"]').on('keypress', function(e) {
+                if (e.which === 13 || e.keyCode === 13) {
+                    e.preventDefault();
+                    submitLogin();
+                    return false;
+                }
+            });
+            
+            // Also handle Enter key on the login button itself
+            $('#loginBtn').on('keypress', function(e) {
+                if (e.which === 13 || e.keyCode === 13) {
+                    e.preventDefault();
+                    submitLogin();
+                    return false;
+                }
+            });
+        });
 
         // Auto-detect login type
         $('input[name="Email"]').on('input', function() {

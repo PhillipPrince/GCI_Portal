@@ -101,13 +101,17 @@ namespace GCI_Admin.Services.Service
         {
             try
             {
-                ConfirmOtpDto confirmOtpDto = new ConfirmOtpDto
+                var confirmOtpDto = new ConfirmOtpDto
                 {
                     OTPCode = request.OtpCode,
                     EmailOrPhone = request.EmailOrPhone
                 };
 
-                var user = _appDbContext.Members.Where(m => m.Phone == request.EmailOrPhone || m.Email == request.EmailOrPhone).FirstOrDefault();
+    var user = await _appDbContext.Members
+        .FirstOrDefaultAsync(m =>
+            m.Phone == request.EmailOrPhone ||
+            m.Email == request.EmailOrPhone);
+
                 if (user == null)
                 {
                     return new ApiResponse
@@ -118,235 +122,107 @@ namespace GCI_Admin.Services.Service
                     };
                 }
 
+                // Use phone for OTP validation
+                confirmOtpDto.EmailOrPhone = user.Phone;
+
                 var confirm = await _auth.ConfirmOrRegenerateOtpAsync(confirmOtpDto);
 
-                if (confirm != null && confirm.Data.IsConfirmed)
+                if (confirm?.Data?.IsConfirmed != true)
                 {
-                    var collectionVerified = await _appDbContext.ServiceCollectionSummaries
-                        .FirstOrDefaultAsync(s => s.MeetingAttendancesId == request.MeetingId);
-
-                    if (collectionVerified == null)
+                    return new ApiResponse
                     {
-                        return new ApiResponse
-                        {
-                            IsSuccess = false,
-                            Code = "404",
-                            Message = "Collection record not found."
-                        };
-                    }
-                    
-                    if (!collectionVerified.IsVerified)
+                        IsSuccess = false,
+                        Code = "400",
+                        Message = "Invalid or expired OTP."
+                    };
+                }
+
+                var collectionVerified = await _appDbContext.ServiceCollectionSummaries
+                    .FirstOrDefaultAsync(s =>
+                        s.MeetingAttendancesId == request.MeetingId);
+
+                if (collectionVerified == null)
+                {
+                    return new ApiResponse
                     {
-                        collectionVerified.IsVerified = true;
-                        collectionVerified.VerifiedBy = user.Id;
-                        collectionVerified.VerifiedAt = DateTime.Now;
-                        await _appDbContext.SaveChangesAsync();
-                        Loggers.EventLogs($"Collection for Meeting ID {request.MeetingId} verified by Member ID {user.Id}");
-                    }
+                        IsSuccess = false,
+                        Code = "404",
+                        Message = "Collection record not found."
+                    };
+                }
 
-                    if (collectionVerified != null)
-                    {
-                        var payments = new List<Payment>();
-
-                        // Tithes
-                        if (collectionVerified.Tithes > 0)
-                        {
-                            payments.Add(new Payment
-                            {
-                                MemberId = 0,
-                                AccountReference = "Tithes",
-                                MerchantRequestID = "N/A",
-                                CheckoutRequestID = "N/A",
-                                MpesaReceiptNumber = "N/A",
-                                PhoneNumber = "N/A",
-                                TransactionDate = DateTime.Now,
-                                ResultDesc = "0",
-                                Amount = collectionVerified.Tithes,
-                                PaymentStatusId = 2,
-                                CreatedAt = DateTime.Now
-                            });
-                        }
-
-                        // Offerings
-                        if (collectionVerified.Offerings > 0)
-                        {
-                            payments.Add(new Payment
-                            {
-                                MemberId = 0,
-                                AccountReference = "Offerings",
-                                MerchantRequestID = "N/A",
-                                CheckoutRequestID = "N/A",
-                                MpesaReceiptNumber = "N/A",
-                                PhoneNumber = "N/A",
-                                TransactionDate = DateTime.Now,
-
-                                ResultDesc = "0",
-                                Amount = collectionVerified.Offerings,
-                                PaymentStatusId = 2,
-                                CreatedAt = DateTime.Now
-                            });
-                        }
-
-                        // Sunday School
-                        if (collectionVerified.SundaySchool > 0)
-                        {
-                            payments.Add(new Payment
-                            {
-                                MemberId = 0,
-                                AccountReference = "Sunday School",
-                                MerchantRequestID = "N/A",
-                                CheckoutRequestID = "N/A",
-                                MpesaReceiptNumber = "N/A",
-                                PhoneNumber = "N/A",
-                                TransactionDate = DateTime.Now,
-
-                                ResultDesc = "0",
-                                Amount = collectionVerified.SundaySchool,
-                                PaymentStatusId = 2,
-                                CreatedAt = DateTime.Now
-                            });
-                        }
-
-                        // Thanksgiving
-                        if (collectionVerified.Thanksgiving > 0)
-                        {
-                            payments.Add(new Payment
-                            {
-                                MemberId = 0,
-                                AccountReference = "Thanksgiving",
-                                MerchantRequestID = "N/A",
-                                CheckoutRequestID = "N/A",
-                                MpesaReceiptNumber = "N/A",
-                                PhoneNumber = "N/A",
-                                TransactionDate = DateTime.Now,
-
-                                ResultDesc = "0",
-                                Amount = collectionVerified.Thanksgiving,
-                                PaymentStatusId = 2,
-                                CreatedAt = DateTime.Now
-                            });
-                        }
-
-                        // Missions
-                        if (collectionVerified.Missions > 0)
-                        {
-                            payments.Add(new Payment
-                            {
-                                MemberId = 0,
-                                AccountReference = "Missions",
-                                MerchantRequestID = "N/A",
-                                CheckoutRequestID = "N/A",
-                                MpesaReceiptNumber = "N/A",
-                                PhoneNumber = "N/A",
-                                TransactionDate = DateTime.Now,
-
-                                ResultDesc = "0",
-                                Amount = collectionVerified.Missions,
-                                PaymentStatusId = 2,
-                                CreatedAt = DateTime.Now
-                            });
-                        }
-
-                        // Projects
-                        if (collectionVerified.Projects > 0)
-                        {
-                            payments.Add(new Payment
-                            {
-                                MemberId = 0,
-                                AccountReference = "Projects",
-                                MerchantRequestID = "N/A",
-                                CheckoutRequestID = "N/A",
-                                MpesaReceiptNumber = "N/A",
-                                PhoneNumber = "N/A",
-                                TransactionDate = DateTime.Now,
-
-                                ResultDesc = "0",
-                                Amount = collectionVerified.Projects,
-                                PaymentStatusId = 2,
-                                CreatedAt = DateTime.Now
-                            });
-                        }
-
-                        // Youth
-                        if (collectionVerified.Youth > 0)
-                        {
-                            payments.Add(new Payment
-                            {
-                                MemberId = 0,
-                                AccountReference = "Youth",
-                                MerchantRequestID = "N/A",
-                                CheckoutRequestID = "N/A",
-                                MpesaReceiptNumber = "N/A",
-                                PhoneNumber = "N/A",
-                                    TransactionDate= DateTime.Now,
-
-                                ResultDesc = "0",
-                                Amount = collectionVerified.Youth,
-                                PaymentStatusId = 2,
-                                CreatedAt = DateTime.Now
-                            });
-                        }
-
-                        // Widows & Orphans
-                        if (collectionVerified.WidowsOrphans > 0)
-                        {
-                            payments.Add(new Payment
-                            {
-                                MemberId = 0,
-                                AccountReference = "Widows & Orphans",
-                                MerchantRequestID = "N/A",
-                                CheckoutRequestID = "N/A",
-                                MpesaReceiptNumber = "N/A",
-                                PhoneNumber = "N/A",
-
-                                TransactionDate = DateTime.Now,
-                                ResultDesc = "0",
-                                Amount = collectionVerified.WidowsOrphans,
-                                PaymentStatusId = 2,
-                                CreatedAt = DateTime.Now
-                            });
-                        }
-
-                        // Others
-                        if (collectionVerified.Others > 0)
-                        {
-                            payments.Add(new Payment
-                            {
-                                MemberId = 0,
-                                AccountReference = "Others",
-                                MerchantRequestID = "N/A",
-                                CheckoutRequestID = "N/A",
-                                MpesaReceiptNumber = "N/A",
-                                PhoneNumber = "N/A",
-                                TransactionDate = DateTime.Now,
-                                ResultDesc = "0",
-                                Amount = collectionVerified.Others,
-                                PaymentStatusId = 2,
-                                CreatedAt = DateTime.Now
-                            });
-                        }
-
-                        if (payments.Any())
-                        {
-                            await _appDbContext.Payments.AddRangeAsync(payments);
-                            await _appDbContext.SaveChangesAsync();
-                        }
-                    }
-
-
+                if (collectionVerified.IsVerified)
+                {
                     return new ApiResponse
                     {
                         IsSuccess = true,
                         Code = "200",
-                        Message = "Collection verified successfully."
+                        Message = "Collection has already been verified."
                     };
+                }
+
+                collectionVerified.IsVerified = true;
+                collectionVerified.VerifiedBy = user.Id;
+                collectionVerified.VerifiedAt = DateTime.Now;
+
+                await _appDbContext.SaveChangesAsync();
+
+                Loggers.EventLogs(
+                    $"Collection for Meeting ID {request.MeetingId} verified by Member ID {user.Id}");
+
+                var now = DateTime.Now;
+
+                Payment CreatePayment(string accountReference, decimal amount)
+                {
+                    return new Payment
+                    {
+                        MemberId = 0,
+                        AccountReference = accountReference,
+                        MerchantRequestID = "N/A",
+                        CheckoutRequestID = "N/A",
+                        MpesaReceiptNumber = "N/A",
+                        PhoneNumber = "N/A",
+                        TransactionDate = now,
+                        ResultCode = 0,
+                        ResultDesc = "Cash Collection",
+                        Amount = amount,
+                        PaymentStatusId = 2,
+                        CreatedAt = now
+                    };
+                }
+
+                var paymentDefinitions = new[]
+                {
+        new { Name = "Tithes", Amount = collectionVerified.Tithes },
+        new { Name = "Offerings", Amount = collectionVerified.Offerings },
+        new { Name = "Sunday School", Amount = collectionVerified.SundaySchool },
+        new { Name = "Thanksgiving", Amount = collectionVerified.Thanksgiving },
+        new { Name = "Missions", Amount = collectionVerified.Missions },
+        new { Name = "Projects", Amount = collectionVerified.Projects },
+        new { Name = "Youth", Amount = collectionVerified.Youth },
+        new { Name = "Widows & Orphans", Amount = collectionVerified.WidowsOrphans },
+        new { Name = "Others", Amount = collectionVerified.Others }
+    };
+
+                var payments = paymentDefinitions
+                    .Where(x => x.Amount > 0)
+                    .Select(x => CreatePayment(x.Name, x.Amount))
+                    .ToList();
+
+                if (payments.Any())
+                {
+                    await _appDbContext.Payments.AddRangeAsync(payments);
+                    await _appDbContext.SaveChangesAsync();
+
+                    Loggers.EventLogs(
+                        $"Created {payments.Count} payment records for Meeting ID {request.MeetingId}");
                 }
 
                 return new ApiResponse
                 {
-                    IsSuccess = false,
-                    Code = "400",
-                    Message = "Invalid or expired OTP."
+                    IsSuccess = true,
+                    Code = "200",
+                    Message = "Collection verified successfully."
                 };
             }
             catch (Exception ex)
@@ -357,10 +233,12 @@ namespace GCI_Admin.Services.Service
                 {
                     IsSuccess = false,
                     Code = "500",
-                    Message = "An error occurred while verifying the collection."
+                    Message = ex.InnerException?.Message ?? "An error occurred while verifying the collection."
                 };
             }
-        }
+
+
+}
 
     }
 }
