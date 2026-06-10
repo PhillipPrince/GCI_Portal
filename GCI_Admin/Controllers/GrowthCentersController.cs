@@ -1,4 +1,4 @@
-﻿using GCI_Admin.DBOperations.Repositories;
+using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
@@ -129,22 +129,20 @@ namespace GCI_Admin.Controllers
             }
 
             // Get the existing GC leader
-            //var leaderResult = await _growthCentersService.GetGCLeaderByIdAsync(id);
-            //if (leaderResult.IsSuccess && leaderResult.Data != null)
-            //{
-            //    dto.GCLeader = new GCLeaderDto
-            //    {
-            //        GCLeaderId = leaderResult.Data.GrowthCenterLeaderId,
-            //        MemberId = leaderResult.Data.MemberId,
-            //        GrowthCenterId = leaderResult.Data.GrowthCenterId,
-            //        PositionTitle = leaderResult.Data.PositionTitle,
-            //        Bio = leaderResult.Data.Bio,
-            //        StartDate = leaderResult.Data.StartDate,
-            //        EndDate = leaderResult.Data.EndDate,
-            //        IsActive = leaderResult.Data.IsActive,
-            //        CreatedAt = leaderResult.Data.CreatedAt
-            //    };
-            //}
+            var leaderResult = await _growthCentersService.GetGCLeaderByIdAsync(id);
+            if (leaderResult.IsSuccess && leaderResult.Data != null)
+            {
+                dto.GCLeader = new GCLeaderDto
+                {
+                    GCLeaderId = leaderResult.Data.GrowthCenterLeaderId,
+                    MemberId = leaderResult.Data.MemberId,
+                    GrowthCenterId = leaderResult.Data.GrowthCenterId,
+                    Bio = leaderResult.Data.Bio,
+                    StartDate = leaderResult.Data.StartDate,
+                    EndDate = leaderResult.Data.EndDate,
+                    IsActive = leaderResult.Data.IsActive
+                };
+            }
 
             ViewBag.IsEdit = true;
             return PartialView("_CreateGCLeaderPartial", dto);
@@ -152,8 +150,7 @@ namespace GCI_Admin.Controllers
 
         // Action to create a new GC leader
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateGCLeader([FromForm] GCLeaderDto model)
+        public async Task<IActionResult> CreateGCLeader([FromBody] GCLeaderDto model)
         {
             try
             {
@@ -170,17 +167,7 @@ namespace GCI_Admin.Controllers
                 }
 
                 // Create the GC leader
-                var result = await _growthCentersService.CreateGCLeaderAsync(new GrowthCenterLeader
-                {
-                    MemberId = model.MemberId,
-                    GrowthCenterId = model.GrowthCenterId,
-                    //PositionTitle = model.PositionTitle,
-                    Bio = model.Bio,
-                    StartDate = model.StartDate,
-                    EndDate = model.EndDate,
-                    IsActive = model.IsActive,
-                    CreatedAt = DateTime.UtcNow
-                });
+                var result = await _growthCentersService.CreateGCLeaderAsync(model);
 
                 if (result.IsSuccess)
                 {
@@ -199,8 +186,7 @@ namespace GCI_Admin.Controllers
 
         // Action to update a GC leader
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateGCLeader([FromForm] GCLeaderDto model)
+        public async Task<IActionResult> UpdateGCLeader([FromBody] GCLeaderDto model)
         {
             try
             {
@@ -210,17 +196,7 @@ namespace GCI_Admin.Controllers
                 }
 
                 // Update the GC leader
-                var result = await _growthCentersService.UpdateGCLeaderAsync(new GrowthCenterLeader
-                {
-                    GrowthCenterLeaderId = model.GCLeaderId,
-                    MemberId = model.MemberId,
-                    GrowthCenterId = model.GrowthCenterId,
-                   // PositionTitle = model.PositionTitle,
-                    Bio = model.Bio,
-                    StartDate = model.StartDate,
-                    EndDate = model.EndDate,
-                    IsActive = model.IsActive
-                });
+                var result = await _growthCentersService.UpdateGCLeaderAsync(model);
 
                 if (result.IsSuccess)
                 {
@@ -237,7 +213,24 @@ namespace GCI_Admin.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteGCLeader(int id)
+        {
+            var result = await _growthCentersService.DeleteGCLeaderAsync(id);
+            if (!result.IsSuccess)
+                return Json(new { success = false, message = result.Message });
 
+            return Json(new { success = true, message = "GC Leader deleted successfully" });
+        }
 
+        [HttpPost]
+        public async Task<IActionResult> ToggleStatus(int id, bool isActive)
+        {
+            var result = await _growthCentersService.ToggleGCLeaderStatusAsync(id, isActive);
+            if (!result.IsSuccess)
+                return Json(new { success = false, message = result.Message });
+
+            return Json(new { success = true, message = result.Message });
+        }
     }
 }

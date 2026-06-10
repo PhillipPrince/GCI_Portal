@@ -177,7 +177,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 }
                 else
                 {
-                    otpText  = MessageTemplates.GenerateOtpMessage("GCI", otpCode, expiryMinutes);
+                    otpText  = MessageTemplates.GenerateOtpMessage(user.FirstName, otpCode, expiryMinutes);
 
 
                 }

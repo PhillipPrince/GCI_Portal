@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.EventRegistration>
+@model List<GCI_Admin.Models.EventRegistration>
 
 @{
     ViewData["Title"] = "Event Registrations";
@@ -955,7 +955,7 @@
             // Update current view with filtered data
             if (currentView === 'table') {
                 // For table view, we'll use DataTable search
-                const table = $('#registrationsTable').DataTable();
+                const table = $('#eventRegistrationsTable').DataTable();
                 table.search(search).draw();
             } else if (currentView === 'grid') {
                 renderFilteredGridView(filtered);
@@ -988,7 +988,7 @@
             $('#paymentFilter').val('');
 
             if (currentView === 'table') {
-                const table = $('#registrationsTable').DataTable();
+                const table = $('#eventRegistrationsTable').DataTable();
                 table.search('').columns().search('').draw();
             } else if (currentView === 'grid') {
                 renderGridView();
@@ -1072,12 +1072,11 @@
 
         // Initialize DataTable
         function initializeDataTable() {
-            if ($.fn.DataTable.isDataTable('#registrationsTable')) {
-                $('#registrationsTable').DataTable().destroy();
+            if ($.fn.DataTable.isDataTable('#eventRegistrationsTable')) {
+                $('#eventRegistrationsTable').DataTable().destroy();
             }
 
-            $('#registrationsTable').DataTable({
-                pageLength: 10,
+            GCIDataTable.init('#eventRegistrationsTable', {
                 language: {
                     search: "Search registrations:",
                     lengthMenu: "Show _MENU_ registrations",
@@ -1100,7 +1099,7 @@
                     }
                 },
                 initComplete: function() {
-                    $('#registrationsTable .btn-group .btn').addClass('action-btn');
+                    $('#eventRegistrationsTable .btn-group .btn').addClass('action-btn');
                 }
             });
         }

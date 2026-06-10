@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.Finance
+@model GCI_Admin.Models.Finance
 
 @{
     ViewData["Title"] = "Finance Dashboard";
@@ -296,10 +296,7 @@
     <!-- Moment.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 
-    <!-- DataTables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- DataTables loaded globally in _Layout.cshtml -->
 
     <style>
         .stat-card {
@@ -337,10 +334,6 @@
             background-color: #0d6efd;
             color: white;
             border-color: #0d6efd;
-        }
-
-        .dataTables_filter {
-            display: none;
         }
     </style>
 
@@ -390,25 +383,10 @@
         }
 
         function initializeDataTable() {
-            if ($.fn.DataTable.isDataTable('#paymentsTable')) {
-                $('#paymentsTable').DataTable().destroy();
-            }
-
-            window.paymentsTable = $('#paymentsTable').DataTable({
-                pageLength: 10,
-                order: [[5, 'desc']], // Sort by Transaction Date descending
-                language: {
-                    search: "Search all:",
-                    lengthMenu: "Show _MENU_ payments",
-                    info: "Showing _START_ to _END_ of _TOTAL_ payments",
-                    emptyTable: "No payments available",
-                    zeroRecords: "No matching payments found"
-                },
-                initComplete: function() {
-                    // Update stats after table initialization
-                    updateStats();
-                }
-            });
+            // Delegate to global GCIDataTable initializer
+            GCIDataTable.init('#paymentsTable');
+            // Grab a reference to the instance for column-search operations
+            window.paymentsTable = $('#paymentsTable').DataTable();
         }
 
         function reloadPaymentsTable() {

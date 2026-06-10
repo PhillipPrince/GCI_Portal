@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.Elder>
+@model List<GCI_Admin.Models.Elder>
 
 @{
     ViewData["Title"] = "Church Elders";
@@ -830,8 +830,7 @@
 
         function initializeDataTable() {
             if ($.fn.DataTable.isDataTable('#eldersTable')) $('#eldersTable').DataTable().destroy();
-            $('#eldersTable').DataTable({
-                pageLength: 10,
+            GCIDataTable.init('#eldersTable', {
                 language: {
                     search: "Search elders:",
                     lengthMenu: "Show _MENU_ elders",

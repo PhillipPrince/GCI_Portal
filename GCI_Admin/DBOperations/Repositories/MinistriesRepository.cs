@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Utils;
@@ -673,10 +673,10 @@ namespace GCI_Admin.DBOperations.Repositories
                     };
                 }
 
-                _context.MinistryLeaders.Remove(ministryLeader);
+                ministryLeader.IsActive = false;
                 await _context.SaveChangesAsync();
 
-                Loggers.DoLogs($"Ministry Leader deleted successfully: Id={ministryLeaderId}");
+                Loggers.DoLogs($"Ministry Leader soft deleted successfully: Id={ministryLeaderId}");
 
                 return new DbResponse<bool>
                 {
@@ -692,6 +692,42 @@ namespace GCI_Admin.DBOperations.Repositories
                 {
                     Success = false,
                     Message = $"Error deleting ministry leader: {ex.Message}"
+                };
+            }
+        }
+
+        // ✅ TOGGLE STATUS
+        public async Task<DbResponse<bool>> ToggleMinistryLeaderStatusAsync(int id, bool isActive)
+        {
+            try
+            {
+                var leader = await _context.MinistryLeaders.FindAsync(id);
+                if (leader == null)
+                {
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Ministry leader not found"
+                    };
+                }
+
+                leader.IsActive = isActive;
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<bool>
+                {
+                    Success = true,
+                    Message = isActive ? "Ministry leader activated successfully" : "Ministry leader deactivated successfully",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"ToggleMinistryLeaderStatusAsync Error: {ex}");
+                return new DbResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message
                 };
             }
         }

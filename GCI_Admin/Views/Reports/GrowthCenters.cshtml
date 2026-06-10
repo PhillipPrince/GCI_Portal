@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.GrowthCenterMeeting>
+@model List<GCI_Admin.Models.GrowthCenterMeeting>
 
 @{
     ViewData["Title"] = "Growth Centers Report";
@@ -146,32 +146,7 @@
         }
         
         function initializeDataTable() {
-            if ($.fn.DataTable.isDataTable('#growthCentersTable')) {
-                $('#growthCentersTable').DataTable().destroy();
-            }
-            
-            $('#growthCentersTable').DataTable({
-                pageLength: 10,
-                responsive: true,
-                dom: 'Bfrtip',
-                buttons: [
-                    {
-                        extend: 'excel',
-                        text: '<i class="fa fa-file-excel"></i> Excel',
-                        className: 'btn btn-sm btn-success'
-                    },
-                    {
-                        extend: 'pdf',
-                        text: '<i class="fa fa-file-pdf"></i> PDF',
-                        className: 'btn btn-sm btn-danger'
-                    },
-                    {
-                        extend: 'print',
-                        text: '<i class="fa fa-print"></i> Print',
-                        className: 'btn btn-sm btn-secondary'
-                    }
-                ]
-            });
+            GCIDataTable.init('#growthCentersTable');
         }
         
         setTimeout(initializeDataTable, 100);

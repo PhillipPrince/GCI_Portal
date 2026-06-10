@@ -1,4 +1,4 @@
-﻿@model MembersListViewModel
+@model MembersListViewModel
 
 @{
     ViewData["Title"] = "Church Members";
@@ -1082,53 +1082,10 @@
             return div.innerHTML;
         }
 
-        // Initialize DataTables
+        // Initialize DataTables — delegates to the global GCIDataTable initializer
+        // which handles all tables with class 'datatable' including column filter rows.
         function initializeDataTables() {
-            $('table[id$="Table"]').each(function() {
-                if ($.fn.DataTable.isDataTable(this)) {
-                    $(this).DataTable().destroy();
-                }
-
-                const table = $(this).DataTable({
-                    pageLength: 10,
-                    lengthMenu: [10, 25, 50, 100],
-                    language: {
-                        search: "Search:",
-                        lengthMenu: "Show _MENU_ entries",
-                        info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                        emptyTable: "No members found",
-                        zeroRecords: "No matching members found"
-                    },
-                    columnDefs: [
-                        {
-                            targets: -1,
-                            orderable: false,
-                            searchable: false
-                        }
-                    ]
-                });
-
-                // Column filtering
-                $(this).find('thead tr:eq(1) th').each(function(i) {
-                    $('input, select', this).on('keyup change', function() {
-                        table.column(i).search(this.value).draw();
-                    });
-                });
-
-                // Expandable rows for additional info
-                $(this).on('click', '.expand-row', function() {
-                    const tr = $(this).closest('tr');
-                    const row = table.row(tr);
-
-                    if (row.child.isShown()) {
-                        row.child.hide();
-                        $(this).find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
-                    } else {
-                        row.child(tr.data('child')).show();
-                        $(this).find('i').removeClass('fa-plus-circle').addClass('fa-minus-circle');
-                    }
-                });
-            });
+            GCIDataTable.init();
         }
 
         // Member actions

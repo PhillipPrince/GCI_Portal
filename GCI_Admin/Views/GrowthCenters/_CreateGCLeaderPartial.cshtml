@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.DTOs.CreateGCLeaderDto
+@model GCI_Admin.Models.DTOs.CreateGCLeaderDto
 
 @{
     var isEdit = ViewBag.IsEdit ?? false;
@@ -40,16 +40,17 @@
         })
 
         <hr />
+
         <div class="row mt-3">
             <div class="col-12">
                 @await Html.PartialAsync("_ImagePicker", new GCI_Admin.Models.ImagePickerViewModel
                 {
-                    ControlId = "gecProfileImage",
-                    LabelText = "GEC Profile Image",
+                    ControlId = "gcLeaderProfileImage",
+                    LabelText = "Profile Image",
                     IconClass = "fa fa-user-circle-o",
-                    HelpText = "Upload a profile image for the GEC member. Recommended size: 400x400 pixels. Max size: 5MB",
+                    HelpText = "Upload a profile image for the growth center leader. Recommended size: 400x400 pixels. Max size: 5MB",
                     UploadButtonText = "Choose Image",
-                    CurrentImageUrl = null,
+                    CurrentImageUrl = Model?.GCLeader?.MemberId != null ? $"/uploads/{Model.GCLeader.MemberId}.jpg" : null,
                     PreviewWidth = 150,
                     PreviewHeight = 150,
                     MaxFileSizeMB = 5,
@@ -311,31 +312,30 @@
                         // Get anti-forgery token
                         const token = $('input[name="__RequestVerificationToken"]', form).val();
 
-                        // Prepare form data
-                        const formData = new FormData();
-                        formData.append('__RequestVerificationToken', token);
-                        formData.append('GCLeaderId', gcLeaderId);
-                        formData.append('MemberId', memberId);
-                        formData.append('GrowthCenterId', growthCenterId);
-                        formData.append('PositionTitle', positionTitle.trim());
-                        formData.append('Bio', bio || '');
-                        formData.append('StartDate', startDate);
-                        formData.append('EndDate', endDate || '');
-                        formData.append('IsActive', isActive);
+                        // Prepare JSON data
+                        const requestData = {
+                            GCLeaderId: parseInt(gcLeaderId) || 0,
+                            MemberId: parseInt(memberId),
+                            GrowthCenterId: parseInt(growthCenterId),
+                            PositionTitle: positionTitle.trim(),
+                            Bio: bio || '',
+                            StartDate: startDate,
+                            EndDate: endDate || null,
+                            IsActive: isActive,
+                            ProfileImageBase64: $('#gcLeaderProfileImage_base64').val() || null
+                        };
 
-                        // Log form data to console
-                        console.log("Submitting GC Leader form data:");
-                        for (let pair of formData.entries()) {
-                            console.log(pair[0] + ': ' + pair[1]);
-                        }
+                        console.log("Submitting GC Leader form data as JSON:", requestData);
 
                         // Make AJAX request
                         $.ajax({
                             url: form.attr('action'),
                             type: 'POST',
-                            data: formData,
-                            processData: false,
-                            contentType: false,
+                            contentType: 'application/json',
+                            data: JSON.stringify(requestData),
+                            headers: {
+                                'RequestVerificationToken': token
+                            },
                             success: function(response) {
                                 console.log("Response:", response);
                     

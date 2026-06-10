@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using Microsoft.AspNetCore.Mvc;
@@ -56,6 +56,21 @@ namespace GCI_Admin.Controllers
             catch
             {
                 return PartialView("_AssembliesTable", new List<Assembly>());
+            }
+        }
+
+        // Partial leaders table view
+        [HttpGet]
+        public async Task<IActionResult> LeadersTable()
+        {
+            try
+            {
+                var response = await _assembliesService.GetAllAssemblyLeadersAsync();
+                return PartialView("_AssemblLeadersTable", response.Data ?? new List<AssemblyLeader>());
+            }
+            catch
+            {
+                return PartialView("_AssemblLeadersTable", new List<AssemblyLeader>());
             }
         }
 

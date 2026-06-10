@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.DTOs.CreateGECMemberDto
+@model GCI_Admin.Models.DTOs.CreateGECMemberDto
 
 @{
     var isEdit = ViewBag.IsEdit ?? false;
@@ -35,8 +35,8 @@
             <div class="col-12">
                 @await Html.PartialAsync("_ImagePicker", new GCI_Admin.Models.ImagePickerViewModel
                 {
-                    ControlId = "gcLeaderProfileImage",
-                    LabelText = "GC Leader Profile Image",
+                    ControlId = "gecProfileImage",
+                    LabelText = "Profile Image",
                     IconClass = "fa fa-user-circle-o",
                     HelpText = "Upload a profile image for the growth center leader. Recommended size: 400x400 pixels. Max size: 5MB",
                     UploadButtonText = "Choose Image",

@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Utils;
@@ -226,6 +226,232 @@ namespace GCI_Admin.DBOperations.Repositories
                 {
                     Success = false,
                     Message = $"Error fetching assembly leaders: {ex.Message}"
+                };
+            }
+        }
+
+        // ✅ CREATE ASSEMBLY LEADER
+        public async Task<DbResponse<AssemblyLeader>> CreateAssemblyLeaderAsync(AssemblyLeaderDto dto)
+        {
+            try
+            {
+                var memberExists = await _context.Members.AnyAsync(x => x.Id == dto.MemberId);
+                if (!memberExists)
+                {
+                    return new DbResponse<AssemblyLeader>
+                    {
+                        Success = false,
+                        Message = "Member not found"
+                    };
+                }
+
+                var assemblyExists = await _context.Assemblies.AnyAsync(x => x.Id == dto.AssemblyId);
+                if (!assemblyExists)
+                {
+                    return new DbResponse<AssemblyLeader>
+                    {
+                        Success = false,
+                        Message = "Assembly not found"
+                    };
+                }
+
+                var leader = new AssemblyLeader
+                {
+                    MemberId = dto.MemberId,
+                    AssemblyId = dto.AssemblyId,
+                    Bio = dto.Bio,
+                    StartDate = dto.StartDate,
+                    EndDate = dto.EndDate,
+                    IsActive = true,
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.AssembliesLeaders.Add(leader);
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<AssemblyLeader>
+                {
+                    Success = true,
+                    Message = "Assembly leader assigned successfully",
+                    Data = leader
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"CreateAssemblyLeaderAsync Error: {ex}");
+                return new DbResponse<AssemblyLeader>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        // ✅ GET ASSEMBLY LEADER BY ID
+        public async Task<DbResponse<AssemblyLeader>> GetAssemblyLeaderByIdAsync(int id)
+        {
+            try
+            {
+                var leader = await _context.AssembliesLeaders
+                    .Include(l => l.Member)
+                    .Include(l => l.Assembly)
+                    .FirstOrDefaultAsync(l => l.AssemblyLeaderId == id);
+
+                if (leader == null)
+                {
+                    return new DbResponse<AssemblyLeader>
+                    {
+                        Success = false,
+                        Message = "Assembly leader not found"
+                    };
+                }
+
+                return new DbResponse<AssemblyLeader>
+                {
+                    Success = true,
+                    Data = leader
+                };
+            }
+            catch (Exception ex)
+            {
+                return new DbResponse<AssemblyLeader>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        // ✅ UPDATE ASSEMBLY LEADER
+        public async Task<DbResponse<AssemblyLeader>> UpdateAssemblyLeaderAsync(int id, AssemblyLeaderDto dto)
+        {
+            try
+            {
+                var existing = await _context.AssembliesLeaders.FindAsync(id);
+                if (existing == null)
+                {
+                    return new DbResponse<AssemblyLeader>
+                    {
+                        Success = false,
+                        Message = "Assembly leader not found"
+                    };
+                }
+
+                var memberExists = await _context.Members.AnyAsync(x => x.Id == dto.MemberId);
+                if (!memberExists)
+                {
+                    return new DbResponse<AssemblyLeader>
+                    {
+                        Success = false,
+                        Message = "Member not found"
+                    };
+                }
+
+                var assemblyExists = await _context.Assemblies.AnyAsync(x => x.Id == dto.AssemblyId);
+                if (!assemblyExists)
+                {
+                    return new DbResponse<AssemblyLeader>
+                    {
+                        Success = false,
+                        Message = "Assembly not found"
+                    };
+                }
+
+                existing.MemberId = dto.MemberId;
+                existing.AssemblyId = dto.AssemblyId;
+                existing.Bio = dto.Bio;
+                existing.StartDate = dto.StartDate;
+                existing.EndDate = dto.EndDate;
+                existing.IsActive = dto.IsActive;
+
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<AssemblyLeader>
+                {
+                    Success = true,
+                    Message = "Assembly leader updated successfully",
+                    Data = existing
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"UpdateAssemblyLeaderAsync Error: {ex}");
+                return new DbResponse<AssemblyLeader>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        // ✅ DELETE ASSEMBLY LEADER (SOFT)
+        public async Task<DbResponse<bool>> DeleteAssemblyLeaderAsync(int id)
+        {
+            try
+            {
+                var leader = await _context.AssembliesLeaders.FindAsync(id);
+                if (leader == null)
+                {
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Assembly leader not found"
+                    };
+                }
+
+                leader.IsActive = false;
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<bool>
+                {
+                    Success = true,
+                    Message = "Assembly leader deleted successfully",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"DeleteAssemblyLeaderAsync Error: {ex}");
+                return new DbResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        // ✅ TOGGLE STATUS
+        public async Task<DbResponse<bool>> ToggleAssemblyLeaderStatusAsync(int id, bool isActive)
+        {
+            try
+            {
+                var leader = await _context.AssembliesLeaders.FindAsync(id);
+                if (leader == null)
+                {
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Assembly leader not found"
+                    };
+                }
+
+                leader.IsActive = isActive;
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<bool>
+                {
+                    Success = true,
+                    Message = isActive ? "Assembly leader activated successfully" : "Assembly leader deactivated successfully",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"ToggleAssemblyLeaderStatusAsync Error: {ex}");
+                return new DbResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message
                 };
             }
         }

@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.DashboardViewModel
+@model GCI_Admin.Models.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
 }
@@ -854,9 +854,7 @@
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
     <script>
         let currentThemeData = {};
@@ -905,54 +903,18 @@
             loadAttendanceTrendChart();
         }
 
-        // Initialize DataTable safely
+        // Initialize DataTable (delegates to global GCIDataTable)
         function initializeDataTable() {
-            // Check if the table exists in any active tab
-            var $table = $('#membersTable');
-            
-            if ($table.length === 0) {
-                console.log('Members table not found, skipping DataTable initialization');
-                return;
-            }
-            
-            // Destroy existing DataTable if it exists
-            if ($.fn.DataTable.isDataTable('#membersTable')) {
-                $('#membersTable').DataTable().destroy();
-            }
-            
-            // Only initialize if table has data
-            if ($table.find('tbody tr').length > 0) {
-                try {
-                    $('#membersTable').DataTable({
-                        responsive: true,
-                        pageLength: 10,
-                        order: [[1, "asc"]],
-                        language: {
-                            search: "Search members:",
-                            lengthMenu: "Show _MENU_ entries",
-                            info: "Showing _START_ to _END_ of _TOTAL_ members",
-                            paginate: {
-                                first: '<i class="fa fa-angle-double-left"></i>',
-                                previous: '<i class="fa fa-angle-left"></i>',
-                                next: '<i class="fa fa-angle-right"></i>',
-                                last: '<i class="fa fa-angle-double-right"></i>'
-                            }
-                        }
-                    });
-                } catch (e) {
-                    console.error('Error initializing DataTable:', e);
-                }
-            }
+            // The global datatables-global.js handles all .datatable tables automatically.
+            // For tab-based tables, we re-init the visible one.
+            GCIDataTable.init('#membersTable');
         }
 
         // Reinitialize DataTable when tabs are shown
         $(document).on('shown.bs.tab', 'button[data-bs-toggle="tab"]', function() {
             setTimeout(function() {
-                if ($.fn.DataTable.isDataTable('#membersTable')) {
-                    $('#membersTable').DataTable().destroy();
-                }
-                initializeDataTable();
-            }, 100);
+                GCIDataTable.init('#membersTable');
+            }, 150);
         });
 
         // 🆕 Load Gender Distribution Chart

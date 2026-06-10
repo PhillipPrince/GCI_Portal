@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.EventViewModel
+@model GCI_Admin.Models.EventViewModel
 
 @{
     ViewData["Title"] = "Event Details - " + Model.Event.Title;
@@ -427,8 +427,12 @@
                 url: `/Event/GetRegistrations/${eventId}`,
                 type: 'GET',
                 success: function(response) {
+                    if ($.fn.DataTable.isDataTable('#eventRegistrationsTable')) {
+                        $('#eventRegistrationsTable').DataTable().destroy();
+                    }
                     $('#registrationsTableContainer').html(response);
                     $('#registrationBadge').text($('#eventRegistrationsTable tbody tr').length);
+                    GCIDataTable.init('#eventRegistrationsTable');
                     fetchStats(); // Refresh stats after loading registrations
                 },
                 error: function() {

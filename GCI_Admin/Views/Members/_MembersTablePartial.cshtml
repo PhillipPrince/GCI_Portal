@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.Member>
+@model List<GCI_Admin.Models.Member>
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
@@ -223,50 +223,12 @@
 
     <script>
         $(document).ready(function() {
-            initializeMembersTable();
+            // Global DataTable initializer handles #membersTable (has datatable class)
         });
 
-        // Initialize DataTable
+        // Re-initialize after AJAX reload (e.g. filters from parent view)
         function initializeMembersTable() {
-            if ($.fn.DataTable.isDataTable('#membersTable')) {
-                $('#membersTable').DataTable().destroy();
-            }
-
-            $('#membersTable').DataTable({
-                pageLength: 10,
-                language: {
-                    search: "Search members:",
-                    lengthMenu: "Show _MENU_ members",
-                    info: "Showing _START_ to _END_ of _TOTAL_ members",
-                    emptyTable: "No members available",
-                    zeroRecords: "No matching members found"
-                },
-                columnDefs: [
-                    {
-                        targets: -1, // Actions column
-                        orderable: false,
-                        searchable: false
-                    }
-                ],
-                // Custom filtering for select dropdowns
-                initComplete: function() {
-                    // Add filtering for Gender dropdown
-                    $('select.form-select-sm').on('change', function() {
-                        var columnIndex = $(this).closest('th').index();
-                        var selectedValue = $(this).val();
-
-                        $('#membersTable').DataTable().column(columnIndex).search(selectedValue).draw();
-                    });
-
-                    // Add filtering for text inputs
-                    $('input.form-control-sm').on('keyup', function() {
-                        var columnIndex = $(this).closest('th').index();
-                        var searchValue = $(this).val();
-
-                        $('#membersTable').DataTable().column(columnIndex).search(searchValue).draw();
-                    });
-                }
-            });
+            GCIDataTable.init('#membersTable');
         }
 
         // Join Membership Class

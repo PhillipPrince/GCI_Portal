@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.Elder>
+@model List<GCI_Admin.Models.Elder>
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
@@ -156,35 +156,7 @@
 
 <script>
     $(document).ready(function() {
-        // Initialize DataTable with custom filtering
-        var table = $('#eldersTable').DataTable({
-            pageLength: 10,
-            language: {
-                search: "Search elders:",
-                lengthMenu: "Show _MENU_ elders",
-                info: "Showing _START_ to _END_ of _TOTAL_ elders",
-                emptyTable: "No elders available",
-                zeroRecords: "No matching elders found"
-            },
-            order: [[0, 'asc']],
-            initComplete: function() {
-                // Apply individual column search inputs
-                this.api().columns().every(function(index) {
-                    var column = this;
-                    var header = $(column.header());
-                    var input = header.find('input, select');
-
-                    if (input.length) {
-                        input.on('keyup change', function() {
-                            var val = $(this).val();
-                            if (column.search() !== val) {
-                                column.search(val).draw();
-                            }
-                        });
-                    }
-                });
-            }
-        });
+        // Global DataTable initializer handles #eldersTable (has datatable class + filter row)
     });
 
     // Function to toggle elder status

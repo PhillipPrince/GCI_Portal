@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.DeaconsData
+@model GCI_Admin.Models.DeaconsData
 
 @{
     ViewData["Title"] = "Church Deacons";
@@ -768,7 +768,7 @@
 
         function initializeDataTable() {
             if ($.fn.DataTable.isDataTable('#deaconsTable')) $('#deaconsTable').DataTable().destroy();
-            $('#deaconsTable').DataTable({ pageLength: 10, language: { search: "Search deacons:", lengthMenu: "Show _MENU_ deacons", info: "Showing _START_ to _END_ of _TOTAL_ deacons", emptyTable: "No deacons available", zeroRecords: "No matching deacons found" }, columnDefs: [{ targets: -1, orderable: false, searchable: false }], initComplete: function() { $('#deaconsTable .btn-group .btn').addClass('action-btn'); } });
+            GCIDataTable.init('#deaconsTable', { language: { search: "Search deacons:", lengthMenu: "Show _MENU_ deacons", info: "Showing _START_ to _END_ of _TOTAL_ deacons", emptyTable: "No deacons available", zeroRecords: "No matching deacons found" }, columnDefs: [{ targets: -1, orderable: false, searchable: false }], initComplete: function() { $('#deaconsTable .btn-group .btn').addClass('action-btn'); } });
         }
 
         function applyFilters() {

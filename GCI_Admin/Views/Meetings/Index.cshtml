@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.MeetingAttendance>
+@model List<GCI_Admin.Models.MeetingAttendance>
 @using System.Security.Claims
 
 @{
@@ -295,17 +295,11 @@ else if (isGcLeader)
                 dateTo: dateTo,
                 meetingType: meetingType
             }, function(data) {
-                $('#meetingsTableContainer').html(data);
-                
                 // Reinitialize DataTable if it exists
                 if ($.fn.DataTable.isDataTable('#meetingsAttendanceTable')) {
                     $('#meetingsAttendanceTable').DataTable().destroy();
                 }
-                
-                // Reinitialize the table
-                setTimeout(function() {
-                    initializeDataTable();
-                }, 100);
+                $('#meetingsTableContainer').html(data);
             }).fail(function() {
                 $('#meetingsTableContainer').html(`
                     <div class="alert alert-danger">
@@ -345,55 +339,6 @@ else if (isGcLeader)
                 Swal.close();
             }, 2000);
         }
-        
-        function initializeDataTable() {
-            if ($.fn.DataTable.isDataTable('#meetingsAttendanceTable')) {
-                $('#meetingsAttendanceTable').DataTable().destroy();
-            }
-            
-            $('#meetingsAttendanceTable').DataTable({
-                pageLength: 10,
-                responsive: true,
-                order: [[2, 'desc']], // Sort by meeting date descending
-                dom: 'Bfrtip',
-                buttons: [
-                    {
-                        extend: 'excel',
-                        text: '<i class="fa fa-file-excel"></i> Excel',
-                        className: 'btn btn-sm btn-success',
-                        title: 'Meeting_Attendance_Report'
-                    },
-                    {
-                        extend: 'pdf',
-                        text: '<i class="fa fa-file-pdf"></i> PDF',
-                        className: 'btn btn-sm btn-danger',
-                        title: 'Meeting_Attendance_Report',
-                        orientation: 'landscape'
-                    },
-                    {
-                        extend: 'print',
-                        text: '<i class="fa fa-print"></i> Print',
-                        className: 'btn btn-sm btn-secondary'
-                    }
-                ],
-                language: {
-                    search: "Search:",
-                    lengthMenu: "Show _MENU_ entries",
-                    info: "Showing _START_ to _END_ of _TOTAL_ meetings",
-                    infoEmpty: "No meetings found",
-                    infoFiltered: "(filtered from _MAX_ total meetings)",
-                    paginate: {
-                        first: '<i class="fa fa-angle-double-left"></i>',
-                        previous: '<i class="fa fa-angle-left"></i>',
-                        next: '<i class="fa fa-angle-right"></i>',
-                        last: '<i class="fa fa-angle-double-right"></i>'
-                    }
-                }
-            });
-        }
-        
-        // Initialize DataTable when page loads
-        setTimeout(initializeDataTable, 100);
         
         // Export button click handler
         $('#exportReportBtn').on('click', function() {

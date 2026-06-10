@@ -1,4 +1,4 @@
-﻿using GCI_Admin.DBOperations;
+using GCI_Admin.DBOperations;
 using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
@@ -125,9 +125,50 @@ namespace GCI_Admin.Controllers
                         break;
                 }
 
+                var now = DateTime.Now;
+                switch (dateRange)
+                {
+                    case "today":
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Date == now.Date);
+                        break;
+                    case "yesterday":
+                        var yesterday = now.AddDays(-1).Date;
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Date == yesterday);
+                        break;
+                    case "thisweek":
+                        var weekStart = now.AddDays(-(int)now.DayOfWeek).Date;
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= weekStart);
+                        break;
+                    case "thismonth":
+                        var monthStart = new DateTime(now.Year, now.Month, 1);
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= monthStart);
+                        break;
+                    case "lastmonth":
+                        var lastMonth = now.AddMonths(-1);
+                        var lastMonthStart = new DateTime(lastMonth.Year, lastMonth.Month, 1);
+                        var lastMonthEnd = lastMonthStart.AddMonths(1).AddDays(-1);
+                        query = query.Where(p => p.TransactionDate.HasValue &&
+                                                p.TransactionDate.Value >= lastMonthStart &&
+                                                p.TransactionDate.Value <= lastMonthEnd);
+                        break;
+                    case "thisyear":
+                        var yearStart = new DateTime(now.Year, 1, 1);
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= yearStart);
+                        break;
+                    case "custom":
+                        if (fromDate.HasValue && toDate.HasValue)
+                        {
+                            var toDateEnd = toDate.Value.AddDays(1).AddSeconds(-1);
+                            query = query.Where(p => p.TransactionDate.HasValue &&
+                                                    p.TransactionDate.Value >= fromDate.Value &&
+                                                    p.TransactionDate.Value <= toDateEnd);
+                        }
+                        break;
+                }
+
                 var filteredPayments = query.OrderByDescending(p => p.TransactionDate).ToList();
 
-                return PartialView("_GivingsTable", filteredPayments);
+                return PartialView("_GivingsTablePartial", filteredPayments);
             }
             catch (Exception ex)
             {
@@ -199,8 +240,46 @@ namespace GCI_Admin.Controllers
                     query = query.Where(p => p.PaymentStatusId == statusId);
                 }
 
-                // Apply date range filters (same as above)
-                // ... (copy date filtering logic from GetFilteredPayments)
+                // Apply date range filters
+                switch (dateRange)
+                {
+                    case "today":
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Date == now.Date);
+                        break;
+                    case "yesterday":
+                        var yesterday = now.AddDays(-1).Date;
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Date == yesterday);
+                        break;
+                    case "thisweek":
+                        var weekStart = now.AddDays(-(int)now.DayOfWeek).Date;
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= weekStart);
+                        break;
+                    case "thismonth":
+                        var monthStart = new DateTime(now.Year, now.Month, 1);
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= monthStart);
+                        break;
+                    case "lastmonth":
+                        var lastMonth = now.AddMonths(-1);
+                        var lastMonthStart = new DateTime(lastMonth.Year, lastMonth.Month, 1);
+                        var lastMonthEnd = lastMonthStart.AddMonths(1).AddDays(-1);
+                        query = query.Where(p => p.TransactionDate.HasValue &&
+                                                p.TransactionDate.Value >= lastMonthStart &&
+                                                p.TransactionDate.Value <= lastMonthEnd);
+                        break;
+                    case "thisyear":
+                        var yearStart = new DateTime(now.Year, 1, 1);
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= yearStart);
+                        break;
+                    case "custom":
+                        if (fromDate.HasValue && toDate.HasValue)
+                        {
+                            var toDateEnd = toDate.Value.AddDays(1).AddSeconds(-1);
+                            query = query.Where(p => p.TransactionDate.HasValue &&
+                                                    p.TransactionDate.Value >= fromDate.Value &&
+                                                    p.TransactionDate.Value <= toDateEnd);
+                        }
+                        break;
+                }
 
                 var filteredPayments = query.OrderByDescending(p => p.TransactionDate).ToList();
 

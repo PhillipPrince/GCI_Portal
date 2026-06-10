@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Utils;
@@ -165,7 +165,7 @@ namespace GCI_Admin.DBOperations.Repositories
                     };
                 }
 
-                _context.GECMembers.Remove(member);
+                member.IsActive = false;
                 await _context.SaveChangesAsync();
 
                 return new DbResponse<bool>
@@ -181,6 +181,41 @@ namespace GCI_Admin.DBOperations.Repositories
                 {
                     Success = false,
                     Message = $"Error deleting GEC member: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<bool>> ToggleGECMemberStatusAsync(int id, bool isActive)
+        {
+            try
+            {
+                var member = await _context.GECMembers.FindAsync(id);
+
+                if (member == null)
+                {
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "GEC member not found"
+                    };
+                }
+
+                member.IsActive = isActive;
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<bool>
+                {
+                    Success = true,
+                    Message = isActive ? "GEC member activated successfully" : "GEC member deactivated successfully",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new DbResponse<bool>
+                {
+                    Success = false,
+                    Message = $"Error updating status: {ex.Message}"
                 };
             }
         }
