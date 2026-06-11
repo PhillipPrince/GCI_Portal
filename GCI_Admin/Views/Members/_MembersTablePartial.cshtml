@@ -3,7 +3,7 @@
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
 
-        <table id="membersTable" class="table table-striped table-hover align-middle datatable">
+        <table id='@(ViewData["TableId"] ?? "membersTable")' class="table table-striped table-hover align-middle datatable">
 
             <!-- HEADER -->
             <thead class="table-light">
@@ -19,11 +19,8 @@
                     <th>Joined</th>
                     <th class="text-end">Actions</th>
                 </tr>
-            </thead>
-
-            <!-- FILTERS -->
-            <tfoot>
-                <tr>
+                <!-- FILTERS -->
+                <tr class="filter-row">
                     <th><input type="text" placeholder="Search Name" class="form-control form-control-sm" /></th>
                     <th><input type="text" placeholder="Search Phone" class="form-control form-control-sm" /></th>
                     <th><input type="text" placeholder="Search Email" class="form-control form-control-sm" /></th>
@@ -56,7 +53,7 @@
                     <th></th>
                     <th></th>
                 </tr>
-            </tfoot>
+            </thead>
 
             <!-- BODY -->
             <tbody>

@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Utils;
@@ -60,6 +60,37 @@ namespace GCI_Admin.DBOperations.Repositories
             catch (Exception ex)
             {
                 Loggers.DoLogs("SystemConfigRepository->GetConfigByKeyAsync->" + ex.Message);
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        public async Task<DbResponse<SystemConfig>> GetConfigByIdAsync(int id)
+        {
+            var response = new DbResponse<SystemConfig>();
+
+            try
+            {
+                var config = await _context.SystemConfig
+                    .FirstOrDefaultAsync(c => c.Id == id);
+
+                if (config != null)
+                {
+                    response.Data = config;
+                    response.Success = true;
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "Config not found";
+                    Loggers.DoLogs("Fetched Config: Not Found by ID ----> " + id);
+                }
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs("SystemConfigRepository->GetConfigByIdAsync->" + ex.Message);
                 response.Success = false;
                 response.Message = ex.Message;
             }
@@ -154,7 +185,7 @@ namespace GCI_Admin.DBOperations.Repositories
             return response;
         }
 
-        public async Task<DbResponse<bool>> DeleteConfigAsync(int id)
+      public async Task<DbResponse<bool>> DeleteConfigAsync(int id)
         {
             var response = new DbResponse<bool>();
 

@@ -162,6 +162,22 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Home/_AttendanceOverview.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxfQXR0ZW5kYW5jZU92ZXJ2aWV3LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Home/_KpiCards.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxfS3BpQ2FyZHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Home/_RecentMeetings.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxfUmVjZW50TWVldGluZ3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Home/_UpcomingEvents.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxfVXBjb21pbmdFdmVudHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Leadership/DeaconDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVhZGVyc2hpcFxEZWFjb25EZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -360,6 +376,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/SystemConfig/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3lzdGVtQ29uZmlnXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/USER/Projects/GCI/GCI_Portal/GCI_Admin/Views/SystemConfig/Index.cshtml]
