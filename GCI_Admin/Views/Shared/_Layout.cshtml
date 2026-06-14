@@ -183,6 +183,14 @@
                         new { Title = "Benevolence Members", Url = Url.Action("Index", "Benevolence"), Controller = "benevolence", Roles = new[] { 1, 2, 5 } }
                     }
                 },
+                ["faithspace"] = new { 
+                    Title = "Faith & Fellowship Space", 
+                    Icon = "fa-comments", 
+                    Url = Url.Action("Index", "FaithSpace"), 
+                    Controller = "faithspace",
+                    IsParent = false,
+                    Roles = new[] { 1, 2, 3, 4, 5, 6 }
+                },
                 ["settings"] = new { 
                     Title = "System Settings", 
                     Icon = "fa-cogs", 
@@ -398,6 +406,14 @@
                         }
                     }
                 </div>
+            }
+            
+            <!-- FAITH SPACE -->
+            @if (HasAccess(menuItems["faithspace"].Roles))
+            {
+                <a href="@menuItems["faithspace"].Url" class="menu-link" data-controller="@menuItems["faithspace"].Controller">
+                    <i class="fa @menuItems["faithspace"].Icon me-2"></i> @menuItems["faithspace"].Title
+                </a>
             }
             
             <!-- SETTINGS -->

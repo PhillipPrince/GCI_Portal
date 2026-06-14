@@ -1,0 +1,315 @@
+@model List<GCI_Admin.Models.FaithPost>
+
+@{
+    ViewData["Title"] = "Faith & Fellowship Space";
+}
+
+<!-- Page Header with Stats -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Faith & Fellowship Space</h2>
+        <p class="text-muted mb-0">Review, moderate, and manage community posts, testimonies, and encouragements</p>
+    </div>
+</div>
+
+<!-- Quick Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4 col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-comments text-primary fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Posts</h6>
+                        <h3 class="fw-bold mb-0">@Model.Count</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-12">
+        <div class="card border-0 shadow-sm border-start border-warning border-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-clock text-warning fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Pending Approval</h6>
+                        <h3 class="fw-bold mb-0 text-warning">@Model.Count(p => !p.IsApproved)</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-12">
+        <div class="card border-0 shadow-sm border-start border-success border-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-check-circle text-success fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Approved Posts</h6>
+                        <h3 class="fw-bold mb-0 text-success">@Model.Count(p => p.IsApproved)</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Moderation Tabs & Filters -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <ul class="nav nav-pills" id="postFilters" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" onclick="filterPosts('all')">
+                        <i class="fa fa-list me-1"></i> All Posts (@Model.Count)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link position-relative" onclick="filterPosts('pending')">
+                        <i class="fa fa-shield-halved me-1"></i> Pending Moderate
+                        @if (Model.Any(p => !p.IsApproved))
+                        {
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                @Model.Count(p => !p.IsApproved)
+                            </span>
+                        }
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" onclick="filterPosts('approved')">
+                        <i class="fa fa-circle-check me-1"></i> Approved (@Model.Count(p => p.IsApproved))
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Posts Feed / Grid -->
+<div class="row g-4" id="postsContainer">
+    @if (!Model.Any())
+    {
+        <div class="col-12">
+            <div class="card border-0 shadow-sm text-center py-5">
+                <div class="card-body">
+                    <i class="fa fa-folder-open fa-3x text-muted mb-3"></i>
+                    <h5>No Posts Yet</h5>
+                    <p class="text-muted">Community members have not created any fellowship posts yet.</p>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @foreach (var post in Model)
+        {
+            <div class="col-12 post-card-item" data-approved="@post.IsApproved.ToString().ToLower()">
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <!-- Post Header -->
+                        <div class="d-flex align-items-start justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light p-3 rounded-circle me-3 text-primary fw-bold" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                    @(post.Member != null && !string.IsNullOrEmpty(post.Member.FirstName) ? post.Member.FirstName[0].ToString().ToUpper() : "?")
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0">@(post.Member != null ? $"{post.Member.FirstName} {post.Member.OtherNames}" : "Unknown Member")</h6>
+                                    <small class="text-muted">Posted on @post.CreatedAt.ToString("MMMM dd, yyyy @ hh:mm tt")</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                @if (!string.IsNullOrEmpty(post.PostType))
+                                {
+                                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
+                                        <i class="fa fa-tag me-1"></i> @post.PostType
+                                    </span>
+                                }
+
+                                @if (post.IsApproved)
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success border-opacity-25 px-3 py-2 rounded-pill status-badge">
+                                        <i class="fa fa-circle-check me-1"></i> Approved
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning-subtle text-warning border border-warning border-opacity-25 px-3 py-2 rounded-pill status-badge">
+                                        <i class="fa fa-shield-halved me-1"></i> Pending Approval
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <!-- Post Body -->
+                        <div class="post-content px-1">
+                            <h5 class="fw-bold text-dark mb-2">@post.Title</h5>
+                            <p class="text-secondary mb-0" style="white-space: pre-wrap; font-size: 1.05rem; line-height: 1.5;">@post.Content</p>
+                        </div>
+
+                        <hr />
+
+                        <!-- Post Footer / Actions -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <button class="btn btn-link text-decoration-none text-muted ps-0" type="button" data-bs-toggle="collapse" data-bs-target="#comments-@post.Id" aria-expanded="false">
+                                    <i class="fa fa-message me-2"></i> Comments (@post.Comments.Count)
+                                </button>
+                            </div>
+                            <div class="d-flex gap-2">
+                                @if (!post.IsApproved)
+                                {
+                                    <button class="btn btn-success" onclick="toggleApproval(@post.Id, true)">
+                                        <i class="fa fa-check me-1"></i> Approve
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-outline-secondary" onclick="toggleApproval(@post.Id, false)">
+                                        <i class="fa fa-xmark me-1"></i> Revoke Approval
+                                    </button>
+                                }
+                                <button class="btn btn-danger" onclick="deletePost(@post.Id)">
+                                    <i class="fa fa-trash-can me-1"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Collapsible Comments Section -->
+                        <div class="collapse mt-3" id="comments-@post.Id">
+                            <div class="bg-light p-3 rounded shadow-inner">
+                                <h6 class="fw-bold mb-3"><i class="fa fa-comments me-2 text-primary"></i>Comments Feed</h6>
+                                @if (!post.Comments.Any())
+                                {
+                                    <p class="text-muted mb-0 small">No comments on this post yet.</p>
+                                }
+                                else
+                                {
+                                    <div class="d-flex flex-column gap-3">
+                                        @foreach (var c in post.Comments)
+                                        {
+                                            <div class="d-flex align-items-start gap-2 border-bottom pb-2">
+                                                <div class="bg-secondary bg-opacity-10 p-2 rounded-circle text-secondary font-weight-bold small" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                                    @(c.Member != null && !string.IsNullOrEmpty(c.Member.FirstName) ? c.Member.FirstName[0].ToString().ToUpper() : "?")
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span class="fw-bold small text-dark">@(c.Member != null ? $"{c.Member.FirstName} {c.Member.OtherNames}" : "Unknown Member")</span>
+                                                        <small class="text-muted" style="font-size: 0.75rem;">@c.CreatedAt.ToString("MMM dd @ hh:mm tt")</small>
+                                                    </div>
+                                                    <p class="mb-0 text-secondary small mt-1">@c.Content</p>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function filterPosts(type) {
+            // Update active pill button
+            $('#postFilters button').removeClass('active');
+            event.target.classList.add('active');
+
+            if (type === 'all') {
+                $('.post-card-item').show();
+            } else if (type === 'pending') {
+                $('.post-card-item').hide();
+                $('.post-card-item[data-approved="false"]').show();
+            } else if (type === 'approved') {
+                $('.post-card-item').hide();
+                $('.post-card-item[data-approved="true"]').show();
+            }
+        }
+
+        function toggleApproval(postId, approve) {
+            const actionText = approve ? "approve" : "revoke approval of";
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to ${actionText} this fellowship post?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: approve ? '#198754' : '#6c757d',
+                confirmButtonText: 'Yes, proceed'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/FaithSpace/ToggleApproval',
+                        type: 'POST',
+                        data: { id: postId },
+                        success: function(response) {
+                            if (response.isSuccess) {
+                                Swal.fire('Success', response.message, 'success')
+                                    .then(() => {
+                                        window.location.reload();
+                                    });
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'Operation failed. Please try again.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function deletePost(postId) {
+            Swal.fire({
+                title: 'Delete Post?',
+                text: 'This action cannot be undone and will delete all likes and comments as well!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Yes, delete it'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/FaithSpace/Delete',
+                        type: 'POST',
+                        data: { id: postId },
+                        success: function(response) {
+                            if (response.isSuccess) {
+                                Swal.fire('Deleted!', response.message, 'success')
+                                    .then(() => {
+                                        window.location.reload();
+                                    });
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'Delete failed. Please try again.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

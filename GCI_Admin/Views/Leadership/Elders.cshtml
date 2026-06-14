@@ -850,12 +850,14 @@
             const status = $('#statusFilter').val();
 
             if (currentView === 'table') {
-                $('#eldersTable').DataTable().search(search).draw();
+                const table = $('#eldersTable').DataTable();
+                table.search(search);
                 if (status) {
-                    $('#eldersTable').DataTable().column(4).search(status === 'true' ? 'Active' : 'Inactive').draw();
+                    table.column(6).search(status === 'true' ? 'Active' : 'Inactive');
                 } else {
-                    $('#eldersTable').DataTable().column(4).search('').draw();
+                    table.column(6).search('');
                 }
+                table.draw();
             } else if (currentView === 'grid') {
                 const filtered = elders.filter(elder => {
                     let match = true;

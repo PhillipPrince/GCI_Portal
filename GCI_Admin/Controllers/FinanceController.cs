@@ -36,12 +36,19 @@ namespace GCI_Admin.Controllers
 
                 finance.Payments = paymentsResponse?.Data ?? new List<Payment>();
                 finance.AccountReferenceSummaries = accountsSummaryResponse?.Data ?? new List<AccountReferenceSummaryDto>();
+
+                // Load active members (StatusId == 1) for the payment recording member selector
+                ViewBag.Members = await _context.Members
+                    .Where(m => m.StatusId == 1)
+                    .OrderBy(m => m.FirstName)
+                    .ToListAsync();
             }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = $"Error loading finance data: {ex.Message}";
                 finance.Payments = new List<Payment>();
                 finance.AccountReferenceSummaries = new List<AccountReferenceSummaryDto>();
+                ViewBag.Members = new List<Member>();
             }
 
             return View(finance);
@@ -54,7 +61,9 @@ namespace GCI_Admin.Controllers
             string dateRange = null,
             string paymentStatus = null,
             DateTime? fromDate = null,
-            DateTime? toDate = null)
+            DateTime? toDate = null,
+            int? filterYear = null,
+            int? filterMonth = null)
         {
             try
             {
@@ -64,12 +73,26 @@ namespace GCI_Admin.Controllers
                 // Apply filters
                 var query = payments.AsQueryable();
 
+                if (filterYear.HasValue)
+                {
+                    query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Year == filterYear.Value);
+                }
+
+                if (filterMonth.HasValue)
+                {
+                    query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Month == filterMonth.Value);
+                }
+
                 if (!string.IsNullOrEmpty(search))
                 {
                     query = query.Where(p =>
                         (p.PhoneNumber != null && p.PhoneNumber.Contains(search)) ||
                         (p.MpesaReceiptNumber != null && p.MpesaReceiptNumber.Contains(search)) ||
-                        (p.AccountReference != null && p.AccountReference.Contains(search))
+                        (p.AccountReference != null && p.AccountReference.Contains(search)) ||
+                        (p.Member != null && (
+                            (p.Member.FirstName != null && p.Member.FirstName.Contains(search)) ||
+                            (p.Member.OtherNames != null && p.Member.OtherNames.Contains(search))
+                        ))
                     );
                 }
 
@@ -176,6 +199,31 @@ namespace GCI_Admin.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetActiveMembers()
+        {
+            try
+            {
+                var members = await _context.Members
+                    .Where(m => m.StatusId == 1)
+                    .OrderBy(m => m.FirstName)
+                    .Select(m => new {
+                        id = m.Id,
+                        firstName = m.FirstName,
+                        otherNames = m.OtherNames,
+                        email = m.Email,
+                        phone = m.Phone,
+                        gender = m.Gender
+                    })
+                    .ToListAsync();
+                return Ok(new { success = true, data = members });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> SaveManualPayment([FromBody] Payment payment)
         {
@@ -192,10 +240,10 @@ namespace GCI_Admin.Controllers
                 payment.MerchantRequestID = "MANUAL";
                 payment.CheckoutRequestID = "MANUAL";
 
-                // You'll need to implement a method in your service to save manual payments
-                // var response = await _paymentsService.CreateManualPayment(payment);
+                // Save to database
+                _context.Payments.Add(payment);
+                await _context.SaveChangesAsync();
 
-                // For now, returning success (you'll need to implement the actual save)
                 return Ok(new { success = true, message = "Payment saved successfully" });
             }
             catch (Exception ex)

@@ -305,6 +305,104 @@
     </div>
 }
 
+<!-- Feedback Section -->
+<div class="row mt-4 mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa fa-comments me-2 text-info"></i>
+                    Event Feedback & Reviews
+                    <span class="badge bg-info ms-2">@(Model.Feedbacks?.Count ?? 0)</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Feedbacks == null || !Model.Feedbacks.Any())
+                {
+                    <div class="text-center py-4">
+                        <i class="fa fa-comment-slash fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">No feedback submitted for this event yet.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="eventFeedbackTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Member</th>
+                                    <th>Attendance</th>
+                                    <th>Ratings</th>
+                                    <th>What they liked</th>
+                                    <th>Improvements</th>
+                                    <th>Insights / Reason for Absence</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var f in Model.Feedbacks)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">@(f.Member != null ? $"{f.Member.FirstName} {f.Member.OtherNames}" : "Unknown Member")</div>
+                                            <small class="text-muted">Member ID: @f.MemberId</small>
+                                        </td>
+                                        <td>
+                                            @if (f.AttendanceType == "Attended")
+                                            {
+                                                <span class="badge bg-success">In Person</span>
+                                            }
+                                            else if (f.AttendanceType == "AttendedOnline")
+                                            {
+                                                <span class="badge bg-primary">Online</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Did Not Attend</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="small">
+                                                @if (f.SpeakerRating.HasValue) { <span>Speaker: @f.SpeakerRating/5</span><br /> }
+                                                @if (f.ProgramRating.HasValue) { <span>Program: @f.ProgramRating/5</span><br /> }
+                                                @if (f.FacilitiesRating.HasValue) { <span>Facilities: @f.FacilitiesRating/5</span><br /> }
+                                                @if (f.MessageRating.HasValue) { <span>Message: @f.MessageRating/5</span><br /> }
+                                                @if (f.MealsRating.HasValue) { <span>Meals: @f.MealsRating/5</span><br /> }
+                                                @if (f.ScheduleRating.HasValue) { <span>Schedule: @f.ScheduleRating/5</span> }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-wrap" style="max-width: 250px;">@f.LikedMost</div>
+                                        </td>
+                                        <td>
+                                            <div class="text-wrap" style="max-width: 250px;">@f.Improvements</div>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(f.NonAttendanceReason))
+                                            {
+                                                <div class="text-wrap small text-danger" style="max-width: 250px;">
+                                                    <strong>Absence Reason:</strong> @f.NonAttendanceReason
+                                                </div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(f.Insights))
+                                            {
+                                                <div class="text-wrap small text-muted mt-1" style="max-width: 250px;">
+                                                    <strong>Insights:</strong> @f.Insights
+                                                </div>
+                                            }
+                                        </td>
+                                        <td class="small">@f.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         // Global variables
@@ -464,6 +562,10 @@
         $(document).ready(function() {
             fetchStats();
             
+            if ($('#eventFeedbackTable').length) {
+                GCIDataTable.init('#eventFeedbackTable');
+            }
+
             if (requireRegistration) {
                 
                 // Stop auto-refresh when page is hidden, restart when visible

@@ -775,7 +775,24 @@
             const search = $('#deaconSearch').val();
             const status = $('#statusFilter').val();
             const duty = $('#dutyFilter').val();
-            if (currentView === 'table') $('#deaconsTable').DataTable().search(search).draw();
+            if (currentView === 'table') {
+                const table = $('#deaconsTable').DataTable();
+                table.search(search);
+
+                // Status is column 7
+                let statusSearch = '';
+                if (status === 'true') statusSearch = 'Active';
+                else if (status === 'false') statusSearch = 'Inactive';
+                table.column(7).search(statusSearch);
+
+                // Duty is column 8
+                let dutySearch = '';
+                if (duty === 'true') dutySearch = 'On Duty';
+                else if (duty === 'false') dutySearch = 'Off Duty';
+                table.column(8).search(dutySearch);
+
+                table.draw();
+            }
             else if (currentView === 'grid') {
                 const filtered = deacons.filter(d => {
                     let match = true;

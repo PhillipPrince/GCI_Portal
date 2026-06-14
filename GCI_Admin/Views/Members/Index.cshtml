@@ -1123,26 +1123,33 @@
         // Filter functions
         function applyFilters() {
             const search = $('#memberSearch').val();
-            const status = $('#statusFilter').val();
-            const gender = $('#genderFilter').val();
-            const marital = $('#maritalFilter').val();
+            const statusVal = $('#statusFilter').val();
+            const genderVal = $('#genderFilter').val();
+            const maritalVal = $('#maritalFilter').val();
+
+            let statusSearch = '';
+            if (statusVal === '1') statusSearch = 'Active';
+            else if (statusVal === '2') statusSearch = 'Inactive';
+            else if (statusVal === '3') statusSearch = 'Pending';
 
             if (currentView === 'table') {
                 $('table[id$="Table"]').each(function() {
                     const table = $(this).DataTable();
-                    table.search(search).draw();
+                    table.search(search);
 
-                    if (status) {
-                        // Find status column index and filter
-                        $(this).find('thead tr:eq(1) th').each(function(i) {
-                            if ($(this).find('select').length && $(this).find('select option[value="' + status + '"]').length) {
-                                table.column(i).search(status).draw();
-                            }
-                        });
-                    }
+                    // Gender is column 3
+                    table.column(3).search(genderVal);
+
+                    // Marital Status is column 5
+                    table.column(5).search(maritalVal);
+
+                    // Status is column 7
+                    table.column(7).search(statusSearch);
+
+                    table.draw();
                 });
             } else if (currentView === 'grid') {
-                filterCardView(search, status, gender, marital);
+                filterCardView(search, statusVal, genderVal, maritalVal);
             }
         }
 

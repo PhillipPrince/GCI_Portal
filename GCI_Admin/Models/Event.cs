@@ -1,4 +1,4 @@
-﻿namespace GCI_Admin.Models
+namespace GCI_Admin.Models
 {
     public class Event
     {
@@ -35,7 +35,7 @@
     {
         public Event Event { get; set; }
         public List<EventRegistration> Registrations { get; set; }
-
+        public List<EventFeedback> Feedbacks { get; set; } = new();
     }
 
 }

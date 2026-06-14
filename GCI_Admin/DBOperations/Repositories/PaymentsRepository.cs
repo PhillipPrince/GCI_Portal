@@ -1,4 +1,4 @@
-﻿
+
 using GCI_Admin.DBOperations;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
@@ -28,6 +28,7 @@ namespace Repo_GCI
             try
             {
                 var payments = await _context.Payments
+                    .Include(x => x.Member)
                     .OrderByDescending(x => x.CreatedAt)
                     .ToListAsync();
 
@@ -52,6 +53,7 @@ namespace Repo_GCI
             try
             {
                 var payments = await _context.Payments
+                    .Include(x => x.Member)
                     .Where(x => x.MemberId == memberId)
                     .OrderByDescending(x => x.CreatedAt)
                     .ToListAsync();
