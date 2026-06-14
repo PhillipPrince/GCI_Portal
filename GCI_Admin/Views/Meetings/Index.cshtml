@@ -1,155 +1,262 @@
-﻿@model List<GCI_Admin.Models.MeetingAttendance>
+@model List<GCI_Admin.Models.MeetingAttendance>
+@using System.Security.Claims
 
 @{
     ViewData["Title"] = "Meeting Attendance";
+    
+    // Get current user's role
+    var roleIdClaim = User.FindFirst("RoleId")?.Value ??
+                     User.FindFirst(ClaimTypes.Role)?.Value ??
+                     "0";
+    int.TryParse(roleIdClaim, out int roleId);
+    
+    // Role definitions
+    bool isAdmin = roleId == 1 || roleId == 2; // Church Admin or Branch Admin
+    bool isFinance = roleId == 6;
+    bool isPastor = roleId == 5;
+    bool isGcLeader = roleId == 4;
+    
+    // Customize page based on role
+    string pageTitle = isAdmin ? "Meeting Attendance Dashboard" :
+                       (isPastor ? "Meeting Attendance Overview" : "Meeting Attendance");
+    string welcomeMessage = isAdmin ? "Complete overview of church service attendance and demographics" :
+                           (isPastor ? "Track your congregation's attendance patterns" :
+                           "View meeting attendance records");
 }
 
 <!-- Page Header -->
 <div class="row mb-4">
     <div class="col-md-8">
-        <h2 class="fw-bold mb-1">Meeting Attendance</h2>
-        <p class="text-muted mb-0">Track church service attendance, demographics, and meeting trends</p>
+        <h2 class="fw-bold mb-1">
+            <i class="fa fa-church me-2 text-primary"></i>@pageTitle
+        </h2>
+        <p class="text-muted mb-0">@welcomeMessage</p>
+        @if (isGcLeader)
+        {
+            <small class="text-info">
+                <i class="fa fa-info-circle me-1"></i>Showing data for your assigned growth center only
+            </small>
+        }
     </div>
-    <div class="col-md-4 d-flex justify-content-end gap-2">
-        <a href="@Url.Action("CreateMeeting", "Meeting")" class="btn btn-success btn-lg">
-            <i class="fa fa-plus-circle me-2"></i>Add Meeting
-        </a>
-        <button class="btn btn-primary btn-lg" id="exportReportBtn">
-            <i class="fa fa-download me-2"></i>Export Report
-        </button>
+    <div class="col-md-4 text-end">
+        @if (isAdmin)
+        {
+            <a href="@Url.Action("CreateMeeting", "Meeting")" class="btn btn-success">
+                <i class="fa fa-plus me-2"></i>Record New Meeting
+            </a>
+        }
     </div>
 </div>
 
-<!-- Quick Stats -->
-<div class="row g-3 mb-4">
-    <div class="col-md-3 col-6">
-        <div class="card border-0 shadow-sm stat-card">
-            <div class="card-body">
-                <h6 class="text-muted mb-1">Total Meetings</h6>
-                <h3 class="fw-bold mb-0">@Model?.Count(m => m.IsActive)</h3>
-                <small class="text-muted">
-                    <i class="fa fa-calendar me-1"></i>All time
-                </small>
+<!-- Quick Stats - Only visible to Admins -->
+@if (isAdmin)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm stat-card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Total Meetings</h6>
+                    <h3 class="fw-bold mb-0">@Model?.Count(m => m.IsActive)</h3>
+                    <small class="text-muted">
+                        <i class="fa fa-calendar me-1"></i>All time
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm stat-card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Total Attendees</h6>
+                    <h3 class="fw-bold mb-0 text-primary">@Model?.Where(m => m.IsActive).Sum(m => m.TotalAttendees).ToString("N0")</h3>
+                    <small class="text-muted">
+                        <i class="fa fa-users me-1"></i>Cumulative
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm stat-card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Meeting Types</h6>
+                    <h3 class="fw-bold mb-0 text-success">@Model?.Where(m => m.IsActive).Select(m => m.MeetingType).Distinct().Count()</h3>
+                    <small class="text-muted">
+                        <i class="fa fa-church me-1"></i>Different services
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm stat-card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Avg. Attendance/Meeting</h6>
+                    <h3 class="fw-bold mb-0 text-warning">
+                        @{
+                            var avgAttendance = Model != null && Model.Any(m => m.IsActive)
+                                ? Model.Where(m => m.IsActive).Average(m => m.TotalAttendees).ToString("N0")
+                                : "0";
+                        }
+                        @avgAttendance
+                    </h3>
+                    <small class="text-muted">
+                        <i class="fa fa-chart-line me-1"></i>Per service
+                    </small>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="col-md-3 col-6">
-        <div class="card border-0 shadow-sm stat-card">
-            <div class="card-body">
-                <h6 class="text-muted mb-1">Total Attendees</h6>
-                <h3 class="fw-bold mb-0 text-primary">@Model?.Where(m => m.IsActive).Sum(m => m.TotalAttendees).ToString("N0")</h3>
-                <small class="text-muted">
-                    <i class="fa fa-users me-1"></i>Cumulative
-                </small>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3 col-6">
-        <div class="card border-0 shadow-sm stat-card">
-            <div class="card-body">
-                <h6 class="text-muted mb-1">Meeting Types</h6>
-                <h3 class="fw-bold mb-0 text-success">@Model?.Where(m => m.IsActive).Select(m => m.MeetingType).Distinct().Count()</h3>
-                <small class="text-muted">
-                    <i class="fa fa-church me-1"></i>Different services
-                </small>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3 col-6">
-        <div class="card border-0 shadow-sm stat-card">
-            <div class="card-body">
-                <h6 class="text-muted mb-1">Avg. Attendance/Meeting</h6>
-                <h3 class="fw-bold mb-0 text-warning">
+}
+else if (isPastor)
+{
+    <!-- Simplified stats for Pastors -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm bg-primary bg-opacity-10">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Total Meetings (This Year)</h6>
                     @{
-                        var avgAttendance = Model != null && Model.Any(m => m.IsActive)
-                            ? Model.Where(m => m.IsActive).Average(m => m.TotalAttendees).ToString("N0")
+                        var currentYear = DateTime.Now.Year;
+                        var meetingsThisYear = Model?.Where(m => m.IsActive && m.MeetingDate.Year == currentYear).Count() ?? 0;
+                    }
+                    <h3 class="fw-bold mb-0 text-primary">@meetingsThisYear</h3>
+                    <small class="text-muted">
+                        <i class="fa fa-calendar me-1"></i>Year to date
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm bg-success bg-opacity-10">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Average Weekly Attendance</h6>
+                    @{
+                        var weeklyAvg = Model != null && Model.Any(m => m.IsActive && m.MeetingDate.Year == currentYear)
+                            ? Model.Where(m => m.IsActive && m.MeetingDate.Year == currentYear).Average(m => m.TotalAttendees).ToString("N0")
                             : "0";
                     }
-                    @avgAttendance
-                </h3>
-                <small class="text-muted">
-                    <i class="fa fa-chart-line me-1"></i>Per service
-                </small>
+                    <h3 class="fw-bold mb-0 text-success">@weeklyAvg</h3>
+                    <small class="text-muted">
+                        <i class="fa fa-users me-1"></i>Per service
+                    </small>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
 
-<!-- Filter Bar -->
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <div class="row g-3 align-items-center">
-            <div class="col-md-3">
-                <label class="form-label text-muted small">Date From</label>
-                <input type="date" class="form-control" id="dateFrom">
+<!-- Demographics Stats Row - Only visible to Admins and Pastors -->
+@if (isAdmin || isPastor)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-info bg-opacity-10">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Male Attendees</h6>
+                    <h4 class="fw-bold mb-0 text-info">
+                        @Model?.Where(m => m.IsActive && m.MaleCount.HasValue).Sum(m => m.MaleCount.Value).ToString("N0")
+                    </h4>
+                    <small class="text-muted">Total across all meetings</small>
+                </div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label text-muted small">Date To</label>
-                <input type="date" class="form-control" id="dateTo">
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-success bg-opacity-10">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Female Attendees</h6>
+                    <h4 class="fw-bold mb-0 text-success">
+                        @Model?.Where(m => m.IsActive && m.FemaleCount.HasValue).Sum(m => m.FemaleCount.Value).ToString("N0")
+                    </h4>
+                    <small class="text-muted">Total across all meetings</small>
+                </div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label text-muted small">Meeting Type</label>
-                <select class="form-select" id="meetingTypeFilter">
-                    <option value="">All Types</option>
-                    <option value="Sunday Service">Sunday Service</option>
-                    <option value="Midweek Service">Midweek Service</option>
-                    <option value="Bible Study">Bible Study</option>
-                    <option value="Prayer Meeting">Prayer Meeting</option>
-                    <option value="Youth Service">Youth Service</option>
-                    <option value="Children's Church">Children's Church</option>
-                </select>
-            </div>
-            <div class="col-md-3 text-end">
-                <button class="btn btn-outline-secondary me-2" onclick="clearFilters()">
-                    <i class="fa fa-times me-1"></i>Clear
-                </button>
-                <button class="btn btn-primary" onclick="applyFilters()">
-                    <i class="fa fa-filter me-1"></i>Apply
-                </button>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
+                <div class="card-body">
+                    <h6 class="text-muted mb-1">Children Attendees</h6>
+                    <h4 class="fw-bold mb-0 text-warning">
+                        @Model?.Where(m => m.IsActive && m.ChildrenCount.HasValue).Sum(m => m.ChildrenCount.Value).ToString("N0")
+                    </h4>
+                    <small class="text-muted">Total across all meetings</small>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
+else if (isGcLeader)
+{
+    <!-- Simplified demographics for GC Leaders -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted mb-3">Growth Center Attendance Summary</h6>
+                    <div class="row">
+                        <div class="col-4 text-center">
+                            <h5 class="text-info mb-0">
+                                @Model?.Where(m => m.IsActive && m.MaleCount.HasValue).Sum(m => m.MaleCount.Value).ToString("N0")
+                            </h5>
+                            <small class="text-muted">Males</small>
+                        </div>
+                        <div class="col-4 text-center">
+                            <h5 class="text-success mb-0">
+                                @Model?.Where(m => m.IsActive && m.FemaleCount.HasValue).Sum(m => m.FemaleCount.Value).ToString("N0")
+                            </h5>
+                            <small class="text-muted">Females</small>
+                        </div>
+                        <div class="col-4 text-center">
+                            <h5 class="text-warning mb-0">
+                                @Model?.Where(m => m.IsActive && m.ChildrenCount.HasValue).Sum(m => m.ChildrenCount.Value).ToString("N0")
+                            </h5>
+                            <small class="text-muted">Children</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
-<!-- Additional Stats Row -->
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm bg-info bg-opacity-10">
-            <div class="card-body">
-                <h6 class="text-muted mb-1">Male Attendees</h6>
-                <h4 class="fw-bold mb-0 text-info">
-                    @Model?.Where(m => m.IsActive && m.MaleCount.HasValue).Sum(m => m.MaleCount.Value).ToString("N0")
-                </h4>
-                <small class="text-muted">Total across all meetings</small>
+<!-- Filter Bar - Only visible to Admins and Pastors -->
+@if (isAdmin || isPastor)
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">Date From</label>
+                    <input type="date" class="form-control" id="dateFrom">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">Date To</label>
+                    <input type="date" class="form-control" id="dateTo">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">Meeting Type</label>
+                    <select class="form-select" id="meetingTypeFilter">
+                        <option value="">All Types</option>
+                        <option value="Sunday Service">Sunday Service</option>
+                        <option value="Midweek Service">Midweek Service</option>
+                        <option value="Bible Study">Bible Study</option>
+                        <option value="Prayer Meeting">Prayer Meeting</option>
+                        <option value="Youth Service">Youth Service</option>
+                        <option value="Children's Church">Children's Church</option>
+                    </select>
+                </div>
+                <div class="col-md-3 text-end">
+                    <button class="btn btn-outline-secondary me-2" onclick="clearFilters()">
+                        <i class="fa fa-times me-1"></i>Clear
+                    </button>
+                    <button class="btn btn-primary" onclick="applyFilters()">
+                        <i class="fa fa-filter me-1"></i>Apply
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm bg-success bg-opacity-10">
-            <div class="card-body">
-                <h6 class="text-muted mb-1">Female Attendees</h6>
-                <h4 class="fw-bold mb-0 text-success">
-                    @Model?.Where(m => m.IsActive && m.FemaleCount.HasValue).Sum(m => m.FemaleCount.Value).ToString("N0")
-                </h4>
-                <small class="text-muted">Total across all meetings</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
-            <div class="card-body">
-                <h6 class="text-muted mb-1">Children Attendees</h6>
-                <h4 class="fw-bold mb-0 text-warning">
-                    @Model?.Where(m => m.IsActive && m.ChildrenCount.HasValue).Sum(m => m.ChildrenCount.Value).ToString("N0")
-                </h4>
-                <small class="text-muted">Total across all meetings</small>
-            </div>
-        </div>
-    </div>
-</div>
+}
 
 <!-- Meetings Table -->
 <div id="meetingsTableContainer">
@@ -188,17 +295,11 @@
                 dateTo: dateTo,
                 meetingType: meetingType
             }, function(data) {
-                $('#meetingsTableContainer').html(data);
-                
                 // Reinitialize DataTable if it exists
                 if ($.fn.DataTable.isDataTable('#meetingsAttendanceTable')) {
                     $('#meetingsAttendanceTable').DataTable().destroy();
                 }
-                
-                // Reinitialize the table
-                setTimeout(function() {
-                    initializeDataTable();
-                }, 100);
+                $('#meetingsTableContainer').html(data);
             }).fail(function() {
                 $('#meetingsTableContainer').html(`
                     <div class="alert alert-danger">
@@ -239,66 +340,9 @@
             }, 2000);
         }
         
-        function initializeDataTable() {
-            if ($.fn.DataTable.isDataTable('#meetingsAttendanceTable')) {
-                $('#meetingsAttendanceTable').DataTable().destroy();
-            }
-            
-            $('#meetingsAttendanceTable').DataTable({
-                pageLength: 10,
-                responsive: true,
-                order: [[2, 'desc']], // Sort by meeting date descending
-                dom: 'Bfrtip',
-                buttons: [
-                    {
-                        extend: 'excel',
-                        text: '<i class="fa fa-file-excel"></i> Excel',
-                        className: 'btn btn-sm btn-success',
-                        title: 'Meeting_Attendance_Report'
-                    },
-                    {
-                        extend: 'pdf',
-                        text: '<i class="fa fa-file-pdf"></i> PDF',
-                        className: 'btn btn-sm btn-danger',
-                        title: 'Meeting_Attendance_Report',
-                        orientation: 'landscape'
-                    },
-                    {
-                        extend: 'print',
-                        text: '<i class="fa fa-print"></i> Print',
-                        className: 'btn btn-sm btn-secondary'
-                    }
-                ],
-                language: {
-                    search: "Search:",
-                    lengthMenu: "Show _MENU_ entries",
-                    info: "Showing _START_ to _END_ of _TOTAL_ meetings",
-                    infoEmpty: "No meetings found",
-                    infoFiltered: "(filtered from _MAX_ total meetings)",
-                    paginate: {
-                        first: '<i class="fa fa-angle-double-left"></i>',
-                        previous: '<i class="fa fa-angle-left"></i>',
-                        next: '<i class="fa fa-angle-right"></i>',
-                        last: '<i class="fa fa-angle-double-right"></i>'
-                    }
-                }
-            });
-        }
-        
-        // Initialize DataTable when page loads
-        setTimeout(initializeDataTable, 100);
-        
         // Export button click handler
         $('#exportReportBtn').on('click', function() {
             exportReport();
-        });
-        
-        // Add meeting button click handler
-        $('.btn-success').on('click', function(e) {
-            if ($(this).attr('href') === '#') {
-                e.preventDefault();
-                // Handle add meeting if needed
-            }
         });
     </script>
 }
@@ -325,5 +369,15 @@
         margin-bottom: 1rem;
     }
     
-
+    .bg-info.bg-opacity-10 {
+        background-color: rgba(13, 202, 240, 0.1) !important;
+    }
+    
+    .bg-success.bg-opacity-10 {
+        background-color: rgba(25, 135, 84, 0.1) !important;
+    }
+    
+    .bg-warning.bg-opacity-10 {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+    }
 </style>

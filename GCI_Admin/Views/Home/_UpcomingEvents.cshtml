@@ -1,0 +1,32 @@
+@model List<GCI_Admin.Models.Event>
+
+<div class="list-group list-group-flush">
+    @if (Model != null && Model.Any())
+    {
+        foreach (var evt in Model.Take(3))
+        {
+            <div class="list-group-item px-0 border-0 d-flex align-items-center">
+                <div class="bg-primary bg-opacity-10 p-2 rounded-circle me-3">
+                    <i class="fa fa-church text-primary"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="mb-1">@evt.Title</h6>
+                    <small class="text-muted">
+                        <i class="fa fa-clock me-1"></i>
+                        @evt.EventDate.ToString("MMM dd, h:mm tt")
+                    </small>
+                </div>
+                <span class="badge @(evt.EventDate.Date == DateTime.Today ? "bg-primary" : "bg-secondary")">
+                    @(evt.EventDate.Date == DateTime.Today ? "Today" : "")
+                </span>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center text-muted py-4">
+            <i class="fa fa-calendar-alt fa-2x mb-2"></i>
+            <p class="mb-0">No upcoming events</p>
+        </div>
+    }
+</div>

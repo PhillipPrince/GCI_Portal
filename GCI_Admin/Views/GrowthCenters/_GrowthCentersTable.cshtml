@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.GrowthCenter>
+@model List<GCI_Admin.Models.GrowthCenter>
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
@@ -23,35 +23,38 @@
             </thead>
 
             <tbody>
-                @foreach (var center in Model)
+                @if (Model != null)
                 {
-                    <tr>
-                        <td>@center.CenterName</td>
-                        <td>@center.Location</td>
-                        <td>@center.Description</td>
-                        <td>@center.CreatedAt.ToString("dd MMM yyyy")</td>
-                        <td class="text-end">
+                    @foreach (var center in Model)
+                    {
+                        <tr>
+                            <td>@center.CenterName</td>
+                            <td>@center.Location</td>
+                            <td>@center.Description</td>
+                            <td>@center.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td class="text-end">
 
-                            <!-- View -->
-                            <button class="btn btn-sm btn-outline-info"
-                                    onclick="openCenterModal('@Url.Action("Details", "GrowthCenters", new { id = center.GrowthCenterId })')">
-                                <i class="fa fa-eye"></i>
-                            </button>
+                                <!-- View -->
+                                <button class="btn btn-sm btn-outline-info"
+                                        onclick="openCenterModal('@Url.Action("Details", "GrowthCenters", new { id = center.GrowthCenterId })')">
+                                    <i class="fa fa-eye"></i>
+                                </button>
 
-                            <!-- Edit -->
-                            <button class="btn btn-sm btn-outline-warning"
-                                    onclick="openCenterModal('@Url.Action("Edit", "GrowthCenters", new { id = center.GrowthCenterId })')">
-                                <i class="fa fa-edit"></i>
-                            </button>
+                                <!-- Edit -->
+                                <button class="btn btn-sm btn-outline-warning"
+                                        onclick="openCenterModal('@Url.Action("Edit", "GrowthCenters", new { id = center.GrowthCenterId })')">
+                                    <i class="fa fa-edit"></i>
+                                </button>
 
-                            <!-- Delete -->
-                            <button class="btn btn-sm btn-outline-danger"
-                                    onclick="deleteCenter(@center.GrowthCenterId)">
-                                <i class="fa fa-trash"></i>
-                            </button>
+                                <!-- Delete -->
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="deleteCenter(@center.GrowthCenterId)">
+                                    <i class="fa fa-trash"></i>
+                                </button>
 
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+                    }
                 }
             </tbody>
         </table>

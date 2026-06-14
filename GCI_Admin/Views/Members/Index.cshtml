@@ -1,4 +1,4 @@
-﻿@model MembersListViewModel
+@model MembersListViewModel
 
 @{
     ViewData["Title"] = "Church Members";
@@ -91,27 +91,6 @@
     </div>
 </div>
 
-<!-- Tabs Navigation -->
-<ul class="nav nav-tabs mb-3" id="memberTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#activeMembers" type="button" role="tab">
-            <i class="fa fa-check-circle me-1"></i>Active Members
-            <span class="badge bg-success ms-1">@Model.MemberStatus.ActiveMembers?.Count </span>
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="membership-tab" data-bs-toggle="tab" data-bs-target="#membershipClass" type="button" role="tab">
-            <i class="fa fa-graduation-cap me-1"></i>Membership Class
-            <span class="badge bg-warning ms-1">@Model.MemberStatus.MembershipClassMembers?.Count </span>
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="nonmembers-tab" data-bs-toggle="tab" data-bs-target="#nonMembers" type="button" role="tab">
-            <i class="fa fa-user-plus me-1"></i>Non-Members
-            <span class="badge bg-info ms-1">@Model.MemberStatus.NonMembers?.Count </span>
-        </button>
-    </li>
-</ul>
 
 <!-- View Toggle -->
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -147,7 +126,7 @@
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#activeMembers" type="button" role="tab">
+            <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#activeMembers" type="button" role="tab">
                 <i class="fa fa-check-circle text-success me-1"></i>Active Members
                 <span class="badge bg-primary ms-2">@Model.MemberStatus.ActiveMembers?.Count </span>
             </button>
@@ -198,41 +177,44 @@
     <div class="tab-content" id="memberTabsContent">
         <!-- All Members Tab - Make this the active tab content -->
         <div class="tab-pane fade show active" id="allMembers" role="tabpanel">
+            @{ ViewData["TableId"] = "allMembersTable"; }
             @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.AllMembers)
         </div>
         <!-- Active Members Tab -->
         <div class="tab-pane fade" id="activeMembers" role="tabpanel">
+            @{ ViewData["TableId"] = "activeMembersTable"; }
             @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.ActiveMembers)
         </div>
             
         <!-- Membership Class Tab -->
         <div class="tab-pane fade" id="membershipClass" role="tabpanel">
+            @{ ViewData["TableId"] = "membershipClassTable"; }
             @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.MembershipClassMembers)
         </div>
            
         <!-- Inactive Members Tab -->
         <div class="tab-pane fade" id="inactiveMembers" role="tabpanel">
+            @{ ViewData["TableId"] = "inactiveMembersTable"; }
             @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.InactiveMembers)
         </div>
             
         <!-- Transferred Members Tab -->
         <div class="tab-pane fade" id="transferredMembers" role="tabpanel">
+            @{ ViewData["TableId"] = "transferredMembersTable"; }
             @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.TransferredMembers)
         </div>
             
         <!-- Promoted to Glory Tab -->
         <div class="tab-pane fade" id="promotedToGlory" role="tabpanel">
+            @{ ViewData["TableId"] = "promotedToGloryTable"; }
             @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.PromotedToGlory)
         </div>
             
-            
-            
         <!-- Withdrawn Members Tab -->
         <div class="tab-pane fade" id="withdrawnMembers" role="tabpanel">
+            @{ ViewData["TableId"] = "withdrawnMembersTable"; }
             @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.WithdrawnMembers)
         </div>
-            
-            
     </div>
 </div>
 <!-- Upload Modal -->
@@ -648,66 +630,171 @@
 
         // Upload members
         function uploadMembers() {
-            const fileInput = document.getElementById('excelFile');
-            const uploadOption = document.querySelector('input[name="uploadOption"]:checked').value;
-            const progressBar = document.getElementById('uploadProgress');
-            const progressBarInner = progressBar.querySelector('.progress-bar');
+    const fileInput = document.getElementById('excelFile');
+    const uploadOption = document.querySelector('input[name="uploadOption"]:checked').value;
+    const progressBar = document.getElementById('uploadProgress');
+    const progressBarInner = progressBar.querySelector('.progress-bar');
 
-            if (fileInput.files.length === 0) {
-                Swal.fire('Warning', 'Please select an Excel file.', 'warning');
-                return;
+    if (fileInput.files.length === 0) {
+        Swal.fire('Warning', 'Please select an Excel file.', 'warning');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    formData.append('uploadOption', uploadOption);
+
+    progressBar.style.display = 'block';
+    progressBarInner.style.width = '0%';
+    progressBarInner.innerText = '0%';
+
+    $.ajax({
+        url: '/Members/UploadMembersExcel',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+
+        xhr: function () {
+            const xhr = new window.XMLHttpRequest();
+
+            xhr.upload.addEventListener('progress', function (evt) {
+                if (evt.lengthComputable) {
+                    const percentComplete = Math.round(
+                        (evt.loaded / evt.total) * 100
+                    );
+
+                    progressBarInner.style.width =
+                        percentComplete + '%';
+
+                    progressBarInner.innerText =
+                        percentComplete + '%';
+                }
+            }, false);
+
+            return xhr;
+        },
+
+        success: function (response) {
+
+            progressBar.style.display = 'none';
+
+            const hasFailedFile =
+                response.data &&
+                response.data.failedRecords > 0 &&
+                response.data.failedRecordsFileBase64;
+
+            let html = `
+                <b>Total:</b> ${response.data.totalRecords}<br/>
+                <b>Successful:</b> ${response.data.successfulRecords}<br/>
+                <b>Failed:</b> ${response.data.failedRecords}
+            `;
+
+            if (hasFailedFile) {
+                html += `
+                    <br/><br/>
+                    <button id="downloadFailedRecords"
+                            class="btn btn-danger">
+                        <i class="fa fa-download me-1"></i>
+                        Download Failed Records
+                    </button>
+                `;
             }
 
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-            formData.append('uploadOption', uploadOption);
+            Swal.fire({
+                icon: 'success',
+                title: 'Upload Completed',
+                html: html,
+                confirmButtonText: 'OK',
 
-            progressBar.style.display = 'block';
-            progressBarInner.style.width = '0%';
-            progressBarInner.innerText = '0%';
+                didOpen: function () {
 
-            $.ajax({
-                url: '/Members/UploadMembersExcel',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                xhr: function() {
-                    const xhr = new window.XMLHttpRequest();
-                    xhr.upload.addEventListener('progress', function(evt) {
-                        if (evt.lengthComputable) {
-                            const percentComplete = Math.round((evt.loaded / evt.total) * 100);
-                            progressBarInner.style.width = percentComplete + '%';
-                            progressBarInner.innerText = percentComplete + '%';
-                        }
-                    }, false);
-                    return xhr;
-                },
-                success: function(response) {
-                    progressBar.style.display = 'none';
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Upload Completed',
-                        html: `
-                            <b>Total:</b> ${response.data.totalRecords} <br/>
-                            <b>Successful:</b> ${response.data.successfulRecords} <br/>
-                            <b>Failed:</b> ${response.data.failedRecords}
-                        `
-                    }).then(() => {
-                        location.reload();
-                    });
-                },
-                error: function(xhr) {
-                    progressBar.style.display = 'none';
-                    let errorMessage = 'Upload failed.';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
+                    if (hasFailedFile) {
+
+                        document
+                            .getElementById('downloadFailedRecords')
+                            .addEventListener('click', function () {
+
+                                try {
+
+                                    const byteCharacters =
+                                        atob(response.data.failedRecordsFileBase64);
+
+                                    const byteNumbers =
+                                        new Array(byteCharacters.length);
+
+                                    for (let i = 0; i < byteCharacters.length; i++) {
+                                        byteNumbers[i] =
+                                            byteCharacters.charCodeAt(i);
+                                    }
+
+                                    const byteArray =
+                                        new Uint8Array(byteNumbers);
+
+                                    const blob = new Blob(
+                                        [byteArray],
+                                        {
+                                            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                                        });
+
+                                    const url =
+                                        window.URL.createObjectURL(blob);
+
+                                    const link =
+                                        document.createElement('a');
+
+                                    link.href = url;
+
+                                    link.download =
+                                        response.data.failedRecordsFileName ||
+                                        'FailedMembers.xlsx';
+
+                                    document.body.appendChild(link);
+
+                                    link.click();
+
+                                    document.body.removeChild(link);
+
+                                    window.URL.revokeObjectURL(url);
+
+                                } catch (e) {
+                                    console.error(e);
+
+                                    Swal.fire(
+                                        'Error',
+                                        'Unable to download failed records file.',
+                                        'error'
+                                    );
+                                }
+                            });
                     }
-                    Swal.fire('Error', errorMessage, 'error');
                 }
+            }).then(() => {
+                location.reload();
             });
-        }
+        },
 
+        error: function (xhr) {
+
+            progressBar.style.display = 'none';
+
+            let errorMessage = 'Upload failed.';
+
+            if (xhr.responseJSON &&
+                xhr.responseJSON.message) {
+
+                errorMessage =
+                    xhr.responseJSON.message;
+            }
+
+            Swal.fire(
+                'Error',
+                errorMessage,
+                'error'
+            );
+        }
+    });
+}
         // Toggle between views
         function toggleView(view) {
             currentView = view;
@@ -977,53 +1064,10 @@
             return div.innerHTML;
         }
 
-        // Initialize DataTables
+        // Initialize DataTables — delegates to the global GCIDataTable initializer
+        // which handles all tables with class 'datatable' including column filter rows.
         function initializeDataTables() {
-            $('table[id$="Table"]').each(function() {
-                if ($.fn.DataTable.isDataTable(this)) {
-                    $(this).DataTable().destroy();
-                }
-
-                const table = $(this).DataTable({
-                    pageLength: 10,
-                    lengthMenu: [10, 25, 50, 100],
-                    language: {
-                        search: "Search:",
-                        lengthMenu: "Show _MENU_ entries",
-                        info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                        emptyTable: "No members found",
-                        zeroRecords: "No matching members found"
-                    },
-                    columnDefs: [
-                        {
-                            targets: -1,
-                            orderable: false,
-                            searchable: false
-                        }
-                    ]
-                });
-
-                // Column filtering
-                $(this).find('thead tr:eq(1) th').each(function(i) {
-                    $('input, select', this).on('keyup change', function() {
-                        table.column(i).search(this.value).draw();
-                    });
-                });
-
-                // Expandable rows for additional info
-                $(this).on('click', '.expand-row', function() {
-                    const tr = $(this).closest('tr');
-                    const row = table.row(tr);
-
-                    if (row.child.isShown()) {
-                        row.child.hide();
-                        $(this).find('i').removeClass('fa-minus-circle').addClass('fa-plus-circle');
-                    } else {
-                        row.child(tr.data('child')).show();
-                        $(this).find('i').removeClass('fa-plus-circle').addClass('fa-minus-circle');
-                    }
-                });
-            });
+            GCIDataTable.init();
         }
 
         // Member actions
@@ -1079,26 +1123,33 @@
         // Filter functions
         function applyFilters() {
             const search = $('#memberSearch').val();
-            const status = $('#statusFilter').val();
-            const gender = $('#genderFilter').val();
-            const marital = $('#maritalFilter').val();
+            const statusVal = $('#statusFilter').val();
+            const genderVal = $('#genderFilter').val();
+            const maritalVal = $('#maritalFilter').val();
+
+            let statusSearch = '';
+            if (statusVal === '1') statusSearch = 'Active';
+            else if (statusVal === '2') statusSearch = 'Inactive';
+            else if (statusVal === '3') statusSearch = 'Pending';
 
             if (currentView === 'table') {
                 $('table[id$="Table"]').each(function() {
                     const table = $(this).DataTable();
-                    table.search(search).draw();
+                    table.search(search);
 
-                    if (status) {
-                        // Find status column index and filter
-                        $(this).find('thead tr:eq(1) th').each(function(i) {
-                            if ($(this).find('select').length && $(this).find('select option[value="' + status + '"]').length) {
-                                table.column(i).search(status).draw();
-                            }
-                        });
-                    }
+                    // Gender is column 3
+                    table.column(3).search(genderVal);
+
+                    // Marital Status is column 5
+                    table.column(5).search(maritalVal);
+
+                    // Status is column 7
+                    table.column(7).search(statusSearch);
+
+                    table.draw();
                 });
             } else if (currentView === 'grid') {
-                filterCardView(search, status, gender, marital);
+                filterCardView(search, statusVal, genderVal, maritalVal);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.Elder>
+@model List<GCI_Admin.Models.Elder>
 
 @{
     ViewData["Title"] = "Church Elders";
@@ -830,8 +830,7 @@
 
         function initializeDataTable() {
             if ($.fn.DataTable.isDataTable('#eldersTable')) $('#eldersTable').DataTable().destroy();
-            $('#eldersTable').DataTable({
-                pageLength: 10,
+            GCIDataTable.init('#eldersTable', {
                 language: {
                     search: "Search elders:",
                     lengthMenu: "Show _MENU_ elders",
@@ -851,12 +850,14 @@
             const status = $('#statusFilter').val();
 
             if (currentView === 'table') {
-                $('#eldersTable').DataTable().search(search).draw();
+                const table = $('#eldersTable').DataTable();
+                table.search(search);
                 if (status) {
-                    $('#eldersTable').DataTable().column(4).search(status === 'true' ? 'Active' : 'Inactive').draw();
+                    table.column(6).search(status === 'true' ? 'Active' : 'Inactive');
                 } else {
-                    $('#eldersTable').DataTable().column(4).search('').draw();
+                    table.column(6).search('');
                 }
+                table.draw();
             } else if (currentView === 'grid') {
                 const filtered = elders.filter(elder => {
                     let match = true;

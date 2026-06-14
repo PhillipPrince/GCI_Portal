@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Reports Dashboard";
 }
 
@@ -1071,6 +1071,9 @@
         }
         
         function loadAllMinistries(ministries) {
+            if ($.fn.DataTable.isDataTable('#allMinistriesTable')) {
+                $('#allMinistriesTable').DataTable().destroy();
+            }
             const tbody = $('#allMinistriesTable tbody');
             tbody.empty();
             
@@ -1096,6 +1099,7 @@
                     `);
                 });
             }
+            GCIDataTable.init('#allMinistriesTable');
         }
         
         function loadMinistryPerformanceChart(performanceData) {
@@ -1188,6 +1192,9 @@
         }
         
         function loadGrowthCentersPerformance(centers) {
+            if ($.fn.DataTable.isDataTable('#growthCentersPerformanceTable')) {
+                $('#growthCentersPerformanceTable').DataTable().destroy();
+            }
             const tbody = $('#growthCentersPerformanceTable tbody');
             tbody.empty();
             
@@ -1213,6 +1220,7 @@
                     `);
                 });
             }
+            GCIDataTable.init('#growthCentersPerformanceTable');
         }
         
         // ================= EVENTS REPORTS FUNCTIONS =================
@@ -1355,6 +1363,9 @@
         }
         
         function loadAllEventsTable(events) {
+            if ($.fn.DataTable.isDataTable('#allEventsTable')) {
+                $('#allEventsTable').DataTable().destroy();
+            }
             const tbody = $('#allEventsTable tbody');
             tbody.empty();
             
@@ -1383,6 +1394,7 @@
             } else {
                 tbody.html('<tr><td colspan="10" class="text-center text-muted">No event data available</span></tr>');
             }
+            GCIDataTable.init('#allEventsTable');
         }
         
         // Helper Functions

@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.GrowthCentersData
+@model GCI_Admin.Models.GrowthCentersData
 
 @{
     ViewData["Title"] = "Growth Centers Management";
@@ -388,6 +388,105 @@
             // Placeholder for any data loading needs
             console.log("Center data loaded");
         }
+
+        function editLeader(id) {
+            $('#addGCLeaderModal').modal('show');
+            $('#gcLeaderModalContent').html(`
+                <div class="text-center p-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading form...</p>
+                </div>
+            `);
+            
+            $.ajax({
+                url: '@Url.Action("LoadEditForm", "GrowthCenters")/' + id,
+                type: 'GET',
+                success: function (response) {
+                    $('#gcLeaderModalContent').html(response);
+                },
+                error: function (xhr, status, error) {
+                    $('#gcLeaderModalContent').html(`
+                        <div class="alert alert-danger m-3">
+                            <i class="fa fa-exclamation-triangle me-2"></i>
+                            Error loading form. Please try again.
+                        </div>
+                    `);
+                    console.error("Error loading partial view:", error);
+                }
+            });
+        }
+
+        function toggleGCLeaderStatus(id, setActive) {
+            const action = setActive ? 'activate' : 'deactivate';
+            
+            Swal.fire({
+                title: 'Confirm Status Change',
+                text: `Are you sure you want to ${action} this growth center leader?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: `Yes, ${action}!`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("ToggleStatus", "GrowthCenters")?id=' + id + '&isActive=' + setActive,
+                        type: 'POST',
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire('Success!', response.message || `Leader ${action}d successfully.`, 'success')
+                                    .then(() => location.reload());
+                            } else {
+                                Swal.fire('Error', response.message || `Failed to ${action} leader.`, 'error');
+                            }
+                        },
+                        error: function (xhr) {
+                            Swal.fire('Error', xhr.responseJSON?.message || 'An unexpected error occurred.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function deleteLeader(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Are you sure you want to delete this growth center leader? This will perform a soft-delete.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteGCLeader", "GrowthCenters")/' + id,
+                        type: 'POST',
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire('Deleted!', response.message || 'Leader deleted successfully.', 'success')
+                                    .then(() => location.reload());
+                            } else {
+                                Swal.fire('Error', response.message || 'Failed to delete leader.', 'error');
+                            }
+                        },
+                        error: function (xhr) {
+                            Swal.fire('Error', xhr.responseJSON?.message || 'An unexpected error occurred.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Make functions globally available
+        window.editLeader = editLeader;
+        window.toggleGCLeaderStatus = toggleGCLeaderStatus;
+        window.deleteLeader = deleteLeader;
+        window.applyCenterFilters = applyCenterFilters;
+        window.clearCenterFilters = clearCenterFilters;
+
     </script>
 
     <style>

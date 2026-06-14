@@ -1,4 +1,4 @@
-﻿@using System.Security.Claims
+@using System.Security.Claims
 @using System.Linq
 <!DOCTYPE html>
 <html lang="en">
@@ -6,6 +6,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - GCI_Admin</title>
+    <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" asp-append-version="true" />
+    <link rel="icon" type="image/png" href="~/favicon.png" asp-append-version="true" />
 
     <!-- ================= CSS ================= -->
     <!-- Bootstrap 5 -->
@@ -128,9 +130,9 @@
                     IsParent = true,
                     ParentId = "meetingsMenu",
                     Controller = "meeting",
-                    Roles = new[] { 1, 2, 4, 5 }, // Church Admin, Branch Admin, Growth Center Leader, Pastor
+                    Roles = new[] { 1, 2, 4, 5 ,6}, // Church Admin, Branch Admin, Growth Center Leader, Pastor
                     Children = new[] {
-                        new { Title = "Meeting Attendance", Url = Url.Action("Index", "Meetings"), Controller = "meeting", Roles = new[] { 1, 2, 4, 5 } },
+                        new { Title = "Meeting Attendance", Url = Url.Action("Index", "Meetings"), Controller = "meeting", Roles = new[] { 1, 2, 4, 5,6 } },
                         new { Title = "Add Meeting", Url = Url.Action("CreateMeeting", "Meeting"), Controller = "meeting", Roles = new[] { 1, 2, 4, 5 } }
                     }
                 },
@@ -151,7 +153,7 @@
                     IsParent = true,
                     ParentId = "reportsMenu",
                     Controller = "reports",
-                    Roles = new[] { 1, 2, 4, 5, 6 }, // Church Admin, Branch Admin, Growth Center Leader, Pastor, Finance
+                    Roles = new[] { 1, 2, 4, 5 }, // Church Admin, Branch Admin, Growth Center Leader, Pastor, Finance
                     Children = new[] {
                         new { Title = "All Reports", Url = Url.Action("Index", "Reports"), Controller = "reportsdashboard", Roles = new[] { 1, 2 } },
                         new { Title = "Growth Centers Report", Url = Url.Action("GrowthCenters", "Reports"), Controller = "growthcenterreports", Roles = new[] { 1, 2, 4 } },
@@ -167,7 +169,7 @@
                     Controller = "finance",
                     Roles = new[] {6 }, // Church Admin, Branch Admin, Finance
                     Children = new[] {
-                        new { Title = "Payments", Url = Url.Action("Index", "Finance"), Controller = "finance", Roles = new[] { 1, 2, 6 } }
+                        new { Title = "Payments", Url = Url.Action("Index", "Finance"), Controller = "finance", Roles = new[] { 6 } }
                     }
                 },
                 ["benevolence"] = new { 
@@ -180,6 +182,14 @@
                     Children = new[] {
                         new { Title = "Benevolence Members", Url = Url.Action("Index", "Benevolence"), Controller = "benevolence", Roles = new[] { 1, 2, 5 } }
                     }
+                },
+                ["faithspace"] = new { 
+                    Title = "Faith & Fellowship Space", 
+                    Icon = "fa-comments", 
+                    Url = Url.Action("Index", "FaithSpace"), 
+                    Controller = "faithspace",
+                    IsParent = false,
+                    Roles = new[] { 1, 2, 3, 4, 5, 6 }
                 },
                 ["settings"] = new { 
                     Title = "System Settings", 
@@ -311,6 +321,22 @@
                     }
                 </div>
             }
+            <!-- FINANCE -->
+            @if (HasAccess(menuItems["finance"].Roles))
+            {
+                <a data-bs-toggle="collapse" href="#@menuItems["finance"].ParentId" class="menu-link" data-controller="@menuItems["finance"].Controller">
+                    <i class="fa @menuItems["finance"].Icon me-2"></i> @menuItems["finance"].Title
+                </a>
+                <div id="@menuItems["finance"].ParentId" class="collapse submenu">
+                    @foreach (var child in menuItems["finance"].Children)
+                    {
+                        if (HasAccess(child.Roles))
+                        {
+                            <a href="@child.Url" data-controller="@child.Controller">@child.Title</a>
+                        }
+                    }
+                </div>
+            }
             
             <!-- 🆕 MEETINGS MENU - Added without breaking existing code -->
             @if (HasAccess(menuItems["meetings"].Roles))
@@ -363,22 +389,7 @@
                 </div>
             }
             
-            <!-- FINANCE -->
-            @if (HasAccess(menuItems["finance"].Roles))
-            {
-                <a data-bs-toggle="collapse" href="#@menuItems["finance"].ParentId" class="menu-link" data-controller="@menuItems["finance"].Controller">
-                    <i class="fa @menuItems["finance"].Icon me-2"></i> @menuItems["finance"].Title
-                </a>
-                <div id="@menuItems["finance"].ParentId" class="collapse submenu">
-                    @foreach (var child in menuItems["finance"].Children)
-                    {
-                        if (HasAccess(child.Roles))
-                        {
-                            <a href="@child.Url" data-controller="@child.Controller">@child.Title</a>
-                        }
-                    }
-                </div>
-            }
+           
             
             <!-- BENEVOLENCE -->
             @if (HasAccess(menuItems["benevolence"].Roles))
@@ -395,6 +406,14 @@
                         }
                     }
                 </div>
+            }
+            
+            <!-- FAITH SPACE -->
+            @if (HasAccess(menuItems["faithspace"].Roles))
+            {
+                <a href="@menuItems["faithspace"].Url" class="menu-link" data-controller="@menuItems["faithspace"].Controller">
+                    <i class="fa @menuItems["faithspace"].Icon me-2"></i> @menuItems["faithspace"].Title
+                </a>
             }
             
             <!-- SETTINGS -->

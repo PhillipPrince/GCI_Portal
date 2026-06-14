@@ -1,9 +1,9 @@
-﻿@model ICollection<GCI_Admin.Models.GrowthCenterMeetingVisitor>
+@model ICollection<GCI_Admin.Models.GrowthCenterMeetingVisitor>
 
 @if (Model != null && Model.Any())
 {
     <div class="table-responsive">
-        <table class="table table-hover table-striped align-middle" id="visitorsTable">
+        <table class="table table-hover table-striped align-middle datatable" id="visitorsTable">
             <thead class="table-light">
                 <tr>
                     <th>#</th>
@@ -84,20 +84,7 @@ else
 
 <script>
     $(document).ready(function() {
-        // Initialize DataTable for visitors
-        if ($.fn.DataTable && $('#visitorsTable').length && $('#visitorsTable tbody tr').length > 0) {
-            $('#visitorsTable').DataTable({
-                pageLength: 10,
-                responsive: true,
-                language: {
-                    search: "<i class='fa fa-search'></i> Search:",
-                    lengthMenu: "Show _MENU_ entries"
-                },
-                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
-                     '<"row"<"col-sm-12"tr>>' +
-                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
-            });
-        }
+        // DataTable initialized by global GCIDataTable initializer (datatable class)
         
         // Save follow-up status when changed
         $('.followup-status').on('change', function() {

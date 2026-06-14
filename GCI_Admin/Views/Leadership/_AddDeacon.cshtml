@@ -25,7 +25,6 @@
                         Select a church member to appoint as a deacon. Only active members who are not already deacons will appear in the list.
                     </div>
 
-                    <!-- Member Selector Partial (GEC Format) -->
                     @await Html.PartialAsync("_MemberSelector", new GCI_Admin.Models.ViewModels.MemberSelectorViewModel
                     {
                         ControlId = "deaconMemberSelector",
@@ -45,6 +44,28 @@
                         IsEdit = false,
                         ShowPhoneAndGender = false
                     })
+                    
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            @await Html.PartialAsync("_ImagePicker", new GCI_Admin.Models.ImagePickerViewModel
+                            {
+                                ControlId = "deaconProfileImage",
+                                LabelText = "Deacon Profile Image",
+                                IconClass = "fa fa-user-circle-o",
+                                HelpText = "Upload a profile image for the deacon. Recommended size: 400x400 pixels. Max size: 5MB",
+                                UploadButtonText = "Choose Image",
+                                CurrentImageUrl = null,
+                                PreviewWidth = 150,
+                                PreviewHeight = 150,
+                                MaxFileSizeMB = 5,
+                                IsRequired = false,
+                                Rounded = true,
+                                FileInputName = "ProfileImage",
+                                ImageUrlFieldName = "ProfileImageUrl",
+                                Base64FieldName = "ProfileImageBase64"
+                            })
+                        </div>
+                    </div>
 
                     <div class="row mt-3">
                         <div class="col-md-6 mb-3">
@@ -119,7 +140,6 @@
     </div>
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -141,6 +161,7 @@
         const isActive = $('#IsActive').is(':checked');
         const onDuty = $('#OnDuty').is(':checked');
         const bio = $('#Bio').val();
+        const hasImage = $('#deaconProfileImage_fileData').val() ? 'Yes' : 'No';
         
         // Format dates for display
         const formattedStartDate = startDate ? new Date(startDate).toLocaleDateString() : 'Not specified';
@@ -156,6 +177,7 @@
                 <p><strong>Start Date:</strong> ${formattedStartDate}</p>
                 <p><strong>Status:</strong> ${isActive ? 'Active' : 'Inactive'}</p>
                 <p><strong>On Duty:</strong> ${onDuty ? 'Yes' : 'No'}</p>
+                <p><strong>Profile Image:</strong> ${hasImage}</p>
                 ${bio ? `<p><strong>Bio:</strong> ${bio.substring(0, 100)}${bio.length > 100 ? '...' : ''}</p>` : ''}
                 <hr>
                 <p class="text-info">Please review the information before confirming.</p>
@@ -195,7 +217,7 @@
         });
     }
 
-    // Main submit function - Sending as JSON
+    // Main submit function - Sending as JSON with Base64 image
     function submitDeaconForm() {
         return new Promise((resolve, reject) => {
             // Get all field values
@@ -203,9 +225,16 @@
             const ministryId = $('#MinistryId').val();
             const startDate = $('#StartDate').val();
             const bio = $('#Bio').val();
-            const isActive = $('#IsActive').is(':checked');
             const onDuty = $('#OnDuty').is(':checked');
             const token = $('input[name="__RequestVerificationToken"]').val();
+            
+            // Get image Base64 data from the image picker
+            let profileImageBase64 = $('#deaconProfileImage_fileData').val();
+            
+            // If no image was uploaded, set to null or empty string
+            if (!profileImageBase64 || profileImageBase64 === '') {
+                profileImageBase64 = null;
+            }
 
             // Validate member is selected
             if (!memberId || memberId === '') {
@@ -238,19 +267,28 @@
             const originalText = $btnText.text();
             $btnText.text('Saving...');
 
-            // Prepare JSON data
+            // Prepare JSON data using DeaconDto structure
             const requestData = {
                 MemberId: parseInt(memberId),
                 MinistryId: ministryId,
                 Bio: bio || '',
                 StartDate: startDate,
-                IsActive: isActive,
-                OnDuty: onDuty
+                EndDate: null,  // EndDate is null for new deacons
+                OnDuty: onDuty,
+                ProfileImageBase64: profileImageBase64
             };
 
-            console.log("Submitting deacon form data as JSON:");
+            console.log("Submitting deacon form data with Base64 image:");
             console.log("URL:", '/Leadership/CreateDeacon');
-            console.log("Data:", requestData);
+            console.log("Has Image:", !!profileImageBase64);
+            if (profileImageBase64) {
+                console.log("Image Base64 Length:", profileImageBase64.length);
+                console.log("Image Base64 Preview:", profileImageBase64.substring(0, 100) + "...");
+            }
+            console.log("Request Data:", {
+                ...requestData,
+                ProfileImageBase64: profileImageBase64 ? '[Base64 String]' : null
+            });
 
             // Make AJAX request with JSON content type
             $.ajax({
@@ -258,6 +296,7 @@
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(requestData),
+                timeout: 30000, // Increased timeout for image upload (30 seconds)
                 headers: {
                     'RequestVerificationToken': token
                 },
@@ -308,7 +347,9 @@
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
                     } else if (xhr.status === 400) {
-                        errorMessage = 'Invalid data sent to server.';
+                        errorMessage = 'Invalid data sent to server. Please check the image size and format.';
+                    } else if (xhr.status === 413) {
+                        errorMessage = 'Image file is too large. Please use an image under 5MB.';
                     } else if (xhr.status === 0) {
                         errorMessage = 'Network error. Please check your connection.';
                     } else if (xhr.status === 404) {
@@ -339,15 +380,45 @@
         $('#deaconMemberSelector_validation').text('');
     });
 
+    // Listen for image selection events
+    $(document).on('imageSelected', function(e, data) {
+        console.log('Image selected for deacon:', data.controlId);
+        // You can add additional validation or preview logic here
+    });
+
+    $(document).on('imageCleared', function(e, data) {
+        console.log('Image cleared for deacon:', data.controlId);
+    });
+
     // Reset form when modal is closed
     $('#addDeaconModal').on('hidden.bs.modal', function() {
+        // Clear member selector
         $('#deaconMemberSelector_display').val('');
         $('#deaconMemberSelector_selectedId').val('');
+        
+        // Clear image picker
+        if (typeof clearImage === 'function') {
+            // Clear without confirmation
+            const controlId = 'deaconProfileImage';
+            const fileInput = $('#' + controlId + '_fileInput');
+            if (fileInput.length) {
+                fileInput.val('');
+                $('#' + controlId + '_preview').attr('src', '/images/default-avatar.png');
+                $('#' + controlId + '_fileData').val('');
+                $('#' + controlId + '_url').val('');
+                $('#' + controlId + '_clearBtn').hide();
+                clearImageError(controlId);
+            }
+        }
+        
+        // Reset other fields
         $('#MinistryId').val('');
         $('#Bio').val('');
         $('#StartDate').val(new Date().toISOString().split('T')[0]);
         $('#IsActive').prop('checked', true);
         $('#OnDuty').prop('checked', false);
+        
+        // Hide dropdowns and clear validation
         $('.dropdown-list').hide();
         $('#deaconMemberSelector_validation').text('');
         $('#ministryValidation').text('');

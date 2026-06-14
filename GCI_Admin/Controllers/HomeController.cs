@@ -30,8 +30,9 @@ namespace GCI_Admin.Controllers
 
                 var allMembers = await _membersService.GetAllMembersAsync();
                 var events = await _eventsService.GetAllEventsAsync();
-                var previousMonthMembers = await _membersService.GetMembersByDateRangeAsync(DateTime.Now.AddMonths(-1), DateTime.Now);
-                var previousMonthActiveMembers = await _membersService.GetActiveMembersByDateRangeAsync(DateTime.Now.AddMonths(-1), DateTime.Now);
+                var previousMonthMembers = allMembers.Data.Where(m => m.CreatedAt >= DateTime.Now.AddMonths(-1) && m.CreatedAt <= DateTime.Now).OrderByDescending(m => m.CreatedAt).ToList();
+                var previousMonthActiveMembers = allMembers.Data.Where(m => m.StatusId == 1 &&m.StatusId==1&& m.CreatedAt >= DateTime.Now.AddMonths(-1) && m.CreatedAt <= DateTime.Now).OrderByDescending(m => m.CreatedAt).ToList();
+
                 var previousMonthEvents = await _eventsService.GetEventsByDateRangeAsync(DateTime.Now.AddMonths(-1), DateTime.Now);
 
                 // 🆕 Get meeting statistics
@@ -55,6 +56,9 @@ namespace GCI_Admin.Controllers
                 dashboard.MemberStatus.TransferredMembers = members.Where(x => x.StatusId == 4).ToList();
                 dashboard.MemberStatus.PromotedToGlory = members.Where(x => x.StatusId == 5).ToList();
                 dashboard.MemberStatus.WithdrawnMembers = members.Where(x => x.StatusId == 6).ToList();
+                dashboard.TotalMale = members.Count(x => x.Gender == "Male");
+                dashboard.TotalFemale = members.Count(x => x.Gender == "Female");
+               // dashboard.TotalChildren = members.Count(x => x.Age < 18);
 
                 // For backward compatibility - NonMembers (all except Active Members with StatusId 1)
                 dashboard.MemberStatus.NonMembers = members.Where(x => x.StatusId != 1).ToList();
@@ -73,8 +77,8 @@ namespace GCI_Admin.Controllers
                 dashboard.EventCompletionPercentage = dashboard.UpcomingEvents > 0 ?
                     Math.Round((decimal)events?.Data?.Count(e => e.EventDate >= DateTime.Now && e.EventDate <= DateTime.Now.AddDays(7)) / dashboard.UpcomingEvents * 100, 2) : 0;
 
-                int previousTotalMembers = previousMonthMembers?.Data?.Count ?? 0;
-                int previousActiveMembers = previousMonthActiveMembers?.Data?.Count ?? 0;
+                int previousTotalMembers = previousMonthMembers?.Count ?? 0;
+                int previousActiveMembers = previousMonthActiveMembers?.Count ?? 0;
                 int previousEvents = previousMonthEvents?.Data?.Count ?? 0;
 
                 // Member growth percentage
@@ -108,9 +112,7 @@ namespace GCI_Admin.Controllers
                     dashboard.TotalMeetings = meetingsStats.Data.TotalMeetings;
                     dashboard.TotalAttendees = meetingsStats.Data.TotalAttendees;
                     dashboard.AverageAttendance = Math.Round(meetingsStats.Data.AverageAttendance, 2);
-                    dashboard.TotalMaleAttendees = meetingsStats.Data.TotalMale;
-                    dashboard.TotalFemaleAttendees = meetingsStats.Data.TotalFemale;
-                    dashboard.TotalChildrenAttendees = meetingsStats.Data.TotalChildren;
+                   
                     dashboard.MeetingsLast30Days = meetingsStats.Data.MeetingsLast30Days;
                     dashboard.AttendeesLast30Days = meetingsStats.Data.AttendeesLast30Days;
                     dashboard.MeetingTypesCount = meetingsStats.Data.MeetingTypesCount;
@@ -133,9 +135,7 @@ namespace GCI_Admin.Controllers
                     dashboard.TotalMeetings = 0;
                     dashboard.TotalAttendees = 0;
                     dashboard.AverageAttendance = 0;
-                    dashboard.TotalMaleAttendees = 0;
-                    dashboard.TotalFemaleAttendees = 0;
-                    dashboard.TotalChildrenAttendees = 0;
+                    
                     dashboard.MeetingsLast30Days = 0;
                     dashboard.AttendeesLast30Days = 0;
                     dashboard.MeetingTypesCount = 0;
@@ -200,9 +200,7 @@ namespace GCI_Admin.Controllers
                     TotalMeetings = 0,
                     TotalAttendees = 0,
                     AverageAttendance = 0,
-                    TotalMaleAttendees = 0,
-                    TotalFemaleAttendees = 0,
-                    TotalChildrenAttendees = 0,
+                    
                     MeetingsLast30Days = 0,
                     AttendeesLast30Days = 0,
                     MeetingTypesCount = 0,

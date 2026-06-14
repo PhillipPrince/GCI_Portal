@@ -1,4 +1,4 @@
-﻿using GCI_Admin.DBOperations;
+using GCI_Admin.DBOperations;
 using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
@@ -72,17 +72,7 @@ namespace GCI_Admin.Controllers
             return Json(response);
         }
 
-        // ✅ GET BY ID (For Edit)
-        [HttpGet]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var response = await _gecMemberService.GetGECMemberByIdAsync(id);
-
-            if (!response.IsSuccess)
-                return NotFound(response.Message);
-
-            return Json(response.Data);
-        }
+      
 
         public async Task<IActionResult> LoadCreateForm()
         {
@@ -94,11 +84,10 @@ namespace GCI_Admin.Controllers
             return PartialView("_CreateGECMemberPartial", dto);
         }
 
-        
+
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateGECMember([FromForm] GECMemberDto dto)
+        public async Task<IActionResult> CreateGECMember([FromBody] GECMemberDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -149,8 +138,7 @@ namespace GCI_Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateGECMember([FromForm] GECMemberDto dto)
+        public async Task<IActionResult> UpdateGECMember([FromBody] GECMemberDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -207,6 +195,68 @@ namespace GCI_Admin.Controllers
                     message = "An error occurred while updating the member. Please try again."
                 });
             }
+        }
+
+        public async Task<IActionResult> LoadEditForm(int id)
+        {
+            var members = await _membersRepository.GetAllMembersAsync();
+            var gecResponse = await _gecMemberService.GetGECMemberByIdAsync(id);
+            if (gecResponse == null || !gecResponse.IsSuccess)
+                return NotFound("GEC Member not found");
+
+            var dto = new CreateGECMemberDto
+            {
+                Members = members.Data,
+                GECMember = new GECMemberDto
+                {
+                    GECId = gecResponse.Data.GECId,
+                    MemberId = gecResponse.Data.MemberId,
+                    PositionTitle = gecResponse.Data.PositionTitle,
+                    Bio = gecResponse.Data.Bio,
+                    StartDate = gecResponse.Data.StartDate,
+                    EndDate = gecResponse.Data.EndDate,
+                    IsActive = gecResponse.Data.IsActive
+                }
+            };
+
+            ViewBag.IsEdit = true;
+            return PartialView("_CreateGECMemberPartial", dto);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _gecMemberService.DeleteGECMemberAsync(id);
+            if (!result.IsSuccess)
+                return Json(new { success = false, message = result.Message });
+
+            return Json(new { success = true, message = "GEC member deleted successfully" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleStatus(int id, bool isActive)
+        {
+            var result = await _gecMemberService.ToggleGECMemberStatusAsync(id, isActive);
+            if (!result.IsSuccess)
+                return Json(new { success = false, message = result.Message });
+
+            return Json(new { success = true, message = result.Message });
+        }
+
+        //add get by id
+        public async Task<IActionResult> Details(int id)
+        {
+            GECMemberDetailsViewModel member=new GECMemberDetailsViewModel();
+            var response = await _gecMemberService.GetGECMemberByIdAsync(id);
+
+            if (response == null)
+            {
+                TempData["ErrorMessage"] = "GEC member not found.";
+                return RedirectToAction(nameof(Index));
+            }
+            member.GECMember = response.Data;
+
+            return View(member);
         }
     }
 }

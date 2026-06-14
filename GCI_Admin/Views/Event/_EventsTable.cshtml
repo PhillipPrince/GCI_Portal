@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.Event>
+@model List<GCI_Admin.Models.Event>
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
@@ -138,30 +138,7 @@
 <script>
     // Initialize DataTable with custom filtering
     $(document).ready(function() {
-        var table = $('#eventsTable').DataTable({
-            pageLength: 10,
-            language: {
-                search: "Search:",
-                lengthMenu: "Show _MENU_ entries",
-                info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                emptyTable: "No events found",
-                zeroRecords: "No matching events found"
-            },
-            order: [[2, 'desc']], // Sort by date descending
-            columnDefs: [
-                { orderable: false, targets: [8] } // Disable sorting on actions column
-            ]
-        });
-        
-        // Setup column search
-        $('#eventsTable thead tr:eq(1) th').each(function(index) {
-            var input = $(this).find('input, select');
-            if (input.length) {
-                input.on('keyup change', function() {
-                    table.column(index).search(this.value).draw();
-                });
-            }
-        });
+        // Global DataTable initializer handles #eventsTable (has datatable class + filter row)
     });
 
     function toggleEventStatus(eventId, isActive) {

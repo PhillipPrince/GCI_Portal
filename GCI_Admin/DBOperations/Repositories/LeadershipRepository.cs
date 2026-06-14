@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Utils;
@@ -413,6 +413,42 @@ namespace GCI_Admin.DBOperations.Repositories
             catch (Exception ex)
             {
                 Loggers.DoLogs($"DeleteElderAsync Error: {ex}");
+                return new DbResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<bool>> ToggleElderStatusAsync(int id, bool isActive)
+        {
+            try
+            {
+                var data = await _context.Elders.FindAsync(id);
+
+                if (data == null)
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Elder not found"
+                    };
+
+                data.IsActive = isActive;
+                data.UpdatedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<bool>
+                {
+                    Success = true,
+                    Message = isActive ? "Elder activated successfully" : "Elder deactivated successfully",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"ToggleElderStatusAsync Error: {ex}");
                 return new DbResponse<bool>
                 {
                     Success = false,

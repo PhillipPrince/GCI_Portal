@@ -10,5 +10,7 @@
         public DateTime? EndDate { get; set; }
 
         public bool OnDuty { get; set; }
+        public string ProfileImageBase64 { get; set; }
+
     }
 }

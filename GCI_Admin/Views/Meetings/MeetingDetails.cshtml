@@ -1,111 +1,176 @@
 ﻿@model GCI_Admin.Models.MeetingFullDetails
+@using System.Security.Claims
 
 @{
     ViewData["Title"] = "Meeting Details - " + Model.Meeting.MeetingType;
+    
+    // Get current user's role
+    var roleIdClaim = User.FindFirst("RoleId")?.Value ??
+                     User.FindFirst(ClaimTypes.Role)?.Value ??
+                     "0";
+    int.TryParse(roleIdClaim, out int roleId);
+    
+    // Role definitions
+    bool isAdmin = roleId == 1 || roleId == 2; // Church Admin or Branch Admin
+    bool isFinance = roleId == 6;
+    bool isPastor = roleId == 5;
+    bool isGcLeader = roleId == 4;
+    
+    // Get current user's email/phone for OTP
+    var userEmailOrPhone = User.FindFirst(ClaimTypes.Email)?.Value ??
+                          User.FindFirst("Email")?.Value ??
+                          User.FindFirst("PhoneNumber")?.Value ??
+                          User.FindFirst("Phone")?.Value ?? "";
+    
+    // Customize page labels based on role
+    string pageTitle = isAdmin ? "Meeting Details - Full Report" :
+                      (isPastor ? "Meeting Details - Pastoral View" :
+                      (isFinance ? "Meeting Details - Financial View" : "Meeting Details"));
+    
+    string attendanceLabel = isFinance ? "Meeting Information" : "Attendance";
+    string financialLabel = isFinance ? "Financial Summary (Verification Required)" : "Financial Summary";
+    string collectionStatus = isFinance && Model.FinancialSummary != null && !Model.FinancialSummary.IsVerified ? "Pending Verification" : "Verified";
 }
 
 <!-- Page Header -->
 <div class="row mb-4">
     <div class="col-md-8">
         <h2 class="fw-bold mb-1">
-            <i class="fa fa-church me-2 text-primary"></i>Meeting Details
+            <i class="fa fa-church me-2 text-primary"></i>@pageTitle
         </h2>
-        <p class="text-muted mb-0">Complete meeting information including attendance and financial data</p>
+        <p class="text-muted mb-0">
+            @if (isAdmin)
+            {
+                <span>Complete meeting information including attendance and financial data</span>
+            }
+            else if (isPastor)
+            {
+                <span>Meeting details with attendance and demographic information</span>
+            }
+            else if (isFinance)
+            {
+                <span>Financial collection details and verification status</span>
+            }
+            else
+            {
+                <span>Meeting information and signatures</span>
+            }
+        </p>
+        @if (isFinance && Model.FinancialSummary != null)
+        {
+            <span class="badge @(Model.FinancialSummary.IsVerified ? "bg-success" : "bg-warning") mt-2">
+                <i class="fa @(Model.FinancialSummary.IsVerified ? "fa-check-circle" : "fa-clock") me-1"></i>
+                Collection Status: @collectionStatus
+            </span>
+        }
     </div>
     <div class="col-md-4 d-flex justify-content-end gap-2">
         <a href="@Url.Action("Index", "Meetings")" class="btn btn-outline-secondary">
             <i class="fa fa-arrow-left me-2"></i>Back to List
         </a>
-        <a href="@Url.Action("EditMeeting", "Meeting", new { id = Model.Meeting.MeetingAttendancesId })" class="btn btn-warning">
-            <i class="fa fa-edit me-2"></i>Edit Meeting
-        </a>
+        @if (!isFinance && (isAdmin || isPastor))
+        {
+            <a href="@Url.Action("EditMeeting", "Meeting", new { id = Model.Meeting.MeetingAttendancesId })" class="btn btn-warning">
+                <i class="fa fa-edit me-2"></i>Edit Meeting
+            </a>
+        }
         <button class="btn btn-primary" onclick="window.print()">
             <i class="fa fa-print me-2"></i>Print
         </button>
     </div>
 </div>
 
-<!-- Stats Cards Row -->
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm bg-primary bg-opacity-10">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-muted mb-1">Total Attendance</h6>
-                        <h2 class="fw-bold mb-0 text-primary">@Model.Meeting.TotalAttendees.ToString("N0")</h2>
+<!-- Stats Cards Row - Hidden from Finance users -->
+@if (!isFinance)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-primary bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">@attendanceLabel</h6>
+                            <h2 class="fw-bold mb-0 text-primary">@Model.Meeting.TotalAttendees.ToString("N0")</h2>
+                        </div>
+                        <div class="bg-primary p-3 rounded-circle">
+                            <i class="fa fa-users fa-2x text-white"></i>
+                        </div>
                     </div>
-                    <div class="bg-primary p-3 rounded-circle">
-                        <i class="fa fa-users fa-2x text-white"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-info bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Male</h6>
+                            <h2 class="fw-bold mb-0 text-info">@(Model.Meeting.MaleCount?.ToString("N0") ?? "0")</h2>
+                            @if (Model.Meeting.TotalAttendees > 0)
+                            {
+                                var malePercent = (Model.Meeting.MaleCount ?? 0) / (decimal)Model.Meeting.TotalAttendees * 100;
+                                <small class="text-muted">@malePercent.ToString("F1")% of total</small>
+                            }
+                        </div>
+                        <div class="bg-info p-3 rounded-circle">
+                            <i class="fa fa-mars fa-2x text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-success bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Female</h6>
+                            <h2 class="fw-bold mb-0 text-success">@(Model.Meeting.FemaleCount?.ToString("N0") ?? "0")</h2>
+                            @if (Model.Meeting.TotalAttendees > 0)
+                            {
+                                var femalePercent = (Model.Meeting.FemaleCount ?? 0) / (decimal)Model.Meeting.TotalAttendees * 100;
+                                <small class="text-muted">@femalePercent.ToString("F1")% of total</small>
+                            }
+                        </div>
+                        <div class="bg-success p-3 rounded-circle">
+                            <i class="fa fa-venus fa-2x text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Children</h6>
+                            <h2 class="fw-bold mb-0 text-warning">@(Model.Meeting.ChildrenCount?.ToString("N0") ?? "0")</h2>
+                            @if (Model.Meeting.TotalAttendees > 0)
+                            {
+                                var childrenPercent = (Model.Meeting.ChildrenCount ?? 0) / (decimal)Model.Meeting.TotalAttendees * 100;
+                                <small class="text-muted">@childrenPercent.ToString("F1")% of total</small>
+                            }
+                        </div>
+                        <div class="bg-warning p-3 rounded-circle">
+                            <i class="fa fa-child fa-2x text-white"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm bg-info bg-opacity-10">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-muted mb-1">Male</h6>
-                        <h2 class="fw-bold mb-0 text-info">@(Model.Meeting.MaleCount?.ToString("N0") ?? "0")</h2>
-                        @if (Model.Meeting.TotalAttendees > 0)
-                        {
-                            var malePercent = (Model.Meeting.MaleCount ?? 0) / (decimal)Model.Meeting.TotalAttendees * 100;
-                            <small class="text-muted">@malePercent.ToString("F1")% of total</small>
-                        }
-                    </div>
-                    <div class="bg-info p-3 rounded-circle">
-                        <i class="fa fa-mars fa-2x text-white"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+}
+else
+{
+    <div class="alert alert-secondary mb-4">
+        <i class="fa fa-info-circle me-2"></i>
+        <strong>Financial Module:</strong> View and verify collection details below. Attendance statistics are managed by church administration.
     </div>
-    
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm bg-success bg-opacity-10">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-muted mb-1">Female</h6>
-                        <h2 class="fw-bold mb-0 text-success">@(Model.Meeting.FemaleCount?.ToString("N0") ?? "0")</h2>
-                        @if (Model.Meeting.TotalAttendees > 0)
-                        {
-                            var femalePercent = (Model.Meeting.FemaleCount ?? 0) / (decimal)Model.Meeting.TotalAttendees * 100;
-                            <small class="text-muted">@femalePercent.ToString("F1")% of total</small>
-                        }
-                    </div>
-                    <div class="bg-success p-3 rounded-circle">
-                        <i class="fa fa-venus fa-2x text-white"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-muted mb-1">Children</h6>
-                        <h2 class="fw-bold mb-0 text-warning">@(Model.Meeting.ChildrenCount?.ToString("N0") ?? "0")</h2>
-                        @if (Model.Meeting.TotalAttendees > 0)
-                        {
-                            var childrenPercent = (Model.Meeting.ChildrenCount ?? 0) / (decimal)Model.Meeting.TotalAttendees * 100;
-                            <small class="text-muted">@childrenPercent.ToString("F1")% of total</small>
-                        }
-                    </div>
-                    <div class="bg-warning p-3 rounded-circle">
-                        <i class="fa fa-child fa-2x text-white"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+}
 
 <!-- Meeting Information Card -->
 <div class="card border-0 shadow-sm mb-4">
@@ -188,14 +253,31 @@
     </div>
 </div>
 
-<!-- Financial Summary Cards (Not a table) -->
-@if (Model.FinancialSummary != null)
+<!-- Financial Summary Section -->
+@if (Model.FinancialSummary != null && (isFinance))
 {
+
     <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white border-0 py-3">
+        <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
             <h5 class="fw-bold mb-0">
-                <i class="fa fa-chart-pie me-2 text-success"></i>Financial Summary
+                <i class="fa fa-chart-pie me-2 text-success"></i>@financialLabel
             </h5>
+
+            @if (isFinance)
+            {
+                if (!Model.FinancialSummary.IsVerified)
+                {
+                    <button class="btn btn-success btn-sm" id="sendOtpBtn">
+                        <i class="fa fa-paper-plane me-1"></i> Send OTP & Verify
+                    </button>
+                }
+                else
+                {
+                    <span class="badge bg-success">
+                        <i class="fa fa-check-circle me-1"></i> Already Verified
+                    </span>
+                }
+            }
         </div>
         <div class="card-body">
             <div class="row g-3">
@@ -265,20 +347,74 @@
         </div>
     </div>
 }
+else if (!isFinance && !isAdmin && !isPastor && Model.FinancialSummary != null)
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="fw-bold mb-0">
+                <i class="fa fa-lock me-2 text-muted"></i>Financial Information
+            </h5>
+        </div>
+        <div class="card-body text-center text-muted py-5">
+            <i class="fa fa-lock fa-3x mb-3"></i>
+            <p>Financial information is restricted to authorized personnel only.</p>
+        </div>
+    </div>
+}
 
 <!-- Cash Breakdown Partial View -->
-<div id="cashBreakdownContainer">
-    @await Html.PartialAsync("_CashBreakdownTable", Model.CashBreakdowns)
-</div>
+@if (isFinance || isAdmin || isPastor)
+{
+    <div id="cashBreakdownContainer">
+        @await Html.PartialAsync("_CashBreakdownTable", Model.CashBreakdowns)
+    </div>
 
-<!-- Bank Collections Partial View -->
-<div id="bankCollectionsContainer">
-    @await Html.PartialAsync("_BankCollectionsTable", Model.BankCollections)
-</div>
+    <div id="bankCollectionsContainer">
+        @await Html.PartialAsync("_BankCollectionsTable", Model.BankCollections)
+    </div>
+}
 
 <!-- Signatures Partial View -->
 <div id="signaturesContainer">
     @await Html.PartialAsync("_SignaturesTable", Model.Signatures)
+</div>
+
+<!-- OTP Verification Modal -->
+<div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="otpModalLabel">
+                    <i class="fa fa-shield-alt me-2 text-success"></i>Verify Collection
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fa fa-info-circle me-2"></i>
+                    An OTP has been sent to your registered email and phone number. Please enter it below to verify this collection.
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Enter OTP Code</label>
+                    <input type="text" class="form-control form-control-lg text-center" id="otpCode"
+                           maxlength="6" placeholder="000000" style="font-size: 24px; letter-spacing: 5px;">
+                    <small class="text-muted">Enter the 6-digit code sent to you</small>
+                </div>
+                <div class="text-center">
+                    <button type="button" class="btn btn-link" id="resendOtpBtn">
+                        <i class="fa fa-redo me-1"></i>Resend OTP
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="submitOtpBtn">
+                    <span id="otpLoading" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                    <span id="verifyBtnText">Verify Collection</span>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -334,10 +470,195 @@
 
 @section Scripts {
     <script>
-        // Initialize any tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
+        $(document).ready(function() {
+            // Initialize tooltips
+          
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            var meetingId = @Model.Meeting.MeetingAttendancesId;
+            var userEmailOrPhone = '@userEmailOrPhone';
+            
+            // Send OTP button click handler
+            $('#sendOtpBtn').on('click', function() {
+                sendOtp();
+            });
+            
+            // Submit OTP button click handler
+            $('#submitOtpBtn').on('click', function() {
+                submitOtp();
+            });
+            
+            // Resend OTP button click handler
+            $('#resendOtpBtn').on('click', function() {
+                resendOtp();
+            });
         });
+        
+        var meetingId = @Model.Meeting.MeetingAttendancesId;
+        var userEmailOrPhone = '@userEmailOrPhone';
+        
+        // Send OTP function
+        function sendOtp() {
+            // Show loading
+            Swal.fire({
+                title: 'Sending OTP...',
+                text: 'Please wait while we send verification code',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Send OTP to the user using email or phone
+            $.ajax({
+                url: '/Finance/SendOtp',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    meetingId: meetingId,
+                    emailOrPhone: userEmailOrPhone
+                }),
+                success: function(response) {
+                    Swal.close();
+                    
+                    if (response.isSuccess) {
+                        // Show success message then open OTP modal
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'OTP Sent!',
+                            text: 'Verification code has been sent to your registered email/phone',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            // Clear previous OTP and show modal
+                            $('#otpCode').val('');
+                            $('#otpModal').modal('show');
+                        });
+                    } else {
+                        Swal.fire('Error', response.message || 'Failed to send OTP', 'error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.close();
+                    var errorMessage = 'Failed to send OTP. Please try again.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Error', errorMessage, 'error');
+                }
+            });
+        }
+        
+        // Submit OTP for verification
+        function submitOtp() {
+            var otpCode = $('#otpCode').val();
+            
+            if (!otpCode || otpCode.length !== 6) {
+                Swal.fire('Error', 'Please enter a valid 6-digit OTP code', 'warning');
+                return;
+            }
+            
+            // Disable button and show loading
+            var $verifyBtn = $('#verifyBtnText');
+            var $loadingSpinner = $('#otpLoading');
+            var originalText = $verifyBtn.text();
+            
+            $verifyBtn.text('Verifying...');
+            $loadingSpinner.removeClass('d-none');
+            
+            $.ajax({
+                url: '/Finance/VerifyCollection',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    meetingId: meetingId,
+                    otpCode: otpCode,
+                    emailOrPhone: userEmailOrPhone
+                }),
+                success: function(response) {
+                    $verifyBtn.text(originalText);
+                    $loadingSpinner.addClass('d-none');
+                    
+                    if (response.isSuccess) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Verified!',
+                            text: 'Collection has been successfully verified',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            $('#otpModal').modal('hide');
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Verification Failed', response.message || 'Invalid OTP code', 'error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $verifyBtn.text(originalText);
+                    $loadingSpinner.addClass('d-none');
+                    
+                    var errorMessage = 'An error occurred. Please try again.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Error', errorMessage, 'error');
+                }
+            });
+        }
+        
+        // Resend OTP
+        function resendOtp() {
+            Swal.fire({
+                title: 'Resend OTP?',
+                text: 'A new verification code will be sent to your email/phone',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, resend',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Sending OTP...',
+                        text: 'Please wait',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    $.ajax({
+                        url: '/Finance/SendOtp',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            meetingId: meetingId,
+                            emailOrPhone: userEmailOrPhone
+                        }),
+                        success: function(response) {
+                            Swal.close();
+                            
+                            if (response.isSuccess) {
+                                Swal.fire('Success', 'A new OTP has been sent to your registered contact', 'success');
+                            } else {
+                                Swal.fire('Error', response.message || 'Failed to resend OTP', 'error');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.close();
+                            var errorMessage = 'Failed to resend OTP. Please try again.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            Swal.fire('Error', errorMessage, 'error');
+                        }
+                    });
+                }
+            });
+        }
     </script>
 }

@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.Payment>
+@model List<GCI_Admin.Models.Payment>
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
@@ -6,7 +6,7 @@
 
             <thead class="table-light">
                 <tr>
-                    <th>Member ID</th>
+                    <th>Member</th>
                     <th>Phone Number</th>
                     <th>Amount</th>
                     <th>Receipt No</th>
@@ -52,7 +52,17 @@
                 @foreach (var payment in Model)
                 {
                     <tr>
-                        <td>@payment.MemberId</td>
+                        <td>
+                            @if (payment.Member != null)
+                            {
+                                <strong>@($"{payment.Member.FirstName} {payment.Member.OtherNames}")</strong>
+                                <div class="small text-muted">ID: #@payment.MemberId</div>
+                            }
+                            else
+                            {
+                                <span>ID: #@payment.MemberId</span>
+                            }
+                        </td>
                         <td>@payment.PhoneNumber</td>
                         <td>KES @payment.Amount.ToString("N2")</td>
                         <td>@payment.MpesaReceiptNumber</td>

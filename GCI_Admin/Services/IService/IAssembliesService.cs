@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Utils;
 
@@ -17,5 +17,10 @@ namespace GCI_Admin.Services.IService
 
         Task<ApiResponse<bool>> ToggleAssemblyStatusAsync(int assemblyId, bool isActive);
         Task<ApiResponse<List<AssemblyLeader>>> GetAllAssemblyLeadersAsync();
+        Task<ApiResponse<AssemblyLeader>> CreateAssemblyLeaderAsync(AssemblyLeaderDto dto);
+        Task<ApiResponse<AssemblyLeader>> GetAssemblyLeaderByIdAsync(int id);
+        Task<ApiResponse<AssemblyLeader>> UpdateAssemblyLeaderAsync(int id, AssemblyLeaderDto dto);
+        Task<ApiResponse<bool>> DeleteAssemblyLeaderAsync(int id);
+        Task<ApiResponse<bool>> ToggleAssemblyLeaderStatusAsync(int id, bool isActive);
     }
 }

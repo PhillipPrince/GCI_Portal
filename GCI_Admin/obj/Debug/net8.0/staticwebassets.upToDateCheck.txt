@@ -1,6 +1,9 @@
 wwwroot\css\site.css
 wwwroot\favicon..png
+wwwroot\favicon.ico
+wwwroot\favicon.png
 wwwroot\images\church-logo.png
+wwwroot\images\default-avatar.png
 wwwroot\js\datatables-global.js
 wwwroot\js\global-utils.js
 wwwroot\js\jquery-4.0.0.min.js

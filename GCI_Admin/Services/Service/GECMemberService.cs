@@ -1,4 +1,4 @@
-﻿using GCI_Admin.DBOperations;
+using GCI_Admin.DBOperations;
 using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
@@ -19,10 +19,11 @@ namespace GCI_Admin.Services.Service
         private readonly MembersRepository _membersRepository;
 
 
-        public GECMemberService(GECMemberRepository gecMemberRepository, AppDbContext context, MembersRepository membersRepository)
+        public GECMemberService(GECMemberRepository gecMemberRepository, AppDbContext context, MembersRepository membersRepository, SystemConfigRepository systemConfigRepository)
         {
             _gecMemberRepository = gecMemberRepository;
             _context = context;
+            _systemConfig = systemConfigRepository;
             _imageBasePath = SystemConfigHelper.GetImageBasePathAsync(_systemConfig).GetAwaiter().GetResult();
             _membersRepository = membersRepository;
         }
@@ -43,6 +44,9 @@ namespace GCI_Admin.Services.Service
                     response.Message = "Failed to create GEC member";
                     return response;
                 }
+                string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), _imageBasePath, $"{result.Data.MemberId}", "jpg");
+                Loggers.EventLogs($"Saved profile image for deacon {result.Data.GECId} at {saved}");
+
 
                 response.Data = result.Data;
                 response.Message = "GEC member created successfully";
@@ -67,7 +71,7 @@ namespace GCI_Admin.Services.Service
                 var dbResponse = await _gecMemberRepository.GetGECMembersAsync();
                 foreach (var gecMember in dbResponse.Data)
                 {
-                    gecMember.Photo = ImageHelper.ReadImage(_imageBasePath, gecMember.MemberId.ToString());
+                    gecMember.Member.ProfileImage = ImageHelper.ReadImage(_imageBasePath, gecMember.MemberId.ToString());
                 }
 
                 response.IsSuccess = dbResponse.Success;
@@ -104,6 +108,12 @@ namespace GCI_Admin.Services.Service
                     response.Message = "GEC member not found";
                     return response;
                 }
+                var member = _membersRepository.GetMemberByIdAsync(result.Data.MemberId);
+                string imageFolder = await SystemConfigHelper.GetImageBasePathAsync(_systemConfig);
+
+                member.Result.Data.ProfileImage = ImageHelper.ReadImage(imageFolder, member.Result.Data.Id.ToString());
+                result.Data.Member = member.Result.Data;
+
 
                 response.Data = result.Data;
                 response.Message = "GEC member retrieved successfully";
@@ -135,6 +145,12 @@ namespace GCI_Admin.Services.Service
                     return response;
                 }
 
+                if (!string.IsNullOrEmpty(dto.ProfileImageBase64))
+                {
+                    string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), _imageBasePath, $"{result.Data.MemberId}", "jpg");
+                    Loggers.EventLogs($"Saved profile image for GEC member {result.Data.GECId} on update at {saved}");
+                }
+
                 response.Data = result.Data;
                 response.Message = "GEC member updated successfully";
             }
@@ -162,6 +178,36 @@ namespace GCI_Admin.Services.Service
                     response.IsSuccess = false;
                     response.Code = "404";
                     response.Message = "GEC member not found or delete failed";
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = result.Message;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        // ✅ TOGGLE STATUS
+        public async Task<ApiResponse<bool>> ToggleGECMemberStatusAsync(int id, bool isActive)
+        {
+            var response = new ApiResponse<bool>();
+
+            try
+            {
+                var result = await _gecMemberRepository.ToggleGECMemberStatusAsync(id, isActive);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
                     return response;
                 }
 
