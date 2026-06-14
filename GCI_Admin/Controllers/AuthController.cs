@@ -1,4 +1,4 @@
-using GCI_Admin.Models.DTOs;
+﻿using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -22,7 +22,7 @@ namespace GCI_Admin.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-          
+
             return View();
         }
 
@@ -172,31 +172,12 @@ namespace GCI_Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Unauthorized()
         {
-            // Clear session without redirecting
             await ClearUserSession();
             return View("Unauthorized");
         }
 
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Logout()
-        {
-            try
-            {
-                await ClearUserSession();
-                _logger.LogInformation("User logged out successfully");
-                return Ok(new { isSuccess = true, message = "Logged out successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during logout");
-                return BadRequest(new { isSuccess = false, message = "Error during logout" });
-            }
-        }
-
         [HttpGet]
-        [ActionName("Logout")]
-        public async Task<IActionResult> LogoutGet()
+        public async Task<IActionResult> Logout()
         {
             try
             {
