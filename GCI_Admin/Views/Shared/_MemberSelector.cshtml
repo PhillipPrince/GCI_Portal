@@ -1,431 +1,643 @@
 @model GCI_Admin.Models.ViewModels.MemberSelectorViewModel
 
-<div class="member-selector-component" data-selected-member-id="@Model.SelectedMemberId" data-is-edit="@Model.IsEdit.ToString().ToLower()">
+@{
+    var controlId = Model.ControlId;
+    var hasServerMembers = Model.Members != null && Model.Members.Any();
+}
+
+<div class="member-selector-component"
+     data-selected-member-id="@Model.SelectedMemberId"
+     data-is-edit="@Model.IsEdit.ToString().ToLower()"
+     id="@(controlId)_component">
+
     <div class="row">
         <div class="col-md-12 mb-3">
-            <label class="form-label fw-bold">
+            <label class="form-label fw-semibold" for="@(controlId)_display">
                 @Model.LabelText
                 @if (Model.IsRequired)
                 {
-                    <span class="text-danger">*</span>
+                    <span class="text-danger ms-1">*</span>
                 }
             </label>
-            
-            <!-- Custom dropdown with search on top -->
-            <div class="custom-dropdown" id="@(Model.ControlId)_dropdown">
-                <div class="dropdown-trigger" id="@(Model.ControlId)_trigger" @(Model.IsEdit ? "disabled" : null)>
-                    <input type="text"
-                           class="form-control"
-                           id="@(Model.ControlId)_display"
-                           placeholder="@Model.PlaceholderText"
-                           readonly
-                    @(Model.IsEdit ? "disabled" : null)>
-                    <span class="dropdown-arrow">▼</span>
+
+            <!-- Custom dropdown container -->
+            <div class="ms-dropdown" id="@(controlId)_dropdown">
+
+                <!-- Trigger -->
+                <div class="ms-trigger @(Model.IsEdit ? "ms-trigger--disabled" : "")"
+                     id="@(controlId)_trigger"
+                     tabindex="@(Model.IsEdit ? "-1" : "0")"
+                     role="combobox"
+                     aria-haspopup="listbox"
+                     aria-expanded="false">
+                    <div class="ms-trigger-content">
+                        <div class="ms-sel-avatar" id="@(controlId)_avatar" style="display:none;"></div>
+                        <span class="ms-placeholder" id="@(controlId)_placeholder">@Model.PlaceholderText</span>
+                        <span class="ms-sel-text" id="@(controlId)_selText" style="display:none;"></span>
+                    </div>
+                    <div class="ms-trigger-icons">
+                        <button type="button" class="ms-btn-clear-sel" id="@(controlId)_clearSel"
+                                style="display:none;" title="Clear selection" tabindex="-1">
+                            <i class="fa fa-times-circle"></i>
+                        </button>
+                        <i class="fa fa-chevron-down ms-caret" id="@(controlId)_caret"></i>
+                    </div>
                 </div>
-                
-                <div class="dropdown-list" id="@(Model.ControlId)_list" style="display: none;">
-                    <!-- Search box on top of the list -->
-                    <div class="dropdown-search">
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fa fa-search"></i>
-                            </span>
+
+                <!-- Dropdown panel -->
+                <div class="ms-panel" id="@(controlId)_list" style="display:none;" role="listbox">
+
+                    <!-- Search row -->
+                    <div class="ms-search-row">
+                        <div class="ms-search-box">
+                            <i class="fa fa-search ms-search-ico"></i>
                             <input type="text"
-                                   class="form-control"
-                                   id="@(Model.ControlId)_search"
-                                   placeholder="Search by name, email, or phone..."
-                                   autocomplete="off">
-                            <button class="btn btn-outline-secondary" type="button" id="@(Model.ControlId)_clearBtn" style="display: none;">
+                                   class="ms-search-inp"
+                                   id="@(controlId)_search"
+                                   placeholder="Search name, phone or email…"
+                                   autocomplete="off"
+                                   spellcheck="false" />
+                            <button type="button" class="ms-btn-clear-search"
+                                    id="@(controlId)_clearSearch" style="display:none;" tabindex="-1">
                                 <i class="fa fa-times"></i>
                             </button>
                         </div>
-                        <small class="text-muted d-block mt-1" id="@(Model.ControlId)_info"></small>
+                        <div class="ms-search-meta" id="@(controlId)_meta"></div>
                     </div>
-                    
-                    <!-- Options list -->
-                    <div class="dropdown-options" id="@(Model.ControlId)_options">
-                        @if (Model.Members == null || !Model.Members.Any())
-                        {
-                            <div class="text-center p-3 text-muted spinner-loading-placeholder">
-                                <span class="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true"></span>
-                                Loading members...
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="option-item" data-value="">
-                                -- Select a member --
-                            </div>
-                            @foreach (var member in Model.Members)
+
+                    <!-- Options -->
+                    <div class="ms-opts-wrap">
+                        <div class="ms-opts" id="@(controlId)_opts">
+                            @if (!hasServerMembers)
                             {
-                                var fullName = $"{member.FirstName} {member.OtherNames}".Trim();
-                                var searchData = $"{fullName} {member.Email} {member.Phone}".ToLower();
-                                <div class="option-item"
-                                     data-value="@member.Id"
-                                     data-fullname="@fullName"
-                                     data-email="@member.Email"
-                                     data-phone="@member.Phone"
-                                     data-gender="@member.Gender"
-                                     data-search="@searchData">
-                                    <div class="option-title">@fullName</div>
-                                    <div class="option-subtitle">@member.Email</div>
-                                    @if (!string.IsNullOrEmpty(member.Phone))
-                                    {
-                                        <div class="option-subtitle">📞 @member.Phone</div>
-                                    }
+                                <div class="ms-state-msg" id="@(controlId)_loading">
+                                    <span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>
+                                    Loading members…
                                 </div>
                             }
-                        }
+                            else
+                            {
+                                @foreach (var member in Model.Members)
+                                {
+                                    var fullName = $"{member.FirstName} {member.OtherNames}".Trim();
+                                    var ini = string.Concat(
+                                        member.FirstName?.Length > 0 ? member.FirstName[0].ToString().ToUpper() : "",
+                                        member.OtherNames?.Length > 0 ? member.OtherNames[0].ToString().ToUpper() : ""
+                                    );
+                                    if (string.IsNullOrEmpty(ini) && !string.IsNullOrEmpty(fullName))
+                                        ini = fullName[0].ToString().ToUpper();
+                                    var clr = GetAvatarColor(member.FirstName);
+                                    <div class="ms-opt"
+                                         role="option"
+                                         data-value="@member.Id"
+                                         data-fullname="@fullName"
+                                         data-email="@(member.Email ?? "")"
+                                         data-phone="@(member.Phone ?? "")"
+                                         data-gender="@(member.Gender ?? "")"
+                                         data-ini="@ini"
+                                         data-clr="@clr"
+                                         data-search="@($"{fullName}|{member.Email}|{member.Phone}".ToLower())">
+                                        <div class="ms-opt-ava" style="background:@clr;">@ini</div>
+                                        <div class="ms-opt-body">
+                                            <div class="ms-opt-name">@fullName</div>
+                                            <div class="ms-opt-sub">
+                                                @if (!string.IsNullOrEmpty(member.Email))
+                                                {
+                                                    <span><i class="fa fa-envelope-o"></i> @member.Email</span>
+                                                }
+                                                @if (!string.IsNullOrEmpty(member.Phone))
+                                                {
+                                                    <span><i class="fa fa-phone"></i> @member.Phone</span>
+                                                }
+                                            </div>
+                                        </div>
+                                        <i class="fa fa-check ms-opt-chk"></i>
+                                    </div>
+                                }
+                            }
+                        </div>
                     </div>
-                </div>
-            </div>
-            
-            <!-- Hidden field to store selected member ID -->
+                </div><!-- /ms-panel -->
+            </div><!-- /ms-dropdown -->
+
+            <!-- Hidden value -->
             <input type="hidden"
                    name="@Model.MemberIdFieldName"
-                   id="@(Model.ControlId)_selectedId"
+                   id="@(controlId)_selectedId"
                    value="@Model.SelectedMemberId" />
-            
+
             @if (Model.IsRequired)
             {
-                <span class="text-danger" id="@(Model.ControlId)_validation"></span>
+                <span class="text-danger small" id="@(controlId)_validation"></span>
             }
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label class="form-label fw-bold">Full Name</label>
-            <input type="text" class="form-control" id="@(Model.ControlId)_fullName" readonly disabled>
-        </div>
-        <div class="col-md-6 mb-3">
-            <label class="form-label fw-bold">Email</label>
-            <input type="email" class="form-control" id="@(Model.ControlId)_email" readonly disabled>
+    <!-- Selected member preview -->
+    <div id="@(controlId)_preview" style="display:none;">
+        <div class="ms-preview-card">
+            <div class="ms-preview-ava" id="@(controlId)_prevAva"></div>
+            <div class="flex-grow-1">
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-muted mb-1">Full Name</label>
+                        <input type="text" class="form-control form-control-sm" id="@(controlId)_fullName" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-muted mb-1">Email</label>
+                        <input type="email" class="form-control form-control-sm" id="@(controlId)_email" readonly>
+                    </div>
+                    @if (Model.ShowPhoneAndGender)
+                    {
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-muted mb-1">Phone</label>
+                            <input type="tel" class="form-control form-control-sm" id="@(controlId)_phone" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-muted mb-1">Gender</label>
+                            <input type="text" class="form-control form-control-sm" id="@(controlId)_gender" readonly>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     </div>
-    
-    @if (Model.ShowPhoneAndGender)
+</div><!-- /member-selector-component -->
+
+@functions {
+    string GetAvatarColor(string name)
     {
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold">Phone</label>
-                <input type="tel" class="form-control" id="@(Model.ControlId)_phone" readonly disabled>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold">Gender</label>
-                <input type="text" class="form-control" id="@(Model.ControlId)_gender" readonly disabled>
-            </div>
-        </div>
+        if (string.IsNullOrEmpty(name)) return "#6c757d";
+        var colors = new[] { "#4f46e5","#0891b2","#059669","#d97706","#dc2626","#7c3aed","#db2777","#0d9488" };
+        return colors[Math.Abs(name.GetHashCode()) % colors.Length];
     }
-</div>
+}
+
+<!-- ── Styles (injected once; duplicate rules are harmless) ── -->
+<style>
+.ms-dropdown { position: relative; }
+
+/* Trigger */
+.ms-trigger {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; padding: 8px 12px; min-height: 42px;
+    border: 1.5px solid #dee2e6; border-radius: 8px; background: #fff;
+    cursor: pointer; transition: border-color .18s, box-shadow .18s;
+}
+.ms-trigger:hover:not(.ms-trigger--disabled) { border-color: #86b7fe; }
+.ms-trigger.ms-open,
+.ms-trigger:focus { outline: none; border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13,110,253,.15); }
+.ms-trigger--disabled { background: #f8f9fa; cursor: not-allowed; opacity: .7; pointer-events: none; }
+
+.ms-trigger-content { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; overflow: hidden; }
+.ms-sel-avatar {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 11px; font-weight: 700;
+}
+.ms-placeholder { color: #adb5bd; font-size: .91rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ms-sel-text { font-size: .91rem; font-weight: 500; color: #212529; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.ms-trigger-icons { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.ms-btn-clear-sel { background: none; border: none; padding: 2px 4px; color: #adb5bd; cursor: pointer; line-height: 1; }
+.ms-btn-clear-sel:hover { color: #dc3545; }
+.ms-caret { color: #6c757d; font-size: .75rem; transition: transform .2s; }
+.ms-caret.ms-open { transform: rotate(180deg); }
+
+/* Panel */
+.ms-panel {
+    position: absolute; top: calc(100% + 5px); left: 0; right: 0; z-index: 1060;
+    background: #fff; border: 1.5px solid #dee2e6; border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12); overflow: hidden;
+    animation: msFadeIn .14s ease;
+}
+@@keyframes msFadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+
+/* Search row */
+.ms-search-row { padding: 8px 10px 6px; border-bottom: 1px solid #f0f0f0; background: #fafbfc; }
+.ms-search-box { position: relative; display: flex; align-items: center; }
+.ms-search-ico { position: absolute; left: 9px; color: #adb5bd; font-size: .82rem; pointer-events: none; }
+.ms-search-inp {
+    width: 100%; padding: 6px 30px 6px 28px;
+    border: 1.5px solid #dee2e6; border-radius: 6px; font-size: .88rem;
+    background: #fff; transition: border-color .15s, box-shadow .15s;
+}
+.ms-search-inp:focus { outline: none; border-color: #0d6efd; box-shadow: 0 0 0 2px rgba(13,110,253,.12); }
+.ms-btn-clear-search {
+    position: absolute; right: 5px; background: none; border: none;
+    color: #adb5bd; cursor: pointer; padding: 3px 5px; font-size: .78rem;
+}
+.ms-btn-clear-search:hover { color: #495057; }
+.ms-search-meta { font-size: .76rem; color: #6c757d; margin-top: 4px; min-height: 15px; }
+
+/* Options */
+.ms-opts-wrap { max-height: 280px; overflow-y: auto; overscroll-behavior: contain; }
+.ms-opts-wrap::-webkit-scrollbar { width: 5px; }
+.ms-opts-wrap::-webkit-scrollbar-thumb { background: #dee2e6; border-radius: 3px; }
+.ms-opts-wrap::-webkit-scrollbar-thumb:hover { background: #adb5bd; }
+
+.ms-opt {
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+    cursor: pointer; border-bottom: 1px solid #f5f5f5; transition: background .1s;
+}
+.ms-opt:last-child { border-bottom: none; }
+.ms-opt:hover, .ms-opt.ms-hov { background: #f0f4ff; }
+.ms-opt.ms-selected { background: #e8f0fe; }
+
+.ms-opt-ava {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 12px; font-weight: 700;
+    box-shadow: 0 1px 3px rgba(0,0,0,.14);
+}
+.ms-opt-body { flex: 1; min-width: 0; }
+.ms-opt-name { font-size: .9rem; font-weight: 500; color: #212529; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ms-opt-name mark { background: #fff3cd; padding: 0 1px; border-radius: 2px; font-weight: 700; color: inherit; }
+.ms-opt-sub { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.ms-opt-sub span { font-size: .77rem; color: #6c757d; }
+.ms-opt-chk { color: #0d6efd; font-size: .85rem; opacity: 0; flex-shrink: 0; transition: opacity .12s; }
+.ms-opt.ms-selected .ms-opt-chk { opacity: 1; }
+
+/* State messages */
+.ms-state-msg { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 22px; color: #6c757d; font-size: .88rem; }
+
+/* Animations */
+@@keyframes msFadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* Preview card */
+.ms-member-preview { margin-top: 10px; }
+.ms-preview-card {
+    border: 1.5px solid #e9ecef; border-radius: 10px; padding: 14px 16px;
+    background: linear-gradient(135deg,#f8f9ff,#fff);
+    display: flex; gap: 14px; align-items: flex-start;
+    animation: msFadeIn .18s ease;
+}
+.ms-preview-ava {
+    width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 16px; font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+}
+</style>
 
 <script>
-    // Initialize member selector when document is ready
-    $(document).ready(function() {
-        initializeMemberSelector('@Model.ControlId');
-    });
-    
-    function initializeMemberSelector(controlId) {
-        var $trigger = $('#' + controlId + '_trigger');
-        var $dropdownList = $('#' + controlId + '_list');
-        var $searchInput = $('#' + controlId + '_search');
-        var $clearBtn = $('#' + controlId + '_clearBtn');
-        var $searchInfo = $('#' + controlId + '_info');
-        var $optionsContainer = $('#' + controlId + '_options');
-        var $options = $optionsContainer.find('.option-item');
-        var $selectedDisplay = $('#' + controlId + '_display');
-        var $selectedMemberId = $('#' + controlId + '_selectedId');
-        var isEdit = $('.member-selector-component').data('is-edit') === 'true';
-        
-        if (isEdit) {
-            $trigger.attr('disabled', 'disabled');
-            $selectedDisplay.attr('disabled', 'disabled');
+/* Member Selector: @controlId */
+$(document).ready(function() {
+
+    /* ── element refs ───────────────────────────────────── */
+    var cid         = '@controlId';
+    var $component  = $('#' + cid + '_component');
+    var $trigger    = $('#' + cid + '_trigger');
+    var $panel      = $('#' + cid + '_list');
+    var $search     = $('#' + cid + '_search');
+    var $clearSrch  = $('#' + cid + '_clearSearch');
+    var $clearSel   = $('#' + cid + '_clearSel');
+    var $meta       = $('#' + cid + '_meta');
+    var $opts       = $('#' + cid + '_opts');
+    var $placeholder= $('#' + cid + '_placeholder');
+    var $selText    = $('#' + cid + '_selText');
+    var $selAvatar  = $('#' + cid + '_avatar');
+    var $hiddenId   = $('#' + cid + '_selectedId');
+    var $preview    = $('#' + cid + '_preview');
+    var $prevAva    = $('#' + cid + '_prevAva');
+    var $caret      = $('#' + cid + '_caret');
+    var isEdit      = $component.data('is-edit') === true || $component.data('is-edit') === 'true';
+
+    /* ── state ──────────────────────────────────────────── */
+    var isOpen      = false;
+    var membersData = [];   // flat JS array, populated once
+    var selectedId  = null;
+    var hovIdx      = -1;
+    var debT;
+
+    /* ── helpers ────────────────────────────────────────── */
+    var COLORS = ['#4f46e5','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#db2777','#0d9488'];
+    function getColor(name) {
+        if (!name) return '#6c757d';
+        var h = 0;
+        for (var i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0;
+        return COLORS[Math.abs(h) % COLORS.length];
+    }
+    function getIni(fullName) {
+        var parts = (fullName || '').trim().split(/\s+/);
+        return ((parts[0] ? parts[0][0] : '') + (parts[1] ? parts[1][0] : '')).toUpperCase() || '?';
+    }
+    function esc(s) {
+        return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function hlMark(text, term) {
+        if (!term) return esc(text);
+        var re = new RegExp('(' + term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+        return esc(text).replace(re, '<mark>$1</mark>');
+    }
+
+    /* ── seed membersData from server-rendered DOM ──────── */
+    function seedFromDom() {
+        if (membersData.length > 0) return;   // already seeded
+        $opts.find('.ms-opt').each(function() {
+            var $o = $(this);
+            membersData.push({
+                id:      String($o.data('value')),
+                name:    $o.data('fullname') || '',
+                email:   $o.data('email')    || '',
+                phone:   $o.data('phone')    || '',
+                gender:  $o.data('gender')   || '',
+                ini:     $o.data('ini')      || getIni($o.data('fullname')),
+                clr:     $o.data('clr')      || getColor(($o.data('fullname')||'').split(' ')[0])
+            });
+        });
+    }
+
+    /* ── load via AJAX if no server members rendered ────── */
+    function ensureMembers(cb) {
+        if (membersData.length > 0) { cb(); return; }
+        // Try DOM first
+        seedFromDom();
+        if (membersData.length > 0) { cb(); return; }
+        // AJAX fallback
+        $opts.html('<div class="ms-state-msg"><span class="spinner-border spinner-border-sm text-primary me-2"></span>Loading members…</div>');
+        $.ajax({
+            url: '/Finance/GetActiveMembers',
+            type: 'GET',
+            success: function(res) {
+                if (res.success && res.data) {
+                    membersData = res.data.map(function(m) {
+                        var fn = ((m.firstName||'') + ' ' + (m.otherNames||'')).trim();
+                        return {
+                            id:     String(m.id),
+                            name:   fn,
+                            email:  m.email  || '',
+                            phone:  m.phone  || '',
+                            gender: m.gender || '',
+                            ini:    getIni(fn),
+                            clr:    getColor(m.firstName || fn)
+                        };
+                    });
+                    cb();
+                } else {
+                    $opts.html('<div class="ms-state-msg text-danger"><i class="fa fa-exclamation-circle me-2"></i>Failed to load members</div>');
+                }
+            },
+            error: function() {
+                $opts.html('<div class="ms-state-msg text-danger"><i class="fa fa-wifi me-2"></i>Network error — please retry</div>');
+            }
+        });
+    }
+
+    /* ── build + render filtered list ──────────────────── */
+    function buildOptHtml(m, term) {
+        var name  = hlMark(m.name,  term);
+        var email = hlMark(m.email, term);
+        var phone = hlMark(m.phone, term);
+        var emailSpan = m.email ? '<span><i class="fa fa-envelope-o"></i> ' + email + '</span>' : '';
+        var phoneSpan = m.phone ? '<span><i class="fa fa-phone"></i> '      + phone + '</span>' : '';
+        var selCls = (String(m.id) === String(selectedId)) ? ' ms-selected' : '';
+        return '<div class="ms-opt' + selCls + '" role="option"' +
+               ' data-value="' + esc(m.id)     + '"' +
+               ' data-fullname="' + esc(m.name)  + '"' +
+               ' data-email="'   + esc(m.email)  + '"' +
+               ' data-phone="'   + esc(m.phone)  + '"' +
+               ' data-gender="'  + esc(m.gender) + '"' +
+               ' data-ini="'     + esc(m.ini)    + '"' +
+               ' data-clr="'     + esc(m.clr)    + '">' +
+               '<div class="ms-opt-ava" style="background:' + m.clr + ';">' + esc(m.ini) + '</div>' +
+               '<div class="ms-opt-body">' +
+                 '<div class="ms-opt-name">' + name + '</div>' +
+                 '<div class="ms-opt-sub">' + emailSpan + phoneSpan + '</div>' +
+               '</div>' +
+               '<i class="fa fa-check ms-opt-chk"></i>' +
+               '</div>';
+    }
+
+    function scoreMatch(m, t) {
+        var n = m.name.toLowerCase(), e = m.email.toLowerCase(), p = m.phone.toLowerCase();
+        if (n.startsWith(t))  return 100;
+        if (n.indexOf(t) >= 0) return 80;
+        if (e.startsWith(t))  return 60;
+        if (e.indexOf(t) >= 0) return 40;
+        if (p.indexOf(t) >= 0) return 20;
+        return 0;
+    }
+
+    function renderList(term) {
+        var t = (term || '').toLowerCase().trim();
+        var list;
+        if (!t) {
+            list = membersData.slice();
+        } else {
+            list = [];
+            for (var i = 0; i < membersData.length; i++) {
+                var s = scoreMatch(membersData[i], t);
+                if (s > 0) list.push({ m: membersData[i], s: s });
+            }
+            list.sort(function(a,b){ return b.s - a.s; });
+            list = list.map(function(x){ return x.m; });
         }
 
-        // Fetch members via AJAX if the list is empty (only has loading placeholder)
-        if ($options.length === 0) {
-            $.ajax({
-                url: '/Finance/GetActiveMembers',
-                type: 'GET',
-                success: function(response) {
-                    if (response.success && response.data) {
-                        $optionsContainer.empty();
-                        $optionsContainer.append('<div class="option-item" data-value="">-- Select a member --</div>');
-                        
-                        response.data.forEach(function(member) {
-                            var fullName = ((member.firstName || '') + ' ' + (member.otherNames || '')).trim();
-                            var searchData = (fullName + ' ' + (member.email || '') + ' ' + (member.phone || '')).toLowerCase();
-                            
-                            var optionHtml = `
-                                <div class="option-item"
-                                     data-value="${member.id}"
-                                     data-fullname="${fullName}"
-                                     data-email="${member.email || ''}"
-                                     data-phone="${member.phone || ''}"
-                                     data-gender="${member.gender || ''}"
-                                     data-search="${searchData}">
-                                    <div class="option-title">${fullName}</div>
-                                    <div class="option-subtitle">${member.email || ''}</div>
-                                    ${member.phone ? `<div class="option-subtitle">📞 ${member.phone}</div>` : ''}
-                                </div>
-                            `;
-                            $optionsContainer.append(optionHtml);
-                        });
-                        
-                        // Re-bind option click events and update variables
-                        $options = $optionsContainer.find('.option-item');
-                        $options.on('click', function(e) {
-                            e.stopPropagation();
-                            selectOption($(this));
-                        });
-                        
-                        updateSearchInfo('', $options.filter('[data-value!=""]').length);
-                        
-                        // Pre-select if in edit mode
-                        var selectedMemberId = $('.member-selector-component').data('selected-member-id');
-                        if (selectedMemberId && selectedMemberId !== '') {
-                            var $selectedOption = $options.filter('[data-value="' + selectedMemberId + '"]');
-                            if ($selectedOption.length) {
-                                selectOption($selectedOption);
-                                $selectedMemberId.val(selectedMemberId);
-                            }
-                        }
-                    } else {
-                        $optionsContainer.html('<div class="text-danger p-3">Failed to load members</div>');
-                    }
-                },
-                error: function() {
-                    $optionsContainer.html('<div class="text-danger p-3">Error loading members</div>');
-                }
-            });
+        if (list.length === 0) {
+            $opts.html(t
+                ? '<div class="ms-state-msg"><i class="fa fa-search me-2 text-muted"></i>No members found for <strong>"' + esc(t) + '"</strong></div>'
+                : '<div class="ms-state-msg text-muted">No members available</div>');
+            updateMeta(0, membersData.length, t);
+            return;
         }
-        
-        // Toggle dropdown on click
-        $trigger.on('click', function() {
-            if (!$(this).attr('disabled')) {
-                $dropdownList.toggle();
-                if ($dropdownList.is(':visible')) {
-                    $searchInput.focus();
-                    updateSearchInfo('');
-                    positionDropdown();
-                } else {
-                    clearSearch();
-                }
-            }
-        });
-        
-        // Position dropdown
-        function positionDropdown() {
-            var triggerHeight = $trigger.outerHeight();
-            $dropdownList.css({
-                top: triggerHeight + 'px',
-                left: '0',
-                width: $trigger.outerWidth() + 'px'
-            });
-        }
-        
-        // Close dropdown when clicking outside
-        $(document).on('click', function(e) {
-            if (!$(e.target).closest('.custom-dropdown').length) {
-                $dropdownList.hide();
-                clearSearch();
-            }
-        });
-        
-        // Filter options
-        function filterOptions(searchTerm) {
-            searchTerm = searchTerm.toLowerCase().trim();
-            var hasSearchTerm = searchTerm !== '';
-            var visibleCount = 0;
-            
-            if (hasSearchTerm) {
-                $clearBtn.show();
-            } else {
-                $clearBtn.hide();
-            }
-            
-            $options.each(function() {
-                var $option = $(this);
-                var value = $option.data('value');
-                
-                if (value === '') {
-                    if (!hasSearchTerm) {
-                        $option.show();
-                    } else {
-                        $option.hide();
-                    }
-                    return;
-                }
-                
-                var searchData = ($option.data('search') || '').toLowerCase();
-                var fullName = ($option.data('fullname') || '').toLowerCase();
-                var email = ($option.data('email') || '').toLowerCase();
-                var phone = ($option.data('phone') || '').toLowerCase();
-                
-                var matches = !hasSearchTerm ||
-                             searchData.includes(searchTerm) ||
-                             fullName.includes(searchTerm) ||
-                             email.includes(searchTerm) ||
-                             phone.includes(searchTerm);
-                
-                if (matches) {
-                    $option.show();
-                    visibleCount++;
-                } else {
-                    $option.hide();
-                }
-            });
-            
-            updateSearchInfo(searchTerm, visibleCount);
-            
-            var $noResult = $('#' + controlId + '_options').find('.no-result-message');
-            if (hasSearchTerm && visibleCount === 0) {
-                if ($noResult.length === 0) {
-                    $('#' + controlId + '_options').append('<div class="no-result-message text-center p-3 text-muted">No members found matching your search</div>');
-                }
-            } else {
-                $noResult.remove();
-            }
-        }
-        
-        function updateSearchInfo(searchTerm, visibleCount) {
-            var totalCount = $options.filter('[data-value!=""]').length;
-            
-            if (searchTerm && searchTerm.trim() !== '') {
-                $searchInfo.text(`Found ${visibleCount} of ${totalCount} members`);
-            } else {
-                $searchInfo.text(`${totalCount} members available`);
-            }
-        }
-        
-        function clearSearch() {
-            $searchInput.val('');
-            filterOptions('');
-        }
-        
-        function selectOption($option) {
-            var value = $option.data('value');
-            var fullName = $option.data('fullname');
-            var email = $option.data('email');
-            var phone = $option.data('phone');
-            var gender = $option.data('gender');
-            
-            if (value && value !== '') {
-                $selectedDisplay.val(fullName + ' (' + email + ')');
-                $selectedMemberId.val(value);
-                
-                $('#' + controlId + '_fullName').val(fullName || '');
-                $('#' + controlId + '_email').val(email || '');
-                
-                if ($('#' + controlId + '_phone').length) {
-                    $('#' + controlId + '_phone').val(phone || '');
-                }
-                if ($('#' + controlId + '_gender').length) {
-                    $('#' + controlId + '_gender').val(gender || '');
-                }
-                
-                $dropdownList.hide();
-                clearSearch();
-                
-                // Trigger custom event
-                $(document).trigger('memberSelected', { controlId: controlId, memberId: value, member: { fullName: fullName, email: email, phone: phone, gender: gender } });
-            } else {
-                $selectedDisplay.val('');
-                $selectedMemberId.val('');
-                $('#' + controlId + '_fullName').val('');
-                $('#' + controlId + '_email').val('');
-                
-                if ($('#' + controlId + '_phone').length) {
-                    $('#' + controlId + '_phone').val('');
-                }
-                if ($('#' + controlId + '_gender').length) {
-                    $('#' + controlId + '_gender').val('');
-                }
-            }
-        }
-        
-        $options.on('click', function(e) {
+
+        var html = '';
+        for (var j = 0; j < list.length; j++) html += buildOptHtml(list[j], t);
+        $opts.html(html);
+
+        // bind clicks on freshly rendered items
+        $opts.find('.ms-opt').on('click', function(e) {
             e.stopPropagation();
-            selectOption($(this));
+            doSelect($(this));
         });
-        
-        var debounceTimer;
-        $searchInput.on('input', function() {
-            clearTimeout(debounceTimer);
-            var searchTerm = $(this).val();
-            debounceTimer = setTimeout(function() {
-                filterOptions(searchTerm);
-            }, 300);
-        });
-        
-        $clearBtn.on('click', function(e) {
-            e.stopPropagation();
-            clearSearch();
-            $searchInput.focus();
-        });
-        
-        $searchInput.on('keydown', function(e) {
-            var $visibleOptions = $options.filter(':visible');
-            var $selected = $visibleOptions.filter('.selected');
-            var index = $visibleOptions.index($selected);
-            
-            switch(e.key) {
-                case 'ArrowDown':
-                    e.preventDefault();
-                    if (index < $visibleOptions.length - 1) {
-                        $visibleOptions.removeClass('selected');
-                        $visibleOptions.eq(index + 1).addClass('selected');
-                        $visibleOptions.eq(index + 1)[0].scrollIntoView({ block: 'nearest' });
-                    } else if ($visibleOptions.length > 0) {
-                        $visibleOptions.removeClass('selected');
-                        $visibleOptions.eq(0).addClass('selected');
-                        $visibleOptions.eq(0)[0].scrollIntoView({ block: 'nearest' });
-                    }
-                    break;
-                    
-                case 'ArrowUp':
-                    e.preventDefault();
-                    if (index > 0) {
-                        $visibleOptions.removeClass('selected');
-                        $visibleOptions.eq(index - 1).addClass('selected');
-                        $visibleOptions.eq(index - 1)[0].scrollIntoView({ block: 'nearest' });
-                    } else if ($visibleOptions.length > 0) {
-                        $visibleOptions.removeClass('selected');
-                        $visibleOptions.eq($visibleOptions.length - 1).addClass('selected');
-                        $visibleOptions.eq($visibleOptions.length - 1)[0].scrollIntoView({ block: 'nearest' });
-                    }
-                    break;
-                    
-                case 'Enter':
-                    e.preventDefault();
-                    if ($selected.length) {
-                        selectOption($selected);
-                    } else if ($visibleOptions.length > 0) {
-                        selectOption($visibleOptions.first());
-                    }
-                    break;
-                    
-                case 'Escape':
-                    $dropdownList.hide();
-                    clearSearch();
-                    break;
-            }
-        });
-        
-        $(window).on('resize', function() {
-            if ($dropdownList.is(':visible')) {
-                positionDropdown();
-            }
-        });
-        
-        // Pre-select if in edit mode
-        var selectedMemberId = $('.member-selector-component').data('selected-member-id');
-        if (selectedMemberId && selectedMemberId !== '') {
-            var $selectedOption = $options.filter('[data-value="' + selectedMemberId + '"]');
-            if ($selectedOption.length) {
-                selectOption($selectedOption);
-                $selectedMemberId.val(selectedMemberId);
-            }
+
+        hovIdx = -1;
+        updateMeta(list.length, membersData.length, t);
+    }
+
+    function updateMeta(shown, total, term) {
+        if (term && term.trim()) {
+            $meta.html('<span class="text-primary fw-semibold">' + shown + '</span> of ' + total + ' matched');
+        } else {
+            $meta.text(total + ' members available');
         }
     }
+
+    /* ── open / close ───────────────────────────────────── */
+    function openPanel() {
+        if (isEdit || isOpen) return;
+        isOpen = true;
+        $panel.show();
+        $trigger.addClass('ms-open').attr('aria-expanded','true');
+        $caret.addClass('ms-open');
+        $search.val('').focus();
+        $clearSrch.hide();
+        ensureMembers(function() {
+            renderList('');
+            // scroll selected into view
+            setTimeout(function(){
+                var $s = $opts.find('.ms-selected');
+                if ($s.length) $s[0].scrollIntoView({ block: 'nearest' });
+            }, 30);
+        });
+    }
+
+    function closePanel() {
+        if (!isOpen) return;
+        isOpen = false;
+        $panel.hide();
+        $trigger.removeClass('ms-open').attr('aria-expanded','false');
+        $caret.removeClass('ms-open');
+        hovIdx = -1;
+    }
+
+    /* ── select ─────────────────────────────────────────── */
+    function doSelect($opt) {
+        var id     = String($opt.data('value'));
+        var name   = $opt.data('fullname') || '';
+        var email  = $opt.data('email')    || '';
+        var phone  = $opt.data('phone')    || '';
+        var gender = $opt.data('gender')   || '';
+        var ini    = $opt.data('ini')      || getIni(name);
+        var clr    = $opt.data('clr')      || getColor(name.split(' ')[0]);
+
+        selectedId = id;
+        $hiddenId.val(id);
+
+        // Update trigger chip
+        $placeholder.hide();
+        $selAvatar.css('background', clr).text(ini).show();
+        $selText.text(name).show();
+        $clearSel.show();
+
+        // Update preview
+        $('#' + cid + '_fullName').val(name);
+        $('#' + cid + '_email').val(email);
+        if ($('#' + cid + '_phone').length) $('#' + cid + '_phone').val(phone);
+        if ($('#' + cid + '_gender').length) $('#' + cid + '_gender').val(gender);
+        $prevAva.css('background', clr).text(ini);
+        $preview.slideDown(160);
+
+        closePanel();
+
+        // Dispatch custom event (backward-compat signature)
+        $(document).trigger('memberSelected', {
+            controlId: cid,
+            memberId:  id,
+            member: { fullName: name, email: email, phone: phone, gender: gender }
+        });
+    }
+
+    function clearSelection() {
+        selectedId = null;
+        $hiddenId.val('');
+        $selText.hide();
+        $selAvatar.hide();
+        $placeholder.show();
+        $clearSel.hide();
+        $('#' + cid + '_fullName').val('');
+        $('#' + cid + '_email').val('');
+        if ($('#' + cid + '_phone').length) $('#' + cid + '_phone').val('');
+        if ($('#' + cid + '_gender').length) $('#' + cid + '_gender').val('');
+        $preview.slideUp(140);
+    }
+
+    /* ── keyboard nav ───────────────────────────────────── */
+    function moveHov(dir) {
+        var $items = $opts.find('.ms-opt');
+        if (!$items.length) return;
+        $items.removeClass('ms-hov');
+        hovIdx = Math.max(0, Math.min(hovIdx + dir, $items.length - 1));
+        var $h = $items.eq(hovIdx);
+        $h.addClass('ms-hov');
+        $h[0].scrollIntoView({ block: 'nearest' });
+    }
+
+    $search.on('keydown', function(e) {
+        switch (e.key) {
+            case 'ArrowDown': e.preventDefault(); moveHov(1);  break;
+            case 'ArrowUp':   e.preventDefault(); moveHov(-1); break;
+            case 'Enter':
+                e.preventDefault();
+                var $h = $opts.find('.ms-hov');
+                if ($h.length) { doSelect($h); break; }
+                var $all = $opts.find('.ms-opt');
+                if ($all.length === 1) doSelect($all.first());
+                break;
+            case 'Escape': closePanel(); $trigger.focus(); break;
+            case 'Tab':    closePanel(); break;
+        }
+    });
+
+    $trigger.on('keydown', function(e) {
+        if (!isOpen && (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown')) {
+            e.preventDefault(); openPanel();
+        }
+    });
+
+    /* ── search input ───────────────────────────────────── */
+    $search.on('input', function() {
+        clearTimeout(debT);
+        var term = $(this).val();
+        $clearSrch.toggle(term.length > 0);
+        debT = setTimeout(function() {
+            ensureMembers(function() { renderList(term); });
+        }, 200);
+    });
+
+    $clearSrch.on('click', function(e) {
+        e.stopPropagation();
+        $search.val('').focus().trigger('input');
+    });
+
+    /* ── trigger click ──────────────────────────────────── */
+    $trigger.on('click', function(e) {
+        e.stopPropagation();
+        if (isEdit) return;
+        isOpen ? closePanel() : openPanel();
+    });
+
+    /* ── clear selection ────────────────────────────────── */
+    $clearSel.on('click', function(e) {
+        e.stopPropagation();
+        clearSelection();
+    });
+
+    /* ── close on outside click ─────────────────────────── */
+    $(document).on('click.msdrop_' + cid, function(e) {
+        if (!$(e.target).closest('#' + cid + '_dropdown').length) {
+            closePanel();
+        }
+    });
+
+    /* ── pre-select if a value already exists ───────────── */
+    var preId = String($hiddenId.val() || '').trim();
+    if (preId && preId !== '' && preId !== '0') {
+        ensureMembers(function() {
+            seedFromDom();   // ensure membersData is populated
+            for (var i = 0; i < membersData.length; i++) {
+                if (String(membersData[i].id) === preId) {
+                    var m = membersData[i];
+                    selectedId = preId;
+                    $placeholder.hide();
+                    $selAvatar.css('background', m.clr).text(m.ini).show();
+                    $selText.text(m.name).show();
+                    $clearSel.show();
+                    $('#' + cid + '_fullName').val(m.name);
+                    $('#' + cid + '_email').val(m.email);
+                    if ($('#' + cid + '_phone').length) $('#' + cid + '_phone').val(m.phone);
+                    if ($('#' + cid + '_gender').length) $('#' + cid + '_gender').val(m.gender);
+                    $prevAva.css('background', m.clr).text(m.ini);
+                    $preview.show();
+                    break;
+                }
+            }
+        });
+    }
+
+});/* end ready */
 </script>

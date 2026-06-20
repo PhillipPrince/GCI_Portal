@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.MemberDetailsViewModel
+@model GCI_Admin.Models.MemberDetailsViewModel
 
 @{
     ViewData["Title"] = "Member Details";
@@ -108,7 +108,7 @@
                             }
                             else if (member.StatusId == 2)
                             {
-                                <!-- Make Full Member button for StatusId = 2 (Inactive) -->
+                                <!-- Make Full Member button for StatusId = 2 (Membership Class) -->
                                 <button class="btn btn-outline-success btn-sm" id="makeFullMemberBtn">
                                     <i class="fa fa-user-check me-1"></i>Make Full Member
                                 </button>
@@ -119,6 +119,18 @@
                                 <button class="btn btn-outline-warning btn-sm" id="addToClassBtn">
                                     <i class="fa fa-users me-1"></i>Add to Membership Class
                                 </button>
+                            }
+                            else if (member.StatusId == 4)
+                            {
+                                <!-- Confirm Membership Class button for StatusId = 4 (Awaiting Confirmation) -->
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-warning text-dark me-2" style="font-size:0.95rem;padding:0.45rem 0.75rem;">
+                                        <i class="fa fa-clock me-1"></i>Awaiting Confirmation for Membership Class
+                                    </span>
+                                    <button class="btn btn-outline-success btn-sm" id="confirmMembershipClassBtn">
+                                        <i class="fa fa-check-circle me-1"></i>Confirm Membership Class
+                                    </button>
+                                </div>
                             }
                         </div>
                     </div>
@@ -563,7 +575,11 @@
                                             }
                                             else if (member.StatusId == 2)
                                             {
-                                                <span class="badge bg-warning">Inactive</span>
+                                                <span class="badge bg-warning">Membership Class</span>
+                                            }
+                                            else if (member.StatusId == 4)
+                                            {
+                                                <span class="badge" style="background-color:#fd7e14;">Awaiting Confirmation</span>
                                             }
                                             else
                                             {
@@ -572,8 +588,9 @@
                                         </span>
                                         <select class="form-select edit-field" data-field="statusId" style="display: none;">
                                             <option value="1" selected="@(member.StatusId == 1)">Active</option>
-                                            <option value="2" selected="@(member.StatusId == 2)">Inactive</option>
+                                            <option value="2" selected="@(member.StatusId == 2)">Membership Class</option>
                                             <option value="3" selected="@(member.StatusId == 3)">Pending</option>
+                                            <option value="4" selected="@(member.StatusId == 4)">Awaiting Confirmation</option>
                                         </select>
                                     </td>
                                 </tr>
@@ -774,6 +791,49 @@
         },
         error: function() {
         Swal.fire('Error', 'An error occurred while updating member status.', 'error');
+        }
+        });
+        }
+        });
+        });
+
+        // Confirm Membership Class button handler (for StatusId == 4 - Awaiting Confirmation)
+        $('#confirmMembershipClassBtn').click(function() {
+        Swal.fire({
+        title: 'Confirm Membership Class',
+        text: 'Confirm that this member has completed their membership class and promote them to full Membership Class status?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, confirm membership class',
+        cancelButtonText: 'Cancel'
+        }).then((result) => {
+        if (result.isConfirmed) {
+        $.ajax({
+        url: '@Url.Action("UpdateMemberStatus", "Members")',
+        type: 'POST',
+        data: {
+        memberId: @member.Id,
+        statusId: 2
+        },
+        success: function(response) {
+        if (response.success) {
+        Swal.fire({
+        icon: 'success',
+        title: 'Confirmed!',
+        text: 'Member has been confirmed into the membership class.',
+        timer: 2000,
+        showConfirmButton: false
+        }).then(() => {
+        location.reload();
+        });
+        } else {
+        Swal.fire('Error', response.message || 'Failed to confirm membership class.', 'error');
+        }
+        },
+        error: function() {
+        Swal.fire('Error', 'An error occurred while confirming membership class.', 'error');
         }
         });
         }

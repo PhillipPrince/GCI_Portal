@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace GCI_Admin.Models.DTOs
 {
@@ -26,5 +26,6 @@ namespace GCI_Admin.Models.DTOs
         public bool AllowWalkIns { get;set; }
         public DateTime? StartDateTime { get; set; }
         public DateTime? EndDateTime { get; set; }
+        public int? NotificationGroupId { get; set; }
     }
 }

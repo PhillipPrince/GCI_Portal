@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GCI_Admin.Models
 {
@@ -74,6 +74,7 @@ namespace GCI_Admin.Models
         public List<Member> MembershipClassMembers { get; set; }
         public List<Member> ActiveMembers { get; set; }
         public List<Member> InactiveMembers { get; set; }
+        public List<Member> AwaitingConfirmationMembers { get; set; }
         public List<Member> TransferredMembers { get; set; }
         public List<Member> PromotedToGlory { get; set; }
         public List<Member> WithdrawnMembers { get; set; }

@@ -1,4 +1,4 @@
-﻿using GCI_Admin.DBOperations;
+using GCI_Admin.DBOperations;
 using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Services;
@@ -167,6 +167,28 @@ builder.Services.AddScoped<SessionManager>();
 
 // Build app
 var app = builder.Build();
+
+// Run database schema update to add NotificationGroupId and QrCode columns to Events table if not present
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.ExecuteSqlRaw("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Events') AND name = 'NotificationGroupId') ALTER TABLE Events ADD NotificationGroupId INT NULL;");
+        db.Database.ExecuteSqlRaw("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Events') AND name = 'QrCode') ALTER TABLE Events ADD QrCode NVARCHAR(255) NULL;");
+        db.Database.ExecuteSqlRaw("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('EventRegistrations') AND name = 'HasAttended') ALTER TABLE EventRegistrations ADD HasAttended BIT NULL;");
+        
+        // Populate existing events with a QrCode if they don't have one
+        db.Database.ExecuteSqlRaw("UPDATE Events SET QrCode = LOWER(REPLACE(NEWID(), '-', '')) WHERE QrCode IS NULL OR QrCode = '';");
+        db.Database.ExecuteSqlRaw("UPDATE EventRegistrations SET HasAttended = 0 WHERE HasAttended IS NULL;");
+        
+        Console.WriteLine("Database schema verified: NotificationGroupId, QrCode, and HasAttended columns checked.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Migration Error: {ex.Message}");
+    }
+}
 
 // ================= PIPELINE =================
 if (!app.Environment.IsDevelopment())

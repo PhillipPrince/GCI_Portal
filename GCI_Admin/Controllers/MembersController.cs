@@ -1,4 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Spreadsheet;
 using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
@@ -47,7 +47,8 @@ public class MembersController : Controller
         membersListViewModel.MemberStatus.MembershipClassMembers = members.Where(x => x.StatusId == 2).ToList();
         membersListViewModel.MemberStatus.ActiveMembers = members.Where(x => x.StatusId == 1).ToList();
         membersListViewModel.MemberStatus.InactiveMembers = members.Where(x => x.StatusId == 3).ToList();
-        membersListViewModel.MemberStatus.TransferredMembers = members.Where(x => x.StatusId == 4).ToList();
+        membersListViewModel.MemberStatus.AwaitingConfirmationMembers = members.Where(x => x.StatusId == 4).ToList();
+        membersListViewModel.MemberStatus.TransferredMembers = members.Where(x => x.StatusId == 7).ToList();
         membersListViewModel.MemberStatus.PromotedToGlory = members.Where(x => x.StatusId == 5).ToList();
         membersListViewModel.MemberStatus.WithdrawnMembers = members.Where(x => x.StatusId == 6).ToList();
 

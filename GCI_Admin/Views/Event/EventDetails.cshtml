@@ -242,6 +242,27 @@
             </div>
         </div>
 
+        <!-- QR Code Card -->
+        <div class="card border-0 shadow-sm mb-4 text-center">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa fa-qrcode me-2 text-primary"></i>
+                    Event QR Code
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(Model.Event.QrCode))
+                {
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=@Model.Event.QrCode" class="img-fluid mb-2" alt="Event QR Code" style="max-height: 200px;" />
+                    <p class="small text-muted mb-0">Scan this QR Code to mark attendance for this event.</p>
+                }
+                else
+                {
+                    <p class="text-danger small mb-0">No QR Code generated for this event.</p>
+                }
+            </div>
+        </div>
+
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-0 py-3">
                 <h5 class="fw-bold mb-0">

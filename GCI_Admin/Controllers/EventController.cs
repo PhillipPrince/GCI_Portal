@@ -57,10 +57,71 @@ namespace GCI_Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult CreateEvent()
+        public async Task<IActionResult> CreateEvent()
         {
             var dto = new EventDto();
+            try
+            {
+                ViewBag.NotificationGroups = await _context.NotificationGroups
+                    .Where(g => g.IsActive)
+                    .Select(g => new DropdownItem { Value = g.GroupId.ToString(), Text = g.GroupName })
+                    .ToListAsync();
+            }
+            catch
+            {
+                ViewBag.NotificationGroups = new List<DropdownItem>();
+            }
             return View("_CreateEvent", dto);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            try
+            {
+                ApiResponse<Event> response = await _eventsService.GetEventByIdAsync(id);
+                if (response.Data == null)
+                {
+                    TempData["Error"] = "Event not found";
+                    return RedirectToAction("Index");
+                }
+
+                var dto = new EventDto
+                {
+                    Title = response.Data.Title,
+                    Description = response.Data.Description,
+                    EventDate = response.Data.EventDate,
+                    Location = response.Data.Location,
+                    IsPaid = response.Data.IsPaid,
+                    Price = response.Data.Price,
+                    IsActive = response.Data.IsActive,
+                    RequireRegistration = response.Data.RequireRegistration,
+                    AllowWalkIns = response.Data.AllowWalkIns,
+                    StartDateTime = response.Data.StartDateTime,
+                    EndDateTime = response.Data.EndDateTime,
+                    NotificationGroupId = response.Data.NotificationGroupId
+                };
+
+                ViewBag.EventId = id;
+                try
+                {
+                    ViewBag.NotificationGroups = await _context.NotificationGroups
+                        .Where(g => g.IsActive)
+                        .Select(g => new DropdownItem { Value = g.GroupId.ToString(), Text = g.GroupName })
+                        .ToListAsync();
+                }
+                catch
+                {
+                    ViewBag.NotificationGroups = new List<DropdownItem>();
+                }
+
+                return View("EditEvent", dto);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error loading event edit view: " + ex.Message;
+                return RedirectToAction("Index");
+            }
         }
 
 
@@ -125,7 +186,7 @@ namespace GCI_Admin.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(int eventId, EventDto dto)
+        public async Task<IActionResult> Update(int eventId, [FromBody] EventDto dto)
         {
             try
             {
