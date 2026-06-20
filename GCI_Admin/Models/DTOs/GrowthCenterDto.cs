@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -35,5 +35,6 @@ namespace GCI_Admin.Models.DTOs
         public DateTime? EndDate { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string ProfileImageBase64 { get; set; }
     }
 }

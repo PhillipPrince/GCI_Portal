@@ -18,9 +18,9 @@
         public int TotalMeetings { get; set; }
         public int TotalAttendees { get; set; }
         public decimal AverageAttendance { get; set; }
-        public int TotalMaleAttendees { get; set; }
-        public int TotalFemaleAttendees { get; set; }
-        public int TotalChildrenAttendees { get; set; }
+        public int TotalMale { get; set; }
+        public int TotalFemale { get; set; }
+        public int TotalChildren { get; set; }
         public int MeetingsLast30Days { get; set; }
         public int AttendeesLast30Days { get; set; }
         public decimal AttendanceGrowthPercentage { get; set; }

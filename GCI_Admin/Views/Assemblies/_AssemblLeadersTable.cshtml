@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.AssemblyLeader>
+@model List<GCI_Admin.Models.AssemblyLeader>
 
 @{
     ViewData["Title"] = "Assembly Leaders";
@@ -150,61 +150,4 @@
             </tbody>
         </table>
     </div>
-</div>
-
-@section Scripts {
-    <script>
-        // EDIT LEADER
-        function editLeader(id) {
-            // Redirect to edit page or open modal
-            window.location.href = '@Url.Action("Edit", "AssemblyLeader")/' + id;
-        }
-
-        // TOGGLE LEADER STATUS (Activate/Deactivate)
-        async function toggleLeaderStatus(id, setActive) {
-            var action = setActive ? 'activate' : 'deactivate';
-            if (!confirm(`Are you sure you want to ${action} this assembly leader?`)) return;
-
-            const response = await fetch('@Url.Action("ToggleStatus", "AssemblyLeader")', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                },
-                body: JSON.stringify({
-                    id: id,
-                    isActive: setActive
-                })
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                location.reload();
-            } else {
-                alert(result.message || `Failed to ${action} leader.`);
-            }
-        }
-
-        // DELETE LEADER
-        async function deleteLeader(id) {
-            if (!confirm("Are you sure you want to delete this assembly leader? This action cannot be undone.")) return;
-
-            const response = await fetch('@Url.Action("Delete", "AssemblyLeader")/' + id, {
-                method: 'POST',
-                headers: {
-                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                }
-            });
-
-            if (response.ok) {
-                location.reload();
-            } else {
-                const result = await response.json();
-                alert(result.message || "Failed to delete assembly leader.");
-            }
-        }
-
-     
-    </script>
-}
+</div>

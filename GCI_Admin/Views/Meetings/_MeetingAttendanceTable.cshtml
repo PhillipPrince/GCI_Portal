@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.MeetingAttendance>
+@model List<GCI_Admin.Models.MeetingAttendance>
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
@@ -334,68 +334,31 @@
     let meetingIdToDelete = null;
 
     $(document).ready(function() {
-        // Initialize DataTable with custom filtering
-        var table = $('#meetingsAttendanceTable').DataTable({
-            responsive: true,
-            pageLength: 10,
-            order: [[2, 'desc']], // Sort by meeting date descending
-            language: {
-                search: "Search:",
-                lengthMenu: "Show _MENU_ entries",
-                info: "Showing _START_ to _END_ of _TOTAL_ meetings",
-                infoEmpty: "No meetings found",
-                infoFiltered: "(filtered from _MAX_ total meetings)",
-                paginate: {
-                    first: '<i class="fa fa-angle-double-left"></i>',
-                    previous: '<i class="fa fa-angle-left"></i>',
-                    next: '<i class="fa fa-angle-right"></i>',
-                    last: '<i class="fa fa-angle-double-right"></i>'
+        // Initialize via global handler (handles standard text/select filter row)
+        GCIDataTable.init('#meetingsAttendanceTable', { order: [[2, 'desc']] });
+        var table = $('#meetingsAttendanceTable').DataTable();
+        
+        // Special: wire up numeric "min value" filters for columns 3-6
+        var api = table;
+        api.columns([3, 4, 5, 6]).every(function() {
+            var column = this;
+            var input = $(column.header()).find('input');
+            input.on('keyup change', function() {
+                var minValue = parseInt(this.value);
+                // Remove previous custom search for this input
+                $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(
+                    function(fn) { return fn._columnIndex !== column.index(); }
+                );
+                if (!isNaN(minValue) && this.value !== '') {
+                    var fn = function(settings, data, dataIndex) {
+                        var value = parseInt(data[column.index()]) || 0;
+                        return value >= minValue;
+                    };
+                    fn._columnIndex = column.index();
+                    $.fn.dataTable.ext.search.push(fn);
                 }
-            },
-            initComplete: function() {
-                var api = this.api();
-                
-                // Meeting Type filter (select dropdown)
-                api.columns(1).every(function() {
-                    var column = this;
-                    var select = $(column.header()).find('select');
-                    select.on('change', function() {
-                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                        column.search(val ? '^' + val + '$' : '', true, false).draw();
-                    });
-                });
-                
-                // Text input filters
-                api.columns([2, 7, 8, 9]).every(function() {
-                    var column = this;
-                    var input = $(column.header()).find('input');
-                    input.on('keyup change', function() {
-                        if (column.search() !== this.value) {
-                            column.search(this.value).draw();
-                        }
-                    });
-                });
-                
-                // Number filters (min values)
-                api.columns([3, 4, 5, 6]).every(function() {
-                    var column = this;
-                    var input = $(column.header()).find('input');
-                    input.on('keyup change', function() {
-                        var minValue = parseInt(this.value);
-                        if (isNaN(minValue)) {
-                            column.search('').draw();
-                        } else {
-                            // Custom filtering for minimum values
-                            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                                var value = parseInt(data[column.index()]) || 0;
-                                return value >= minValue;
-                            });
-                            table.draw();
-                            $.fn.dataTable.ext.search.pop();
-                        }
-                    });
-                });
-            }
+                table.draw();
+            });
         });
         
         // Initialize tooltips

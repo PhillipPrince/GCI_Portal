@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Utils;
 
@@ -20,5 +20,6 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<Elder>> GetElderByIdAsync(int id);
         Task<ApiResponse<Elder>> UpdateElderAsync(int id, ElderDto dto);
         Task<ApiResponse<bool>> DeleteElderAsync(int id);
+        Task<ApiResponse<bool>> ToggleElderStatusAsync(int id, bool isActive);
     }
 }

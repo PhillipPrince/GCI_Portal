@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.EventRegistration>
+@model List<GCI_Admin.Models.EventRegistration>
 
 @{
     ViewData["Title"] = "Event Registrations";
@@ -373,27 +373,6 @@ else
 
     // Initialize DataTable for search/filter
     $(document).ready(function () {
-        var table = $('#eventRegistrationsTable').DataTable({
-            orderCellsTop: true,
-            fixedHeader: true,
-            pageLength: 10,
-            language: {
-                search: "Search:",
-                lengthMenu: "Show _MENU_ entries",
-                info: "Showing _START_ to _END_ of _TOTAL_ registrations"
-            }
-        });
-
-        // Setup column filtering
-        $('#eventRegistrationsTable thead tr:eq(1) th').each(function (i) {
-            var input = $(this).find('input, select');
-            if (input.length) {
-                input.on('keyup change', function () {
-                    if (table.column(i).search() !== this.value) {
-                        table.column(i).search(this.value).draw();
-                    }
-                });
-            }
-        });
+        // Global DataTable initializer handles #eventRegistrationsTable (has datatable class + filter row)
     });
 </script>

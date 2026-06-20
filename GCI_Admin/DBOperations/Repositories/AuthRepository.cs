@@ -130,7 +130,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 return response;
             }
         }
-        public async Task<DbResponse<OTP>> GenerateAndInsertOtpAsync(string emailOrPhone, int expiryMinutes = 10)
+        public async Task<DbResponse<OTP>> GenerateAndInsertOtpAsync(string emailOrPhone, int expiryMinutes = 10, string? message="" )
         {
             try
             {
@@ -143,11 +143,22 @@ namespace GCI_Admin.DBOperations.Repositories
                     };
                 }
 
+                //get user using email or phone
+                var user=await _context.Members.FirstOrDefaultAsync(u=>u.Email==emailOrPhone || u.Phone==emailOrPhone);
+                if (user == null)
+                {
+                    return new DbResponse<OTP>
+                    {
+                        Success = false,
+                        Message = "No user found with the provided Email or Phone."
+                    };
+                }
                 string otpCode = OTPGenerator.GenerateOTP();
 
                 var otp = new OTP
                 {
-                    EmailOrPhone = emailOrPhone,
+                    //change after email is ready
+                    EmailOrPhone = user.Phone,
                     OTPCode = otpCode,
                     IsConfirmed = false,
                     CreatedAt = DateTime.Now,
@@ -159,14 +170,23 @@ namespace GCI_Admin.DBOperations.Repositories
                     .OrderByDescending(o => o.CreatedAt)
                     .FirstOrDefaultAsync();
                 string userMessage = string.Empty;
-
-                string otpText = MessageTemplates.GenerateOtpMessage("GCI", otpCode, expiryMinutes);
-
-                if (OTPGenerator.IsPhoneNumber(emailOrPhone))
+                string otpText= string.Empty;
+                if (message != null)
                 {
+                    otpText = MessageTemplates.GenerateCollectionVerificationOtpMessage(user.FirstName, otpCode, expiryMinutes);
+                }
+                else
+                {
+                    otpText  = MessageTemplates.GenerateOtpMessage(user.FirstName, otpCode, expiryMinutes);
+
+
+                }
+//enable this after email is ready
+                //if (OTPGenerator.IsPhoneNumber(emailOrPhone))
+                //{
                     try
                     {
-                        var smsResult = await _communicationService.SendSmsAsync(emailOrPhone, otpText);
+                        var smsResult = await _communicationService.SendSmsAsync(user.Phone, otpText);
 
                         userMessage = "Your OTP code has been sent successfully!";
                     }
@@ -175,24 +195,24 @@ namespace GCI_Admin.DBOperations.Repositories
                         userMessage = "We were unable to send your OTP at this time. Please try again.";
                         Loggers.DoLogs($"SMS sending failed: {ex.Message}");
                     }
-                }
-                else if (OTPGenerator.IsEmail(emailOrPhone))
-                {
-                    try
-                    {
-                        var emailResult = await _communicationService.SendEmailAsync(emailOrPhone, "Your OTP Code", otpText);
-                        userMessage = "Your OTP code has been sent successfully via email!";
-                    }
-                    catch (Exception ex)
-                    {
-                        userMessage = "We were unable to send your OTP email at this time. Please try again.";
-                        Loggers.DoLogs($"Email sending failed: {ex.Message}");
-                    }
-                }
-                else
-                {
-                    userMessage = "Invalid phone number or email address provided.";
-                }
+                //}
+                //else if (OTPGenerator.IsEmail(emailOrPhone))
+                //{
+                //    try
+                //    {
+                //        var emailResult = await _communicationService.SendEmailAsync(emailOrPhone, "Your OTP Code", otpText);
+                //        userMessage = "Your OTP code has been sent successfully via email!";
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        userMessage = "We were unable to send your OTP email at this time. Please try again.";
+                //        Loggers.DoLogs($"Email sending failed: {ex.Message}");
+                //    }
+                //}
+                //else
+                //{
+                //    userMessage = "Invalid phone number or email address provided.";
+                //}
 
 
 

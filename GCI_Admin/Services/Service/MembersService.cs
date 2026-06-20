@@ -5,6 +5,8 @@ using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using Utils;
 
 namespace GCI_Admin.Services.Service
@@ -329,6 +331,7 @@ namespace GCI_Admin.Services.Service
                 {
                     TotalRecords = excelRows.Count
                 };
+                var failedRecords = new List<FailedMemberRecord>();
 
                 // 🔥 Overwrite option
                 if (uploadOption == "overwrite")
@@ -346,25 +349,91 @@ namespace GCI_Admin.Services.Service
                     {
                         // ✅ Required fields
                         if (string.IsNullOrWhiteSpace(row.FirstName) ||
-                            string.IsNullOrWhiteSpace(row.Phone) ||
-                            string.IsNullOrWhiteSpace(row.Email))
+                            string.IsNullOrWhiteSpace(row.Phone))
                         {
                             response.FailedRecords++;
-                            response.ErrorMessages.Add($"Row {row.RowNumber}: Missing required fields.");
+                            const string error = "Missing required fields.";
+                            response.ErrorMessages.Add($"Row {row.RowNumber}: {error}");
+                            failedRecords.Add(CreateFailedRecord(row, error));
                             continue;
                         }
 
                         // ✅ Date parsing
                         DateTime? dob = null;
+
                         if (!string.IsNullOrWhiteSpace(row.DateOfBirth))
                         {
-                            if (DateTime.TryParse(row.DateOfBirth, out DateTime parsedDob))
-                                dob = parsedDob;
+                            string dateValue = row.DateOfBirth.Trim();
+
+                            // Remove ordinal suffixes: 1st, 2nd, 3rd, 4th...
+                            dateValue = Regex.Replace(
+                                dateValue,
+                                @"(\d+)(st|nd|rd|th)",
+                                "$1",
+                                RegexOptions.IgnoreCase);
+
+                            // Year only
+                            if (dateValue.Length == 4 &&
+                                int.TryParse(dateValue, out int year))
+                            {
+                                dob = new DateTime(year, 1, 1);
+                            }
+
+                            // Excel serial date
+                            else if (double.TryParse(dateValue, out double excelDate))
+                            {
+                                dob = DateTime.FromOADate(excelDate);
+                            }
+
                             else
                             {
-                                response.FailedRecords++;
-                                response.ErrorMessages.Add($"Row {row.RowNumber}: Invalid DateOfBirth.");
-                                continue;
+                                string[] formats =
+                                {
+            "dd/MM/yyyy",
+            "d/M/yyyy",
+            "dd-MM-yyyy",
+            "d-M-yyyy",
+            "dd MMMM yyyy",
+            "d MMMM yyyy",
+            "dd MMM yyyy",
+            "d MMM yyyy",
+            "yyyy-MM-dd",
+            "MM/dd/yyyy",
+            "M/d/yyyy"
+        };
+
+                                if (DateTime.TryParseExact(
+                                        dateValue,
+                                        formats,
+                                        CultureInfo.InvariantCulture,
+                                        DateTimeStyles.None,
+                                        out DateTime parsedDob))
+                                {
+                                    dob = parsedDob;
+                                }
+                                else if (DateTime.TryParse(
+                                            dateValue,
+                                            out parsedDob))
+                                {
+                                    dob = parsedDob;
+                                }
+                                else
+                                {
+                                    row.DateOfBirth = DateTime.Now.ToString();
+                                    //response.FailedRecords++;
+
+                                    //const string error = "Invalid Date of Birth format. Please verify the input. The system has temporarily set it to today's date.";
+                                    //Loggers.EventLogs(error);
+                                    Loggers.EventLogs($"DOB Error | Row: {row.RowNumber} | Name: {row.FirstName} {row.OtherNames} | Message: Invalid Date of Birth format. Defaulted to today.");
+                                    //response.ErrorMessages.Add(
+                                    //    $"Row {row.RowNumber}: {error}");
+
+                                    //failedRecords.Add(
+                                    //    CreateFailedRecord(row, error));
+
+
+                                    //continue;
+                                }
                             }
                         }
 
@@ -375,16 +444,16 @@ namespace GCI_Admin.Services.Service
                             int.TryParse(row.NumberOfChildren, out children);
                         }
 
-                        // ✅ Normalize phone (Kenya format)
-                        // Normalize safely
-                        string phone = NormalizePhone(row?.Phone ?? "");
+                        string phone = PhoneHelper.NormalizeKenyanPhoneOrEmail(row?.Phone ?? "");
                         string email = row?.Email?.Trim() ?? "";
 
                         // Skip if both are empty (avoid useless query)
                         if (string.IsNullOrWhiteSpace(phone) && string.IsNullOrWhiteSpace(email))
                         {
                             response.FailedRecords++;
-                            response.ErrorMessages.Add($"Row {row?.RowNumber}: Phone and Email cannot both be empty.");
+                            const string error = "Phone and Email cannot both be empty.";
+                            response.ErrorMessages.Add($"Row {row.RowNumber}: {error}");
+                            failedRecords.Add(CreateFailedRecord(row, error));
                             continue;
                         }
 
@@ -397,8 +466,33 @@ namespace GCI_Admin.Services.Service
                         if (exists && uploadOption != "overwrite")
                         {
                             response.FailedRecords++;
-                            response.ErrorMessages.Add($"Row {row.RowNumber}: Duplicate member.");
+                            const string error = "Duplicate member.";
+                            response.ErrorMessages.Add($"Row {row.RowNumber}: {error}");
+                            failedRecords.Add(CreateFailedRecord(row, error));
                             continue;
+                        }
+                        if (string.IsNullOrEmpty(phone))
+                            {
+                            phone = "";
+
+                        }
+                        var gender = row.Gender?.Trim();
+
+                        if (!string.IsNullOrEmpty(gender))
+                        {
+                            if (gender.Equals("M", StringComparison.OrdinalIgnoreCase))
+                                gender = "Male";
+                            else if (gender.Equals("F", StringComparison.OrdinalIgnoreCase))
+                                gender = "Female";
+                            else if (!gender.Equals("Male", StringComparison.OrdinalIgnoreCase) &&
+                                     !gender.Equals("Female", StringComparison.OrdinalIgnoreCase))
+                            {
+                                response.FailedRecords++;
+                                const string error = "Invalid Gender value. Allowed values: M, F, Male, Female.";
+                                response.ErrorMessages.Add($"Row {row.RowNumber}: {error}");
+                                failedRecords.Add(CreateFailedRecord(row, error));
+                                continue;
+                            }
                         }
 
                         var member = new Member
@@ -407,7 +501,7 @@ namespace GCI_Admin.Services.Service
                             OtherNames = row.OtherNames,
                             Phone = phone,
                             Email = row.Email,
-                            Gender = row.Gender,
+                            Gender = gender,
                             DateOfBirth = dob,
                             MaritalStatus = row.MaritalStatus,
                             SpouseName = row.SpouseName,
@@ -431,7 +525,10 @@ namespace GCI_Admin.Services.Service
                     {
                         Loggers.DoLogs($"Error processing row {row.RowNumber}: {ex.Message}");
                         response.FailedRecords++;
-                        response.ErrorMessages.Add($"Row {row.RowNumber}: {ex.Message}");
+                        response.ErrorMessages.Add(
+                            $"Row {row.RowNumber}: {ex.Message}");
+                        failedRecords.Add(
+                            CreateFailedRecord(row, ex.Message));
                     }
                 }
 
@@ -439,6 +536,17 @@ namespace GCI_Admin.Services.Service
                 {
                     await _context.Members.AddRangeAsync(membersToInsert);
                     await _context.SaveChangesAsync();
+                }
+                if (failedRecords.Any())
+                {
+                    var failedFileBytes =
+                        GenerateFailedRecordsExcel(failedRecords);
+
+                    response.FailedRecordsFileBase64 =
+                        Convert.ToBase64String(failedFileBytes);
+
+                    response.FailedRecordsFileName =
+                        $"FailedMembers_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
                 }
                 Loggers.EventLogs($"Excel upload completed: {response.TotalRecords} total, {response.SuccessfulRecords} successful, {response.FailedRecords} failed.");
 
@@ -460,6 +568,8 @@ namespace GCI_Admin.Services.Service
                 };
             }
         }
+      
+        
         private List<ExcelMemberDto> ReadExcelMemberFile(Stream stream)
         {
             var rows = new List<ExcelMemberDto>();
@@ -504,35 +614,7 @@ namespace GCI_Admin.Services.Service
                    string.IsNullOrWhiteSpace(row.Email);
         }
 
-        private string NormalizePhone(string phone)
-        {
-            if (string.IsNullOrWhiteSpace(phone))
-                return null;
-
-            // Remove spaces and trim
-            phone = phone.Trim().Replace(" ", "");
-
-            if (phone.StartsWith("+"))
-                phone = phone.Substring(1);
-
-            if (phone.StartsWith("0"))
-            {
-                phone = "254" + phone.Substring(1);
-            }
-          
-            else if (phone.Length == 9)
-            {
-                // 712345678 → +254712345678
-                phone = "254" + phone;
-            }
-            else
-            {
-                // Unknown format → return null (or keep original if you prefer)
-                return null;
-            }
-
-            return "+" + phone;
-        }
+    
 
 
         private string GetCellValue(IXLCell cell)
@@ -647,6 +729,104 @@ namespace GCI_Admin.Services.Service
                     Data = null
                 };
             }
+        }
+        public async Task<ApiResponse<Member>> DeleteUserByPhone(string phone)
+        {
+            var response = new ApiResponse<Member>();
+            try
+            {
+                var dbResponse = await _membersRepository.UpdateUserStatus(phone, 8);
+                response.IsSuccess = dbResponse.Success;
+                response.Message = dbResponse.Message;
+                response.Code = dbResponse.Success ? "200" : "400";
+                response.Data = dbResponse.Data;
+                Loggers.EventLogs($"UpdateUserStatus attempt for phone {phone}: {dbResponse.Message}");
+                return response;
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"UpdateUserStatus Exception for phone {phone}: {ex.Message}");
+                response.IsSuccess = false;
+                response.Message = "An error occurred while updating the user status.";
+                response.Code = "500";
+                response.Data = null;
+                return response;
+            }
+        }
+
+        private byte[] GenerateFailedRecordsExcel(List<FailedMemberRecord> failedRecords)
+        {
+            using var workbook = new XLWorkbook();
+
+            var ws = workbook.Worksheets.Add("Failed Records");
+
+            ws.Cell(1, 1).Value = "Row Number";
+            ws.Cell(1, 2).Value = "Error";
+            ws.Cell(1, 3).Value = "First Name";
+            ws.Cell(1, 4).Value = "Other Names";
+            ws.Cell(1, 5).Value = "Phone";
+            ws.Cell(1, 6).Value = "Email";
+            ws.Cell(1, 7).Value = "Gender";
+            ws.Cell(1, 8).Value = "Date Of Birth";
+            ws.Cell(1, 9).Value = "Marital Status";
+            ws.Cell(1, 10).Value = "Spouse Name";
+            ws.Cell(1, 11).Value = "Number Of Children";
+            ws.Cell(1, 12).Value = "Assembly";
+            ws.Cell(1, 13).Value = "Residential Address";
+            ws.Cell(1, 14).Value = "Social Media Name";
+
+            int row = 2;
+
+            foreach (var item in failedRecords)
+            {
+                ws.Cell(row, 1).Value = item.RowNumber;
+                ws.Cell(row, 2).Value = item.ErrorMessage;
+                ws.Cell(row, 3).Value = item.FirstName;
+                ws.Cell(row, 4).Value = item.OtherNames;
+                ws.Cell(row, 5).Value = item.Phone;
+                ws.Cell(row, 6).Value = item.Email;
+                ws.Cell(row, 7).Value = item.Gender;
+                ws.Cell(row, 8).Value = item.DateOfBirth;
+                ws.Cell(row, 9).Value = item.MaritalStatus;
+                ws.Cell(row, 10).Value = item.SpouseName;
+                ws.Cell(row, 11).Value = item.NumberOfChildren;
+                ws.Cell(row, 12).Value = item.Assembly;
+                ws.Cell(row, 13).Value = item.ResidentialAddress;
+                ws.Cell(row, 14).Value = item.SocialMediaName;
+
+                row++;
+            }
+
+            ws.Columns().AdjustToContents();
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+
+            return stream.ToArray();
+        }
+
+        private FailedMemberRecord CreateFailedRecord(
+    ExcelMemberDto row,
+    string errorMessage)
+        {
+            return new FailedMemberRecord
+            {
+                RowNumber = row.RowNumber,
+                ErrorMessage = errorMessage,
+
+                FirstName = row.FirstName,
+                OtherNames = row.OtherNames,
+                Phone = row.Phone,
+                Email = row.Email,
+                Gender = row.Gender,
+                DateOfBirth = row.DateOfBirth,
+                MaritalStatus = row.MaritalStatus,
+                SpouseName = row.SpouseName,
+                NumberOfChildren = row.NumberOfChildren,
+                Assembly = row.Assembly,
+                ResidentialAddress = row.ResidentialAddress,
+                SocialMediaName = row.SocialMediaName
+            };
         }
     }
 }

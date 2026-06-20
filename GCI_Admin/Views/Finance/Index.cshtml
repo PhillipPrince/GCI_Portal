@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.Finance
+@model GCI_Admin.Models.Finance
 
 @{
     ViewData["Title"] = "Finance Dashboard";
@@ -20,43 +20,7 @@
     </div>
 </div>
 
-<!-- Account Reference Summary Widgets -->
-<div class="row g-3 mb-4">
-    @if (Model.AccountReferenceSummaries != null && Model.AccountReferenceSummaries.Any())
-    {
-        var colors = new[] { "#667eea", "#764ba2", "#f59e0b", "#10b981", "#ef4444", "#3b82f6", "#8b5cf6", "#ec4899" };
-        var index = 0;
 
-        foreach (var summary in Model.AccountReferenceSummaries.OrderByDescending(s => s.TotalAmount))
-        {
-            <div class="col-md-3 col-6">
-                <div class="card border-0 shadow-sm account-widget"
-                     style="background: linear-gradient(135deg, @colors[index % colors.Length] 0%, @colors[(index + 1) % colors.Length] 100%);"
-                     onclick="filterByAccount('@summary.AccountReference')">
-                    <div class="card-body text-white">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h6 class="mb-0 text-white opacity-75">@summary.AccountReference</h6>
-                            <span class="badge bg-white text-dark">@summary.TransactionCount txns</span>
-                        </div>
-                        <div class="amount mb-1">KES @summary.TotalAmount.ToString("N0")</div>
-                        <div class="d-flex justify-content-between">
-                            <small class="opacity-75">Avg: KES @((summary.TotalAmount / summary.TransactionCount).ToString("N0"))</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            index++;
-        }
-    }
-    else
-    {
-        <div class="col-12">
-            <div class="alert alert-info">
-                <i class="fa fa-info-circle me-2"></i>No payment summaries available
-            </div>
-        </div>
-    }
-</div>
 
 <!-- Financial Stats Cards -->
 <div class="row g-3 mb-4">
@@ -141,12 +105,12 @@
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
         <div class="row g-3 align-items-center">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="input-group">
                     <span class="input-group-text bg-transparent border-end-0">
                         <i class="fa fa-search text-muted"></i>
                     </span>
-                    <input type="text" class="form-control border-start-0" id="givingSearch" placeholder="Search by phone, receipt...">
+                    <input type="text" class="form-control border-start-0" id="givingSearch" placeholder="Search...">
                 </div>
             </div>
             <div class="col-md-2">
@@ -161,6 +125,32 @@
                     }
                 </select>
             </div>
+            <div class="col-md-1">
+                <select class="form-select" id="filterYear">
+                    <option value="">Year</option>
+                    @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 5; y--)
+                    {
+                        <option value="@y">@y</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="filterMonth">
+                    <option value="">All Months</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
             <div class="col-md-2">
                 <select class="form-select" id="dateRange">
                     <option value="all">All Time</option>
@@ -173,19 +163,19 @@
                     <option value="custom">Custom Range</option>
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-1">
                 <select class="form-select" id="paymentStatus">
-                    <option value="">All Status</option>
+                    <option value="">Status</option>
                     <option value="1">Pending</option>
                     <option value="2">Success</option>
                     <option value="3">Failed</option>
                 </select>
             </div>
-            <div class="col-md-3 text-end">
-                <button class="btn btn-outline-secondary me-2" onclick="clearFilters()">
-                    <i class="fa fa-times me-1"></i>Clear
+            <div class="col-md-2 text-end">
+                <button class="btn btn-outline-secondary btn-sm me-1" onclick="clearFilters()" title="Clear Filters">
+                    <i class="fa fa-times"></i>
                 </button>
-                <button class="btn btn-primary" onclick="applyFilters()">
+                <button class="btn btn-primary btn-sm" onclick="applyFilters()">
                     <i class="fa fa-filter me-1"></i>Apply
                 </button>
             </div>
@@ -214,7 +204,7 @@
 
 <!-- Record Payment Modal -->
 <div class="modal fade" id="paymentModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Record Manual Payment</h5>
@@ -223,12 +213,17 @@
             <div class="modal-body">
                 <form id="paymentForm">
                     <div class="mb-3">
-                        <label class="form-label">Member ID</label>
-                        <input type="number" class="form-control" id="memberId" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Phone Number</label>
-                        <input type="text" class="form-control" id="phoneNumber" placeholder="254XXXXXXXXX" required>
+                        @await Html.PartialAsync("_MemberSelector", new GCI_Admin.Models.ViewModels.MemberSelectorViewModel
+                        {
+                            ControlId = "paymentMemberSelector",
+                            LabelText = "Select Member",
+                            MemberIdFieldName = "MemberId",
+                            SelectedMemberId = null,
+                            Members = ViewBag.Members as List<GCI_Admin.Models.Member>,
+                            IsRequired = true,
+                            IsEdit = false,
+                            ShowPhoneAndGender = true
+                        })
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Account Reference</label>
@@ -296,10 +291,7 @@
     <!-- Moment.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 
-    <!-- DataTables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- DataTables loaded globally in _Layout.cshtml -->
 
     <style>
         .stat-card {
@@ -338,10 +330,6 @@
             color: white;
             border-color: #0d6efd;
         }
-
-        .dataTables_filter {
-            display: none;
-        }
     </style>
 
     <script>
@@ -353,6 +341,18 @@
             initializeDataTable();
             updateStats();
             initializeEventListeners();
+
+            // Clear member selector when payment modal is closed
+            $('#paymentModal').on('hidden.bs.modal', function() {
+                $('#paymentMemberSelector_display').val('');
+                $('#paymentMemberSelector_selectedId').val('');
+                $('#paymentMemberSelector_fullName').val('');
+                $('#paymentMemberSelector_email').val('');
+                $('#paymentMemberSelector_phone').val('');
+                $('#paymentMemberSelector_gender').val('');
+                $('.dropdown-list').hide();
+                $('#paymentMemberSelector_validation').text('');
+            });
 
             // Check for success message from TempData
             @if (TempData["SuccessMessage"] != null)
@@ -373,6 +373,10 @@
                 }
             });
 
+            $('#accountReference, #filterYear, #filterMonth, #paymentStatus').on('change', function() {
+                applyFilters();
+            });
+
             // Individual column search
             $('#paymentsTable thead tr:eq(1) th').each(function(i) {
                 $('input', this).on('keyup change', function() {
@@ -390,25 +394,10 @@
         }
 
         function initializeDataTable() {
-            if ($.fn.DataTable.isDataTable('#paymentsTable')) {
-                $('#paymentsTable').DataTable().destroy();
-            }
-
-            window.paymentsTable = $('#paymentsTable').DataTable({
-                pageLength: 10,
-                order: [[5, 'desc']], // Sort by Transaction Date descending
-                language: {
-                    search: "Search all:",
-                    lengthMenu: "Show _MENU_ payments",
-                    info: "Showing _START_ to _END_ of _TOTAL_ payments",
-                    emptyTable: "No payments available",
-                    zeroRecords: "No matching payments found"
-                },
-                initComplete: function() {
-                    // Update stats after table initialization
-                    updateStats();
-                }
-            });
+            // Delegate to global GCIDataTable initializer
+            GCIDataTable.init('#paymentsTable');
+            // Grab a reference to the instance for column-search operations
+            window.paymentsTable = $('#paymentsTable').DataTable();
         }
 
         function reloadPaymentsTable() {
@@ -430,7 +419,9 @@
                 dateRange: $('#dateRange').val(),
                 paymentStatus: $('#paymentStatus').val(),
                 fromDate: $('#fromDate').val(),
-                toDate: $('#toDate').val()
+                toDate: $('#toDate').val(),
+                filterYear: $('#filterYear').val(),
+                filterMonth: $('#filterMonth').val()
             };
         }
 
@@ -479,13 +470,17 @@
             $('#yearCount').text(yearCount + ' transactions');
         }
 
+        // Apply filters
         function applyFilters() {
             reloadPaymentsTable();
         }
 
+        // Clear filters
         function clearFilters() {
             $('#givingSearch').val('');
             $('#accountReference').val('');
+            $('#filterYear').val('');
+            $('#filterMonth').val('');
             $('#dateRange').val('all');
             $('#paymentStatus').val('');
             $('#customDateRange').hide();
@@ -527,6 +522,13 @@
         }
 
         function saveManualPayment() {
+            // Validate member is selected
+            const memberIdVal = $('#paymentMemberSelector_selectedId').val();
+            if (!memberIdVal || memberIdVal === '') {
+                Swal.fire('Validation Error', 'Please select a member', 'warning');
+                return;
+            }
+
             // Validate form
             if (!$('#paymentForm')[0].checkValidity()) {
                 $('#paymentForm')[0].reportValidity();
@@ -534,12 +536,12 @@
             }
 
             const paymentData = {
-                memberId: parseInt($('#memberId').val()),
-                phoneNumber: $('#phoneNumber').val(),
+                memberId: parseInt(memberIdVal),
+                phoneNumber: $('#paymentMemberSelector_phone').val(),
                 accountReference: $('#accountRef').val(),
                 amount: parseFloat($('#amount').val()),
                 transactionDate: $('#transactionDate').val(),
-                mpesaReceiptNumber: $('#receiptNumber').val() || 'MANUAL-' + Date.now(),
+                mpesaReceiptNumber: $('#receiptNumber').val() ? 'CASH-' + $('#receiptNumber').val() : 'CASH-' + Date.now().toString(),
                 paymentStatusId: parseInt($('#paymentStatusId').val()),
                 createdAt: new Date().toISOString()
             };

@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.DTOs.NewElder
+@model GCI_Admin.Models.DTOs.NewElder
 
 @{
     Layout = null;
@@ -45,6 +45,28 @@
                         IsEdit = false,
                         ShowPhoneAndGender = false
                     })
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            @await Html.PartialAsync("_ImagePicker", new GCI_Admin.Models.ImagePickerViewModel
+                            {
+                                ControlId = "elderProfileImage",
+                                LabelText = "Elder Profile Image",
+                                IconClass = "fa fa-user-circle-o",
+                                HelpText = "Upload a profile image for the elder. Recommended size: 400x400 pixels. Max size: 5MB",
+                                UploadButtonText = "Choose Image",
+                                CurrentImageUrl = null,
+                                PreviewWidth = 150,
+                                PreviewHeight = 150,
+                                MaxFileSizeMB = 5,
+                                IsRequired = false,
+                                Rounded = true,
+                                FileInputName = "ProfileImage",
+                                ImageUrlFieldName = "ProfileImageUrl",
+                                Base64FieldName = "ProfileImageBase64"
+                            })
+                        </div>
+                    </div>
 
                     <div class="row mt-3">
                         <div class="col-md-12 mb-3">
@@ -206,7 +228,8 @@
                 MemberId: parseInt(memberId),
                 DateOrdained: dateOrdained,
                 Description: description || '',
-                IsActive: isActive
+                IsActive: isActive,
+                ProfileImageBase64: $('#elderProfileImage_base64').val() || null
             };
 
             console.log("Submitting elder form data as JSON:");

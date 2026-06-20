@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
@@ -279,5 +279,15 @@ namespace GCI_Admin.Controllers
             return Ok(result);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ToggleElderStatus(int id, bool isActive)
+        {
+            var result = await _leadershipService.ToggleElderStatusAsync(id, isActive);
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }

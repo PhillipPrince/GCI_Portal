@@ -691,5 +691,49 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+        public async Task<DbResponse<Member>> UpdateUserStatus(string phone, int statusId)
+        {
+            try
+            {
+                var user = await _context.Members.FirstOrDefaultAsync(x => x.Phone == phone);
+                if (user == null)
+                {
+                    return new DbResponse<Member>
+                    {
+                        Success = false,
+                        Message = "User not found."
+                    };
+                }
+                //var statusExists = await _context.Statuses
+                //    .AnyAsync(x => x.Id == statusId);
+                //if (!statusExists)
+                //{
+                //    return new DbResponse<User>
+                //    {
+                //        Success = false,
+                //        Message = "Status not found."
+                //    };
+                //}
+                user.StatusId = statusId;
+                // user.UpdatedAt = DateTime.Now;
+                await _context.SaveChangesAsync();
+                return new DbResponse<Member>
+                {
+                    Success = true,
+                    Message = "User status updated successfully.",
+                    Data = user
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs("UserRepository->UpdateUserStatus->" + ex.Message);
+                return new DbResponse<Member>
+                {
+                    Success = false,
+                    Message = "An error occurred while updating user status."
+                };
+            }
+        }
+
     }
 }

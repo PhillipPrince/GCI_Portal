@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.DBOperations.Repositories;
 using Utils;
@@ -50,6 +50,32 @@ namespace GCI_Admin.Services
             catch (Exception ex)
             {
                 Loggers.DoLogs("SystemConfigService->GetConfigByKeyAsync->" + ex);
+                return new DbResponse<SystemConfig>
+                {
+                    Success = false,
+                    Message = "Failed to retrieve config"
+                };
+            }
+        }
+
+        public async Task<DbResponse<SystemConfig>> GetConfigByIdAsync(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return new DbResponse<SystemConfig>
+                    {
+                        Success = false,
+                        Message = "Invalid config ID"
+                    };
+                }
+
+                return await _repository.GetConfigByIdAsync(id);
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs("SystemConfigService->GetConfigByIdAsync->" + ex);
                 return new DbResponse<SystemConfig>
                 {
                     Success = false,
@@ -142,6 +168,7 @@ namespace GCI_Admin.Services
             }
         }
 
+     
         public async Task<DbResponse<bool>> DeleteConfigAsync(int id)
         {
             try

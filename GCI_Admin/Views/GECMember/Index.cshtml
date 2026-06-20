@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.GECMember>
+@model List<GCI_Admin.Models.GECMember>
 
 @{
     ViewData["Title"] = "GEC Members Management";
@@ -154,6 +154,98 @@
             table.search('').draw();
         }
 
-    
+        function editGECMember(id) {
+            $('#memberModal').modal('show');
+            $('#modalTitleMember').text('Edit GEC Member');
+            $('#memberModalBody').html(`
+                <div class="text-center p-4">
+                    <div class="spinner-border text-primary"></div>
+                </div>
+            `);
+            $('#saveMemberBtn').prop('disabled', false);
+
+            $.get('@Url.Action("LoadEditForm", "GECMember")/' + id, function (data) {
+                $('#memberModalBody').html(data);
+            }).fail(function () {
+                $('#memberModalBody').html('<div class="alert alert-danger">Failed to load form.</div>');
+            });
+        }
+
+        function toggleGECMemberStatus(id, setActive) {
+            const action = setActive ? 'activate' : 'deactivate';
+
+            Swal.fire({
+                title: 'Confirm Status Change',
+                text: `Are you sure you want to ${action} this GEC member?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: `Yes, ${action}!`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("ToggleStatus", "GECMember")',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ id: id, isActive: setActive }),
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire('Success!', response.message || `Status changed successfully.`, 'success')
+                                    .then(() => location.reload());
+                            } else {
+                                Swal.fire('Error', response.message || 'Failed to toggle status.', 'error');
+                            }
+                        },
+                        error: function (xhr) {
+                            Swal.fire('Error', xhr.responseJSON?.message || 'An unexpected error occurred.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function deleteGECMember(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Are you sure you want to delete this GEC member? This will perform a soft-delete.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("Delete", "GECMember")/' + id,
+                        type: 'POST',
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire('Deleted!', response.message || 'GEC Member deleted successfully.', 'success')
+                                    .then(() => location.reload());
+                            } else {
+                                Swal.fire('Error', response.message || 'Failed to delete GEC member.', 'error');
+                            }
+                        },
+                        error: function (xhr) {
+                            Swal.fire('Error', xhr.responseJSON?.message || 'An unexpected error occurred.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Map globally
+        window.editGECMember = editGECMember;
+        window.toggleGECMemberStatus = toggleGECMemberStatus;
+        window.deleteGECMember = deleteGECMember;
+        window.applyMemberFilters = applyMemberFilters;
+        window.clearMemberFilters = clearMemberFilters;
     </script>
 }

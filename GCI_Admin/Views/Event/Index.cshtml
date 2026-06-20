@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Events";
 }
 
@@ -904,8 +904,7 @@
                 $('#eventsTable').DataTable().destroy();
             }
 
-            $('#eventsTable').DataTable({
-                pageLength: 10,
+            GCIDataTable.init('#eventsTable', {
                 language: {
                     search: "Search events:",
                     lengthMenu: "Show _MENU_ events",
@@ -921,7 +920,6 @@
                     }
                 ],
                 initComplete: function() {
-                    // Add action buttons styling
                     // Add action buttons styling
                     $('#eventsTable .btn-group .btn').addClass('action-btn');
                 }

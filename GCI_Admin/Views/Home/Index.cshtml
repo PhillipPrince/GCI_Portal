@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.DashboardViewModel
+@model GCI_Admin.Models.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
 }
@@ -143,6 +143,117 @@
     </div>
 </div>
 
+<!-- DATA PANELS -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0">📅 Upcoming Events</h6>
+                    <a href="@Url.Action("Index", "Event")" class="btn btn-link btn-sm p-0">View All →</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    @if (Model.UpcomingEvent != null && Model.UpcomingEvent.Any())
+                    {
+                        foreach (var evt in Model.UpcomingEvent.Take(3))
+                        {
+                            <div class="list-group-item px-0 border-0 d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 p-2 rounded-circle me-3">
+                                    <i class="fa fa-church text-primary"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">@evt.Title</h6>
+                                    <small class="text-muted">
+                                        <i class="fa fa-clock me-1"></i>
+                                        @evt.EventDate.ToString("MMM dd, h:mm tt")
+                                    </small>
+                                </div>
+                                <span class="badge @(evt.EventDate.Date == DateTime.Today ? "bg-primary" : "bg-secondary")">
+                                    @(evt.EventDate.Date == DateTime.Today ? "Today" : "")
+                                </span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <i class="fa fa-calendar-alt fa-2x mb-2"></i>
+                            <p class="mb-0">No upcoming events</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Card with onclick -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 overflow-hidden" onclick="openThemeModal()" style="cursor: pointer;">
+            <div class="row g-0 h-100">
+                <!-- Left Image Section -->
+                <div class="col-md-5">
+                    <div class="h-100">
+                        <img id="yearThemeImage"
+                             alt="Theme of the Year"
+                             class="img-fluid h-100 w-100"
+                             style="object-fit: cover;">
+                    </div>
+                </div>
+                <!-- Right Content Section -->
+                <div class="col-md-7">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center h-100">
+                        <h6 class="fw-bold text-primary mb-2" id="themeYearTitle">
+                            Theme of the Year
+                        </h6>
+                        <h5 class="fw-bold mb-3" id="themeTitle">
+                            Loading...
+                        </h5>
+                        <p class="text-muted mb-1 fw-semibold" id="themeVerse"></p>
+                        <p class="text-muted mb-0" id="themeDescription"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <h6 class="fw-bold mb-0">⚡ Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="javascript:void(0);"
+                           onclick="openAddMemberModal()"
+                           class="btn btn-primary text-start d-flex align-items-center">
+                        <i class="fa fa-user-plus me-3"></i>
+                        <div>
+                            <strong>Add New Member</strong><br>
+                            <small class="opacity-75">Register a new church member</small>
+                        </div>
+                    </a>
+                    <a href="@Url.Action("CreateEvent", "Event")" class="btn btn-success text-start d-flex align-items-center">
+                        <i class="fa fa-calendar-plus me-3"></i>
+                        <div>
+                            <strong>Create Event</strong><br>
+                            <small class="opacity-75">Schedule a church event</small>
+                        </div>
+                    </a>
+                    <a href="@Url.Action("CreateAnnouncement", "Announcements")" class="btn btn-warning text-start d-flex align-items-center">
+                        <i class="fa fa-bullhorn me-3"></i>
+                        <div>
+                            <strong>New Announcement</strong><br>
+                            <small class="opacity-75">Share with congregation</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- 🆕 ATTENDANCE KPI CARDS - New Section -->
 <div class="row g-4 mb-4">
     <div class="col-12">
@@ -250,19 +361,19 @@
                     <div class="col-4">
                         <div class="border rounded p-2">
                             <small class="text-muted">Male</small>
-                            <h5 class="mb-0 text-primary">@Model.TotalMaleAttendees.ToString("N0")</h5>
+                            <h5 class="mb-0 text-primary">@Model.TotalMale.ToString("N0")</h5>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="border rounded p-2">
                             <small class="text-muted">Female</small>
-                            <h5 class="mb-0 text-success">@Model.TotalFemaleAttendees.ToString("N0")</h5>
+                            <h5 class="mb-0 text-success">@Model.TotalFemale.ToString("N0")</h5>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="border rounded p-2">
                             <small class="text-muted">Children</small>
-                            <h5 class="mb-0 text-warning">@Model.TotalChildrenAttendees.ToString("N0")</h5>
+                            <h5 class="mb-0 text-warning">@Model.TotalChildren.ToString("N0")</h5>
                         </div>
                     </div>
                 </div>
@@ -369,116 +480,6 @@
     </div>
 </div>
 
-<!-- DATA PANELS -->
-<div class="row g-4 mb-4">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="fw-bold mb-0">📅 Upcoming Events</h6>
-                    <a href="@Url.Action("Index", "Event")" class="btn btn-link btn-sm p-0">View All →</a>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="list-group list-group-flush">
-                    @if (Model.UpcomingEvent != null && Model.UpcomingEvent.Any())
-                    {
-                        foreach (var evt in Model.UpcomingEvent.Take(3))
-                        {
-                            <div class="list-group-item px-0 border-0 d-flex align-items-center">
-                                <div class="bg-primary bg-opacity-10 p-2 rounded-circle me-3">
-                                    <i class="fa fa-church text-primary"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">@evt.Title</h6>
-                                    <small class="text-muted">
-                                        <i class="fa fa-clock me-1"></i>
-                                        @evt.EventDate.ToString("MMM dd, h:mm tt")
-                                    </small>
-                                </div>
-                                <span class="badge @(evt.EventDate.Date == DateTime.Today ? "bg-primary" : "bg-secondary")">
-                                    @(evt.EventDate.Date == DateTime.Today ? "Today" : "")
-                                </span>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <div class="text-center text-muted py-4">
-                            <i class="fa fa-calendar-alt fa-2x mb-2"></i>
-                            <p class="mb-0">No upcoming events</p>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Theme Card with onclick -->
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100 overflow-hidden" onclick="openThemeModal()" style="cursor: pointer;">
-            <div class="row g-0 h-100">
-                <!-- Left Image Section -->
-                <div class="col-md-5">
-                    <div class="h-100">
-                        <img id="yearThemeImage"
-                             alt="Theme of the Year"
-                             class="img-fluid h-100 w-100"
-                             style="object-fit: cover;">
-                    </div>
-                </div>
-                <!-- Right Content Section -->
-                <div class="col-md-7">
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center h-100">
-                        <h6 class="fw-bold text-primary mb-2" id="themeYearTitle">
-                            Theme of the Year
-                        </h6>
-                        <h5 class="fw-bold mb-3" id="themeTitle">
-                            Loading...
-                        </h5>
-                        <p class="text-muted mb-1 fw-semibold" id="themeVerse"></p>
-                        <p class="text-muted mb-0" id="themeDescription"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white border-0 py-3">
-                <h6 class="fw-bold mb-0">⚡ Quick Actions</h6>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="javascript:void(0);"
-                       onclick="openAddMemberModal()"
-                       class="btn btn-primary text-start d-flex align-items-center">
-                        <i class="fa fa-user-plus me-3"></i>
-                        <div>
-                            <strong>Add New Member</strong><br>
-                            <small class="opacity-75">Register a new church member</small>
-                        </div>
-                    </a>
-                    <a href="@Url.Action("CreateEvent", "Event")" class="btn btn-success text-start d-flex align-items-center">
-                        <i class="fa fa-calendar-plus me-3"></i>
-                        <div>
-                            <strong>Create Event</strong><br>
-                            <small class="opacity-75">Schedule a church event</small>
-                        </div>
-                    </a>
-                    <a href="@Url.Action("CreateAnnouncement", "Announcements")" class="btn btn-warning text-start d-flex align-items-center">
-                        <i class="fa fa-bullhorn me-3"></i>
-                        <div>
-                            <strong>New Announcement</strong><br>
-                            <small class="opacity-75">Share with congregation</small>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- MEMBERS TAB SECTION - ENHANCED WITH ALL STATUSES -->
 <div class="card border-0 shadow-sm">
@@ -853,9 +854,7 @@
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
     <script>
         let currentThemeData = {};
@@ -904,54 +903,18 @@
             loadAttendanceTrendChart();
         }
 
-        // Initialize DataTable safely
+        // Initialize DataTable (delegates to global GCIDataTable)
         function initializeDataTable() {
-            // Check if the table exists in any active tab
-            var $table = $('#membersTable');
-            
-            if ($table.length === 0) {
-                console.log('Members table not found, skipping DataTable initialization');
-                return;
-            }
-            
-            // Destroy existing DataTable if it exists
-            if ($.fn.DataTable.isDataTable('#membersTable')) {
-                $('#membersTable').DataTable().destroy();
-            }
-            
-            // Only initialize if table has data
-            if ($table.find('tbody tr').length > 0) {
-                try {
-                    $('#membersTable').DataTable({
-                        responsive: true,
-                        pageLength: 10,
-                        order: [[1, "asc"]],
-                        language: {
-                            search: "Search members:",
-                            lengthMenu: "Show _MENU_ entries",
-                            info: "Showing _START_ to _END_ of _TOTAL_ members",
-                            paginate: {
-                                first: '<i class="fa fa-angle-double-left"></i>',
-                                previous: '<i class="fa fa-angle-left"></i>',
-                                next: '<i class="fa fa-angle-right"></i>',
-                                last: '<i class="fa fa-angle-double-right"></i>'
-                            }
-                        }
-                    });
-                } catch (e) {
-                    console.error('Error initializing DataTable:', e);
-                }
-            }
+            // The global datatables-global.js handles all .datatable tables automatically.
+            // For tab-based tables, we re-init the visible one.
+            GCIDataTable.init('#membersTable');
         }
 
         // Reinitialize DataTable when tabs are shown
         $(document).on('shown.bs.tab', 'button[data-bs-toggle="tab"]', function() {
             setTimeout(function() {
-                if ($.fn.DataTable.isDataTable('#membersTable')) {
-                    $('#membersTable').DataTable().destroy();
-                }
-                initializeDataTable();
-            }, 100);
+                GCIDataTable.init('#membersTable');
+            }, 150);
         });
 
         // 🆕 Load Gender Distribution Chart
@@ -961,9 +924,9 @@
             
             const ctx = canvas.getContext('2d');
             
-            const maleCount = @Model.TotalMaleAttendees;
-            const femaleCount = @Model.TotalFemaleAttendees;
-            const childrenCount = @Model.TotalChildrenAttendees;
+            const maleCount = @Model.TotalMale;
+            const femaleCount = @Model.TotalFemale;
+            const childrenCount = @Model.TotalChildren;
             
             // Destroy existing chart if it exists
             if (genderChart) {
@@ -1316,33 +1279,47 @@
         }
 
         // Load current year theme from server
-        function loadCurrentYearTheme() {
-            $.ajax({
-                url: '/Event/GetCurrentYearTheme',
-                type: 'GET',
-                success: function (response) {
-                    if (!response.isSuccess) {
-                        console.error(response.message);
-                        return;
-                    }
-                    var theme = response.data;
-                    currentThemeData = theme;
+       function loadCurrentYearTheme() {
+    $.ajax({
+        url: '/Event/GetCurrentYearTheme',
+        type: 'GET',
+        success: function (response) {
+            if (!response.isSuccess) {
+                console.error(response.message);
+                return;
+            }
+            var theme = response.data;
+            currentThemeData = theme;
 
-                    $("#themeYearTitle").text("Theme of the Year " + theme.year);
-                    $("#themeTitle").text(theme.theme);
-                    $("#themeVerse").text(theme.verse);
-                    $("#themeDescription").text(theme.description);
+            $("#themeYearTitle").text("Theme of the Year " + theme.year);
+            $("#themeTitle").text(theme.theme);
+            $("#themeVerse").text(theme.verse);
+            $("#themeDescription").text(theme.description);
 
-                    if (theme.yearThemeImage) {
-                        $("#yearThemeImage").attr('src', theme.yearThemeImage);
+            // Display image from byte array
+            if (theme.yearThemeImage && theme.yearThemeImage.length > 0) {
+                try {
+                    // Convert byte array to base64
+                    var binary = '';
+                    for (var i = 0; i < theme.yearThemeImage.length; i++) {
+                        binary += String.fromCharCode(theme.yearThemeImage[i]);
                     }
-                },
-                error: function (err) {
-                    console.error("Error loading theme:", err);
+                    var base64String = btoa(binary);
+                    $("#yearThemeImage").attr('src', 'data:image/jpeg;base64,' + base64String);
+                    $("#yearThemeImage").show();
+                } catch (error) {
+                    console.error("Error converting image:", error);
+                    $("#yearThemeImage").hide();
                 }
-            });
+            } else {
+                $("#yearThemeImage").hide();
+            }
+        },
+        error: function (err) {
+            console.error("Error loading theme:", err);
         }
-
+    });
+}
         // Open theme modal
         function openThemeModal() {
             document.getElementById('modalImage').src = document.getElementById('yearThemeImage').src;

@@ -425,14 +425,69 @@ namespace GCI_Admin.Services.Service
             throw new NotImplementedException();
         }
 
-        public Task<ApiResponse<AnnualTheme>> GetCurrentYearThemeAsync()
+       
+        public async Task<ApiResponse<AnnualTheme>> GetCurrentYearThemeAsync()
         {
-            throw new NotImplementedException();
+            var response = new ApiResponse<AnnualTheme>();
+
+            try
+            {
+                DateTime currentYear = DateTime.Now;
+
+
+                var result = await _eventsRepository.GetThemeForCurrentYearAsync(currentYear);
+
+                if (result == null || result.Data == null)
+                {
+
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = "No theme found for the current year";
+                    return response;
+                }
+
+                result.Data.YearThemeImage = ImageHelper.ReadImage(folderPath, currentYear.Year.ToString());
+
+                response.IsSuccess = true;
+                response.Code = "200";
+                response.Data = result.Data;
+                response.Message = "Current year theme retrieved successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = $"Error fetching theme: {ex.Message}";
+            }
+
+            return response;
         }
 
         public Task<ApiResponse<AnnualTheme>> UpdateAnnualThemeAsync(int id, AnnualThemeDto dto)
         {
-            throw new NotImplementedException();
+            var response = _eventsRepository.UpdateAnnualThemeAsync(id, dto);
+            if (!response.Result.Success)
+            {
+                return Task.FromResult(new ApiResponse<AnnualTheme>
+                {
+                    IsSuccess = false,
+                    Code = "400",
+                    Message = response.Result.Message ?? "Failed to update annual theme"
+                });
+            }
+            if (dto.ThemeImage != null) {
+
+                string savedImagePath = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ThemeImage), folderPath, dto.Year.ToString(), "jpg");
+                Loggers.EventLogs($"Saved theme image to: {savedImagePath}");
+            }
+
+            return Task.FromResult(new ApiResponse<AnnualTheme>
+            {
+                IsSuccess = true,
+                Code = "200",
+                Message = response.Result.Message ?? "Annual theme updated successfully",
+                Data = response.Result.Data
+            });
         }
 
         public Task<ApiResponse<List<Event>>> GetUpcomingEventsAsync()

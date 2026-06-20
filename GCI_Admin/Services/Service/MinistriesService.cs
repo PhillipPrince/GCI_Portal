@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using GCI_Admin.DBOperations;
 using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Utils;
+using GCI_Admin.Utils;
 
 namespace GCI_Admin.Services.Service
 {
@@ -211,6 +212,16 @@ namespace GCI_Admin.Services.Service
                     return response;
                 }
 
+                var imageFolderSetting = await _context.SystemConfig.FirstOrDefaultAsync(x => x.ConfigKey == "ImageBasePath");
+                string imageFolder = imageFolderSetting?.ConfigValue ?? "wwwroot/uploads";
+                foreach (var leader in result.Data)
+                {
+                    if (leader.Member != null)
+                    {
+                        leader.Member.ProfileImage = ImageHelper.ReadImage(imageFolder, leader.MemberId.ToString());
+                    }
+                }
+
                 response.Data = result.Data;
                 response.Message = "Ministry leaders retrieved successfully";
             }
@@ -223,8 +234,6 @@ namespace GCI_Admin.Services.Service
 
             return response;
         }
-
-        // Add these methods to your MinistriesService class
 
         // ✅ CREATE MINISTRY LEADER
         public async Task<ApiResponse<MinistryLeader>> CreateMinistryLeaderAsync(MinistryLeaderDto dto)
@@ -241,6 +250,14 @@ namespace GCI_Admin.Services.Service
                     response.Code = "400";
                     response.Message = result.Message;
                     return response;
+                }
+
+                var imageFolderSetting = await _context.SystemConfig.FirstOrDefaultAsync(x => x.ConfigKey == "ImageBasePath");
+                string imageFolder = imageFolderSetting?.ConfigValue ?? "wwwroot/uploads";
+                if (!string.IsNullOrEmpty(dto.ProfileImageBase64))
+                {
+                    string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
+                    Loggers.EventLogs($"Saved profile image for ministry leader {result.Data.MinistryLeaderId} at {saved}");
                 }
 
                 response.Data = result.Data;
@@ -275,6 +292,13 @@ namespace GCI_Admin.Services.Service
                     return response;
                 }
 
+                var imageFolderSetting = await _context.SystemConfig.FirstOrDefaultAsync(x => x.ConfigKey == "ImageBasePath");
+                string imageFolder = imageFolderSetting?.ConfigValue ?? "wwwroot/uploads";
+                if (result.Data.Member != null)
+                {
+                    result.Data.Member.ProfileImage = ImageHelper.ReadImage(imageFolder, result.Data.MemberId.ToString());
+                }
+
                 response.Data = result.Data;
                 response.Message = "Ministry leader retrieved successfully";
                 response.Code = "200";
@@ -305,6 +329,14 @@ namespace GCI_Admin.Services.Service
                     response.Code = "400";
                     response.Message = result.Message;
                     return response;
+                }
+
+                var imageFolderSetting = await _context.SystemConfig.FirstOrDefaultAsync(x => x.ConfigKey == "ImageBasePath");
+                string imageFolder = imageFolderSetting?.ConfigValue ?? "wwwroot/uploads";
+                if (!string.IsNullOrEmpty(dto.ProfileImageBase64))
+                {
+                    string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
+                    Loggers.EventLogs($"Saved profile image for ministry leader {result.Data.MinistryLeaderId} on update at {saved}");
                 }
 
                 response.Data = result.Data;
@@ -371,6 +403,16 @@ namespace GCI_Admin.Services.Service
                     return response;
                 }
 
+                var imageFolderSetting = await _context.SystemConfig.FirstOrDefaultAsync(x => x.ConfigKey == "ImageBasePath");
+                string imageFolder = imageFolderSetting?.ConfigValue ?? "wwwroot/uploads";
+                foreach (var leader in result.Data)
+                {
+                    if (leader.Member != null)
+                    {
+                        leader.Member.ProfileImage = ImageHelper.ReadImage(imageFolder, leader.MemberId.ToString());
+                    }
+                }
+
                 response.Data = result.Data;
                 response.Message = "Ministry leaders retrieved successfully";
                 response.Code = "200";
@@ -403,6 +445,16 @@ namespace GCI_Admin.Services.Service
                     return response;
                 }
 
+                var imageFolderSetting = await _context.SystemConfig.FirstOrDefaultAsync(x => x.ConfigKey == "ImageBasePath");
+                string imageFolder = imageFolderSetting?.ConfigValue ?? "wwwroot/uploads";
+                foreach (var leader in result.Data)
+                {
+                    if (leader.Member != null)
+                    {
+                        leader.Member.ProfileImage = ImageHelper.ReadImage(imageFolder, leader.MemberId.ToString());
+                    }
+                }
+
                 response.Data = result.Data;
                 response.Message = "Active ministry leaders retrieved successfully";
                 response.Code = "200";
@@ -413,6 +465,38 @@ namespace GCI_Admin.Services.Service
                 response.Code = "500";
                 response.Message = ex.Message;
                 Loggers.DoLogs($"Error in GetActiveMinistryLeadersAsync service: {ex}");
+            }
+
+            return response;
+        }
+
+        // ✅ TOGGLE STATUS
+        public async Task<ApiResponse<bool>> ToggleMinistryLeaderStatusAsync(int ministryLeaderId, bool isActive)
+        {
+            var response = new ApiResponse<bool>();
+
+            try
+            {
+                var result = await _ministriesRepository.ToggleMinistryLeaderStatusAsync(ministryLeaderId, isActive);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = result.Message;
+                response.Code = "200";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in ToggleMinistryLeaderStatusAsync service: {ex}");
             }
 
             return response;

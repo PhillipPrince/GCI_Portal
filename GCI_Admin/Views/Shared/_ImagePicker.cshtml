@@ -1,0 +1,301 @@
+﻿@model GCI_Admin.Models.ImagePickerViewModel
+
+<div class="image-picker-container" id="@(Model.ControlId)_container">
+    <div class="mb-3">
+        <label class="form-label fw-bold">
+            @if (!string.IsNullOrEmpty(Model.IconClass))
+            {
+                <i class="@Model.IconClass me-1"></i>
+            }
+            @Model.LabelText
+            @if (Model.IsRequired)
+            {
+                <span class="text-danger">*</span>
+            }
+        </label>
+        
+        <div class="image-preview-area mb-3" id="@(Model.ControlId)_previewArea" style="@(Model.HidePreview ? "display:none;" : "")">
+            <div class="text-center position-relative">
+                <img id="@(Model.ControlId)_preview"
+                     src="@(Model.CurrentImageUrl ?? "/images/default-avatar.png")"
+                     alt="Image Preview"
+                     class="image-preview-img"
+                     style="max-width: @(Model.PreviewWidth)px; max-height: @(Model.PreviewHeight)px; border-radius: @(Model.Rounded ? "8px" : "0"); border: 1px solid #ddd; padding: 5px;"
+                     onerror="this.src='/images/default-avatar.png'" />
+                <div id="loadingIndicator_@Model.ControlId" class="image-loading-indicator" style="display:none;">
+                    <i class="fa fa-spinner fa-spin"></i> Loading...
+                </div>
+            </div>
+        </div>
+        
+        <div class="image-upload-controls">
+            <input type="file"
+                   id="@(Model.ControlId)_fileInput"
+                   name="@Model.FileInputName"
+                   accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
+                   style="display:none;" />
+            
+            <div class="btn-group w-100" role="group">
+                <button type="button"
+                        class="btn btn-outline-primary @(Model.HideUploadButton ? "d-none" : "")"
+                        onclick="$('#@(Model.ControlId)_fileInput').click();">
+                    <i class="fa fa-upload me-1"></i> @Model.UploadButtonText
+                </button>
+                
+                <button type="button"
+                        class="btn btn-outline-danger @(Model.HideClearButton ? "d-none" : "")"
+                        id="@(Model.ControlId)_clearBtn"
+                        onclick="clearImage('@Model.ControlId')"
+                    @(string.IsNullOrEmpty(Model.CurrentImageUrl) ? "style=display:none;" : "")>
+                    <i class="fa fa-trash me-1"></i> Clear
+                </button>
+            </div>
+            
+            <input type="hidden" id="@(Model.ControlId)_url" name="@Model.ImageUrlFieldName" value="@Model.CurrentImageUrl" />
+            <input type="hidden" id="@(Model.ControlId)_fileData" name="@Model.Base64FieldName" value="" />
+        </div>
+        
+        <small class="text-muted d-block mt-2">
+            <i class="fa fa-info-circle"></i> @Model.HelpText
+        </small>
+        
+        <div class="invalid-feedback" id="@(Model.ControlId)_error"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Initialize image preview for file input
+        $('#@(Model.ControlId)_fileInput').on('change', function(e) {
+            handleImageSelection('@Model.ControlId', e);
+        });
+        
+        // Set maximum file size (default 5MB)
+        @if (Model.MaxFileSizeMB > 0)
+        {
+                <text>
+                        $('#@(Model.ControlId)_fileInput').attr('data-max-size', @Model.MaxFileSizeMB);
+                </text>
+        }
+    });
+    
+    function handleImageSelection(controlId, event) {
+        var file = event.target.files[0];
+        var maxSize = $(event.target).attr('data-max-size') || @(Model.MaxFileSizeMB > 0 ? Model.MaxFileSizeMB : 5);
+        
+        if (!file) return;
+        
+        // Check file type
+        if (!file.type.match('image.*')) {
+            showImageError(controlId, 'Please select an image file (JPEG, PNG, GIF, WEBP)');
+            clearFileInput(controlId);
+            return;
+        }
+        
+        // Check file size (in MB)
+        var fileSizeMB = file.size / (1024 * 1024);
+        if (fileSizeMB > maxSize) {
+            showImageError(controlId, 'File size exceeds ' + maxSize + 'MB. Please select a smaller image.');
+            clearFileInput(controlId);
+            return;
+        }
+        
+        // Clear any previous errors
+        clearImageError(controlId);
+        
+        // Show loading indicator
+        showImageLoading(controlId, true);
+        
+        // Preview the image
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var previewImg = $('#' + controlId + '_preview');
+            
+            // Small delay for smoother transition
+            setTimeout(function() {
+                previewImg.attr('src', e.target.result);
+                previewImg.addClass('image-preview-loaded');
+                
+                // Store base64 data for submission
+                $('#' + controlId + '_fileData').val(e.target.result);
+                
+                // Clear any existing URL
+                $('#' + controlId + '_url').val('');
+                
+                // Show clear button
+                $('#' + controlId + '_clearBtn').show();
+                
+                // Hide loading indicator
+                showImageLoading(controlId, false);
+                
+                // Trigger image selected event
+                $(document).trigger('imageSelected', { controlId: controlId, base64Data: e.target.result });
+            }, 100);
+        };
+        
+        reader.onerror = function() {
+            showImageError(controlId, 'Error reading image file. Please try again.');
+            showImageLoading(controlId, false);
+            clearFileInput(controlId);
+        };
+        
+        reader.readAsDataURL(file);
+    }
+    
+    function showImageLoading(controlId, show) {
+        var loadingIndicator = $('#loadingIndicator_' + controlId);
+        if (show) {
+            loadingIndicator.show();
+        } else {
+            loadingIndicator.hide();
+        }
+    }
+    
+    function clearImage(controlId) {
+        Swal.fire({
+            title: 'Clear Image?',
+            text: 'Are you sure you want to remove this image?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, clear it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Clear file input
+                clearFileInput(controlId);
+                
+                // Reset preview to default
+                var previewImg = $('#' + controlId + '_preview');
+                previewImg.attr('src', '/images/default-avatar.png');
+                previewImg.removeClass('image-preview-loaded');
+                
+                // Clear hidden fields
+                $('#' + controlId + '_fileData').val('');
+                $('#' + controlId + '_url').val('');
+                
+                // Hide clear button
+                $('#' + controlId + '_clearBtn').hide();
+                
+                // Clear any errors
+                clearImageError(controlId);
+                
+                // Hide loading indicator if visible
+                showImageLoading(controlId, false);
+                
+                // Trigger image cleared event
+                $(document).trigger('imageCleared', { controlId: controlId });
+                
+                Swal.fire('Cleared!', 'Image has been removed.', 'success');
+            }
+        });
+    }
+    
+    function clearFileInput(controlId) {
+        var fileInput = $('#' + controlId + '_fileInput');
+        fileInput.val('');
+    }
+    
+    function showImageError(controlId, message) {
+        var errorDiv = $('#' + controlId + '_error');
+        errorDiv.text(message);
+        errorDiv.show();
+        $('#' + controlId + '_fileInput').addClass('is-invalid');
+        
+        // Auto hide error after 5 seconds
+        setTimeout(function() {
+            if (errorDiv.is(':visible')) {
+                errorDiv.hide();
+            }
+        }, 5000);
+    }
+    
+    function clearImageError(controlId) {
+        var errorDiv = $('#' + controlId + '_error');
+        errorDiv.hide();
+        errorDiv.text('');
+        $('#' + controlId + '_fileInput').removeClass('is-invalid');
+    }
+    
+    // Validate image before form submission
+    function validateImage(controlId, isRequired) {
+        var fileData = $('#' + controlId + '_fileData').val();
+        var imageUrl = $('#' + controlId + '_url').val();
+        
+        if (isRequired && !fileData && !imageUrl) {
+            showImageError(controlId, 'Please select an image');
+            return false;
+        }
+        
+        return true;
+    }
+</script>
+
+<style>
+    .image-preview-area {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .image-preview-img {
+        transition: opacity 0.3s ease-in-out;
+        cursor: pointer;
+        opacity: 1;
+    }
+    
+        /* Only apply hover effect when image is loaded */
+        .image-preview-img.image-preview-loaded:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    
+        /* Remove hover effect during loading */
+        .image-preview-img:not(.image-preview-loaded):hover {
+            cursor: default;
+        }
+    
+    .image-loading-indicator {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+        z-index: 10;
+        pointer-events: none;
+        white-space: nowrap;
+    }
+    
+        .image-loading-indicator i {
+            margin-right: 5px;
+        }
+    
+    .image-upload-controls .btn-group {
+        gap: 10px;
+    }
+    
+    .image-upload-controls .btn {
+        flex: 1;
+    }
+    
+    .invalid-feedback {
+        display: none;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        color: #dc3545;
+    }
+    
+    .position-relative {
+        position: relative;
+    }
+</style>

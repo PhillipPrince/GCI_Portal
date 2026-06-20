@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +28,27 @@ namespace GCI_Admin.Controllers
             catch
             {
                 return View(new List<SystemConfig>());
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            try
+            {
+                var response = await _configService.GetConfigByIdAsync(id);
+                if (!response.Success || response.Data == null)
+                {
+                    TempData["ErrorMessage"] = response.Message ?? "Configuration not found";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(response.Data);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToAction(nameof(Index));
             }
         }
 
@@ -82,7 +103,7 @@ namespace GCI_Admin.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
         public async Task<IActionResult> UpdateConfig(int id, [FromBody] SystemConfigDto dto)
         {
             try
@@ -96,8 +117,7 @@ namespace GCI_Admin.Controllers
                     });
                 }
 
-                // Pass the ID to your service method
-                var response = await _configService.UpdateConfigAsync( dto);
+                var response = await _configService.UpdateConfigAsync(dto);
                 if (!response.Success)
                     return BadRequest(response);
 

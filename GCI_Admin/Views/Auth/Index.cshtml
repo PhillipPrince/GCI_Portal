@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.LoginViewModel
+@model GCI_Admin.Models.LoginViewModel
 
 @{
     ViewData["Title"] = "Login";
@@ -11,6 +11,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - GCI Admin</title>
+    <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" asp-append-version="true" />
+    <link rel="icon" type="image/png" href="~/favicon.png" asp-append-version="true" />
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -567,11 +569,11 @@
                     <!-- OTP Input Fields -->
                     <div class="otp-input-group">
                         <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp2')" onkeydown="handleBackspace(this, 'otp1')" id="otp1">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp3')" onkeydown="handleBackspace(this, 'otp1')" id="otp2">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp4')" onkeydown="handleBackspace(this, 'otp2')" id="otp3">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp5')" onkeydown="handleBackspace(this, 'otp3')" id="otp4">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp6')" onkeydown="handleBackspace(this, 'otp4')" id="otp5">
-                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInputComplete(this)" onkeydown="handleBackspace(this, 'otp5')" id="otp6">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp3')" onkeydown="handleBackspace(this, 'otp2')" id="otp2">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp4')" onkeydown="handleBackspace(this, 'otp3')" id="otp3">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp5')" onkeydown="handleBackspace(this, 'otp4')" id="otp4">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInput(this, 'otp6')" onkeydown="handleBackspace(this, 'otp5')" id="otp5">
+                        <input type="text" class="otp-input" maxlength="1" onkeyup="handleOtpInputComplete(this)" onkeydown="handleBackspace(this, 'otp6')" id="otp6">
                     </div>
 
                     <!-- Timer -->
@@ -1060,6 +1062,45 @@
             $('.login-body').prepend(alertHtml);
             setTimeout(() => $('.alert-custom').fadeOut(300, function() { $(this).remove(); }), 5000);
         }
+
+        // Handle Enter key on login form inputs
+        $(document).ready(function() {
+            // Listen for Enter key on Email input
+            $('input[name="Email"]').on('keypress', function(e) {
+                if (e.which === 13 || e.keyCode === 13) {
+                    e.preventDefault();
+                    submitLogin();
+                    return false;
+                }
+            });
+            
+            // Listen for Enter key on Phone input
+            $('input[name="Phone"]').on('keypress', function(e) {
+                if (e.which === 13 || e.keyCode === 13) {
+                    e.preventDefault();
+                    submitLogin();
+                    return false;
+                }
+            });
+            
+            // Listen for Enter key on Password input
+            $('input[name="Password"]').on('keypress', function(e) {
+                if (e.which === 13 || e.keyCode === 13) {
+                    e.preventDefault();
+                    submitLogin();
+                    return false;
+                }
+            });
+            
+            // Also handle Enter key on the login button itself
+            $('#loginBtn').on('keypress', function(e) {
+                if (e.which === 13 || e.keyCode === 13) {
+                    e.preventDefault();
+                    submitLogin();
+                    return false;
+                }
+            });
+        });
 
         // Auto-detect login type
         $('input[name="Email"]').on('input', function() {

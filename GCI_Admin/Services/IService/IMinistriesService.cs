@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -24,5 +24,6 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<bool>> DeleteMinistryLeaderAsync(int ministryLeaderId);
         Task<ApiResponse<List<MinistryLeader>>> GetMinistryLeadersByMinistryAsync(int ministryId);
         Task<ApiResponse<List<MinistryLeader>>> GetActiveMinistryLeadersAsync();
+        Task<ApiResponse<bool>> ToggleMinistryLeaderStatusAsync(int ministryLeaderId, bool isActive);
     }
 }
