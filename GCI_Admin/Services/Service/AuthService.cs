@@ -38,6 +38,7 @@ namespace GCI_Admin.Services.Service
         {
             return new LoginResponseData
             {
+                UserId = user.Id,
                 UseOtp = useOtp,
                 UserRoleId = user.UserRole,
                 UserRole = user.RoleName,
