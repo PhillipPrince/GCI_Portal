@@ -38,5 +38,21 @@ namespace GCI_Admin.Models
         public bool IsActive { get; set; }
         [ForeignKey(nameof(MemberId))]
         public Member Member { get; set; }
+        [MaxLength(1000)]
+
+
+        public string? County { get; set; }
+        [MaxLength(150)]
+        public string? Occupation { get; set; }
+        [MaxLength(500)]
+        public string? ReasonsForMembership { get; set; }
+
+        [MaxLength(50)]
+        public string? SpousePhone { get; set; }
+        public int? YearMarried { get; set; }
+
+        
+
+
     }
 }

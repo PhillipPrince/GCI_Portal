@@ -183,6 +183,22 @@ namespace GCI_Admin.Controllers
             {
                 await ClearUserSession();
                 _logger.LogInformation("User logged out successfully");
+                return Ok(new { isSuccess = true, message = "Logged out successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during logout");
+                return BadRequest(new { isSuccess = false, message = "Error during logout" });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LogoutGet()
+        {
+            try
+            {
+                await ClearUserSession();
+                _logger.LogInformation("User logged out successfully");
                 return RedirectToAction("Index", "Auth");
             }
             catch (Exception ex)

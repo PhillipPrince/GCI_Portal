@@ -1,4 +1,4 @@
-﻿using GCI_Admin.DBOperations.Repositories;
+using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Services.IService;
 using Microsoft.AspNetCore.Authorization;
@@ -53,7 +53,8 @@ namespace GCI_Admin.Controllers
                 dashboard.MemberStatus.MembershipClassMembers = members.Where(x => x.StatusId == 2).ToList();
                 dashboard.MemberStatus.ActiveMembers = members.Where(x => x.StatusId == 1).ToList();
                 dashboard.MemberStatus.InactiveMembers = members.Where(x => x.StatusId == 3).ToList();
-                dashboard.MemberStatus.TransferredMembers = members.Where(x => x.StatusId == 4).ToList();
+                dashboard.MemberStatus.AwaitingConfirmationMembers = members.Where(x => x.StatusId == 4).ToList();
+                dashboard.MemberStatus.TransferredMembers = members.Where(x => x.StatusId == 7).ToList();
                 dashboard.MemberStatus.PromotedToGlory = members.Where(x => x.StatusId == 5).ToList();
                 dashboard.MemberStatus.WithdrawnMembers = members.Where(x => x.StatusId == 6).ToList();
                 dashboard.TotalMale = members.Count(x => x.Gender == "Male");

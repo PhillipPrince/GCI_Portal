@@ -29,6 +29,9 @@ namespace GCI_Admin.Models
         public DateTime? StartDateTime { get; set; }
 
         public DateTime? EndDateTime { get; set; }
+
+        public int? NotificationGroupId { get; set; }
+        public string? QrCode { get; set; }
     }
 
     public class EventViewModel

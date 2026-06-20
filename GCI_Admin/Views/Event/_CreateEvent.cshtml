@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.DTOs.EventDto
+@model GCI_Admin.Models.DTOs.EventDto
 
 @{
     ViewData["Title"] = "Create New Event";
@@ -214,6 +214,28 @@
                                         </label>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Target Notification Group -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-label fw-medium" for="NotificationGroupId">
+                                    Target Group (Optional, defaults to General Member)
+                                </label>
+                                <select id="NotificationGroupId" name="NotificationGroupId" class="form-select">
+                                    <option value="">Select a target group</option>
+                                    @if (ViewBag.NotificationGroups != null)
+                                    {
+                                        foreach (var group in (List<GCI_Admin.Models.DropdownItem>)ViewBag.NotificationGroups)
+                                        {
+                                            <option value="@group.Value">@group.Text</option>
+                                        }
+                                    }
+                                </select>
+                                <div class="form-text">Choose which demographic group this event is tailored for. If not selected, it will default to Group ID 1.</div>
                             </div>
                         </div>
                     </div>
@@ -491,7 +513,8 @@
                     ? parseFloat($('#Price').val() || 0)
                     : null,
                 RequireRegistration: $('#RequireRegistration').is(':checked'),
-                AllowWalkIns: $('#AllowWalkIns').is(':checked')
+                AllowWalkIns: $('#AllowWalkIns').is(':checked'),
+                NotificationGroupId: $('#NotificationGroupId').val() ? parseInt($('#NotificationGroupId').val()) : null
             };
 
         alert("Event Title: " + $('#Title').val());

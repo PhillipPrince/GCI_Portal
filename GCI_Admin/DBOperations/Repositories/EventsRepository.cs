@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Utils;
@@ -32,9 +32,10 @@ namespace GCI_Admin.DBOperations.Repositories
                     AllowWalkIns = dto.AllowWalkIns,
                     StartDateTime = dto.StartDateTime,
                     EndDateTime = dto.EndDateTime,
+                    NotificationGroupId = dto.NotificationGroupId ?? 1,
 
                     CreatedAt = DateTime.Now,
-                    UpdatedAt = null
+                    QrCode = Guid.NewGuid().ToString("N")
                 };
 
                 _context.Events.Add(newEvent);
@@ -139,7 +140,18 @@ namespace GCI_Admin.DBOperations.Repositories
                 existingEvent.Location = dto.Location;
                 existingEvent.IsPaid = dto.IsPaid;
                 existingEvent.Price = dto.IsPaid ? dto.Price : null;
+                existingEvent.IsActive = dto.IsActive;
+                existingEvent.RequireRegistration = dto.RequireRegistration;
+                existingEvent.AllowWalkIns = dto.AllowWalkIns;
+                existingEvent.StartDateTime = dto.StartDateTime;
+                existingEvent.EndDateTime = dto.EndDateTime;
+                existingEvent.NotificationGroupId = dto.NotificationGroupId ?? 1;
                 existingEvent.UpdatedAt = DateTime.Now;
+
+                if (string.IsNullOrEmpty(existingEvent.QrCode))
+                {
+                    existingEvent.QrCode = Guid.NewGuid().ToString("N");
+                }
 
                 await _context.SaveChangesAsync();
 

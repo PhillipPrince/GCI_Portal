@@ -139,6 +139,13 @@
         </li>
             
         <li class="nav-item" role="presentation">
+            <button class="nav-link" id="awaiting-tab" data-bs-toggle="tab" data-bs-target="#awaitingConfirmation" type="button" role="tab">
+                <i class="fa fa-clock me-1" style="color:#fd7e14;"></i>Awaiting Confirmation
+                <span class="badge ms-2" style="background-color:#fd7e14;">@Model.MemberStatus.AwaitingConfirmationMembers?.Count</span>
+            </button>
+        </li>
+
+        <li class="nav-item" role="presentation">
             <button class="nav-link" id="inactive-tab" data-bs-toggle="tab" data-bs-target="#inactiveMembers" type="button" role="tab">
                 <i class="fa fa-pause-circle text-secondary me-1"></i>Inactive Members
                 <span class="badge bg-secondary ms-2">@Model.MemberStatus.InactiveMembers?.Count </span>
@@ -192,6 +199,12 @@
             @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.MembershipClassMembers)
         </div>
            
+        <!-- Awaiting Confirmation Tab -->
+        <div class="tab-pane fade" id="awaitingConfirmation" role="tabpanel">
+            @{ ViewData["TableId"] = "awaitingConfirmationTable"; }
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.AwaitingConfirmationMembers)
+        </div>
+
         <!-- Inactive Members Tab -->
         <div class="tab-pane fade" id="inactiveMembers" role="tabpanel">
             @{ ViewData["TableId"] = "inactiveMembersTable"; }

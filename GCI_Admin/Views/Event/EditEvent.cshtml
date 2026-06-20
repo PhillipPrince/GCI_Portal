@@ -1,0 +1,338 @@
+@model GCI_Admin.Models.DTOs.EventDto
+
+@{
+    ViewData["Title"] = "Edit Event - " + Model.Title;
+    var eventId = ViewBag.EventId;
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Edit Event: @Model.Title</h2>
+        <p class="text-muted mb-0">Modify event details on the church calendar</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="@Url.Action("EventDetails", "Event", new { id = eventId })" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left me-2"></i>Back to Details
+        </a>
+    </div>
+</div>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa fa-exclamation-circle me-2"></i>
+        <strong>Please correct the following errors:</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div asp-validation-summary="All" class="mt-2"></div>
+    </div>
+}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa fa-edit me-2 text-primary"></i>
+                    Event Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="editEventForm">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Basic Information -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="Title" class="form-label fw-medium">
+                                    Event Title <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fa fa-heading text-muted"></i>
+                                    </span>
+                                    <input asp-for="Title" class="form-control border-start-0"
+                                           value="@Model.Title" required />
+                                </div>
+                                <span asp-validation-for="Title" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="Description" class="form-label fw-medium">
+                                    Description <span class="text-danger">*</span>
+                                </label>
+                                <textarea asp-for="Description" class="form-control" rows="4" required>@Model.Description</textarea>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Date and Location -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="EventDate" class="form-label fw-medium">
+                                    Event Date <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fa fa-calendar text-muted"></i>
+                                    </span>
+                                    <input asp-for="EventDate" type="datetime-local" class="form-control border-start-0"
+                                           value="@Model.EventDate.ToString("yyyy-MM-ddTHH:mm")" required />
+                                </div>
+                                <span asp-validation-for="EventDate" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Location" class="form-label fw-medium">
+                                    Location <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fa fa-map-marker-alt text-muted"></i>
+                                    </span>
+                                    <input asp-for="Location" class="form-control border-start-0"
+                                           value="@Model.Location" required />
+                                </div>
+                                <span asp-validation-for="Location" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Information -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-12">
+                            <label class="form-label fw-medium">Registration Fee</label>
+                            <div class="border rounded-3 p-3 bg-light">
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="IsPaid"
+                                                   value="false" id="isPaidNo" @(Model.IsPaid ? "" : "checked")>
+                                            <label class="form-check-label" for="isPaidNo">
+                                                <i class="fa fa-free-code-camp text-success me-1"></i>
+                                                Free Event
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="IsPaid"
+                                                   value="true" id="isPaidYes" @(Model.IsPaid ? "checked" : "")>
+                                            <label class="form-check-label" for="isPaidYes">
+                                                <i class="fa fa-credit-card text-primary me-1"></i>
+                                                Paid Event
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4" id="priceContainer" style="@(Model.IsPaid ? "" : "display:none;")">
+                                        <div class="input-group">
+                                            <span class="input-group-text">KES</span>
+                                            <input asp-for="Price" type="number" class="form-control"
+                                                   value="@Model.Price" min="0" step="0.01" />
+                                        </div>
+                                        <span asp-validation-for="Price" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Options -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-12">
+                            <h6 class="fw-medium mb-3">Additional Options</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="RequireRegistration" @(Model.RequireRegistration ? "checked" : "")>
+                                        <label class="form-check-label" for="RequireRegistration">
+                                            <i class="fa fa-clipboard-list text-info me-1"></i>
+                                            Require Registration
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="AllowWalkIns" @(Model.AllowWalkIns ? "checked" : "")>
+                                        <label class="form-check-label" for="AllowWalkIns">
+                                            <i class="fa fa-door-open text-success me-1"></i>
+                                            Allow Walk-ins
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Target Notification Group -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-label fw-medium" for="NotificationGroupId">
+                                    Target Group (Optional, defaults to General Member)
+                                </label>
+                                <select id="NotificationGroupId" name="NotificationGroupId" class="form-select">
+                                    <option value="">Select a target group</option>
+                                    @if (ViewBag.NotificationGroups != null)
+                                    {
+                                        foreach (var group in (List<GCI_Admin.Models.DropdownItem>)ViewBag.NotificationGroups)
+                                        {
+                                            bool isSelected = group.Value == Model.NotificationGroupId?.ToString();
+                                            if (isSelected)
+                                            {
+                                                <option value="@group.Value" selected="selected">@group.Text</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@group.Value">@group.Text</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                                <div class="form-text">Choose which demographic group this event is tailored for. If not selected, it will default to Group ID 1.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-end align-items-center pt-3 border-top">
+                        <a href="@Url.Action("EventDetails", "Event", new { id = eventId })" class="btn btn-outline-secondary me-2">
+                            <i class="fa fa-times me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-warning" id="saveButton">
+                            <i class="fa fa-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Info -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4 bg-light">
+            <div class="card-body">
+                <h5><i class="fa fa-info-circle text-primary me-2"></i>Editing Events</h5>
+                <p class="small text-muted">Updating this event will instantly update details displayed to members on the mobile app. All registrations and payment history are preserved.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Handle payment toggle
+            $('input[name="IsPaid"]').on('change', function () {
+                if ($('#isPaidYes').is(':checked')) {
+                    $('#priceContainer').slideDown(300);
+                    $('#priceContainer input').prop('required', true);
+                } else {
+                    $('#priceContainer').slideUp(300);
+                    $('#priceContainer input').prop('required', false).val('');
+                }
+            });
+
+            // Form submission
+            $('#editEventForm').on('submit', function(e) {
+                e.preventDefault();
+
+                if (!$(this).valid()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: 'Please correct the errors in the form'
+                    });
+                    return;
+                }
+
+                submitUpdateEvent();
+            });
+        });
+
+        function submitUpdateEvent() {
+            const eventId = @eventId;
+            let eventData = {
+                Title: $('#Title').val(),
+                Description: $('#Description').val(),
+                EventDate: $('#EventDate').val(),
+                Location: $('#Location').val(),
+                IsPaid: $('#isPaidYes').is(':checked'),
+                Price: $('#isPaidYes').is(':checked')
+                    ? parseFloat($('#Price').val() || 0)
+                    : null,
+                RequireRegistration: $('#RequireRegistration').is(':checked'),
+                AllowWalkIns: $('#AllowWalkIns').is(':checked'),
+                IsActive: true, // Preserve active status during edits
+                NotificationGroupId: $('#NotificationGroupId').val() ? parseInt($('#NotificationGroupId').val()) : null
+            };
+
+            Swal.fire({
+                title: "Save changes?",
+                text: "You are about to save changes to this event.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Yes, save"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Saving...",
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        url: `/Event/Update?eventId=${eventId}`,
+                        type: 'PUT',
+                        contentType: 'application/json',
+                        data: JSON.stringify(eventData),
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (response) {
+                            Swal.fire("Success", "Event updated successfully.", "success")
+                                .then(() => {
+                                    window.location.href = `/Event/EventDetails/${eventId}`;
+                                });
+                        },
+                        error: function (xhr) {
+                            let message = "Failed to update event.";
+                            if (xhr.responseJSON && xhr.responseJSON.message)
+                                message = xhr.responseJSON.message;
+                            Swal.fire("Error", message, "error");
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+
+    <style>
+        .form-label.fw-medium {
+            font-weight: 500;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            padding: 10px 15px;
+        }
+        .card {
+            border-radius: 15px;
+        }
+        .btn {
+            border-radius: 10px;
+            padding: 10px 20px;
+        }
+    </style>
+}
