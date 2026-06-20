@@ -1,7 +1,8 @@
-﻿using GCI_Admin.DBOperations.Repositories;
+using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
+using GCI_Admin.Utils;
 using Utils;
 
 namespace GCI_Admin.Services.Service
@@ -9,10 +10,12 @@ namespace GCI_Admin.Services.Service
     public class LeadershipService : ILeadershipService
     {
         private readonly LeadershipRepository _leadershipRepository;
+        private readonly SystemConfigRepository _systemConfigRepository;
 
-        public LeadershipService(LeadershipRepository leadershipRepository)
+        public LeadershipService(LeadershipRepository leadershipRepository, SystemConfigRepository systemConfigRepository)
         {
             _leadershipRepository = leadershipRepository;
+            _systemConfigRepository = systemConfigRepository;
         }
 
         // =========================================================
@@ -32,6 +35,15 @@ namespace GCI_Admin.Services.Service
                     response.Code = "400";
                     response.Message = result.Message ?? "Failed to create deacon";
                     return response;
+                }
+
+                string imageFolder = await SystemConfigHelper.GetImageBasePathAsync(_systemConfigRepository);
+                if (dto.ProfileImageBase64 != null)
+                {
+
+
+                    string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
+                    Loggers.EventLogs($"Saved profile image for deacon {result.Data.DeaconId} at {saved}");
                 }
 
                 response.Data = result.Data;
@@ -97,6 +109,9 @@ namespace GCI_Admin.Services.Service
                     response.Message = result.Message ?? "Deacon not found";
                     return response;
                 }
+                string imageFolder = await SystemConfigHelper.GetImageBasePathAsync(_systemConfigRepository);
+
+                result.Data.Member.ProfileImage = ImageHelper.ReadImage(imageFolder,result.Data.MemberId.ToString());
 
                 response.Data = result.Data;
                 response.Message = "Deacon retrieved successfully";
@@ -223,6 +238,13 @@ namespace GCI_Admin.Services.Service
                     return response;
                 }
 
+                string imageFolder = await SystemConfigHelper.GetImageBasePathAsync(_systemConfigRepository);
+                if (dto.ProfileImageBase64 != null)
+                {
+                    string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
+                    Loggers.EventLogs($"Saved profile image for elder {result.Data.ElderId} at {saved}");
+                }
+
                 response.Data = result.Data;
                 response.Message = "Elder created successfully";
             }
@@ -281,6 +303,12 @@ namespace GCI_Admin.Services.Service
                     return response;
                 }
 
+                string imageFolder = await SystemConfigHelper.GetImageBasePathAsync(_systemConfigRepository);
+                if (result.Data.Member != null)
+                {
+                    result.Data.Member.ProfileImage = ImageHelper.ReadImage(imageFolder, result.Data.MemberId.ToString());
+                }
+
                 response.Data = result.Data;
                 response.Message = "Elder retrieved successfully";
             }
@@ -308,6 +336,13 @@ namespace GCI_Admin.Services.Service
                     response.Code = "400";
                     response.Message = result.Message ?? "Update failed";
                     return response;
+                }
+
+                if (dto.ProfileImageBase64 != null)
+                {
+                    string imageFolder = await SystemConfigHelper.GetImageBasePathAsync(_systemConfigRepository);
+                    string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
+                    Loggers.EventLogs($"Saved profile image for elder {result.Data.ElderId} on update at {saved}");
                 }
 
                 response.Data = result.Data;
@@ -341,6 +376,35 @@ namespace GCI_Admin.Services.Service
 
                 response.Data = result.Data;
                 response.Message = "Elder deleted successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        public async Task<ApiResponse<bool>> ToggleElderStatusAsync(int id, bool isActive)
+        {
+            var response = new ApiResponse<bool>();
+
+            try
+            {
+                var result = await _leadershipRepository.ToggleElderStatusAsync(id, isActive);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = result.Message;
             }
             catch (Exception ex)
             {

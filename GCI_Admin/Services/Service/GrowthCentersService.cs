@@ -1,4 +1,4 @@
-﻿using GCI_Admin.DBOperations;
+using GCI_Admin.DBOperations;
 using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GCI_Admin.Utils;
 using Utils;
 
 namespace GCI_Admin.Services.Service
@@ -223,29 +224,197 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-        public Task<ApiResponse<GrowthCenterLeader>> GetGCLeaderByIdAsync(int id)
+        public async Task<ApiResponse<GrowthCenterLeader>> GetGCLeaderByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var response = new ApiResponse<GrowthCenterLeader>();
+            try
+            {
+                var leader = await _context.GrowthCenterLeaders
+                    .Include(l => l.Member)
+                    .Include(l => l.GrowthCenter)
+                    .FirstOrDefaultAsync(l => l.GrowthCenterLeaderId == id);
+                if (leader == null)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = "GC Leader not found";
+                    return response;
+                }
+                var imageFolderSetting = await _context.SystemConfig.FirstOrDefaultAsync(x => x.ConfigKey == "ImageBasePath");
+                string imageFolder = imageFolderSetting?.ConfigValue ?? "wwwroot/uploads";
+                if (leader.Member != null)
+                {
+                    leader.Member.ProfileImage = ImageHelper.ReadImage(imageFolder, leader.MemberId.ToString());
+                }
+                response.Data = leader;
+                response.Message = "Leader retrieved successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
         }
 
-        public Task<ApiResponse<GrowthCenterLeader>> GetGCLeaderByMemberAndCenterAsync(int memberId, int centerId)
+        public async Task<ApiResponse<GrowthCenterLeader>> GetGCLeaderByMemberAndCenterAsync(int memberId, int centerId)
         {
-            throw new NotImplementedException();
+            var response = new ApiResponse<GrowthCenterLeader>();
+            try
+            {
+                var leader = await _context.GrowthCenterLeaders
+                    .FirstOrDefaultAsync(l => l.MemberId == memberId && l.GrowthCenterId == centerId && l.IsActive);
+                if (leader == null)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = "Leader not found";
+                    return response;
+                }
+                response.Data = leader;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
         }
 
-        public Task<ApiResponse<GrowthCenterLeader>> CreateGCLeaderAsync(GrowthCenterLeader leader)
+        public async Task<ApiResponse<GrowthCenterLeader>> CreateGCLeaderAsync(GCLeaderDto dto)
         {
-            throw new NotImplementedException();
+            var response = new ApiResponse<GrowthCenterLeader>();
+            try
+            {
+                var leader = new GrowthCenterLeader
+                {
+                    MemberId = dto.MemberId,
+                    GrowthCenterId = dto.GrowthCenterId,
+                    Bio = dto.Bio,
+                    StartDate = dto.StartDate,
+                    EndDate = dto.EndDate,
+                    IsActive = dto.IsActive,
+                    CreatedAt = DateTime.Now
+                };
+                _context.GrowthCenterLeaders.Add(leader);
+                await _context.SaveChangesAsync();
+
+                var imageFolderSetting = await _context.SystemConfig.FirstOrDefaultAsync(x => x.ConfigKey == "ImageBasePath");
+                string imageFolder = imageFolderSetting?.ConfigValue ?? "wwwroot/uploads";
+                if (!string.IsNullOrEmpty(dto.ProfileImageBase64))
+                {
+                    string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{dto.MemberId}", "jpg");
+                    Loggers.EventLogs($"Saved profile image for GC leader at {saved}");
+                }
+
+                response.Data = leader;
+                response.Message = "GC Leader assigned successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
         }
 
-        public Task<ApiResponse<GrowthCenterLeader>> UpdateGCLeaderAsync(GrowthCenterLeader leader)
+        public async Task<ApiResponse<GrowthCenterLeader>> UpdateGCLeaderAsync(GCLeaderDto dto)
         {
-            throw new NotImplementedException();
+            var response = new ApiResponse<GrowthCenterLeader>();
+            try
+            {
+                var leader = await _context.GrowthCenterLeaders.FindAsync(dto.GCLeaderId);
+                if (leader == null)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = "GC Leader not found";
+                    return response;
+                }
+                leader.MemberId = dto.MemberId;
+                leader.GrowthCenterId = dto.GrowthCenterId;
+                leader.Bio = dto.Bio;
+                leader.StartDate = dto.StartDate;
+                leader.EndDate = dto.EndDate;
+                leader.IsActive = dto.IsActive;
+
+                await _context.SaveChangesAsync();
+
+                var imageFolderSetting = await _context.SystemConfig.FirstOrDefaultAsync(x => x.ConfigKey == "ImageBasePath");
+                string imageFolder = imageFolderSetting?.ConfigValue ?? "wwwroot/uploads";
+                if (!string.IsNullOrEmpty(dto.ProfileImageBase64))
+                {
+                    string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{dto.MemberId}", "jpg");
+                    Loggers.EventLogs($"Saved profile image for GC leader on update at {saved}");
+                }
+
+                response.Data = leader;
+                response.Message = "GC Leader updated successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
         }
 
-        public Task<ApiResponse<bool>> DeleteGCLeaderAsync(int id)
+        public async Task<ApiResponse<bool>> DeleteGCLeaderAsync(int id)
         {
-            throw new NotImplementedException();
+            var response = new ApiResponse<bool>();
+            try
+            {
+                var leader = await _context.GrowthCenterLeaders.FindAsync(id);
+                if (leader == null)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = "GC Leader not found";
+                    return response;
+                }
+                leader.IsActive = false;
+                await _context.SaveChangesAsync();
+                response.Data = true;
+                response.Message = "GC Leader deleted successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<bool>> ToggleGCLeaderStatusAsync(int id, bool isActive)
+        {
+            var response = new ApiResponse<bool>();
+            try
+            {
+                var leader = await _context.GrowthCenterLeaders.FindAsync(id);
+                if (leader == null)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = "GC Leader not found";
+                    return response;
+                }
+                leader.IsActive = isActive;
+                await _context.SaveChangesAsync();
+                response.Data = true;
+                response.Message = isActive ? "GC Leader activated successfully" : "GC Leader deactivated successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
         }
     }
 }

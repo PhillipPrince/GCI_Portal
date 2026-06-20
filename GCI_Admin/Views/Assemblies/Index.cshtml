@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.AssembliesData
+@model GCI_Admin.Models.AssembliesData
 
 @{
     ViewData["Title"] = "Assemblies Management";
@@ -11,7 +11,7 @@
         <p class="text-muted mb-0">Manage church branches and assembly leadership</p>
     </div>
     <div class="col-md-4 d-flex justify-content-end">
-        <button class="btn btn-primary btn-lg" id="openAddModalBtn">
+        <button class="btn btn-primary btn-lg" id="openAssemblyModalBtn">
             <i class="fa fa-plus-circle me-2"></i>Create New Assembly
         </button>
     </div>
@@ -214,12 +214,37 @@
     </div>
 </div>
 
+<!-- Branch Leader Modal - Loads the separated partial view -->
+<div class="modal fade" id="leaderModal" tabindex="-1" aria-labelledby="leaderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="leaderModalLabel">
+                    <i class="fa fa-user-plus me-2"></i>Assign Assembly Leader
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <!-- Content will be loaded here -->
+            <div id="leaderModalContent">
+                <div class="text-center p-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading form...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         let assemblies = [];
         let leaders = [];
 
-               $(document).ready(function () {
+        $(document).ready(function () {
             // Load data and initialize tables
             loadData();
             initializeDataTables();
@@ -262,13 +287,9 @@
                         $('#modalTitle').text('Add New Assembly');
                     });
                 } else if (activeTabId === 'leaders-tab') {
-                    $button.html('<i class="fa fa-plus-circle me-2"></i>Create New Assembly Leader');
+                    $button.html('<i class="fa fa-plus-circle me-2"></i>Assign Assembly Leader');
                     $button.off('click').on('click', function () {
-                        $('#leaderModal').modal('show'); // make sure this modal exists
-                        $('#leaderForm')[0].reset();
-                        $('#leaderLoading').addClass('d-none');
-                        $('#saveLeaderBtn').prop('disabled', false);
-                        $('#modalTitle').text('Add New Assembly Leader');
+                        openLeaderModal();
                     });
                 }
             }
@@ -285,19 +306,35 @@
             });
         }
 
-        // function loadData() {
-        //     Load assemblies
-        //     $.get('@Url.Action("GetAssemblies", "Assembly")', function (data) {
-        //         assemblies = data;
-        //         updateStats();
-        //     });
-
-        //     Load leaders if needed
-        //     $.get('@Url.Action("GetAssemblyLeaders", "Assembly")', function (data) {
-        //         leaders = data;
-        //         updateLeaderStats();
-        //     });
-        // }
+        function openLeaderModal() {
+            $('#leaderModal').modal('show');
+            $('#leaderModalContent').html(`
+                <div class="text-center p-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading form...</p>
+                </div>
+            `);
+            
+            $.ajax({
+                url: '@Url.Action("LoadCreateForm", "BranchLeaders")',
+                type: 'GET',
+                success: function (response) {
+                    $('#leaderModalContent').html(response);
+                },
+                error: function (xhr, status, error) {
+                    $('#leaderModalContent').html(`
+                        <div class="alert alert-danger m-3">
+                            <i class="fa fa-exclamation-triangle me-2"></i>
+                            Error loading form. Please try again.
+                            <br><small>${error}</small>
+                        </div>
+                    `);
+                    console.error("Error loading partial view:", error);
+                }
+            });
+        }
 
         function updateStats() {
             if (assemblies && assemblies.length > 0) {
@@ -394,14 +431,14 @@
         }
 
         function reloadAssembliesTable() {
-            $('#assembliesTableContainer').load('@Url.Action("AssembliesTable", "Assembly")', function () {
+            $('#assembliesTableContainer').load('@Url.Action("AssembliesTable", "Assemblies")', function () {
                 initializeDataTables();
                 loadData();
             });
         }
 
         function reloadLeadersTable() {
-            $('#leadersTableContainer').load('@Url.Action("LeadersTable", "Assembly")', function () {
+            $('#leadersTableContainer').load('@Url.Action("LeadersTable", "Assemblies")', function () {
                 initializeDataTables();
                 loadData();
             });
@@ -417,12 +454,16 @@
                 confirmButtonColor: "#d33"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $.post('@Url.Action("Delete", "Assembly")', { id: id }, function (response) {
-                        if (response.success) {
-                            Swal.fire("Deleted!", response.message, "success")
+                    $.ajax({
+                        url: '@Url.Action("Delete", "Assemblies")?assemblyId=' + id,
+                        type: 'DELETE',
+                        success: function (response) {
+                            Swal.fire("Deleted!", "Assembly deleted successfully.", "success")
                                 .then(() => reloadAssembliesTable());
-                        } else {
-                            Swal.fire("Error", response.message, "error");
+                        },
+                        error: function (xhr) {
+                            let msg = xhr.responseJSON?.message || "Failed to delete assembly.";
+                            Swal.fire("Error", msg, "error");
                         }
                     });
                 }
@@ -431,56 +472,115 @@
 
         // Leader functions
         function editLeader(id) {
-            window.location.href = '@Url.Action("Edit", "AssemblyLeader")/' + id;
+            $('#leaderModal').modal('show');
+            $('#leaderModalContent').html(`
+                <div class="text-center p-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading form...</p>
+                </div>
+            `);
+            
+            $.ajax({
+                url: '@Url.Action("LoadEditForm", "BranchLeaders")/' + id,
+                type: 'GET',
+                success: function (response) {
+                    $('#leaderModalContent').html(response);
+                },
+                error: function (xhr, status, error) {
+                    $('#leaderModalContent').html(`
+                        <div class="alert alert-danger m-3">
+                            <i class="fa fa-exclamation-triangle me-2"></i>
+                            Error loading form. Please try again.
+                            <br><small>${error}</small>
+                        </div>
+                    `);
+                    console.error("Error loading partial view:", error);
+                }
+            });
         }
 
         function viewLeader(id) {
-            window.location.href = '@Url.Action("Details", "AssemblyLeader")/' + id;
+            window.location.href = '@Url.Action("Details", "BranchLeaders")/' + id;
         }
 
         async function toggleLeaderStatus(id, setActive) {
             var action = setActive ? 'activate' : 'deactivate';
-            if (!confirm(`Are you sure you want to ${action} this assembly leader?`)) return;
+            
+            Swal.fire({
+                title: `Confirm Status Change`,
+                text: `Are you sure you want to ${action} this assembly leader?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: `Yes, ${action}!`,
+                cancelButtonText: 'Cancel'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch('@Url.Action("ToggleStatus", "BranchLeaders")', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                            },
+                            body: JSON.stringify({
+                                id: id,
+                                isActive: setActive
+                            })
+                        });
 
-            const response = await fetch('@Url.Action("ToggleStatus", "AssemblyLeader")', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                },
-                body: JSON.stringify({
-                    id: id,
-                    isActive: setActive
-                })
+                        const resData = await response.json();
+
+                        if (resData.success) {
+                            Swal.fire("Success!", `Leader ${action}d successfully.`, "success")
+                                .then(() => reloadLeadersTable());
+                        } else {
+                            Swal.fire("Error", resData.message || `Failed to ${action} leader.`, "error");
+                        }
+                    } catch (err) {
+                        Swal.fire("Error", "An error occurred while updating status.", "error");
+                    }
+                }
             });
-
-            const result = await response.json();
-
-            if (result.success) {
-                Swal.fire("Success!", `Leader ${action}d successfully.`, "success")
-                    .then(() => reloadLeadersTable());
-            } else {
-                Swal.fire("Error", result.message || `Failed to ${action} leader.`, "error");
-            }
         }
 
         async function deleteLeader(id) {
-            if (!confirm("Are you sure you want to delete this assembly leader? This action cannot be undone.")) return;
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Are you sure you want to delete this assembly leader? This will perform a soft-delete.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete!",
+                confirmButtonColor: "#d33"
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch('@Url.Action("Delete", "BranchLeaders")/' + id, {
+                            method: 'POST',
+                            headers: {
+                                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                            }
+                        });
 
-            const response = await fetch('@Url.Action("Delete", "AssemblyLeader")/' + id, {
-                method: 'POST',
-                headers: {
-                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        const resData = await response.json();
+
+                        if (resData.success) {
+                            Swal.fire("Deleted!", "Leader deleted successfully.", "success")
+                                .then(() => reloadLeadersTable());
+                        } else {
+                            Swal.fire("Error", resData.message || "Failed to delete assembly leader.", "error");
+                        }
+                    } catch (err) {
+                        Swal.fire("Error", "An error occurred while deleting.", "error");
+                    }
                 }
             });
+        }
 
-            if (response.ok) {
-                Swal.fire("Deleted!", "Leader deleted successfully.", "success")
-                    .then(() => reloadLeadersTable());
-            } else {
-                const result = await response.json();
-                Swal.fire("Error", result.message || "Failed to delete assembly leader.", "error");
-            }
+        function loadData() {
+            // Placeholder for loading data
+            console.log("Assemblies & Leaders data loaded");
         }
 
         function submitAssemblyForm(e) {

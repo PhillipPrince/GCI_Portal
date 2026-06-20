@@ -1,4 +1,4 @@
-﻿using GCI_Admin.DBOperations;
+using GCI_Admin.DBOperations;
 using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
@@ -86,10 +86,10 @@ namespace GCI_Admin.Controllers
             ViewBag.IsEdit = false;
             return PartialView("_CreateMinistryLeaderPartial", dto);
         }
+
         // POST: Create Ministry Leader
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateMinistryLeader([FromForm] MinistryLeaderDto model)
+        public async Task<IActionResult> CreateMinistryLeader([FromBody] MinistryLeaderDto model)
         {
             try
             {
@@ -109,7 +109,6 @@ namespace GCI_Admin.Controllers
                 }
 
                 // Check if member is already an active leader in this ministry
-                // Note: You need to add this method to your service interface
                 var existingLeaders = await _ministriesService.GetMinistryLeadersByMinistryAsync(model.MinistryId);
                 if (existingLeaders.IsSuccess && existingLeaders.Data != null)
                 {
@@ -154,6 +153,7 @@ namespace GCI_Admin.Controllers
                 });
             }
         }
+
 
         // GET: Load Edit Form
         public async Task<IActionResult> LoadEditForm(int id)
@@ -210,8 +210,7 @@ namespace GCI_Admin.Controllers
 
         // POST: Update Ministry Leader
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateMinistryLeader([FromForm] MinistryLeaderDto model)
+        public async Task<IActionResult> UpdateMinistryLeader([FromBody] MinistryLeaderDto model)
         {
             try
             {
@@ -280,7 +279,6 @@ namespace GCI_Admin.Controllers
 
         // POST: Delete Ministry Leader
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteMinistryLeader(int id)
         {
             try
@@ -301,6 +299,41 @@ namespace GCI_Admin.Controllers
                     {
                         success = false,
                         message = result.Message ?? "Failed to delete ministry leader."
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"An error occurred: {ex.Message}"
+                });
+            }
+        }
+
+        // POST: Toggle Ministry Leader Status
+        [HttpPost]
+        public async Task<IActionResult> ToggleStatus(int id, bool isActive)
+        {
+            try
+            {
+                var result = await _ministriesService.ToggleMinistryLeaderStatusAsync(id, isActive);
+
+                if (result.IsSuccess)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        message = result.Message ?? "Status toggled successfully."
+                    });
+                }
+                else
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = result.Message ?? "Failed to toggle status."
                     });
                 }
             }

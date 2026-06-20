@@ -1,9 +1,9 @@
-﻿@model ICollection<GCI_Admin.Models.GrowthCenterMeetingAttendee>
+@model ICollection<GCI_Admin.Models.GrowthCenterMeetingAttendee>
 
 @if (Model != null && Model.Any())
 {
     <div class="table-responsive">
-        <table class="table table-hover table-striped align-middle" id="attendeesTable">
+        <table class="table table-hover table-striped align-middle datatable" id="attendeesTable">
             <thead class="table-light">
                 <tr>
                     <th>#</th>
@@ -78,21 +78,8 @@ else
         });
     }
     
-    // Initialize DataTable for attendees
     $(document).ready(function() {
-        if ($.fn.DataTable && $('#attendeesTable').length && $('#attendeesTable tbody tr').length > 0) {
-            $('#attendeesTable').DataTable({
-                pageLength: 10,
-                responsive: true,
-                language: {
-                    search: "<i class='fa fa-search'></i> Search:",
-                    lengthMenu: "Show _MENU_ entries"
-                },
-                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
-                     '<"row"<"col-sm-12"tr>>' +
-                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
-            });
-        }
+        // DataTable initialized by global GCIDataTable initializer (datatable class)
     });
 </script>
 

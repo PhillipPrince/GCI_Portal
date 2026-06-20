@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -53,6 +53,9 @@ namespace GCI_Admin.DBOperations
         public DbSet<ServiceCashBreakdown> ServiceCashBreakdowns { get; set; }
         public DbSet<ServiceBankCollection> ServiceBankCollections { get; set; }
         public DbSet<ServiceCollectionSignature> ServiceCollectionSignatures { get; set; }
+        public DbSet<EventFeedback> EventFeedbacks { get; set; }
+        public DbSet<FaithPost> FaithPosts { get; set; }
+        public DbSet<FaithPostComment> FaithPostComments { get; set; }
 
     }
 }

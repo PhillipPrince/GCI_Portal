@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Utils;
 
@@ -11,5 +11,8 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<GECMember>> GetGECMemberByIdAsync(int gecId);
         Task<ApiResponse<GECMember>> UpdateGECMemberAsync(GECMemberDto dto);
         Task<ApiResponse<bool>> DeleteGECMemberAsync(int gecId);
+        Task<ApiResponse<bool>> ToggleGECMemberStatusAsync(int id, bool isActive);
+        
+
     }
 }

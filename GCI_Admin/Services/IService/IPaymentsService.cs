@@ -1,5 +1,6 @@
 ﻿using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Utils;
@@ -12,5 +13,6 @@ namespace GCI_Admin.Services.IService
 
         Task<ApiResponse<List<Payment>>> GetByMemberIdAsync(int memberId);
         Task<ApiResponse<List<AccountReferenceSummaryDto>>> GetAccountReferenceSummaryAsync();
+        Task<ApiResponse> VerifyCollection( VerifyCollectionRequest request);
     }
 }

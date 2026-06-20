@@ -2,7 +2,9 @@ using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using GCI_Admin.Services.Service;
+using GCI_Admin.DBOperations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using Utils;
 
@@ -13,10 +15,12 @@ namespace GCI_Admin.Controllers
     public class EventController : Controller
     {
         private readonly IEventsService _eventsService;
+        private readonly AppDbContext _context;
 
-        public EventController(IEventsService eventsService)
+        public EventController(IEventsService eventsService, AppDbContext context)
         {
             _eventsService = eventsService;
+            _context = context;
         }
 
         public async Task<IActionResult> Index()
@@ -98,10 +102,17 @@ namespace GCI_Admin.Controllers
                     return RedirectToAction("Index");
                 }
                 var registrationsResponse = await _eventsService.GetEventRegistrationsByEventIdAsync(id);
+                var feedbacks = await _context.EventFeedbacks
+                    .Include(f => f.Member)
+                    .Where(f => f.EventId == id)
+                    .OrderByDescending(f => f.CreatedAt)
+                    .ToListAsync();
+
                 eventData = new EventViewModel
                 {
                     Event = response.Data,
-                    Registrations = registrationsResponse.Data
+                    Registrations = registrationsResponse.Data,
+                    Feedbacks = feedbacks
                 };  
 
                 return View(eventData);

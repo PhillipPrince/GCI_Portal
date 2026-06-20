@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.GrowthCenterLeader>
+@model List<GCI_Admin.Models.GrowthCenterLeader>
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
@@ -10,7 +10,7 @@
                     <th>Bio</th>
                     <th>Start Date</th>
                     <th>End Date</th>
-                    <th>Active</th>
+                    <th>Status</th>
                     <th class="text-end">Actions</th>
                 </tr>
 
@@ -24,8 +24,8 @@
                     <th>
                         <select class="form-control form-control-sm">
                             <option value="">All</option>
-                            <option value="true">Active</option>
-                            <option value="false">Inactive</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
                         </select>
                     </th>
                     <th></th>
@@ -33,37 +33,72 @@
             </thead>
 
             <tbody>
-                @foreach (var leader in Model)
+                @if (Model != null)
                 {
-                    <tr>
-                        <td>@leader.Member.FirstName @leader.Member.OtherNames</td>
-                        <td>@leader.GrowthCenter.CenterName</td>
-                        <td>@leader.Bio</td>
-                        <td>@leader.StartDate.ToString("dd MMM yyyy")</td>
-                        <td>@(leader.EndDate.HasValue? leader.EndDate.Value.ToString("dd MMM yyyy") : "-")</td>
-                        <td>@(leader.IsActive ? "Yes" : "No")</td>
-                        <td class="text-end">
+                    @foreach (var leader in Model)
+                    {
+                        <tr>
+                            <td>@leader.Member.FirstName @leader.Member.OtherNames</td>
+                            <td>@leader.GrowthCenter.CenterName</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(leader.Bio) && leader.Bio.Length > 50)
+                                {
+                                    <span title="@leader.Bio">@leader.Bio.Substring(0, 50)...</span>
+                                }
+                                else
+                                {
+                                    <span>@leader.Bio</span>
+                                }
+                            </td>
+                            <td>@leader.StartDate.ToString("dd MMM yyyy")</td>
+                            <td>@(leader.EndDate.HasValue ? leader.EndDate.Value.ToString("dd MMM yyyy") : "Ongoing")</td>
+                            <td>
+                                @if (leader.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactive</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <!-- Edit -->
+                                    <button class="btn btn-outline-primary"
+                                            title="Edit"
+                                            onclick="editLeader(@leader.GrowthCenterLeaderId)">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
 
-                            <!-- View -->
-                            <button class="btn btn-sm btn-outline-info"
-                                    onclick="openLeaderModal('@Url.Action("Details", "GrowthCenters", new { id = leader.GrowthCenterLeaderId })')">
-                                <i class="fa fa-eye"></i>
-                            </button>
+                                    <!-- Toggle Status -->
+                                    @if (leader.IsActive)
+                                    {
+                                        <button class="btn btn-outline-warning"
+                                                title="Deactivate"
+                                                onclick="toggleGCLeaderStatus(@leader.GrowthCenterLeaderId, false)">
+                                            <i class="fa fa-ban"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline-success"
+                                                title="Activate"
+                                                onclick="toggleGCLeaderStatus(@leader.GrowthCenterLeaderId, true)">
+                                            <i class="fa fa-check-circle"></i>
+                                        </button>
+                                    }
 
-                            <!-- Edit -->
-                            <button class="btn btn-sm btn-outline-warning"
-                                    onclick="openLeaderModal('@Url.Action("Edit", "GrowthCenters", new { id = leader.GrowthCenterLeaderId })')">
-                                <i class="fa fa-edit"></i>
-                            </button>
-
-                            <!-- Delete -->
-                            <button class="btn btn-sm btn-outline-danger"
-                                    onclick="deleteLeader(@leader.GrowthCenterLeaderId)">
-                                <i class="fa fa-trash"></i>
-                            </button>
-
-                        </td>
-                    </tr>
+                                    <!-- Delete -->
+                                    <button class="btn btn-outline-danger"
+                                            title="Delete"
+                                            onclick="deleteLeader(@leader.GrowthCenterLeaderId)">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
                 }
             </tbody>
         </table>

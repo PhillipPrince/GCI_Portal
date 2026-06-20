@@ -1,0 +1,299 @@
+@model GCI_Admin.Models.SystemConfig
+
+@{
+    ViewData["Title"] = "Edit Configuration - " + Model.ConfigKey;
+    
+    // Check if the value is a boolean
+    string valClean = Model.ConfigValue?.Trim().ToLower() ?? "";
+    bool isBool = valClean == "true" || valClean == "false" || valClean == "yes" || valClean == "no" || valClean == "1" || valClean == "0";
+    bool isTrueValue = valClean == "true" || valClean == "yes" || valClean == "1";
+}
+
+<div class="container-fluid py-4">
+    <!-- Breadcrumb & Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">System Configuration</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit Config</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold mb-1">
+                <i class="fa fa-edit me-2 text-primary"></i>Edit Configuration
+            </h2>
+            <p class="text-muted mb-0">Modify settings and values for <code>@Model.ConfigKey</code></p>
+        </div>
+        <div class="col-md-4 text-end d-flex align-items-center justify-content-end">
+            <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                <i class="fa fa-arrow-left me-2"></i>Back to List
+            </a>
+            @if (Model.IsEditable)
+            {
+                <button type="button" class="btn btn-primary" onclick="saveConfiguration()">
+                    <i class="fa fa-save me-2"></i>Save Changes
+                </button>
+            }
+        </div>
+    </div>
+
+    <!-- Edit Form Card -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0 pt-4 pb-0">
+                    <h5 class="card-title fw-bold m-0">Configuration Details</h5>
+                </div>
+                <div class="card-body">
+                    <form id="editConfigForm" onsubmit="event.preventDefault();">
+                        <input type="hidden" id="configId" value="@Model.Id" />
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Configuration Key</label>
+                            <input type="text" class="form-control bg-light" id="configKey" value="@Model.ConfigKey" readonly />
+                            <small class="text-muted">The unique key used to fetch this setting. Keys are read-only to prevent breaking system references.</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold d-block">Configuration Value</label>
+                            
+                            @if (isBool)
+                            {
+                                <div class="boolean-toggle-container p-3 border rounded-3 bg-light d-inline-block">
+                                    <div class="form-check form-check-inline me-4">
+                                        <input class="form-check-input" type="radio" name="configBoolValue" id="boolTrue" value="true" @(isTrueValue ? "checked" : "") @(!Model.IsEditable ? "disabled" : "")>
+                                        <label class="form-check-label fw-bold text-success" for="boolTrue">
+                                            <i class="fa fa-check-circle me-1"></i>Enable
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="configBoolValue" id="boolFalse" value="false" @(!isTrueValue ? "checked" : "") @(!Model.IsEditable ? "disabled" : "")>
+                                        <label class="form-check-label fw-bold text-danger" for="boolFalse">
+                                            <i class="fa fa-ban me-1"></i>Disable
+                                        </label>
+                                    </div>
+                                    <input type="hidden" id="configValue" value="@Model.ConfigValue" />
+                                </div>
+                            }
+                            else
+                            {
+                                <textarea class="form-control font-monospace" id="configValue" rows="5" placeholder="Enter configuration value..." @(!Model.IsEditable ? "readonly" : "")>@Model.ConfigValue</textarea>
+                            }
+                            <small class="text-muted d-block mt-2">
+                                @if (isBool)
+                                {
+                                    <span>Detected as <strong>Boolean</strong>. Change state using the Enable/Disable options.</span>
+                                }
+                                else
+                                {
+                                    <span>Enter the custom string, number, JSON, or configuration content.</span>
+                                }
+                            </small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Description</label>
+                            <textarea class="form-control" id="configDescription" rows="3" placeholder="Describe the purpose of this setting..." @(!Model.IsEditable ? "readonly" : "")>@Model.Description</textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch p-3 border rounded-3 bg-light">
+                                    <input class="form-check-input ms-0 me-2" type="checkbox" id="configIsEditable" @(Model.IsEditable ? "checked" : "")>
+                                    <label class="form-check-label fw-bold" for="configIsEditable">
+                                        <i class="fa fa-pen me-1 text-info"></i>Editable
+                                    </label>
+                                    <div class="small text-muted mt-1 ps-4">If disabled, this configuration cannot be edited through the portal interface.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch p-3 border rounded-3 bg-light">
+                                    <input class="form-check-input ms-0 me-2" type="checkbox" id="configIsActive" @(Model.IsActive ? "checked" : "")>
+                                    <label class="form-check-label fw-bold" for="configIsActive">
+                                        <i class="fa fa-check-circle me-1 text-success"></i>Active
+                                    </label>
+                                    <div class="small text-muted mt-1 ps-4">Inactive settings will be ignored or bypassed by system modules.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meta info side-card -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0 pt-4 pb-0">
+                    <h5 class="card-title fw-bold m-0">Metadata</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted d-block small mb-1">Configuration Type</label>
+                        <span class="badge @(isBool ? "bg-success" : "bg-primary") px-3 py-2">
+                            <i class="fa @(isBool ? "fa-toggle-on" : "fa-font") me-1"></i>
+                            @(isBool ? "Boolean flag" : "Text / Value")
+                        </span>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-3">
+                        <label class="text-muted d-block small mb-1">Created At</label>
+                        <div class="fw-bold">@Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted d-block small mb-1">Last Updated</label>
+                        <div class="fw-bold">
+                            @(Model.UpdatedAt.HasValue ? Model.UpdatedAt.Value.ToString("dd MMM yyyy, hh:mm tt") : "Never updated")
+                        </div>
+                    </div>
+
+                    @if (!Model.IsEditable)
+                    {
+                        <div class="alert alert-warning border-0 mb-0 mt-4 d-flex align-items-start">
+                            <i class="fa fa-lock text-warning fa-lg me-2 mt-1"></i>
+                            <div>
+                                <strong class="d-block">Read-Only Config</strong>
+                                This setting is locked. To edit, you must first enable "Editable" above and save.
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @if (Model.IsEditable)
+            {
+                <div class="card border-0 shadow-sm border-start border-4 border-danger">
+                    <div class="card-body d-flex align-items-center justify-content-between py-3">
+                        <div>
+                            <h6 class="fw-bold mb-1 text-danger">Delete Configuration</h6>
+                            <p class="small text-muted mb-0">Permanently delete from database</p>
+                        </div>
+                        <button type="button" class="btn btn-outline-danger" onclick="deleteThisConfig()">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function saveConfiguration() {
+            const id = $('#configId').val();
+            const configKey = $('#configKey').val().trim();
+            const description = $('#configDescription').val().trim();
+            const isEditable = $('#configIsEditable').is(':checked');
+            const isActive = $('#configIsActive').is(':checked');
+            
+            let configValue = '';
+            if ($('input[name="configBoolValue"]').length > 0) {
+                configValue = $('input[name="configBoolValue"]:checked').val();
+            } else {
+                configValue = $('#configValue').val().trim();
+            }
+
+            if (!configValue && configValue !== 'false') {
+                Swal.fire('Error', 'Configuration value is required', 'error');
+                return;
+            }
+
+            const dto = {
+                ConfigKey: configKey,
+                ConfigValue: configValue,
+                Description: description,
+                IsEditable: isEditable,
+                IsActive: isActive
+            };
+
+            Swal.fire({
+                title: 'Saving changes...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            $.ajax({
+                url: '@Url.Action("UpdateConfig", "SystemConfig")/' + id,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(dto),
+                success: function(response) {
+                    if (response && response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Saved!',
+                            text: 'Configuration has been updated successfully.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', response?.message || 'Failed to update configuration', 'error');
+                    }
+                },
+                error: function(xhr) {
+                    let errorMsg = 'Failed to update configuration';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Error', errorMsg, 'error');
+                }
+            });
+        }
+
+        function deleteThisConfig() {
+            const id = $('#configId').val();
+            const key = $('#configKey').val();
+
+            Swal.fire({
+                title: 'Delete Configuration',
+                text: `Are you sure you want to delete "${key}"? This action cannot be undone.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Deleting...',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    $.ajax({
+                        url: '@Url.Action("DeleteConfig", "SystemConfig")',
+                        type: 'DELETE',
+                        data: { id: id },
+                        success: function(response) {
+                            if (response && response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Configuration has been deleted successfully.'
+                                }).then(() => {
+                                    window.location.href = '@Url.Action("Index", "SystemConfig")';
+                                });
+                            } else {
+                                Swal.fire('Error', response?.message || 'Delete failed', 'error');
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorMsg = 'Delete failed';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            }
+                            Swal.fire('Error', errorMsg, 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

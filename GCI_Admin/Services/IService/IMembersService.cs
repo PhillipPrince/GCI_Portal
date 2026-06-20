@@ -23,6 +23,7 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<List<Member>>> GetMembersByDateRangeAsync(DateTime startDate, DateTime endDate);
         Task<ApiResponse<List<Member>>> GetActiveMembersByDateRangeAsync(DateTime startDate, DateTime endDate);
         Task<ApiResponse<List<Member>>> GetFullMembersByDateRangeAsync(DateTime startDate, DateTime endDate);
+        Task<ApiResponse<Member>> DeleteUserByPhone(string phone);
 
 
     }

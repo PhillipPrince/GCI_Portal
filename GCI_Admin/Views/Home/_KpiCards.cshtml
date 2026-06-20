@@ -1,0 +1,125 @@
+@model GCI_Admin.Models.DashboardViewModel
+
+<!-- KPI CARDS -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-users fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Members</h6>
+                        <h3 class="fw-bold mb-0">@Model.TotalMembers.ToString("N0")</h3>
+                        @if (Model.MemberGrowthPercentage > 0)
+                        {
+                            <small class="text-success"><i class="fa fa-arrow-up me-1"></i>+@Model.MemberGrowthPercentage% from last month</small>
+                        }
+                        else if (Model.MemberGrowthPercentage < 0)
+                        {
+                            <small class="text-danger"><i class="fa fa-arrow-down me-1"></i>@Model.MemberGrowthPercentage% from last month</small>
+                        }
+                        else
+                        {
+                            <small class="text-muted"><i class="fa fa-minus me-1"></i>No change from last month</small>
+                        }
+                    </div>
+                </div>
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-primary" style="width: @Model.TotalMembersPercentage%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-user-check fa-2x text-success"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Active Members</h6>
+                        <h3 class="fw-bold mb-0">@Model.TotalActiveMembers.ToString("N0")</h3>
+                        @if (Model.ActiveMemberGrowthPercentage > 0)
+                        {
+                            <small class="text-success"><i class="fa fa-arrow-up me-1"></i>+@Model.ActiveMemberGrowthPercentage% from last month</small>
+                        }
+                        else if (Model.ActiveMemberGrowthPercentage < 0)
+                        {
+                            <small class="text-danger"><i class="fa fa-arrow-down me-1"></i>@Model.ActiveMemberGrowthPercentage% from last month</small>
+                        }
+                        else
+                        {
+                            <small class="text-muted"><i class="fa fa-minus me-1"></i>No change from last month</small>
+                        }
+                    </div>
+                </div>
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-success" style="width: @Model.ActiveMembersPercentage%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-church fa-2x text-info"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Membership Class</h6>
+                        <h3 class="fw-bold mb-0">@(Model.MemberStatus?.MembershipClassMembers?.Count ?? 0)</h3>
+                        <small class="text-info"><i class="fa fa-clock me-1"></i>Awaiting confirmation</small>
+                    </div>
+                </div>
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-info" style="width: @(Model.TotalActiveMembers > 0 ? Math.Round((decimal)(Model.MemberStatus?.MembershipClassMembers?.Count ?? 0) / Model.TotalActiveMembers * 100, 2) : 0)%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-calendar fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Upcoming Events</h6>
+                        <h3 class="fw-bold mb-0">@Model.UpcomingEvents.ToString("N0")</h3>
+                        @if (Model.EventChangePercentage > 0)
+                        {
+                            <small class="text-danger"><i class="fa fa-arrow-up me-1"></i>+@Model.EventChangePercentage% from last month</small>
+                        }
+                        else if (Model.EventChangePercentage < 0)
+                        {
+                            <small class="text-success"><i class="fa fa-arrow-down me-1"></i>@Model.EventChangePercentage% from last month</small>
+                        }
+                        else
+                        {
+                            <small class="text-muted"><i class="fa fa-minus me-1"></i>Same as last month</small>
+                        }
+                    </div>
+                </div>
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-warning" style="width: @Model.EventCompletionPercentage%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

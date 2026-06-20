@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.ViewModels.MemberSelectorViewModel
+@model GCI_Admin.Models.ViewModels.MemberSelectorViewModel
 
 <div class="member-selector-component" data-selected-member-id="@Model.SelectedMemberId" data-is-edit="@Model.IsEdit.ToString().ToLower()">
     <div class="row">
@@ -44,12 +44,19 @@
                     
                     <!-- Options list -->
                     <div class="dropdown-options" id="@(Model.ControlId)_options">
-                        <div class="option-item" data-value="">
-                            -- Select a member --
-                        </div>
-                        @if (Model.Members != null)
+                        @if (Model.Members == null || !Model.Members.Any())
                         {
-                            foreach (var member in Model.Members)
+                            <div class="text-center p-3 text-muted spinner-loading-placeholder">
+                                <span class="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true"></span>
+                                Loading members...
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="option-item" data-value="">
+                                -- Select a member --
+                            </div>
+                            @foreach (var member in Model.Members)
                             {
                                 var fullName = $"{member.FirstName} {member.OtherNames}".Trim();
                                 var searchData = $"{fullName} {member.Email} {member.Phone}".ToLower();
@@ -124,7 +131,8 @@
         var $searchInput = $('#' + controlId + '_search');
         var $clearBtn = $('#' + controlId + '_clearBtn');
         var $searchInfo = $('#' + controlId + '_info');
-        var $options = $('#' + controlId + '_options').find('.option-item');
+        var $optionsContainer = $('#' + controlId + '_options');
+        var $options = $optionsContainer.find('.option-item');
         var $selectedDisplay = $('#' + controlId + '_display');
         var $selectedMemberId = $('#' + controlId + '_selectedId');
         var isEdit = $('.member-selector-component').data('is-edit') === 'true';
@@ -132,6 +140,64 @@
         if (isEdit) {
             $trigger.attr('disabled', 'disabled');
             $selectedDisplay.attr('disabled', 'disabled');
+        }
+
+        // Fetch members via AJAX if the list is empty (only has loading placeholder)
+        if ($options.length === 0) {
+            $.ajax({
+                url: '/Finance/GetActiveMembers',
+                type: 'GET',
+                success: function(response) {
+                    if (response.success && response.data) {
+                        $optionsContainer.empty();
+                        $optionsContainer.append('<div class="option-item" data-value="">-- Select a member --</div>');
+                        
+                        response.data.forEach(function(member) {
+                            var fullName = ((member.firstName || '') + ' ' + (member.otherNames || '')).trim();
+                            var searchData = (fullName + ' ' + (member.email || '') + ' ' + (member.phone || '')).toLowerCase();
+                            
+                            var optionHtml = `
+                                <div class="option-item"
+                                     data-value="${member.id}"
+                                     data-fullname="${fullName}"
+                                     data-email="${member.email || ''}"
+                                     data-phone="${member.phone || ''}"
+                                     data-gender="${member.gender || ''}"
+                                     data-search="${searchData}">
+                                    <div class="option-title">${fullName}</div>
+                                    <div class="option-subtitle">${member.email || ''}</div>
+                                    ${member.phone ? `<div class="option-subtitle">📞 ${member.phone}</div>` : ''}
+                                </div>
+                            `;
+                            $optionsContainer.append(optionHtml);
+                        });
+                        
+                        // Re-bind option click events and update variables
+                        $options = $optionsContainer.find('.option-item');
+                        $options.on('click', function(e) {
+                            e.stopPropagation();
+                            selectOption($(this));
+                        });
+                        
+                        updateSearchInfo('', $options.filter('[data-value!=""]').length);
+                        
+                        // Pre-select if in edit mode
+                        var selectedMemberId = $('.member-selector-component').data('selected-member-id');
+                        if (selectedMemberId && selectedMemberId !== '') {
+                            var $selectedOption = $options.filter('[data-value="' + selectedMemberId + '"]');
+                            if ($selectedOption.length) {
+                                selectOption($selectedOption);
+                                $selectedMemberId.val(selectedMemberId);
+                            }
+                        }
+                    } else {
+                        $optionsContainer.html('<div class="text-danger p-3">Failed to load members</div>');
+                    }
+                },
+                error: function() {
+                    $optionsContainer.html('<div class="text-danger p-3">Error loading members</div>');
+                }
+            });
         }
         
         // Toggle dropdown on click

@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.RcpsPledgesViewModel
+@model GCI_Admin.Models.RcpsPledgesViewModel
 
 @{
     ViewData["Title"] = "RCPS Pledges Management";
@@ -87,9 +87,6 @@
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" />
 
     <style>
         .stat-card {
@@ -137,17 +134,9 @@
         let pledgesTable;
 
         $(document).ready(function() {
-            // Initialize DataTable
+            // Initialize DataTable via global initializer
             if ($('#pledgesTable').length) {
-                pledgesTable = $('#pledgesTable').DataTable({
-                    pageLength: 25,
-                    responsive: true,
-                    language: {
-                        search: "Search pledges:",
-                        lengthMenu: "Show _MENU_ pledges per page",
-                        info: "Showing _START_ to _END_ of _TOTAL_ pledges"
-                    }
-                });
+                GCIDataTable.init('#pledgesTable');
             }
 
             // Initialize select2 for better dropdown
@@ -276,18 +265,7 @@
             
             // Reinitialize DataTable
             if ($('#pledgesTable').length) {
-                if (pledgesTable) {
-                    pledgesTable.destroy();
-                }
-                pledgesTable = $('#pledgesTable').DataTable({
-                    pageLength: 25,
-                    responsive: true,
-                    language: {
-                        search: "Search pledges:",
-                        lengthMenu: "Show _MENU_ pledges per page",
-                        info: "Showing _START_ to _END_ of _TOTAL_ pledges"
-                    }
-                });
+                GCIDataTable.init('#pledgesTable');
             }
         }
 
