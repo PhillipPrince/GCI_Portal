@@ -819,3 +819,4 @@ C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\GCI_Admin.runti
 C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\bin\Debug\net8.0\GCI_Admin.pdb
 C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\GCI_Admin.genruntimeconfig.cache
 C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\ref\GCI_Admin.dll
+C:\Users\USER\Projects\GCI\GCI_Portal\GCI_Admin\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
