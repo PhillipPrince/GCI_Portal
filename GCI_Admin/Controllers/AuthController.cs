@@ -22,7 +22,7 @@ namespace GCI_Admin.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-          
+
             return View();
         }
 
@@ -172,13 +172,11 @@ namespace GCI_Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Unauthorized()
         {
-            // Clear session without redirecting
             await ClearUserSession();
             return View("Unauthorized");
         }
 
-        [HttpPost]
-        [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Logout()
         {
             try
@@ -195,7 +193,6 @@ namespace GCI_Admin.Controllers
         }
 
         [HttpGet]
-        [ActionName("Logout")]
         public async Task<IActionResult> LogoutGet()
         {
             try
