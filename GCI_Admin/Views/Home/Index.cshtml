@@ -19,573 +19,13 @@
     </div>
 </div>
 
-<!-- KPI CARDS - Enhanced with gradients and real percentages -->
-<div class="row g-4 mb-4">
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-users fa-2x text-primary"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Total Members</h6>
-                        <h3 class="fw-bold mb-0">@Model.TotalMembers.ToString("N0")</h3>
-                        @if (Model.MemberGrowthPercentage > 0)
-                        {
-                            <small class="text-success"><i class="fa fa-arrow-up me-1"></i>+@Model.MemberGrowthPercentage% from last month</small>
-                        }
-                        else if (Model.MemberGrowthPercentage < 0)
-                        {
-                            <small class="text-danger"><i class="fa fa-arrow-down me-1"></i>@Model.MemberGrowthPercentage% from last month</small>
-                        }
-                        else
-                        {
-                            <small class="text-muted"><i class="fa fa-minus me-1"></i>No change from last month</small>
-                        }
-                    </div>
-                </div>
-                <div class="progress" style="height: 4px;">
-                    <div class="progress-bar bg-primary" style="width: @Model.TotalMembersPercentage%"></div>
-                </div>
-            </div>
+<!-- DASHBOARD CONTAINER -->
+<div id="dashboard-container">
+    <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
         </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-user-check fa-2x text-success"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Active Members</h6>
-                        <h3 class="fw-bold mb-0">@Model.TotalActiveMembers.ToString("N0")</h3>
-                        @if (Model.ActiveMemberGrowthPercentage > 0)
-                        {
-                            <small class="text-success"><i class="fa fa-arrow-up me-1"></i>+@Model.ActiveMemberGrowthPercentage% from last month</small>
-                        }
-                        else if (Model.ActiveMemberGrowthPercentage < 0)
-                        {
-                            <small class="text-danger"><i class="fa fa-arrow-down me-1"></i>@Model.ActiveMemberGrowthPercentage% from last month</small>
-                        }
-                        else
-                        {
-                            <small class="text-muted"><i class="fa fa-minus me-1"></i>No change from last month</small>
-                        }
-                    </div>
-                </div>
-                <div class="progress" style="height: 4px;">
-                    <div class="progress-bar bg-success" style="width: @Model.ActiveMembersPercentage%"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-church fa-2x text-info"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Membership Class</h6>
-                        <h3 class="fw-bold mb-0">@Model.MemberStatus?.MembershipClassMembers?.Count</h3>
-                        <small class="text-info"><i class="fa fa-clock me-1"></i>Awaiting confirmation</small>
-                    </div>
-                </div>
-                <div class="progress" style="height: 4px;">
-                    <div class="progress-bar bg-info" style="width: @(Model.TotalActiveMembers > 0 ? Math.Round((decimal)(Model.MemberStatus?.MembershipClassMembers?.Count ) / Model.TotalActiveMembers * 100, 2) : 0)%"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-calendar fa-2x text-warning"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Upcoming Events</h6>
-                        <h3 class="fw-bold mb-0">@Model.UpcomingEvents.ToString("N0")</h3>
-                        @if (Model.EventChangePercentage > 0)
-                        {
-                            <small class="text-danger"><i class="fa fa-arrow-up me-1"></i>+@Model.EventChangePercentage% from last month</small>
-                        }
-                        else if (Model.EventChangePercentage < 0)
-                        {
-                            <small class="text-success"><i class="fa fa-arrow-down me-1"></i>@Model.EventChangePercentage% from last month</small>
-                        }
-                        else
-                        {
-                            <small class="text-muted"><i class="fa fa-minus me-1"></i>Same as last month</small>
-                        }
-                    </div>
-                </div>
-                <div class="progress" style="height: 4px;">
-                    <div class="progress-bar bg-warning" style="width: @Model.EventCompletionPercentage%"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- DATA PANELS -->
-<div class="row g-4 mb-4">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="fw-bold mb-0">📅 Upcoming Events</h6>
-                    <a href="@Url.Action("Index", "Event")" class="btn btn-link btn-sm p-0">View All →</a>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="list-group list-group-flush">
-                    @if (Model.UpcomingEvent != null && Model.UpcomingEvent.Any())
-                    {
-                        foreach (var evt in Model.UpcomingEvent.Take(3))
-                        {
-                            <div class="list-group-item px-0 border-0 d-flex align-items-center">
-                                <div class="bg-primary bg-opacity-10 p-2 rounded-circle me-3">
-                                    <i class="fa fa-church text-primary"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">@evt.Title</h6>
-                                    <small class="text-muted">
-                                        <i class="fa fa-clock me-1"></i>
-                                        @evt.EventDate.ToString("MMM dd, h:mm tt")
-                                    </small>
-                                </div>
-                                <span class="badge @(evt.EventDate.Date == DateTime.Today ? "bg-primary" : "bg-secondary")">
-                                    @(evt.EventDate.Date == DateTime.Today ? "Today" : "")
-                                </span>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <div class="text-center text-muted py-4">
-                            <i class="fa fa-calendar-alt fa-2x mb-2"></i>
-                            <p class="mb-0">No upcoming events</p>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Theme Card with onclick -->
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100 overflow-hidden" onclick="openThemeModal()" style="cursor: pointer;">
-            <div class="row g-0 h-100">
-                <!-- Left Image Section -->
-                <div class="col-md-5">
-                    <div class="h-100">
-                        <img id="yearThemeImage"
-                             alt="Theme of the Year"
-                             class="img-fluid h-100 w-100"
-                             style="object-fit: cover;">
-                    </div>
-                </div>
-                <!-- Right Content Section -->
-                <div class="col-md-7">
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center h-100">
-                        <h6 class="fw-bold text-primary mb-2" id="themeYearTitle">
-                            Theme of the Year
-                        </h6>
-                        <h5 class="fw-bold mb-3" id="themeTitle">
-                            Loading...
-                        </h5>
-                        <p class="text-muted mb-1 fw-semibold" id="themeVerse"></p>
-                        <p class="text-muted mb-0" id="themeDescription"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white border-0 py-3">
-                <h6 class="fw-bold mb-0">⚡ Quick Actions</h6>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="javascript:void(0);"
-                           onclick="openAddMemberModal()"
-                           class="btn btn-primary text-start d-flex align-items-center">
-                        <i class="fa fa-user-plus me-3"></i>
-                        <div>
-                            <strong>Add New Member</strong><br>
-                            <small class="opacity-75">Register a new church member</small>
-                        </div>
-                    </a>
-                    <a href="@Url.Action("CreateEvent", "Event")" class="btn btn-success text-start d-flex align-items-center">
-                        <i class="fa fa-calendar-plus me-3"></i>
-                        <div>
-                            <strong>Create Event</strong><br>
-                            <small class="opacity-75">Schedule a church event</small>
-                        </div>
-                    </a>
-                    <a href="@Url.Action("CreateAnnouncement", "Announcements")" class="btn btn-warning text-start d-flex align-items-center">
-                        <i class="fa fa-bullhorn me-3"></i>
-                        <div>
-                            <strong>New Announcement</strong><br>
-                            <small class="opacity-75">Share with congregation</small>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 🆕 ATTENDANCE KPI CARDS - New Section -->
-<div class="row g-4 mb-4">
-    <div class="col-12">
-        <h5 class="fw-bold mb-3"><i class="fa fa-church me-2 text-primary"></i>Church Attendance Overview</h5>
-    </div>
-    
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-calendar-alt fa-2x text-primary"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Total Meetings</h6>
-                        <h3 class="fw-bold mb-0">@Model.TotalMeetings.ToString("N0")</h3>
-                        <small class="text-muted"><i class="fa fa-clock me-1"></i>@Model.MeetingTypesCount meeting types</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-users fa-2x text-success"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Total Attendance</h6>
-                        <h3 class="fw-bold mb-0">@Model.TotalAttendees.ToString("N0")</h3>
-                        @if (Model.AttendanceGrowthPercentage > 0)
-                        {
-                            <small class="text-success"><i class="fa fa-arrow-up me-1"></i>+@Model.AttendanceGrowthPercentage% from last month</small>
-                        }
-                        else if (Model.AttendanceGrowthPercentage < 0)
-                        {
-                            <small class="text-danger"><i class="fa fa-arrow-down me-1"></i>@Model.AttendanceGrowthPercentage% from last month</small>
-                        }
-                        else
-                        {
-                            <small class="text-muted"><i class="fa fa-minus me-1"></i>No change</small>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-chart-line fa-2x text-info"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Avg. Attendance/Meeting</h6>
-                        <h3 class="fw-bold mb-0">@Model.AverageAttendance.ToString("N0")</h3>
-                        <small class="text-muted"><i class="fa fa-calendar me-1"></i>Per service</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-chart-bar fa-2x text-warning"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Last 30 Days</h6>
-                        <h3 class="fw-bold mb-0">@Model.AttendeesLast30Days.ToString("N0")</h3>
-                        <small class="text-muted"><i class="fa fa-calendar me-1"></i>@Model.MeetingsLast30Days meetings</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 🆕 GENDER BREAKDOWN SECTION -->
-<div class="row g-4 mb-4">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white border-0 py-3">
-                <h6 class="fw-bold mb-0"><i class="fa fa-venus-mars me-2 text-primary"></i>Gender Distribution</h6>
-            </div>
-            <div class="card-body">
-                <canvas id="genderChart" height="200"></canvas>
-                <div class="row mt-3 text-center">
-                    <div class="col-4">
-                        <div class="border rounded p-2">
-                            <small class="text-muted">Male</small>
-                            <h5 class="mb-0 text-primary">@Model.TotalMale.ToString("N0")</h5>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="border rounded p-2">
-                            <small class="text-muted">Female</small>
-                            <h5 class="mb-0 text-success">@Model.TotalFemale.ToString("N0")</h5>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="border rounded p-2">
-                            <small class="text-muted">Children</small>
-                            <h5 class="mb-0 text-warning">@Model.TotalChildren.ToString("N0")</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-8">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="fw-bold mb-0"><i class="fa fa-line-chart me-2 text-primary"></i>Monthly Attendance Trend</h6>
-                </div>
-            </div>
-            <div class="card-body">
-                <canvas id="attendanceTrendChart" height="180"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 🆕 RECENT MEETINGS SECTION -->
-@if (Model.RecentMeetings != null && Model.RecentMeetings.Any())
-{
-    <div class="row g-4 mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0 py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="fw-bold mb-0"><i class="fa fa-history me-2 text-primary"></i>Recent Meetings</h6>
-                        <a href="@Url.Action("Index", "Meetings")" class="btn btn-link btn-sm p-0">View All →</a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle" id="recentMeetingsTable">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Meeting Type</th>
-                                    <th>Total</th>
-                                    <th>Male</th>
-                                    <th>Female</th>
-                                    <th>Children</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var meeting in Model.RecentMeetings)
-                                {
-                                    <tr>
-                                        <td>@meeting.MeetingDate.ToString("MMM dd, yyyy")</td>
-                                        <td><span class="badge bg-primary bg-opacity-10 text-primary">@meeting.MeetingType</span></td>
-                                        <td><strong>@meeting.TotalAttendees</strong></td>
-                                        <td>@meeting.MaleCount</td>
-                                        <td>@meeting.FemaleCount</td>
-                                        <td>@meeting.ChildrenCount</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-
-<!-- CHARTS SECTION - Two charts side by side -->
-<div class="row g-4 mb-4">
-    <div class="col-md-6">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="fw-bold mb-0">📈 Member Growth</h6>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-secondary active" data-chart="member-growth" data-period="weekly">Weekly</button>
-                        <button class="btn btn-outline-secondary" data-chart="member-growth" data-period="monthly">Monthly</button>
-                        <button class="btn btn-outline-secondary" data-chart="member-growth" data-period="yearly">Yearly</button>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <canvas id="membersChart" height="120"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="fw-bold mb-0">👑 Full Membership Attainment</h6>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-secondary active" data-chart="full-membership" data-period="weekly">Weekly</button>
-                        <button class="btn btn-outline-secondary" data-chart="full-membership" data-period="monthly">Monthly</button>
-                        <button class="btn btn-outline-secondary" data-chart="full-membership" data-period="yearly">Yearly</button>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <canvas id="fullMembersChart" height="120"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- MEMBERS TAB SECTION - ENHANCED WITH ALL STATUSES -->
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white border-0 py-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <h6 class="fw-bold mb-0">
-                <i class="fa fa-users me-2 text-primary"></i>👥 Member Management
-            </h6>
-         
-        </div>
-    </div>
-    <div class="card-body">
-        <!-- TABS -->
-        <ul class="nav nav-tabs nav-tabs-custom mb-3" id="memberTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#activeMembers" type="button" role="tab">
-                    <i class="fa fa-check-circle text-success me-1"></i>Active Members 
-                    <span class="badge bg-primary ms-2">@Model.MemberStatus.ActiveMembers?.Count </span>
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="membership-tab" data-bs-toggle="tab" data-bs-target="#membershipClass" type="button" role="tab">
-                    <i class="fa fa-book text-warning me-1"></i>Membership Class 
-                    <span class="badge bg-warning ms-2">@Model.MemberStatus.MembershipClassMembers?.Count </span>
-                </button>
-            </li>
-            
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="awaiting-tab" data-bs-toggle="tab" data-bs-target="#awaitingConfirmation" type="button" role="tab">
-                    <i class="fa fa-clock text-orange me-1" style="color:#fd7e14;"></i>Awaiting Confirmation
-                    <span class="badge ms-2" style="background-color:#fd7e14;">@Model.MemberStatus.AwaitingConfirmationMembers?.Count</span>
-                </button>
-            </li>
-            
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="inactive-tab" data-bs-toggle="tab" data-bs-target="#inactiveMembers" type="button" role="tab">
-                    <i class="fa fa-pause-circle text-secondary me-1"></i>Inactive Members 
-                    <span class="badge bg-secondary ms-2">@Model.MemberStatus.InactiveMembers?.Count </span>
-                </button>
-            </li>
-            <li class="nav-item dropdown">
-                <button class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button">
-                    <i class="fa fa-ellipsis-h me-1"></i>More Status
-                </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <button class="dropdown-item" id="transferred-tab" data-bs-toggle="tab" data-bs-target="#transferredMembers" type="button" role="tab">
-                            <i class="fa fa-exchange-alt text-primary me-2"></i>Transferred
-                            <span class="badge bg-primary ms-2">@Model.MemberStatus.TransferredMembers?.Count </span>
-                        </button>
-                    </li>
-                    <li>
-                        <button class="dropdown-item" id="glory-tab" data-bs-toggle="tab" data-bs-target="#promotedToGlory" type="button" role="tab">
-                            <i class="fa fa-angel text-info me-2"></i>Promoted to Glory
-                            <span class="badge bg-info ms-2">@Model.MemberStatus.PromotedToGlory?.Count </span>
-                        </button>
-                    </li>
-                    
-                    <li>
-                        <button class="dropdown-item" id="withdrawn-tab" data-bs-toggle="tab" data-bs-target="#withdrawnMembers" type="button" role="tab">
-                            <i class="fa fa-sign-out-alt text-warning me-2"></i>Withdrawn
-                            <span class="badge bg-warning ms-2">@Model.MemberStatus.WithdrawnMembers?.Count </span>
-                        </button>
-                    </li>
-                    
-                </ul>
-            </li>
-        </ul>
-
-        <!-- TAB CONTENT -->
-        <div class="tab-content" id="memberTabsContent">
-            <!-- Active Members Tab -->
-            <div class="tab-pane fade show active" id="activeMembers" role="tabpanel">
-                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.ActiveMembers)
-            </div>
-            
-            <!-- Membership Class Tab -->
-            <div class="tab-pane fade" id="membershipClass" role="tabpanel">
-                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.MembershipClassMembers)
-            </div>      
-           
-            <!-- Awaiting Confirmation Tab -->
-            <div class="tab-pane fade" id="awaitingConfirmation" role="tabpanel">
-                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.AwaitingConfirmationMembers)
-            </div>
-
-            <!-- Inactive Members Tab -->
-            <div class="tab-pane fade" id="inactiveMembers" role="tabpanel">
-                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.InactiveMembers)
-            </div>
-            
-            <!-- Transferred Members Tab -->
-            <div class="tab-pane fade" id="transferredMembers" role="tabpanel">
-                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.TransferredMembers)
-            </div>
-            
-            <!-- Promoted to Glory Tab -->
-            <div class="tab-pane fade" id="promotedToGlory" role="tabpanel">
-                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.PromotedToGlory)
-            </div>
-            
-            <!-- Withdrawn Members Tab -->
-            <div class="tab-pane fade" id="withdrawnMembers" role="tabpanel">
-                @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.WithdrawnMembers)
-            </div>
-        </div>
+        <h5 class="mt-3 text-muted">Loading Dashboard...</h5>
     </div>
 </div>
 
@@ -873,88 +313,209 @@
         let membersChart = null;
         let fullMembersChart = null;
         let genderChart = null;
-        let attendanceTrendChart = null;
+        let attendanceTrendChart;
+        let attendanceData = [];
         let chartsInitialized = false;
 
         $(document).ready(function () {
+            // Load dashboard content via AJAX
+            loadDashboard();
+
+            // Setup chart tab handlers
+            setupChartTabHandlers();
+        });
+
+        function loadDashboard() {
+            $.ajax({
+                url: '@Url.Action("GetDashboardData", "Home")',
+                type: 'GET',
+                success: function(response) {
+                    $('#dashboard-container').html(response);
+                    
+                    // Initialize dashboard components
+                    initializeDashboard();
+                },
+                error: function(xhr, status, error) {
+                    $('#dashboard-container').html('<div class="alert alert-danger">Failed to load dashboard. Please try refreshing.</div>');
+                }
+            });
+        }
+
+        function initializeDashboard() {
+            // Re-fetch theme and init charts because the HTML elements were just replaced
             loadCurrentYearTheme();
+            initCharts();
             
-            // Initialize charts only once
-            if (!chartsInitialized) {
-                initializeAllCharts();
-                chartsInitialized = true;
-            }
+            // Wait a brief moment to ensure DOM is ready for DataTables
+            setTimeout(initializeDataTables, 200);
+        }
 
-            // Load initial chart data
-            loadMemberGrowthData('weekly');
-            loadFullMembershipData('weekly');
+        function initializeDataTables() {
+            $('.members-ajax-table').each(function() {
+                var tableId = $(this).attr('id');
+                var statusId = $(this).data('status');
 
-            // Initialize DataTable only once and only if the table exists
-            initializeDataTable();
+                if ($.fn.DataTable.isDataTable('#' + tableId)) {
+                    $('#' + tableId).DataTable().destroy();
+                }
 
-            // Add event listeners for member growth chart buttons
-            $('.btn-group .btn[data-chart="member-growth"]').off('click').on('click', function() {
+                var table = $('#' + tableId).DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '@Url.Action("GetMembersDataTable", "Members")',
+                        type: 'POST',
+                        data: function (d) {
+                            d.statusId = statusId;
+                        }
+                    },
+                    columns: [
+                        { 
+                            data: null,
+                            render: function (data, type, row) {
+                                var firstName = row.firstName || '';
+                                var otherNames = row.otherNames || '';
+                                var initial = firstName ? firstName.substring(0, 1).toUpperCase() : '?';
+                                return `
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-2" style="width:35px;height:35px;background:#667eea;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;">
+                                        ${initial}
+                                    </div>
+                                    <div>
+                                        <strong>${firstName} ${otherNames}</strong>
+                                        <div class="small text-muted">ID: #${row.id}</div>
+                                    </div>
+                                </div>`;
+                            }
+                        },
+                        { 
+                            data: 'phone',
+                            render: function(data) {
+                                return data ? `<a href="tel:${data}" class="text-decoration-none"><i class="fa fa-phone me-1"></i>${data}</a>` : '';
+                            }
+                        },
+                        { 
+                            data: 'email',
+                            render: function(data) {
+                                return data ? `<a href="mailto:${data}" class="text-decoration-none"><i class="fa fa-envelope me-1"></i>${data}</a>` : '';
+                            }
+                        },
+                        { 
+                            data: 'gender',
+                            render: function(data) {
+                                if (data === "Male") return '<span class="badge bg-info"><i class="fa fa-mars me-1"></i>Male</span>';
+                                return '<span class="badge bg-warning"><i class="fa fa-venus me-1"></i>Female</span>';
+                            }
+                        },
+                        { data: 'assembly', render: function(data) { return data || '-'; } },
+                        { 
+                            data: null,
+                            render: function(data, type, row) {
+                                var marital = row.maritalStatus ? `<span class="badge bg-secondary">${row.maritalStatus}</span>` : '<span class="text-muted">-</span>';
+                                var spouse = row.spouseName ? `<div class="small text-muted">Spouse: ${row.spouseName}</div>` : '';
+                                return marital + spouse;
+                            }
+                        },
+                        { 
+                            data: 'numberOfChildren',
+                            render: function(data) {
+                                return data && data > 0 ? `<span class="badge bg-primary">${data}</span>` : '<span class="text-muted">-</span>';
+                            }
+                        },
+                        { 
+                            data: 'statusId',
+                            render: function(data) {
+                                if (data == 1) return '<span class="badge bg-success">Active</span>';
+                                if (data == 2) return '<span class="badge bg-warning">Inactive</span>';
+                                return '<span class="badge bg-secondary">Pending</span>';
+                            }
+                        },
+                        { 
+                            data: 'createdAt',
+                            render: function(data) {
+                                if (!data) return '';
+                                var date = new Date(data);
+                                var formattedDate = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                                var formattedTime = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                                return `<div>${formattedDate}</div><div class="small text-muted">${formattedTime}</div>`;
+                            }
+                        },
+                        { 
+                            data: null,
+                            className: 'text-end',
+                            orderable: false,
+                            render: function(data, type, row) {
+                                var actions = `
+                                    <a href="/Members/MemberDetails?memberId=${row.id}" class="btn btn-sm btn-outline-info"><i class="fa fa-eye"></i></a>
+                                    <a href="/Members/Edit/${row.id}" class="btn btn-sm btn-outline-warning"><i class="fa fa-edit"></i></a>
+                                `;
+                                if (row.statusId == 3) {
+                                    actions += `<button class="btn btn-sm btn-outline-primary" onclick="joinMembershipClass(${row.id})"><i class="fa fa-users"></i></button>`;
+                                } else if (row.statusId == 2) {
+                                    actions += `<button class="btn btn-sm btn-outline-success" onclick="makeFullMember(${row.id})"><i class="fa fa-check-circle"></i></button>`;
+                                }
+
+                                if (row.statusId == 1) {
+                                    actions += `<button class="btn btn-sm btn-outline-secondary" onclick="toggleMemberStatus(${row.id}, false)"><i class="fa fa-ban"></i></button>`;
+                                } else if (row.statusId == 2) {
+                                    actions += `<button class="btn btn-sm btn-outline-success" onclick="toggleMemberStatus(${row.id}, true)"><i class="fa fa-check"></i></button>`;
+                                }
+                                actions += `<button class="btn btn-sm btn-outline-danger" onclick="deleteMember(${row.id})"><i class="fa fa-trash"></i></button>`;
+                                return actions;
+                            }
+                        }
+                    ],
+                    order: [[8, 'desc']] // Order by CreatedAt desc by default
+                });
+            });
+        }
+
+        function setupChartTabHandlers() {
+            // Handle period toggle for charts
+            $(document).on('click', '.btn-group .btn[data-chart="member-growth"]', function() {
                 $('.btn-group .btn[data-chart="member-growth"]').removeClass('active');
                 $(this).addClass('active');
                 const period = $(this).data('period');
                 loadMemberGrowthData(period);
             });
 
-            // Add event listeners for full membership chart buttons
-            $('.btn-group .btn[data-chart="full-membership"]').off('click').on('click', function() {
+            $(document).on('click', '.btn-group .btn[data-chart="full-membership"]', function() {
                 $('.btn-group .btn[data-chart="full-membership"]').removeClass('active');
                 $(this).addClass('active');
                 const period = $(this).data('period');
                 loadFullMembershipData(period);
             });
-        });
-
-        // Initialize all charts at once
-        function initializeAllCharts() {
-            loadGenderChart();
-            loadAttendanceTrendChart();
         }
 
-        // Initialize DataTable (delegates to global GCIDataTable)
-        function initializeDataTable() {
-            // The global datatables-global.js handles all .datatable tables automatically.
-            // For tab-based tables, we re-init the visible one.
-            GCIDataTable.init('#membersTable');
+        function initCharts() {
+            loadMemberGrowthData('weekly');
+            loadFullMembershipData('weekly');
+            initGenderChart();
+            initAttendanceTrendChart();
+            
+            // Parse attendance data embedded in partial
+            try {
+                var rawData = $('#dashboard-container').find('[data-attendance]').data('attendance');
+                if (rawData) {
+                    attendanceData = rawData;
+                }
+            } catch(e) {}
         }
 
-        // Reinitialize DataTable when tabs are shown
-        $(document).on('shown.bs.tab', 'button[data-bs-toggle="tab"]', function() {
-            setTimeout(function() {
-                GCIDataTable.init('#membersTable');
-            }, 150);
-        });
-
-        // 🆕 Load Gender Distribution Chart
-        function loadGenderChart() {
+        // Initialize Gender Chart
+        function initGenderChart() {
             const canvas = document.getElementById('genderChart');
             if (!canvas) return;
             
             const ctx = canvas.getContext('2d');
+            const dataElement = document.getElementById('genderData');
+            if (!dataElement) return;
+
+            const maleCount = parseInt(dataElement.dataset.male);
+            const femaleCount = parseInt(dataElement.dataset.female);
+            const childrenCount = parseInt(dataElement.dataset.children);
             
-            const maleCount = @Model.TotalMale;
-            const femaleCount = @Model.TotalFemale;
-            const childrenCount = @Model.TotalChildren;
-            
-            // Destroy existing chart if it exists
-            if (genderChart) {
-                genderChart.destroy();
-                genderChart = null;
-            }
-            
-            // Only create chart if there's data
-            if (maleCount === 0 && femaleCount === 0 && childrenCount === 0) {
-                // Show message if no data
-                ctx.fillStyle = '#6c757d';
-                ctx.font = '14px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('No attendance data available', canvas.width / 2, canvas.height / 2);
-                return;
-            }
+            if (genderChart) genderChart.destroy();
             
             genderChart = new Chart(ctx, {
                 type: 'doughnut',
@@ -962,54 +523,22 @@
                     labels: ['Male', 'Female', 'Children'],
                     datasets: [{
                         data: [maleCount, femaleCount, childrenCount],
-                        backgroundColor: ['#0d6efd', '#198754', '#ffc107'],
-                        borderWidth: 0,
-                        hoverOffset: 10
+                        backgroundColor: ['#0d6efd', '#198754', '#ffc107']
                     }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 15,
-                                font: { size: 12 }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const total = maleCount + femaleCount + childrenCount;
-                                    const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
-                                    return `${context.label}: ${context.parsed} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
                 }
             });
         }
 
-        // 🆕 Load Attendance Trend Chart
-        function loadAttendanceTrendChart() {
+        // Initialize Attendance Trend Chart
+        function initAttendanceTrendChart() {
             const canvas = document.getElementById('attendanceTrendChart');
             if (!canvas) return;
             
             const ctx = canvas.getContext('2d');
             
-            // Destroy existing chart if it exists
-            if (attendanceTrendChart) {
-                attendanceTrendChart.destroy();
-                attendanceTrendChart = null;
-            }
+            if (attendanceTrendChart) attendanceTrendChart.destroy();
             
-            // Get monthly trend data from model
-            const monthlyData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.MonthlyAttendanceTrend ?? new List<MonthlyTrendStats>()));
-            
-            if (!monthlyData || monthlyData.length === 0) {
-                // Show message if no data
+            if (!attendanceData || attendanceData.length === 0) {
                 ctx.fillStyle = '#6c757d';
                 ctx.font = '14px Arial';
                 ctx.textAlign = 'center';
@@ -1017,9 +546,9 @@
                 return;
             }
             
-            const labels = monthlyData.map(m => `${m.monthName} ${m.year}`);
-            const attendees = monthlyData.map(m => m.totalAttendees);
-            const meetings = monthlyData.map(m => m.totalMeetings);
+            const labels = attendanceData.map(m => `${m.monthName} ${m.year}`);
+            const attendees = attendanceData.map(m => m.totalAttendees);
+            const meetings = attendanceData.map(m => m.totalMeetings);
             
             attendanceTrendChart = new Chart(ctx, {
                 type: 'line',
@@ -1311,17 +840,10 @@
             // Display image from byte array
             if (theme.yearThemeImage && theme.yearThemeImage.length > 0) {
                 try {
-                    // Convert byte array to base64
-                    var binary = '';
-                    for (var i = 0; i < theme.yearThemeImage.length; i++) {
-                        binary += String.fromCharCode(theme.yearThemeImage[i]);
-                    }
-                    var base64String = btoa(binary);
-                    $("#yearThemeImage").attr('src', 'data:image/jpeg;base64,' + base64String);
+                    $("#yearThemeImage").attr('src', 'data:image/jpeg;base64,' + theme.yearThemeImage);
                     $("#yearThemeImage").show();
                 } catch (error) {
-                    console.error("Error converting image:", error);
-                    $("#yearThemeImage").hide();
+                    console.error("Error setting image:", error);
                 }
             } else {
                 $("#yearThemeImage").hide();

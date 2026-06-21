@@ -1,4 +1,4 @@
-﻿using Azure;
+using Azure;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Utils;
@@ -9,6 +9,7 @@ namespace GCI_Admin.Services.IService
     {
         // MEMBERS
         Task<ApiResponse<List<Member>>> GetAllMembersAsync();
+        Task<ApiResponse<DataTableResponse<Member>>> GetMembersDataTableAsync(int draw, int start, int length, string searchValue, int? statusId);
         Task<ApiResponse<Member>> GetMemberByIdAsync(int id);
         Task<ApiResponse<Member>> UpdateMemberAsync(int id, MemberDto dto);
         Task<ApiResponse<bool>> DeleteMemberAsync(int id);

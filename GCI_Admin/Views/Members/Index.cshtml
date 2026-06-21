@@ -184,49 +184,49 @@
     <div class="tab-content" id="memberTabsContent">
         <!-- All Members Tab - Make this the active tab content -->
         <div class="tab-pane fade show active" id="allMembers" role="tabpanel">
-            @{ ViewData["TableId"] = "allMembersTable"; }
-            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.AllMembers)
+            @{ ViewData["TableId"] = "allMembersTable"; ViewData["StatusId"] = "0"; }
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", (List<GCI_Admin.Models.Member>)null)
         </div>
         <!-- Active Members Tab -->
         <div class="tab-pane fade" id="activeMembers" role="tabpanel">
-            @{ ViewData["TableId"] = "activeMembersTable"; }
-            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.ActiveMembers)
+            @{ ViewData["TableId"] = "activeMembersTable"; ViewData["StatusId"] = "1"; }
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", (List<GCI_Admin.Models.Member>)null)
         </div>
             
         <!-- Membership Class Tab -->
         <div class="tab-pane fade" id="membershipClass" role="tabpanel">
-            @{ ViewData["TableId"] = "membershipClassTable"; }
-            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.MembershipClassMembers)
+            @{ ViewData["TableId"] = "membershipClassTable"; ViewData["StatusId"] = "2"; }
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", (List<GCI_Admin.Models.Member>)null)
         </div>
            
         <!-- Awaiting Confirmation Tab -->
         <div class="tab-pane fade" id="awaitingConfirmation" role="tabpanel">
-            @{ ViewData["TableId"] = "awaitingConfirmationTable"; }
-            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.AwaitingConfirmationMembers)
+            @{ ViewData["TableId"] = "awaitingConfirmationTable"; ViewData["StatusId"] = "4"; }
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", (List<GCI_Admin.Models.Member>)null)
         </div>
 
         <!-- Inactive Members Tab -->
         <div class="tab-pane fade" id="inactiveMembers" role="tabpanel">
-            @{ ViewData["TableId"] = "inactiveMembersTable"; }
-            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.InactiveMembers)
+            @{ ViewData["TableId"] = "inactiveMembersTable"; ViewData["StatusId"] = "3"; }
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", (List<GCI_Admin.Models.Member>)null)
         </div>
             
         <!-- Transferred Members Tab -->
         <div class="tab-pane fade" id="transferredMembers" role="tabpanel">
-            @{ ViewData["TableId"] = "transferredMembersTable"; }
-            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.TransferredMembers)
+            @{ ViewData["TableId"] = "transferredMembersTable"; ViewData["StatusId"] = "7"; }
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", (List<GCI_Admin.Models.Member>)null)
         </div>
             
         <!-- Promoted to Glory Tab -->
         <div class="tab-pane fade" id="promotedToGlory" role="tabpanel">
-            @{ ViewData["TableId"] = "promotedToGloryTable"; }
-            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.PromotedToGlory)
+            @{ ViewData["TableId"] = "promotedToGloryTable"; ViewData["StatusId"] = "5"; }
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", (List<GCI_Admin.Models.Member>)null)
         </div>
             
         <!-- Withdrawn Members Tab -->
         <div class="tab-pane fade" id="withdrawnMembers" role="tabpanel">
-            @{ ViewData["TableId"] = "withdrawnMembersTable"; }
-            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", Model.MemberStatus.WithdrawnMembers)
+            @{ ViewData["TableId"] = "withdrawnMembersTable"; ViewData["StatusId"] = "6"; }
+            @await Html.PartialAsync("~/Views/Members/_MembersTablePartial.cshtml", (List<GCI_Admin.Models.Member>)null)
         </div>
     </div>
 </div>
@@ -1077,10 +1077,128 @@
             return div.innerHTML;
         }
 
-        // Initialize DataTables — delegates to the global GCIDataTable initializer
-        // which handles all tables with class 'datatable' including column filter rows.
+        // Initialize DataTables via Server-Side Processing
         function initializeDataTables() {
-            GCIDataTable.init();
+            $('.members-ajax-table').each(function() {
+                var tableId = $(this).attr('id');
+                var statusId = $(this).data('status');
+
+                if ($.fn.DataTable.isDataTable('#' + tableId)) {
+                    $('#' + tableId).DataTable().destroy();
+                }
+
+                var table = $('#' + tableId).DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '@Url.Action("GetMembersDataTable", "Members")',
+                        type: 'POST',
+                        data: function (d) {
+                            d.statusId = statusId;
+                        }
+                    },
+                    columns: [
+                        { 
+                            data: null,
+                            render: function (data, type, row) {
+                                var firstName = row.firstName || '';
+                                var otherNames = row.otherNames || '';
+                                var initial = firstName ? firstName.substring(0, 1).toUpperCase() : '?';
+                                return `
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-2" style="width:35px;height:35px;background:#667eea;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;">
+                                        ${initial}
+                                    </div>
+                                    <div>
+                                        <strong>${firstName} ${otherNames}</strong>
+                                        <div class="small text-muted">ID: #${row.id}</div>
+                                    </div>
+                                </div>`;
+                            }
+                        },
+                        { 
+                            data: 'phone',
+                            render: function(data) {
+                                return data ? `<a href="tel:${data}" class="text-decoration-none"><i class="fa fa-phone me-1"></i>${data}</a>` : '';
+                            }
+                        },
+                        { 
+                            data: 'email',
+                            render: function(data) {
+                                return data ? `<a href="mailto:${data}" class="text-decoration-none"><i class="fa fa-envelope me-1"></i>${data}</a>` : '';
+                            }
+                        },
+                        { 
+                            data: 'gender',
+                            render: function(data) {
+                                if (data === "Male") return '<span class="badge bg-info"><i class="fa fa-mars me-1"></i>Male</span>';
+                                return '<span class="badge bg-warning"><i class="fa fa-venus me-1"></i>Female</span>';
+                            }
+                        },
+                        { data: 'assembly', render: function(data) { return data || '-'; } },
+                        { 
+                            data: null,
+                            render: function(data, type, row) {
+                                var marital = row.maritalStatus ? `<span class="badge bg-secondary">${row.maritalStatus}</span>` : '<span class="text-muted">-</span>';
+                                var spouse = row.spouseName ? `<div class="small text-muted">Spouse: ${row.spouseName}</div>` : '';
+                                return marital + spouse;
+                            }
+                        },
+                        { 
+                            data: 'numberOfChildren',
+                            render: function(data) {
+                                return data && data > 0 ? `<span class="badge bg-primary">${data}</span>` : '<span class="text-muted">-</span>';
+                            }
+                        },
+                        { 
+                            data: 'statusId',
+                            render: function(data) {
+                                if (data == 1) return '<span class="badge bg-success">Active</span>';
+                                if (data == 2) return '<span class="badge bg-warning">Inactive</span>';
+                                return '<span class="badge bg-secondary">Pending</span>';
+                            }
+                        },
+                        { 
+                            data: 'createdAt',
+                            render: function(data) {
+                                if (!data) return '';
+                                var date = moment(data);
+                                return `<div>${date.format("DD MMM YYYY")}</div><div class="small text-muted">${date.format("hh:mm A")}</div>`;
+                            }
+                        },
+                        { 
+                            data: null,
+                            className: 'text-end',
+                            orderable: false,
+                            render: function(data, type, row) {
+                                var actions = `
+                                    <a href="/Members/MemberDetails?memberId=${row.id}" class="btn btn-sm btn-outline-info"><i class="fa fa-eye"></i></a>
+                                    <a href="/Members/Edit/${row.id}" class="btn btn-sm btn-outline-warning"><i class="fa fa-edit"></i></a>
+                                `;
+                                if (row.statusId == 3) {
+                                    actions += `<button class="btn btn-sm btn-outline-primary" onclick="joinMembershipClass(${row.id})"><i class="fa fa-users"></i></button>`;
+                                } else if (row.statusId == 2) {
+                                    actions += `<button class="btn btn-sm btn-outline-success" onclick="makeFullMember(${row.id})"><i class="fa fa-check-circle"></i></button>`;
+                                }
+
+                                if (row.statusId == 1) {
+                                    actions += `<button class="btn btn-sm btn-outline-secondary" onclick="toggleMemberStatus(${row.id}, false)"><i class="fa fa-ban"></i></button>`;
+                                } else if (row.statusId == 2) {
+                                    actions += `<button class="btn btn-sm btn-outline-success" onclick="toggleMemberStatus(${row.id}, true)"><i class="fa fa-check"></i></button>`;
+                                }
+                                actions += `<button class="btn btn-sm btn-outline-danger" onclick="deleteMember(${row.id})"><i class="fa fa-trash"></i></button>`;
+                                return actions;
+                            }
+                        }
+                    ],
+                    order: [[8, 'desc']] // Order by CreatedAt desc by default
+                });
+
+                // Realtime search
+                $('#memberSearch').keyup(function() {
+                    table.search($(this).val()).draw();
+                });
+            });
         }
 
         // Member actions

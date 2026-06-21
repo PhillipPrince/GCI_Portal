@@ -22,7 +22,13 @@ namespace GCI_Admin.Controllers
         }
 
         // GET: HomeController1
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
+        {
+            return View(new DashboardViewModel()); // Return empty model immediately
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDashboardData()
         {
             try
             {
@@ -179,7 +185,7 @@ namespace GCI_Admin.Controllers
                     dashboard.RecentMeetings = new List<RecentMeetingStats>();
                 }
 
-                return View(dashboard);
+                return PartialView("_DashboardContent", dashboard);
             }
             catch (Exception ex)
             {
@@ -187,25 +193,8 @@ namespace GCI_Admin.Controllers
 
                 TempData["Error"] = "Unable to load dashboard.";
 
-                return View(new DashboardViewModel
+                return PartialView("_DashboardContent", new DashboardViewModel
                 {
-                    UpcomingEvent = new List<Event>(),
-                    MemberStatus = new MemberStatusModel(),
-                    TotalMembersPercentage = 0,
-                    ActiveMembersPercentage = 0,
-                    EventCompletionPercentage = 0,
-                    MemberGrowthPercentage = 0,
-                    ActiveMemberGrowthPercentage = 0,
-                    EventChangePercentage = 0,
-                    // 🆕 Default meeting stats for error case
-                    TotalMeetings = 0,
-                    TotalAttendees = 0,
-                    AverageAttendance = 0,
-                    
-                    MeetingsLast30Days = 0,
-                    AttendeesLast30Days = 0,
-                    MeetingTypesCount = 0,
-                    AttendanceGrowthPercentage = 0,
                     RecentMeetings = new List<RecentMeetingStats>(),
                     MonthlyAttendanceTrend = new List<MonthlyTrendStats>()
                 });
