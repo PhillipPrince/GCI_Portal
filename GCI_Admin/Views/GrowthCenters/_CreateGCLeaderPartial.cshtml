@@ -21,6 +21,30 @@
             Assign a member as a leader to a growth center. The member will be responsible for overseeing growth center activities.
         </div>
 
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Growth Center <span class="text-danger">*</span></label>
+                <select asp-for="GCLeader.GrowthCenterId" class="form-select" id="GrowthCenterId" name="GrowthCenterId" required>
+                    <option value="">-- Select Growth Center --</option>
+                    @if (Model?.GrowthCenters != null)
+                    {
+                        foreach (var center in Model.GrowthCenters)
+                        {
+                            <option value="@center.Value" selected="@(Model?.GCLeader?.GrowthCenterId.ToString() == center.Value)">@center.Text</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="GCLeader.GrowthCenterId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Position Title <span class="text-danger">*</span></label>
+                <input asp-for="GCLeader.PositionTitle" class="form-control" id="PositionTitle" name="PositionTitle"
+                       placeholder="e.g., Center Director, Assistant Director, Coordinator" required />
+                <span asp-validation-for="GCLeader.PositionTitle" class="text-danger"></span>
+                <small class="text-muted">The role or title this person holds in the growth center</small>
+            </div>
+        </div>
+
         <!-- Member Selector Partial -->
         @await Html.PartialAsync("_MemberSelector", new GCI_Admin.Models.ViewModels.MemberSelectorViewModel
         {
@@ -36,7 +60,8 @@
             }).ToList(),
             IsRequired = true,
             IsEdit = isEdit,
-            ShowPhoneAndGender = true
+            ShowPhoneAndGender = true,
+            DataUrl = Model?.GCLeader?.GrowthCenterId > 0 ? $"/GrowthCenters/GetMembersByGrowthCenter?growthCenterId={Model.GCLeader.GrowthCenterId}" : "/Finance/GetActiveMembers"
         })
 
         <hr />
@@ -60,30 +85,6 @@
                     ImageUrlFieldName = "ProfileImageUrl",
                     Base64FieldName = "ProfileImageBase64"
                 })
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold">Growth Center <span class="text-danger">*</span></label>
-                <select asp-for="GCLeader.GrowthCenterId" class="form-select" id="GrowthCenterId" name="GrowthCenterId" required>
-                    <option value="">-- Select Growth Center --</option>
-                    @if (Model?.GrowthCenters != null)
-                    {
-                        foreach (var center in Model.GrowthCenters)
-                        {
-                            <option value="@center.Value" selected="@(Model?.GCLeader?.GrowthCenterId.ToString() == center.Value)">@center.Text</option>
-                        }
-                    }
-                </select>
-                <span asp-validation-for="GCLeader.GrowthCenterId" class="text-danger"></span>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold">Position Title <span class="text-danger">*</span></label>
-                <input asp-for="GCLeader.PositionTitle" class="form-control" id="PositionTitle" name="PositionTitle"
-                       placeholder="e.g., Center Director, Assistant Director, Coordinator" required />
-                <span asp-validation-for="GCLeader.PositionTitle" class="text-danger"></span>
-                <small class="text-muted">The role or title this person holds in the growth center</small>
             </div>
         </div>
 
@@ -139,6 +140,21 @@
                     if (typeof initializeCustomDropdown === 'function') {
                         initializeCustomDropdown('gcLeaderMemberSelector');
                     }
+
+                    $('#GrowthCenterId').on('change', function() {
+                        var growthCenterId = $(this).val();
+                        var memberSelectorId = 'gcLeaderMemberSelector';
+                        if (growthCenterId) {
+                            var url = '/GrowthCenters/GetMembersByGrowthCenter?growthCenterId=' + growthCenterId;
+                            if (window['reloadMemberSelector_' + memberSelectorId]) {
+                                window['reloadMemberSelector_' + memberSelectorId](url);
+                            }
+                        } else {
+                            if (window['reloadMemberSelector_' + memberSelectorId]) {
+                                window['reloadMemberSelector_' + memberSelectorId]('/Finance/GetActiveMembers');
+                            }
+                        }
+                    });
                 });
 
                 // Function to show confirmation dialog before submission
@@ -146,7 +162,7 @@
                     const isEdit = '@isEdit'.toLowerCase() === 'true';
         
                     // Get all field values for the confirmation message
-                    const memberDisplayName = $('#gcLeaderMemberSelector_display').val();
+                    const memberDisplayName = $('#gcLeaderMemberSelector_fullName').val();
                     const centerName = $('#GrowthCenterId option:selected').text();
                     const positionTitle = $('#PositionTitle').val();
                     const startDate = $('#StartDate').val();
@@ -419,7 +435,7 @@
 
                 // Reset form when modal is closed
                 $('#addGCLeaderModal').on('hidden.bs.modal', function() {
-                    $('#gcLeaderMemberSelector_display').val('');
+                    $('#gcLeaderMemberSelector_fullName').val('');
                     $('#gcLeaderMemberSelector_selectedId').val('');
                     $('#GrowthCenterId').val('');
                     $('#PositionTitle').val('');

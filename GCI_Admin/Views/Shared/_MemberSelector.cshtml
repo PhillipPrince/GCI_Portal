@@ -309,6 +309,7 @@ $(document).ready(function() {
     /* ── state ──────────────────────────────────────────── */
     var isOpen      = false;
     var membersData = [];   // flat JS array, populated once
+    var currentDataUrl = '@Model.DataUrl' || '/Finance/GetActiveMembers';
     var selectedId  = null;
     var hovIdx      = -1;
     var debT;
@@ -360,7 +361,7 @@ $(document).ready(function() {
         // AJAX fallback
         $opts.html('<div class="ms-state-msg"><span class="spinner-border spinner-border-sm text-primary me-2"></span>Loading members…</div>');
         $.ajax({
-            url: '/Finance/GetActiveMembers',
+            url: currentDataUrl,
             type: 'GET',
             success: function(res) {
                 if (res.success && res.data) {
@@ -638,6 +639,17 @@ $(document).ready(function() {
             }
         });
     }
+
+    /* ── expose reload function ─────────────────────────── */
+    window['reloadMemberSelector_' + cid] = function(newUrl) {
+        currentDataUrl = newUrl;
+        membersData = [];
+        clearSelection();
+        $opts.html('<div class="ms-state-msg"><span class="spinner-border spinner-border-sm text-primary me-2"></span>Loading members…</div>');
+        ensureMembers(function() {
+            renderList('');
+        });
+    };
 
 });/* end ready */
 </script>

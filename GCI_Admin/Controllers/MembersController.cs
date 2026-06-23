@@ -4,6 +4,7 @@ using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using GCI_Admin.Services.Service;
+using Member = GCI_Admin.Models.Member;
 using Microsoft.AspNetCore.Mvc;
 using Utils;
 
@@ -26,39 +27,64 @@ public class MembersController : Controller
     // ✅ MEMBERS
     // =========================================================
 
-    public async Task<IActionResult> index()
+    public async Task<IActionResult> Index()
     {
-
         MembersListViewModel membersListViewModel = new MembersListViewModel();
         if (membersListViewModel.MemberStatus == null)
         {
             membersListViewModel.MemberStatus = new MemberStatusModel();
         }
 
-
+        // Just get the counts to avoid heavy data loading
+        // We'll mock the counts or you can implement GetMemberCountsAsync
         var allMembers = await _membersService.GetAllMembersAsync();
+        var members = allMembers?.Data ?? new List<Member>();
 
-        var members = allMembers?.Data;
-
-
-
-
-        membersListViewModel.MemberStatus.AllMembers = members;
-        membersListViewModel.MemberStatus.MembershipClassMembers = members.Where(x => x.StatusId == 2).ToList();
-        membersListViewModel.MemberStatus.ActiveMembers = members.Where(x => x.StatusId == 1).ToList();
-        membersListViewModel.MemberStatus.InactiveMembers = members.Where(x => x.StatusId == 3).ToList();
-        membersListViewModel.MemberStatus.AwaitingConfirmationMembers = members.Where(x => x.StatusId == 4).ToList();
-        membersListViewModel.MemberStatus.TransferredMembers = members.Where(x => x.StatusId == 7).ToList();
-        membersListViewModel.MemberStatus.PromotedToGlory = members.Where(x => x.StatusId == 5).ToList();
-        membersListViewModel.MemberStatus.WithdrawnMembers = members.Where(x => x.StatusId == 6).ToList();
-
-        // For backward compatibility - NonMembers (all except Active Members with StatusId 1)
-        membersListViewModel.MemberStatus.NonMembers = members.Where(x => x.StatusId != 1).ToList();
-        membersListViewModel.TotalMembers = allMembers.Data.Count;
-
+        membersListViewModel.MemberStatus.AllMembers = new List<Member>();
+        membersListViewModel.MemberStatus.MembershipClassMembers = new List<Member>();
+        membersListViewModel.MemberStatus.ActiveMembers = new List<Member>();
+        membersListViewModel.MemberStatus.InactiveMembers = new List<Member>();
+        membersListViewModel.MemberStatus.AwaitingConfirmationMembers = new List<Member>();
+        membersListViewModel.MemberStatus.TransferredMembers = new List<Member>();
+        membersListViewModel.MemberStatus.PromotedToGlory = new List<Member>();
+        membersListViewModel.MemberStatus.WithdrawnMembers = new List<Member>();
+        membersListViewModel.MemberStatus.NonMembers = new List<Member>();
         
+        // We still assign counts here if you want to keep the view badges
+        ViewBag.TotalMembers = members.Count;
+        ViewBag.ActiveMembersCount = members.Count(x => x.StatusId == 1);
+        ViewBag.MembershipClassCount = members.Count(x => x.StatusId == 2);
+        ViewBag.AwaitingCount = members.Count(x => x.StatusId == 4);
+        ViewBag.InactiveCount = members.Count(x => x.StatusId == 3);
+        ViewBag.TransferredCount = members.Count(x => x.StatusId == 7);
+        ViewBag.PromotedCount = members.Count(x => x.StatusId == 5);
+        ViewBag.WithdrawnCount = members.Count(x => x.StatusId == 6);
+
+        membersListViewModel.TotalMembers = members.Count;
 
         return View(membersListViewModel);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GetMembersDataTable([FromForm] int draw, [FromForm] int start, [FromForm] int length, [FromForm] int? statusId)
+    {
+        string searchValue = Request.Form["search[value]"].FirstOrDefault();
+
+        var response = await _membersService.GetMembersDataTableAsync(draw, start, length, searchValue, statusId);
+
+        if (response.IsSuccess && response.Data != null)
+        {
+            return Json(response.Data);
+        }
+
+        return Json(new DataTableResponse<Member>
+        {
+            draw = draw,
+            recordsTotal = 0,
+            recordsFiltered = 0,
+            data = new List<Member>(),
+            error = response.Message
+        });
     }
 
     

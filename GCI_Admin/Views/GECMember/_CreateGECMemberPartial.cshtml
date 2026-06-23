@@ -27,7 +27,8 @@
             Members = Model?.Members,
             IsRequired = true,
             IsEdit = isEdit,
-            ShowPhoneAndGender = true
+            ShowPhoneAndGender = true,
+            DataUrl = "/Finance/GetActiveMembers"
         })
 
         <!-- Profile Image Picker -->
@@ -114,6 +115,11 @@
             e.preventDefault();
             return false;
         });
+
+        // Initialize member selector if needed
+        if (typeof initializeCustomDropdown === 'function') {
+            initializeCustomDropdown('gecMemberSelector');
+        }
     });
 
     // Function to show confirmation dialog before submission

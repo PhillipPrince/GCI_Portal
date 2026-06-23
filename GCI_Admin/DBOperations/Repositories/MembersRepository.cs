@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Utils;
@@ -40,6 +40,63 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+
+        public async Task<DbResponse<DataTableResponse<Member>>> GetMembersDataTableAsync(int draw, int start, int length, string searchValue, int? statusId)
+        {
+            try
+            {
+                var query = _context.Members.AsQueryable();
+
+                if (statusId.HasValue && statusId.Value > 0)
+                {
+                    query = query.Where(m => m.StatusId == statusId.Value);
+                }
+
+                int recordsTotal = await query.CountAsync();
+
+                if (!string.IsNullOrEmpty(searchValue))
+                {
+                    searchValue = searchValue.ToLower();
+                    query = query.Where(m => 
+                        (m.FirstName != null && m.FirstName.ToLower().Contains(searchValue)) ||
+                        (m.OtherNames != null && m.OtherNames.ToLower().Contains(searchValue)) ||
+                        (m.Phone != null && m.Phone.ToLower().Contains(searchValue)) ||
+                        (m.Email != null && m.Email.ToLower().Contains(searchValue)) ||
+                        (m.Assembly != null && m.Assembly.ToLower().Contains(searchValue))
+                    );
+                }
+
+                int recordsFiltered = await query.CountAsync();
+
+                var data = await query
+                    .OrderByDescending(m => m.CreatedAt)
+                    .Skip(start)
+                    .Take(length)
+                    .ToListAsync();
+
+                return new DbResponse<DataTableResponse<Member>>
+                {
+                    Success = true,
+                    Data = new DataTableResponse<Member>
+                    {
+                        draw = draw,
+                        recordsTotal = recordsTotal,
+                        recordsFiltered = recordsFiltered,
+                        data = data
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error in GetMembersDataTableAsync: {ex.Message}");
+                return new DbResponse<DataTableResponse<Member>>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
         public async Task<DbResponse<Member>> GetMemberByIdAsync(int id)
         {
             try

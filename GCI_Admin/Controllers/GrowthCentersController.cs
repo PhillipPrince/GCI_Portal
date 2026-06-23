@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using GCI_Admin.DBOperations;
 
 namespace GCI_Admin.Controllers
 {
@@ -15,11 +18,13 @@ namespace GCI_Admin.Controllers
     {
         private readonly IGrowthCentersService _growthCentersService;
         private readonly MembersRepository _membersRepository;
+        private readonly AppDbContext _context;
 
-        public GrowthCentersController(IGrowthCentersService growthCentersService, MembersRepository membersRepository)
+        public GrowthCentersController(IGrowthCentersService growthCentersService, MembersRepository membersRepository, AppDbContext context)
         {
             _growthCentersService = growthCentersService;
             _membersRepository = membersRepository;
+            _context = context;
         }
 
         // GET: /GrowthCenters
@@ -231,6 +236,31 @@ namespace GCI_Admin.Controllers
                 return Json(new { success = false, message = result.Message });
 
             return Json(new { success = true, message = result.Message });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMembersByGrowthCenter(int growthCenterId)
+        {
+            try
+            {
+                var members = await _context.GrowthCenterMembers
+                    .Where(m => m.GrowthCenterId == growthCenterId && m.Member.StatusId == 1)
+                    .Include(m => m.Member)
+                    .Select(m => new {
+                        id = m.Member.Id,
+                        firstName = m.Member.FirstName,
+                        otherNames = m.Member.OtherNames,
+                        email = m.Member.Email,
+                        phone = m.Member.Phone,
+                        gender = m.Member.Gender
+                    })
+                    .ToListAsync();
+                return Json(new { success = true, data = members });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }

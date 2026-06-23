@@ -417,6 +417,32 @@ namespace GCI_Admin.Controllers
             }
         }
 
+        // GET: Get Members by Ministry
+        [HttpGet]
+        public async Task<IActionResult> GetMembersByMinistry(int ministryId)
+        {
+            try
+            {
+                var members = await _context.MinistryMembers
+                    .Where(m => m.MinistryId == ministryId && m.Member.StatusId == 1)
+                    .Include(m => m.Member)
+                    .Select(m => new {
+                        id = m.Member.Id,
+                        firstName = m.Member.FirstName,
+                        otherNames = m.Member.OtherNames,
+                        email = m.Member.Email,
+                        phone = m.Member.Phone,
+                        gender = m.Member.Gender
+                    })
+                    .ToListAsync();
+                return Ok(new { success = true, data = members });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
         // GET: Get Active Leaders
         public async Task<IActionResult> GetActiveLeaders()
         {

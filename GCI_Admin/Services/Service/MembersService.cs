@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using GCI_Admin.DBOperations;
 using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
@@ -46,6 +46,26 @@ namespace GCI_Admin.Services.Service
 
             return response;
         }
+
+        public async Task<ApiResponse<DataTableResponse<Member>>> GetMembersDataTableAsync(int draw, int start, int length, string searchValue, int? statusId)
+        {
+            var response = new ApiResponse<DataTableResponse<Member>>();
+            try
+            {
+                var result = await _membersRepository.GetMembersDataTableAsync(draw, start, length, searchValue, statusId);
+                response.IsSuccess = result.Success;
+                response.Message = result.Message;
+                response.Data = result.Data;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
         public async Task<ApiResponse<Member>> GetMemberByIdAsync(int id)
         {
             var response = new ApiResponse<Member>();

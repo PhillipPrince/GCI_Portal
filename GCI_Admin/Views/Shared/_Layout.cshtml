@@ -22,9 +22,49 @@
 
     <!-- Custom CSS -->
     <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
+    <style>
+        /* Global Spinner Overlay */
+        #global-spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #global-spinner-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        #global-spinner-overlay .spinner-border {
+            width: 4rem;
+            height: 4rem;
+        }
+        #global-spinner-overlay .spinner-text {
+            margin-top: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+    </style>
 </head>
 
 <body>
+
+    <!-- Global Spinner -->
+    <div id="global-spinner-overlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="spinner-text" id="global-spinner-text">Processing...</div>
+    </div>
 
     <!-- ================= SIDEBAR ================= -->
     <div class="sidebar">
@@ -662,6 +702,35 @@
             // Small delay to ensure Bootstrap is fully initialized
             setTimeout(openActiveSubmenu, 100);
         })();
+
+        // Global Spinner Functions
+        function showGlobalSpinner(message) {
+            if (message) {
+                document.getElementById('global-spinner-text').innerText = message;
+            } else {
+                document.getElementById('global-spinner-text').innerText = 'Processing...';
+            }
+            document.getElementById('global-spinner-overlay').classList.add('show');
+        }
+
+        function hideGlobalSpinner() {
+            document.getElementById('global-spinner-overlay').classList.remove('show');
+        }
+
+        // Intercept global AJAX events to show spinner automatically when requested
+        // Using jQuery global ajax event handlers
+        $(document).ajaxSend(function(event, jqXHR, ajaxOptions) {
+            if (ajaxOptions.showSpinner !== false) {
+                // By default we don't intercept every single AJAX call unless we want to, 
+                // but let's leave it manual for now unless specified.
+                // Uncomment the line below to show globally for ALL ajax
+                // showGlobalSpinner();
+            }
+        });
+        
+        $(document).ajaxComplete(function(event, jqXHR, ajaxOptions) {
+            // hideGlobalSpinner();
+        });
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
