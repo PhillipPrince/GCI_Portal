@@ -296,9 +296,11 @@
                 ProfileImageBase64: $('#assemblyLeaderProfileImage_base64').val() || null
             };
 
+            const actionUrl = isEdit ? '/Assemblies/UpdateAssemblyLeader' : '/Assemblies/CreateAssemblyLeader';
+            
             // Make AJAX request
             $.ajax({
-                url: form.attr('action'),
+                url: form.attr('action') || actionUrl,
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(requestData),
@@ -342,6 +344,9 @@
             });
         });
     }
+
+    // Expose globally so onclick can find it
+    window.confirmAndSubmit = confirmAndSubmit;
 </script>
 
 <div class="modal-footer">
