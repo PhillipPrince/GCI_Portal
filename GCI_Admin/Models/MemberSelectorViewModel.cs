@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace GCI_Admin.Models.ViewModels
 {
@@ -13,5 +13,6 @@ namespace GCI_Admin.Models.ViewModels
         public bool IsRequired { get; set; } = true;
         public bool IsEdit { get; set; } = false;
         public bool ShowPhoneAndGender { get; set; } = true;
+        public string DataUrl { get; set; } = "/Finance/GetActiveMembers";
     }
 }

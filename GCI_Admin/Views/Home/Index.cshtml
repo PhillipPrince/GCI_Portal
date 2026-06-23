@@ -21,12 +21,28 @@
 
 <!-- DASHBOARD CONTAINER -->
 <div id="dashboard-container">
-    <div class="text-center py-5">
-        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-            <span class="visually-hidden">Loading...</span>
+    <div id="membership-stats-container">
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <h6 class="mt-2 text-muted">Loading Membership Data...</h6>
         </div>
-        <h5 class="mt-3 text-muted">Loading Dashboard...</h5>
     </div>
+    
+    <div id="event-stats-container">
+        <div class="text-center py-4">
+            <div class="spinner-border text-warning" role="status"></div>
+            <h6 class="mt-2 text-muted">Loading Event Data...</h6>
+        </div>
+    </div>
+    
+    <div id="meeting-stats-container">
+        <div class="text-center py-4">
+            <div class="spinner-border text-success" role="status"></div>
+            <h6 class="mt-2 text-muted">Loading Meeting Data...</h6>
+        </div>
+    </div>
+    
+    <div id="members-list-container"></div>
 </div>
 
 <!-- Theme Modal -->
@@ -326,28 +342,32 @@
         });
 
         function loadDashboard() {
-            $.ajax({
-                url: '@Url.Action("GetDashboardData", "Home")',
-                type: 'GET',
-                success: function(response) {
-                    $('#dashboard-container').html(response);
-                    
-                    // Initialize dashboard components
-                    initializeDashboard();
-                },
-                error: function(xhr, status, error) {
-                    $('#dashboard-container').html('<div class="alert alert-danger">Failed to load dashboard. Please try refreshing.</div>');
-                }
+            // Load sections independently and initialize their respective scripts once loaded
+            $('#membership-stats-container').load('@Url.Action("GetMembershipStats", "Home")', function() {
+                // Move the member list section to the bottom container
+                $('#members-list-container').append($('#members-list-section'));
+                
+                setTimeout(initializeDataTables, 200);
+                setTimeout(function() {
+                    if (typeof loadMemberGrowthData === 'function') loadMemberGrowthData('weekly');
+                    if (typeof loadFullMembershipData === 'function') loadFullMembershipData('weekly');
+                }, 300);
+            });
+            
+            $('#event-stats-container').load('@Url.Action("GetEventStats", "Home")', function() {
+                if (typeof loadCurrentYearTheme === 'function') loadCurrentYearTheme();
+            });
+            
+            $('#meeting-stats-container').load('@Url.Action("GetMeetingStats", "Home")', function() {
+                setTimeout(function() {
+                    if (typeof initGenderChart === 'function') initGenderChart();
+                    if (typeof initAttendanceTrendChart === 'function') initAttendanceTrendChart();
+                }, 200);
             });
         }
 
         function initializeDashboard() {
-            // Re-fetch theme and init charts because the HTML elements were just replaced
-            loadCurrentYearTheme();
-            initCharts();
-            
-            // Wait a brief moment to ensure DOM is ready for DataTables
-            setTimeout(initializeDataTables, 200);
+            // Deprecated: logic moved to individual callbacks in loadDashboard
         }
 
         function initializeDataTables() {

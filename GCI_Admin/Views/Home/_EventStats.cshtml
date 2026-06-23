@@ -1,0 +1,148 @@
+@model GCI_Admin.Models.DashboardViewModel
+
+<div class="row g-4 mb-4">
+    <!-- UPCOMING EVENTS KPI -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa fa-calendar fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Upcoming Events</h6>
+                        <h3 class="fw-bold mb-0">@Model.UpcomingEvents.ToString("N0")</h3>
+                        @if (Model.EventChangePercentage > 0)
+                        {
+                            <small class="text-danger"><i class="fa fa-arrow-up me-1"></i>+@Model.EventChangePercentage% from last month</small>
+                        }
+                        else if (Model.EventChangePercentage < 0)
+                        {
+                            <small class="text-success"><i class="fa fa-arrow-down me-1"></i>@Model.EventChangePercentage% from last month</small>
+                        }
+                        else
+                        {
+                            <small class="text-muted"><i class="fa fa-minus me-1"></i>Same as last month</small>
+                        }
+                    </div>
+                </div>
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-warning" style="width: @Model.EventCompletionPercentage%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DATA PANELS -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0">ðŸ“… Upcoming Events</h6>
+                    <a href="@Url.Action("Index", "Event")" class="btn btn-link btn-sm p-0">View All â†’</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    @if (Model.UpcomingEvent != null && Model.UpcomingEvent.Any())
+                    {
+                        foreach (var evt in Model.UpcomingEvent.Take(3))
+                        {
+                            <div class="list-group-item px-0 border-0 d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 p-2 rounded-circle me-3">
+                                    <i class="fa fa-church text-primary"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">@evt.Title</h6>
+                                    <small class="text-muted">
+                                        <i class="fa fa-clock me-1"></i>
+                                        @evt.EventDate.ToString("MMM dd, h:mm tt")
+                                    </small>
+                                </div>
+                                <span class="badge @(evt.EventDate.Date == DateTime.Today ? "bg-primary" : "bg-secondary")">
+                                    @(evt.EventDate.Date == DateTime.Today ? "Today" : "")
+                                </span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <i class="fa fa-calendar-alt fa-2x mb-2"></i>
+                            <p class="mb-0">No upcoming events</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Card with onclick -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 overflow-hidden" onclick="openThemeModal()" style="cursor: pointer;">
+            <div class="row g-0 h-100">
+                <!-- Left Image Section -->
+                <div class="col-md-5">
+                    <div class="h-100">
+                        <img id="yearThemeImage"
+                             alt="Theme of the Year"
+                             class="img-fluid h-100 w-100"
+                             style="object-fit: cover;">
+                    </div>
+                </div>
+                <!-- Right Content Section -->
+                <div class="col-md-7">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center h-100">
+                        <h6 class="fw-bold text-primary mb-2" id="themeYearTitle">
+                            Theme of the Year
+                        </h6>
+                        <h5 class="fw-bold mb-3" id="themeTitle">
+                            Loading...
+                        </h5>
+                        <p class="text-muted mb-1 fw-semibold" id="themeVerse"></p>
+                        <p class="text-muted mb-0" id="themeDescription"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <h6 class="fw-bold mb-0">âš¡ Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="javascript:void(0);"
+                           onclick="openAddMemberModal()"
+                           class="btn btn-primary text-start d-flex align-items-center">
+                        <i class="fa fa-user-plus me-3"></i>
+                        <div>
+                            <strong>Add New Member</strong><br>
+                            <small class="opacity-75">Register a new church member</small>
+                        </div>
+                    </a>
+                    <a href="@Url.Action("CreateEvent", "Event")" class="btn btn-success text-start d-flex align-items-center">
+                        <i class="fa fa-calendar-plus me-3"></i>
+                        <div>
+                            <strong>Create Event</strong><br>
+                            <small class="opacity-75">Schedule a church event</small>
+                        </div>
+                    </a>
+                    <a href="@Url.Action("CreateAnnouncement", "Announcements")" class="btn btn-warning text-start d-flex align-items-center">
+                        <i class="fa fa-bullhorn me-3"></i>
+                        <div>
+                            <strong>New Announcement</strong><br>
+                            <small class="opacity-75">Share with congregation</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

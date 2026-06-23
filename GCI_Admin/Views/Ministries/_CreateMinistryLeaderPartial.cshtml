@@ -22,6 +22,29 @@
             Assign a member as a leader to a ministry. The member will be responsible for overseeing ministry activities.
         </div>
 
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Ministry <span class="text-danger">*</span></label>
+                <select asp-for="MinistryLeader.MinistryId" class="form-select" id="MinistryId" name="MinistryId" required>
+                    <option value="">-- Select Ministry --</option>
+                    @if (Model?.Ministries != null)
+                    {
+                        foreach (var ministry in Model.Ministries)
+                        {
+                            <option value="@ministry.Value" selected="@(Model?.MinistryLeader?.MinistryId.ToString() == ministry.Value)">@ministry.Text</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="MinistryLeader.MinistryId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Position Title <span class="text-danger">*</span></label>
+                <input asp-for="MinistryLeader.PositionTitle" class="form-control" id="PositionTitle" name="PositionTitle" placeholder="e.g., Worship Director, Youth Pastor, Outreach Coordinator" required />
+                <span asp-validation-for="MinistryLeader.PositionTitle" class="text-danger"></span>
+                <small class="text-muted">The role or title this person holds in the ministry</small>
+            </div>
+        </div>
+
         <!-- Member Selector Partial -->
         @await Html.PartialAsync("_MemberSelector", new GCI_Admin.Models.ViewModels.MemberSelectorViewModel
         {
@@ -32,7 +55,8 @@
             Members = Model?.Members,
             IsRequired = true,
             IsEdit = isEdit,
-            ShowPhoneAndGender = true
+            ShowPhoneAndGender = true,
+            DataUrl = Model?.MinistryLeader?.MinistryId > 0 ? $"/Ministries/GetMembersByMinistry?ministryId={Model.MinistryLeader.MinistryId}" : "/Finance/GetActiveMembers"
         })
 
         <hr />
@@ -59,28 +83,7 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold">Ministry <span class="text-danger">*</span></label>
-                <select asp-for="MinistryLeader.MinistryId" class="form-select" id="MinistryId" name="MinistryId" required>
-                    <option value="">-- Select Ministry --</option>
-                    @if (Model?.Ministries != null)
-                    {
-                        foreach (var ministry in Model.Ministries)
-                        {
-                            <option value="@ministry.Value" selected="@(Model?.MinistryLeader?.MinistryId.ToString() == ministry.Value)">@ministry.Text</option>
-                        }
-                    }
-                </select>
-                <span asp-validation-for="MinistryLeader.MinistryId" class="text-danger"></span>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold">Position Title <span class="text-danger">*</span></label>
-                <input asp-for="MinistryLeader.PositionTitle" class="form-control" id="PositionTitle" name="PositionTitle" placeholder="e.g., Worship Director, Youth Pastor, Outreach Coordinator" required />
-                <span asp-validation-for="MinistryLeader.PositionTitle" class="text-danger"></span>
-                <small class="text-muted">The role or title this person holds in the ministry</small>
-            </div>
-        </div>
+
 
         <div class="row">
             <div class="col-md-12 mb-3">
@@ -133,6 +136,21 @@
         if (typeof initializeCustomDropdown === 'function') {
             initializeCustomDropdown('ministryLeaderMemberSelector');
         }
+
+        $('#MinistryId').on('change', function() {
+            var ministryId = $(this).val();
+            var memberSelectorId = 'ministryLeaderMemberSelector';
+            if (ministryId) {
+                var url = '/Ministries/GetMembersByMinistry?ministryId=' + ministryId;
+                if (window['reloadMemberSelector_' + memberSelectorId]) {
+                    window['reloadMemberSelector_' + memberSelectorId](url);
+                }
+            } else {
+                if (window['reloadMemberSelector_' + memberSelectorId]) {
+                    window['reloadMemberSelector_' + memberSelectorId]('/Finance/GetActiveMembers');
+                }
+            }
+        });
     });
 
     // Function to show confirmation dialog before submission

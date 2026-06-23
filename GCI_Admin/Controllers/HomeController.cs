@@ -28,23 +28,14 @@ namespace GCI_Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDashboardData()
+        public async Task<IActionResult> GetMembershipStats()
         {
             try
             {
                 var dashboard = new DashboardViewModel();
-
                 var allMembers = await _membersService.GetAllMembersAsync();
-                var events = await _eventsService.GetAllEventsAsync();
-                var previousMonthMembers = allMembers.Data.Where(m => m.CreatedAt >= DateTime.Now.AddMonths(-1) && m.CreatedAt <= DateTime.Now).OrderByDescending(m => m.CreatedAt).ToList();
-                var previousMonthActiveMembers = allMembers.Data.Where(m => m.StatusId == 1 &&m.StatusId==1&& m.CreatedAt >= DateTime.Now.AddMonths(-1) && m.CreatedAt <= DateTime.Now).OrderByDescending(m => m.CreatedAt).ToList();
-
-                var previousMonthEvents = await _eventsService.GetEventsByDateRangeAsync(DateTime.Now.AddMonths(-1), DateTime.Now);
-
-                // 🆕 Get meeting statistics
-                var meetingsStats = await _meetingsRepository.GetDashboardStatsAsync();
-                var monthlyTrend = await _meetingsRepository.GetMonthlyAttendanceTrendAsync(6);
-                var recentMeetings = await _meetingsRepository.GetAllMeetingsAsync(1, 5);
+                var previousMonthMembers = allMembers.Data.Where(m => m.CreatedAt >= DateTime.Now.AddMonths(-1) && m.CreatedAt <= DateTime.Now).ToList();
+                var previousMonthActiveMembers = allMembers.Data.Where(m => m.StatusId == 1 && m.CreatedAt >= DateTime.Now.AddMonths(-1) && m.CreatedAt <= DateTime.Now).ToList();
 
                 var members = allMembers?.Data ?? new List<Member>();
 
@@ -52,9 +43,7 @@ namespace GCI_Admin.Controllers
                 {
                     dashboard.MemberStatus = new MemberStatusModel();
                 }
-                var upcomingEvents = events.Data.Where(e => e.IsActive);
 
-                // Assign members to respective status lists
                 dashboard.MemberStatus.AllMembers = members;
                 dashboard.MemberStatus.MembershipClassMembers = members.Where(x => x.StatusId == 2).ToList();
                 dashboard.MemberStatus.ActiveMembers = members.Where(x => x.StatusId == 1).ToList();
@@ -63,93 +52,107 @@ namespace GCI_Admin.Controllers
                 dashboard.MemberStatus.TransferredMembers = members.Where(x => x.StatusId == 7).ToList();
                 dashboard.MemberStatus.PromotedToGlory = members.Where(x => x.StatusId == 5).ToList();
                 dashboard.MemberStatus.WithdrawnMembers = members.Where(x => x.StatusId == 6).ToList();
-                dashboard.TotalMale = members.Count(x => x.Gender == "Male");
-                dashboard.TotalFemale = members.Count(x => x.Gender == "Female");
-               // dashboard.TotalChildren = members.Count(x => x.Age < 18);
-
-                // For backward compatibility - NonMembers (all except Active Members with StatusId 1)
+                
+                // For backward compatibility
                 dashboard.MemberStatus.NonMembers = members.Where(x => x.StatusId != 1).ToList();
 
-                // Total counts
                 dashboard.TotalMembers = members.Count;
                 dashboard.TotalActiveMembers = dashboard.MemberStatus.ActiveMembers.Count;
 
-                // Calculate percentages for progress bars
                 dashboard.TotalMembersPercentage = dashboard.TotalMembers > 0 ?
                     Math.Round((decimal)dashboard.TotalActiveMembers / dashboard.TotalMembers * 100, 2) : 0;
-
                 dashboard.ActiveMembersPercentage = dashboard.TotalActiveMembers > 0 ?
                     Math.Round((decimal)dashboard.MemberStatus.MembershipClassMembers.Count / dashboard.TotalActiveMembers * 100, 2) : 0;
+
+                int previousTotalMembers = previousMonthMembers?.Count ?? 0;
+                int previousActiveMembers = previousMonthActiveMembers?.Count ?? 0;
+
+                dashboard.MemberGrowthPercentage = previousTotalMembers > 0
+                    ? Math.Round((decimal)(dashboard.TotalMembers - previousTotalMembers) / previousTotalMembers * 100, 2)
+                    : (dashboard.TotalMembers > 0 ? 100 : 0);
+
+                dashboard.ActiveMemberGrowthPercentage = previousActiveMembers > 0
+                    ? Math.Round((decimal)(dashboard.TotalActiveMembers - previousActiveMembers) / previousActiveMembers * 100, 2)
+                    : (dashboard.TotalActiveMembers > 0 ? 100 : 0);
+
+                return PartialView("_MembershipStats", dashboard);
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"HomeController GetMembershipStats Error: {ex}");
+                return PartialView("_MembershipStats", new DashboardViewModel { MemberStatus = new MemberStatusModel() });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetEventStats()
+        {
+            try
+            {
+                var dashboard = new DashboardViewModel();
+                var events = await _eventsService.GetAllEventsAsync();
+                var previousMonthEvents = await _eventsService.GetEventsByDateRangeAsync(DateTime.Now.AddMonths(-1), DateTime.Now);
+
+                var upcomingEvents = events.Data.Where(e => e.IsActive);
+                int previousEvents = previousMonthEvents?.Data?.Count ?? 0;
+
+                dashboard.UpcomingEvents = upcomingEvents.Count();
+                dashboard.UpcomingEvent = upcomingEvents.ToList();
 
                 dashboard.EventCompletionPercentage = dashboard.UpcomingEvents > 0 ?
                     Math.Round((decimal)events?.Data?.Count(e => e.EventDate >= DateTime.Now && e.EventDate <= DateTime.Now.AddDays(7)) / dashboard.UpcomingEvents * 100, 2) : 0;
 
-                int previousTotalMembers = previousMonthMembers?.Count ?? 0;
-                int previousActiveMembers = previousMonthActiveMembers?.Count ?? 0;
-                int previousEvents = previousMonthEvents?.Data?.Count ?? 0;
-
-                // Member growth percentage
-                dashboard.MemberGrowthPercentage = previousTotalMembers > 0
-                    ? Math.Round(
-                        (decimal)(dashboard.TotalMembers - previousTotalMembers)
-                        / previousTotalMembers * 100, 2)
-                    : (dashboard.TotalMembers > 0 ? 100 : 0);
-
-                // Active member growth percentage
-                dashboard.ActiveMemberGrowthPercentage = previousActiveMembers > 0
-                    ? Math.Round(
-                        (decimal)(dashboard.TotalActiveMembers - previousActiveMembers)
-                        / previousActiveMembers * 100, 2)
-                    : (dashboard.TotalActiveMembers > 0 ? 100 : 0);
-
-                // Event growth percentage
                 dashboard.EventChangePercentage = previousEvents > 0
-                    ? Math.Round(
-                        (decimal)(dashboard.UpcomingEvents - previousEvents)
-                        / previousEvents * 100, 2)
+                    ? Math.Round((decimal)(dashboard.UpcomingEvents - previousEvents) / previousEvents * 100, 2)
                     : (dashboard.UpcomingEvents > 0 ? 100 : 0);
 
-                // Events
-                dashboard.UpcomingEvents = upcomingEvents.Count();
-                dashboard.UpcomingEvent = upcomingEvents.ToList();
+                return PartialView("_EventStats", dashboard);
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"HomeController GetEventStats Error: {ex}");
+                return PartialView("_EventStats", new DashboardViewModel { UpcomingEvent = new List<Event>() });
+            }
+        }
 
-                // 🆕 Populate Meeting & Attendance Stats
+        [HttpGet]
+        public async Task<IActionResult> GetMeetingStats()
+        {
+            try
+            {
+                var dashboard = new DashboardViewModel();
+                
+                // Get gender counts using the efficient endpoint from MembersService if possible,
+                // but since we only have membersService.GetAllMembersAsync() here, we might have to use that.
+                // Wait, maybe we can fetch all members just for this or it's slow?
+                // The gender breakdown requires counts. 
+                var allMembers = await _membersService.GetAllMembersAsync();
+                var members = allMembers?.Data ?? new List<Member>();
+                dashboard.TotalMale = members.Count(x => x.Gender == "Male");
+                dashboard.TotalFemale = members.Count(x => x.Gender == "Female");
+                // dashboard.TotalChildren = members.Count(x => x.Age < 18);
+                
+                var meetingsStats = await _meetingsRepository.GetDashboardStatsAsync();
+                var monthlyTrend = await _meetingsRepository.GetMonthlyAttendanceTrendAsync(6);
+                var recentMeetings = await _meetingsRepository.GetAllMeetingsAsync(1, 5);
+
                 if (meetingsStats.Success && meetingsStats.Data != null)
                 {
                     dashboard.TotalMeetings = meetingsStats.Data.TotalMeetings;
                     dashboard.TotalAttendees = meetingsStats.Data.TotalAttendees;
                     dashboard.AverageAttendance = Math.Round(meetingsStats.Data.AverageAttendance, 2);
-                   
                     dashboard.MeetingsLast30Days = meetingsStats.Data.MeetingsLast30Days;
                     dashboard.AttendeesLast30Days = meetingsStats.Data.AttendeesLast30Days;
                     dashboard.MeetingTypesCount = meetingsStats.Data.MeetingTypesCount;
 
-                    // Calculate attendance growth percentage
-                    var previousMonthMeetings = await _meetingsRepository.GetMeetingsByDateRangeAsync(
-                        DateTime.Now.AddMonths(-2), DateTime.Now.AddMonths(-1));
-
-                    int previousMonthAttendees = previousMonthMeetings.Success
-                        ? previousMonthMeetings.Data.Sum(m => m.TotalAttendees)
-                        : 0;
+                    var previousMonthMeetings = await _meetingsRepository.GetMeetingsByDateRangeAsync(DateTime.Now.AddMonths(-2), DateTime.Now.AddMonths(-1));
+                    int previousMonthAttendees = previousMonthMeetings.Success ? previousMonthMeetings.Data.Sum(m => m.TotalAttendees) : 0;
 
                     dashboard.AttendanceGrowthPercentage = previousMonthAttendees > 0
                         ? Math.Round((decimal)(dashboard.TotalAttendees - previousMonthAttendees) / previousMonthAttendees * 100, 2)
                         : (dashboard.TotalAttendees > 0 ? 100 : 0);
                 }
-                else
-                {
-                    // Set default values if meeting stats fail
-                    dashboard.TotalMeetings = 0;
-                    dashboard.TotalAttendees = 0;
-                    dashboard.AverageAttendance = 0;
-                    
-                    dashboard.MeetingsLast30Days = 0;
-                    dashboard.AttendeesLast30Days = 0;
-                    dashboard.MeetingTypesCount = 0;
-                    dashboard.AttendanceGrowthPercentage = 0;
-                }
 
-                // 🆕 Populate monthly attendance trend
                 if (monthlyTrend.Success && monthlyTrend.Data != null)
                 {
                     dashboard.MonthlyAttendanceTrend = monthlyTrend.Data.Select(m => new MonthlyTrendStats
@@ -166,7 +169,6 @@ namespace GCI_Admin.Controllers
                     dashboard.MonthlyAttendanceTrend = new List<MonthlyTrendStats>();
                 }
 
-                // 🆕 Populate recent meetings
                 if (recentMeetings.Success && recentMeetings.Data != null && recentMeetings.Data.Items != null)
                 {
                     dashboard.RecentMeetings = recentMeetings.Data.Items.Select(m => new RecentMeetingStats
@@ -185,19 +187,12 @@ namespace GCI_Admin.Controllers
                     dashboard.RecentMeetings = new List<RecentMeetingStats>();
                 }
 
-                return PartialView("_DashboardContent", dashboard);
+                return PartialView("_MeetingStats", dashboard);
             }
             catch (Exception ex)
             {
-                Loggers.DoLogs($"HomeController Index Error: {ex}");
-
-                TempData["Error"] = "Unable to load dashboard.";
-
-                return PartialView("_DashboardContent", new DashboardViewModel
-                {
-                    RecentMeetings = new List<RecentMeetingStats>(),
-                    MonthlyAttendanceTrend = new List<MonthlyTrendStats>()
-                });
+                Loggers.DoLogs($"HomeController GetMeetingStats Error: {ex}");
+                return PartialView("_MeetingStats", new DashboardViewModel { RecentMeetings = new List<RecentMeetingStats>(), MonthlyAttendanceTrend = new List<MonthlyTrendStats>() });
             }
         }
         public ActionResult Details(int id)

@@ -1,0 +1,352 @@
+@model GCI_Admin.Models.DTOs.CreateAssemblyLeaderDto
+
+@{
+    var isEdit = ViewBag.IsEdit ?? false;
+    var formId = isEdit ? "editAssemblyLeaderForm" : "createAssemblyLeaderForm";
+    var action = isEdit ? "UpdateAssemblyLeader" : "CreateAssemblyLeader";
+    var modalId = "leaderModal";
+}
+
+<!-- Modal Body -->
+<div class="modal-body">
+    <form asp-action="@action" asp-controller="Assemblies" method="post" id="@formId">
+        @Html.AntiForgeryToken()
+
+        @if (isEdit)
+        {
+            <input type="hidden" asp-for="AssemblyLeader.AssemblyLeaderId" id="AssemblyLeaderId" />
+        }
+
+        <div class="alert alert-info">
+            <i class="fa fa-info-circle me-2"></i>
+            Assign a member as a leader to an assembly. The member will be responsible for overseeing assembly activities.
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label class="form-label fw-bold">Assembly <span class="text-danger">*</span></label>
+                <select asp-for="AssemblyLeader.AssemblyId" class="form-select" id="AssemblyId" name="AssemblyId" required>
+                    <option value="">-- Select Assembly --</option>
+                    @if (Model?.Assemblies != null)
+                    {
+                        foreach (var assembly in Model.Assemblies)
+                        {
+                            <option value="@assembly.Id" selected="@(Model?.AssemblyLeader?.AssemblyId == assembly.Id)">@assembly.Name</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="AssemblyLeader.AssemblyId" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Member Selector Partial -->
+        @await Html.PartialAsync("_MemberSelector", new GCI_Admin.Models.ViewModels.MemberSelectorViewModel
+        {
+            ControlId = "assemblyLeaderMemberSelector",
+            LabelText = "Select Member",
+            MemberIdFieldName = "MemberId",
+            SelectedMemberId = Model?.AssemblyLeader?.MemberId,
+            Members = Model?.Members,
+            IsRequired = true,
+            IsEdit = isEdit,
+            ShowPhoneAndGender = true,
+            DataUrl = Model?.AssemblyLeader?.AssemblyId > 0 ? $"/Assemblies/GetMembersByAssembly?assemblyId={Model.AssemblyLeader.AssemblyId}" : "/Finance/GetActiveMembers"
+        })
+
+        <hr />
+
+        <div class="row mt-3">
+            <div class="col-12">
+                @await Html.PartialAsync("_ImagePicker", new GCI_Admin.Models.ImagePickerViewModel
+                {
+                    ControlId = "assemblyLeaderProfileImage",
+                    LabelText = "Profile Image",
+                    IconClass = "fa fa-user-circle-o",
+                    HelpText = "Upload a profile image for the assembly leader. Recommended size: 400x400 pixels. Max size: 5MB",
+                    UploadButtonText = "Choose Image",
+                    CurrentImageUrl = Model?.AssemblyLeader?.MemberId != null ? $"/uploads/{Model.AssemblyLeader.MemberId}.jpg" : null,
+                    PreviewWidth = 150,
+                    PreviewHeight = 150,
+                    MaxFileSizeMB = 5,
+                    IsRequired = false,
+                    Rounded = true,
+                    FileInputName = "ProfileImage",
+                    ImageUrlFieldName = "ProfileImageUrl",
+                    Base64FieldName = "ProfileImageBase64"
+                })
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label class="form-label fw-bold">Bio / Description</label>
+                <textarea asp-for="AssemblyLeader.Bio" class="form-control" id="Bio" name="Bio" rows="3" maxlength="1000"
+                          placeholder="Brief biography or qualifications..."></textarea>
+                <span asp-validation-for="AssemblyLeader.Bio" class="text-danger"></span>
+                <small class="text-muted">Optional: Provide a brief description of the leader</small>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Start Date <span class="text-danger">*</span></label>
+                <input asp-for="AssemblyLeader.StartDate" type="date" class="form-control" id="StartDate" name="StartDate" required
+                       value="@(Model?.AssemblyLeader?.StartDate.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))">
+                <span asp-validation-for="AssemblyLeader.StartDate" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">End Date</label>
+                <input asp-for="AssemblyLeader.EndDate" type="date" class="form-control" id="EndDate" name="EndDate"
+                       value="@(Model?.AssemblyLeader?.EndDate?.ToString("yyyy-MM-dd"))">
+                <span asp-validation-for="AssemblyLeader.EndDate" class="text-danger"></span>
+                <small class="text-muted">Leave empty if currently serving</small>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <div class="form-check form-switch">
+                    <input asp-for="AssemblyLeader.IsActive" class="form-check-input" type="checkbox" id="IsActive" name="IsActive"
+                           checked="@(Model?.AssemblyLeader?.IsActive ?? true)">
+                    <label class="form-check-label fw-bold" asp-for="AssemblyLeader.IsActive">Active Leader</label>
+                </div>
+                <small class="text-muted">Uncheck if this leader is no longer serving in this role</small>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Initialize modal and form handling
+    $(document).ready(function() {
+        // Ensure form validation
+        $('#@formId').on('submit', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        if (typeof initializeCustomDropdown === 'function') {
+            initializeCustomDropdown('assemblyLeaderMemberSelector');
+        }
+
+        $('#AssemblyId').on('change', function() {
+            var assemblyId = $(this).val();
+            var memberSelectorId = 'assemblyLeaderMemberSelector';
+            if (assemblyId) {
+                var url = '/Assemblies/GetMembersByAssembly?assemblyId=' + assemblyId;
+                if (window['reloadMemberSelector_' + memberSelectorId]) {
+                    window['reloadMemberSelector_' + memberSelectorId](url);
+                }
+            } else {
+                if (window['reloadMemberSelector_' + memberSelectorId]) {
+                    window['reloadMemberSelector_' + memberSelectorId]('/Finance/GetActiveMembers');
+                }
+            }
+        });
+    });
+
+    // Function to show confirmation dialog before submission
+    function confirmAndSubmit() {
+        const isEdit = '@isEdit'.toLowerCase() === 'true';
+
+        // Get all field values for the confirmation message
+        const memberDisplayName = $('#assemblyLeaderMemberSelector_display').val();
+        const assemblyName = $('#AssemblyId option:selected').text();
+        const startDate = $('#StartDate').val();
+        const isActive = $('#IsActive').is(':checked');
+
+        // Format dates for display
+        const formattedStartDate = startDate ? new Date(startDate).toLocaleDateString() : 'Not specified';
+
+        // Build confirmation message
+        let confirmationMessage = '';
+        let confirmationTitle = '';
+
+        if (isEdit) {
+            confirmationTitle = 'Confirm Update';
+            confirmationMessage = `
+                <div style="text-align: left;">
+                    <p>Are you sure you want to update this assembly leader?</p>
+                    <hr>
+                    <p><strong>Member:</strong> ${memberDisplayName || 'Not selected'}</p>
+                    <p><strong>Assembly:</strong> ${assemblyName || 'Not selected'}</p>
+                    <p><strong>Start Date:</strong> ${formattedStartDate}</p>
+                    <p><strong>Status:</strong> ${isActive ? 'Active' : 'Inactive'}</p>
+                    <hr>
+                    <p class="text-warning">This action will update the leader's information in the system.</p>
+                </div>
+            `;
+        } else {
+            confirmationTitle = 'Confirm Assignment';
+            confirmationMessage = `
+                <div style="text-align: left;">
+                    <p>Are you sure you want to assign this member as an assembly leader?</p>
+                    <hr>
+                    <p><strong>Member:</strong> ${memberDisplayName || 'Not selected'}</p>
+                    <p><strong>Assembly:</strong> ${assemblyName || 'Not selected'}</p>
+                    <p><strong>Start Date:</strong> ${formattedStartDate}</p>
+                    <p><strong>Status:</strong> ${isActive ? 'Active' : 'Inactive'}</p>
+                    <hr>
+                    <p class="text-info">Please review the information before confirming.</p>
+                </div>
+            `;
+        }
+
+        // Show SweetAlert confirmation
+        Swal.fire({
+            title: confirmationTitle,
+            html: confirmationMessage,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: isEdit ? 'Yes, update it!' : 'Yes, assign leader!',
+            cancelButtonText: 'Cancel',
+            showLoaderOnConfirm: true,
+            preConfirm: async () => {
+                try {
+                    // Call the submit function
+                    return await submitAssemblyLeaderForm();
+                } catch (error) {
+                    Swal.showValidationMessage(`Request failed: ${error}`);
+                }
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        });
+    }
+
+    // Main submit function
+    function submitAssemblyLeaderForm() {
+        return new Promise((resolve, reject) => {
+            // Get the correct form based on edit mode
+            const isEdit = '@isEdit'.toLowerCase() === 'true';
+            const formId = isEdit ? 'editAssemblyLeaderForm' : 'createAssemblyLeaderForm';
+            const form = $('#' + formId);
+
+            if (!form.length) {
+                console.error('Form not found:', formId);
+                reject('Form not found');
+                Swal.fire('Error', 'Form not found', 'error');
+                return;
+            }
+
+            // Get all field values
+            const assemblyLeaderId = $('#AssemblyLeaderId').val() || '0';
+            const memberId = $('#assemblyLeaderMemberSelector_selectedId').val();
+            const assemblyId = $('#AssemblyId').val();
+            const bio = $('#Bio').val();
+            const startDate = $('#StartDate').val();
+            const endDate = $('#EndDate').val();
+            const isActive = $('#IsActive').is(':checked');
+
+            // Validate form
+            if (!form[0].checkValidity()) {
+                form[0].reportValidity();
+                reject('Validation failed');
+                Swal.fire('Validation Error', 'Please fill all required fields correctly', 'warning');
+                return;
+            }
+
+            // Validate member is selected
+            if (!memberId || memberId === '') {
+                Swal.fire('Validation Error', 'Please select a member', 'warning');
+                reject('Member not selected');
+                return;
+            }
+
+            // Validate assembly is selected
+            if (!assemblyId || assemblyId === '') {
+                Swal.fire('Validation Error', 'Please select an assembly', 'warning');
+                reject('Assembly not selected');
+                return;
+            }
+
+            // Validate start date
+            if (!startDate) {
+                Swal.fire('Validation Error', 'Please select a start date', 'warning');
+                reject('Start date not selected');
+                return;
+            }
+
+            // Validate end date is after start date if provided
+            if (endDate && new Date(endDate) < new Date(startDate)) {
+                Swal.fire('Validation Error', 'End date cannot be earlier than start date', 'warning');
+                reject('Invalid date range');
+                return;
+            }
+
+            // Disable button and show loading
+            // Wait, we need to ensure the modal has a button to call confirmAndSubmit. 
+            // In Index.cshtml, the modal has an external footer button.
+            // Oh, Index.cshtml doesn't have a save button for leader modal in the html directly!
+            // Wait, let's look at `Index.cshtml` to see the leaderModal footer.
+            // Actually, in `Ministries/Index.cshtml` there might be a footer inside the partial or Index.
+            
+            const token = $('input[name="__RequestVerificationToken"]', form).val();
+
+            // Prepare JSON data
+            const requestData = {
+                AssemblyLeaderId: parseInt(assemblyLeaderId) || 0,
+                MemberId: parseInt(memberId),
+                AssemblyId: parseInt(assemblyId),
+                Bio: bio || '',
+                StartDate: startDate,
+                EndDate: endDate || null,
+                IsActive: isActive,
+                ProfileImageBase64: $('#assemblyLeaderProfileImage_base64').val() || null
+            };
+
+            // Make AJAX request
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(requestData),
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message || `Assembly leader ${isEdit ? 'updated' : 'assigned'} successfully`,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            $('#leaderModal').modal('hide');
+                            location.reload();
+                        });
+                        resolve(response);
+                    } else {
+                        let errorMessage = response.message || 'Failed to save assembly leader.';
+                        if (response.errors && response.errors.length > 0) {
+                            errorMessage = response.errors.join('<br>');
+                        }
+                        Swal.fire('Error', errorMessage, 'error');
+                        reject(errorMessage);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    let errorMessage = 'An unexpected error occurred.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    } else if (xhr.status === 400) {
+                        errorMessage = 'Invalid data sent to server.';
+                    } else if (xhr.status === 409) {
+                        errorMessage = 'This member is already a leader in this assembly.';
+                    }
+                    Swal.fire('Error', errorMessage, 'error');
+                    reject(errorMessage);
+                }
+            });
+        });
+    }
+</script>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    <button type="button" class="btn btn-primary" onclick="confirmAndSubmit()" id="saveLeaderBtnText">
+        <i class="fa fa-save me-1"></i>@(isEdit ? "Update Leader" : "Assign Leader")
+    </button>
+</div>

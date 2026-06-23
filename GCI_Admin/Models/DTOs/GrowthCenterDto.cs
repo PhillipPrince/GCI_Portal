@@ -35,6 +35,6 @@ namespace GCI_Admin.Models.DTOs
         public DateTime? EndDate { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
-        public string ProfileImageBase64 { get; set; }
+        public string? ProfileImageBase64 { get; set; }
     }
 }

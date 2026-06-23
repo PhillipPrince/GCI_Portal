@@ -318,7 +318,7 @@
             `);
             
             $.ajax({
-                url: '@Url.Action("LoadCreateForm", "BranchLeaders")',
+                url: '@Url.Action("LoadCreateForm", "Assemblies")',
                 type: 'GET',
                 success: function (response) {
                     $('#leaderModalContent').html(response);
@@ -483,7 +483,7 @@
             `);
             
             $.ajax({
-                url: '@Url.Action("LoadEditForm", "BranchLeaders")/' + id,
+                url: '@Url.Action("LoadEditForm", "Assemblies")/' + id,
                 type: 'GET',
                 success: function (response) {
                     $('#leaderModalContent').html(response);
@@ -502,7 +502,7 @@
         }
 
         function viewLeader(id) {
-            window.location.href = '@Url.Action("Details", "BranchLeaders")/' + id;
+            window.location.href = '@Url.Action("Details", "Assemblies")/' + id;
         }
 
         async function toggleLeaderStatus(id, setActive) {
@@ -518,7 +518,7 @@
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        const response = await fetch('@Url.Action("ToggleStatus", "BranchLeaders")', {
+                        const response = await fetch('@Url.Action("ToggleLeaderStatus", "Assemblies")', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -556,7 +556,7 @@
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        const response = await fetch('@Url.Action("Delete", "BranchLeaders")/' + id, {
+                        const response = await fetch('@Url.Action("DeleteAssemblyLeader", "Assemblies")/' + id, {
                             method: 'POST',
                             headers: {
                                 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
