@@ -55,11 +55,17 @@
             initializeAnnouncementsTable();
 
             $('#openCreateAnnouncementBtn').on('click', function () {
+                const $btn = $(this);
+                const originalHtml = $btn.html();
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...');
+
                 // Load the modal content fresh from server
                 $.ajax({
                     url: '@Url.Action("CreateAnnouncement", "Announcements")',
                     type: 'GET',
                     success: function (response) {
+                        $btn.prop('disabled', false).html(originalHtml);
+
                         // Replace modal container with fresh content
                         $('#createAnnouncementModalContainer').html(response);
 
@@ -103,10 +109,16 @@
                         $('#annSendSMS').prop('checked', false);
                         $('#annSendEmail').prop('checked', false);
 
+                        // Reset file input
+                        if ($('#annImageFile').length) {
+                            $('#annImageFile').val('');
+                        }
+
                         // Hide members section initially
                         $('#membersSection').hide();
                     },
                     error: function () {
+                        $btn.prop('disabled', false).html(originalHtml);
                         Swal.fire('Error', 'Failed to load announcement form', 'error');
                     }
                 });
@@ -143,7 +155,7 @@
             });
         }
 
-        function submitCreateAnnouncement() {
+        async function submitCreateAnnouncement() {
             const form = document.getElementById('createAnnouncementForm');
 
             if (!form.checkValidity()) {
@@ -169,12 +181,25 @@
                 selectedMemberIds = window.getSelectedMemberIds();
             }
 
+            let imageBase64 = null;
+            const fileInput = document.getElementById('annImageFile');
+            if (fileInput && fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                imageBase64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+            }
+
             const dto = {
                 Title: $('#annTitle').val().trim(),
                 Message: $('#annMessage').val().trim(),
                 CreatedById: $('#annCreatedById').val() || null,
                 IsChurchWide: $('#annIsChurchWide').is(':checked'),
                 MinistryId: $('#annMinistryId').val() || null,
+                GrowthCenterId: $('#annGrowthCenterId').val() || null,
+                RcpsId: $('#annRcpsId').val() || null,
                 NotificationTime: $('#annNotificationTime').val(),
                 ExpiryTime: $('#annExpiryTime').val() || null,
                 RequiresReminder: $('#annRequiresReminder').is(':checked'),
@@ -182,10 +207,13 @@
                 SendEmail: $('#annSendEmail').is(':checked'),
                 IsActive: $('#annIsActive').is(':checked'),
                 NotificationGroupId: $('#annNotificationGroupId').val() || null,
-                SelectedMembers: selectedMemberIds
+                SelectedMembers: selectedMemberIds,
+                ImageBase64: imageBase64
             };
 
-            $('#createAnnouncementModal .modal-footer button').prop('disabled', true);
+            const $submitBtn = $('#createAnnouncementModal button[type="submit"]');
+            const originalBtnHtml = $submitBtn.html();
+            $submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...');
 
             $.ajax({
                 url: '/Announcements/SubmitNewAnnouncement',
@@ -194,7 +222,7 @@
                 dataType: 'json',
                 data: JSON.stringify(dto),
                 success: function (response) {
-                    $('#createAnnouncementModal .modal-footer button').prop('disabled', false);
+                    $submitBtn.prop('disabled', false).html(originalBtnHtml);
                     if (response.isSuccess) {
                         Swal.fire({ icon: 'success', title: 'Created', text: 'Announcement created successfully.' })
                             .then(() => location.reload());
@@ -203,7 +231,7 @@
                     }
                 },
                 error: function (xhr) {
-                    $('#createAnnouncementModal .modal-footer button').prop('disabled', false);
+                    $submitBtn.prop('disabled', false).html(originalBtnHtml);
                     let msg = 'An unexpected error occurred';
                     if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
                     Swal.fire('Error', msg, 'error');
@@ -225,6 +253,8 @@
                 $('#annCreatedById').val(a.createdById || '');
                 $('#annIsChurchWide').prop('checked', a.isChurchWide);
                 $('#annMinistryId').val(a.ministryId || '');
+                $('#annGrowthCenterId').val(a.growthCenterId || '');
+                $('#annRcpsId').val(a.rcpsId || '');
                 $('#annNotificationGroupId').val(a.notificationGroupId || '').trigger('change');
 
                 if (a.notificationTime) $('#annNotificationTime').val((new Date(a.notificationTime)).toISOString().slice(0,16));
@@ -243,7 +273,7 @@
             });
         }
 
-        function submitUpdateAnnouncement() {
+        async function submitUpdateAnnouncement() {
             const id = $('#annEditId').val();
             if (!id) return submitCreateAnnouncement();
 
@@ -253,12 +283,25 @@
                 selectedMemberIds = window.getSelectedMemberIds();
             }
 
+            let imageBase64 = null;
+            const fileInput = document.getElementById('annImageFile');
+            if (fileInput && fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                imageBase64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+            }
+
             const dto = {
                 Title: $('#annTitle').val().trim(),
                 Message: $('#annMessage').val().trim(),
                 CreatedById: $('#annCreatedById').val() || null,
                 IsChurchWide: $('#annIsChurchWide').is(':checked'),
                 MinistryId: $('#annMinistryId').val() || null,
+                GrowthCenterId: $('#annGrowthCenterId').val() || null,
+                RcpsId: $('#annRcpsId').val() || null,
                 NotificationTime: $('#annNotificationTime').val(),
                 ExpiryTime: $('#annExpiryTime').val() || null,
                 RequiresReminder: $('#annRequiresReminder').is(':checked'),
@@ -266,8 +309,13 @@
                 SendEmail: $('#annSendEmail').is(':checked'),
                 IsActive: $('#annIsActive').is(':checked'),
                 NotificationGroupId: $('#annNotificationGroupId').val() || null,
-                SelectedMembers: selectedMemberIds
+                SelectedMembers: selectedMemberIds,
+                ImageBase64: imageBase64
             };
+
+            const $submitBtn = $('#createAnnouncementModal button[type="submit"]');
+            const originalBtnHtml = $submitBtn.html();
+            $submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...');
 
             $.ajax({
                 url: '/Announcements/Update?notificationId=' + id,
@@ -276,6 +324,7 @@
                 dataType: 'json',
                 data: JSON.stringify(dto),
                 success: function (response) {
+                    $submitBtn.prop('disabled', false).html(originalBtnHtml);
                     if (response.isSuccess) {
                         Swal.fire({ icon: 'success', title: 'Updated', text: 'Announcement updated.' })
                             .then(() => location.reload());
@@ -284,6 +333,7 @@
                     }
                 },
                 error: function (xhr) {
+                    $submitBtn.prop('disabled', false).html(originalBtnHtml);
                     let msg = 'An unexpected error occurred';
                     if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
                     Swal.fire('Error', msg, 'error');

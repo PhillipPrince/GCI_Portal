@@ -1,135 +1,201 @@
 @model GCI_Admin.Models.DTOs.NotificationDto
 
 <div class="modal fade" id="createAnnouncementModal" tabindex="-1" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
+	<div class="modal-dialog modal-lg modal-dialog-centered">
+		<div class="modal-content border-0 shadow-lg overflow-hidden">
 			<form id="createAnnouncementForm" onsubmit="event.preventDefault(); const id = $('#annEditId').val(); if (id) submitUpdateAnnouncement(); else submitCreateAnnouncement();">
-				<div class="modal-header">
-					<h5 class="modal-title">Announcement</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				<div class="modal-header bg-primary text-white border-0 py-3">
+					<h5 class="modal-title fw-bold" id="modalAnnouncementTitle">
+						<i class="fa fa-bullhorn me-2"></i>Announcement Details
+					</h5>
+					<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
-				<div class="modal-body">
+				<div class="modal-body bg-light p-4">
 					<input type="hidden" id="annEditId" />
-
-					<div class="mb-3">
-						<label class="form-label">Title <span class="text-danger">*</span></label>
-						<input id="annTitle" name="Title" class="form-control" required />
-					</div>
-
-					<div class="mb-3">
-						<label class="form-label">Message <span class="text-danger">*</span></label>
-						<textarea id="annMessage" name="Message" class="form-control" rows="4" required></textarea>
-					</div>
-
-					<div class="row">
-						<div class="col-md-6 mb-3">
-							<label class="form-label">Notification Time</label>
-							<input id="annNotificationTime" type="datetime-local" name="NotificationTime" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
-						</div>
-						<div class="col-md-6 mb-3">
-							<label class="form-label">Expiry Time</label>
-							<input id="annExpiryTime" type="datetime-local" name="ExpiryTime" class="form-control" />
-						</div>
-					</div>
-
-					<div class="row g-2">
-						<div class="col-md-4">
-							<div class="form-check">
-								<input id="annIsChurchWide" class="form-check-input" type="checkbox" />
-								<label class="form-check-label">Is Church Wide</label>
-							</div>
-						</div>
-						<div class="col-md-4">
-							<div class="form-check">
-								<input id="annRequiresReminder" class="form-check-input" type="checkbox" />
-								<label class="form-check-label">Requires Reminder</label>
-							</div>
-						</div>
-						<div class="col-md-4">
-							<div class="form-check">
-								<input id="annIsActive" class="form-check-input" type="checkbox" checked />
-								<label class="form-check-label">Active</label>
-							</div>
-						</div>
-					</div>
-
-					<hr />
-
-					<div class="row g-2">
-						<div class="col-md-4">
-							<label class="form-label">Send SMS</label>
-							<div class="form-check">
-								<input id="annSendSMS" class="form-check-input" type="checkbox" />
-								<label class="form-check-label">Yes</label>
-							</div>
-						</div>
-						<div class="col-md-4">
-							<label class="form-label">Send Email</label>
-							<div class="form-check">
-								<input id="annSendEmail" class="form-check-input" type="checkbox" />
-								<label class="form-check-label">Yes</label>
-							</div>
-						</div>
-						<div class="col-md-4">
-							<label class="form-label">Ministry (optional)</label>
-							<input id="annMinistryId" class="form-control" type="number" />
-						</div>
-					</div>
-
-					<!-- Notification Group Dropdown -->
-					<div class="mb-3">
-						<label class="form-label">Notification Group</label>
-						<select id="annNotificationGroupId" name="NotificationGroupId" class="form-select">
-							<option value="">-- Select Group --</option>
-							@if (Model.NotificationGroups != null && Model.NotificationGroups.Any())
-							{
-								foreach (var group in Model.NotificationGroups)
-								{
-									<option value="@group.Value">@group.Text</option>
-								}
-							}
-						</select>
-					</div>
-
-					<!-- Members Section (shown only when Group ID = 3) -->
-					<div id="membersSection" style="display: none;">
-						<div class="mb-3">
-							<label class="form-label">Select Members (Searchable)</label>
-							<select id="annMemberSelect" class="form-select select2-members">
-								<option value="">-- Search and Select Members --</option>
-								@if (Model.Members != null && Model.Members.Any())
-								{
-									foreach (var member in Model.Members)
-									{
-										<option value="@member.Value">@member.Text</option>
-									}
-								}
-							</select>
-						</div>
-
-						<div class="mb-3">
-							<label class="form-label">Selected Members Preview</label>
-							<div id="selectedMembersPreview" class="border rounded p-2" style="min-height: 100px; max-height: 200px; overflow-y: auto;">
-								<div class="text-muted text-center">No members selected</div>
-							</div>
-						</div>
-					</div>
-
 					<input type="hidden" id="annCreatedById" />
+
+					<!-- Main Details Card -->
+					<div class="card border-0 shadow-sm mb-4 rounded-4">
+						<div class="card-body p-4">
+							<h6 class="text-primary fw-bold mb-3"><i class="fa fa-info-circle me-2"></i>Core Information</h6>
+							<div class="mb-3">
+								<label class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+								<input id="annTitle" name="Title" class="form-control form-control-lg rounded-3" placeholder="Enter a catchy title..." required />
+							</div>
+
+							<div class="mb-3">
+								<label class="form-label fw-semibold">Message <span class="text-danger">*</span></label>
+								<textarea id="annMessage" name="Message" class="form-control rounded-3" rows="4" placeholder="Type the announcement message here..." required></textarea>
+							</div>
+
+							<div class="mb-3">
+								<label class="form-label fw-semibold">Announcement Image <span class="text-muted fw-normal">(Optional)</span></label>
+								<input type="file" id="annImageFile" name="annImageFile" accept="image/*" class="form-control rounded-3" />
+							</div>
+						</div>
+					</div>
+
+					<!-- Timing & Scheduling Card -->
+					<div class="card border-0 shadow-sm mb-4 rounded-4">
+						<div class="card-body p-4">
+							<h6 class="text-primary fw-bold mb-3"><i class="fa fa-clock me-2"></i>Timing & Scheduling</h6>
+							<div class="row g-3">
+								<div class="col-md-6">
+									<label class="form-label fw-semibold">Notification Time <span class="text-danger">*</span></label>
+									<input id="annNotificationTime" type="datetime-local" name="NotificationTime" class="form-control rounded-3" required />
+								</div>
+								<div class="col-md-6">
+									<label class="form-label fw-semibold">Expiry Time <span class="text-danger">*</span></label>
+									<input id="annExpiryTime" type="datetime-local" name="ExpiryTime" class="form-control rounded-3" required />
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Audience & Settings Card -->
+					<div class="card border-0 shadow-sm mb-4 rounded-4">
+						<div class="card-body p-4">
+							<h6 class="text-primary fw-bold mb-3"><i class="fa fa-users me-2"></i>Audience & Settings</h6>
+							
+							<div class="row mb-3">
+								<div class="col-md-6">
+									<label class="form-label fw-semibold">Notification Group</label>
+									<select id="annNotificationGroupId" name="NotificationGroupId" class="form-select rounded-3">
+										<option value="">-- Select Group --</option>
+										@if (Model.NotificationGroups != null && Model.NotificationGroups.Any())
+										{
+											foreach (var group in Model.NotificationGroups)
+											{
+												<option value="@group.Value">@group.Text</option>
+											}
+										}
+									</select>
+								</div>
+								<div class="col-md-6">
+									<label class="form-label fw-semibold">Ministry <span class="text-muted fw-normal">(Optional)</span></label>
+									<select id="annMinistryId" class="form-select rounded-3">
+										<option value="">-- Select Ministry --</option>
+										@if (Model.MinistriesList != null && Model.MinistriesList.Any())
+										{
+											foreach (var ministry in Model.MinistriesList)
+											{
+												<option value="@ministry.Value">@ministry.Text</option>
+											}
+										}
+									</select>
+								</div>
+							</div>
+
+							<div class="row mb-3">
+								<div class="col-md-6">
+									<label class="form-label fw-semibold">Growth Center <span class="text-muted fw-normal">(Optional)</span></label>
+									<select id="annGrowthCenterId" class="form-select rounded-3">
+										<option value="">-- Select Growth Center --</option>
+										@if (Model.GrowthCentersList != null && Model.GrowthCentersList.Any())
+										{
+											foreach (var gc in Model.GrowthCentersList)
+											{
+												<option value="@gc.Value">@gc.Text</option>
+											}
+										}
+									</select>
+								</div>
+								<div class="col-md-6">
+									<label class="form-label fw-semibold">RCPS <span class="text-muted fw-normal">(Optional)</span></label>
+									<select id="annRcpsId" class="form-select rounded-3">
+										<option value="">-- Select RCPS --</option>
+										@if (Model.RcpsList != null && Model.RcpsList.Any())
+										{
+											foreach (var rcps in Model.RcpsList)
+											{
+												<option value="@rcps.Value">@rcps.Text</option>
+											}
+										}
+									</select>
+								</div>
+							</div>
+
+							<!-- Members Section (shown only when Group ID = 3) -->
+							<div id="membersSection" style="display: none;" class="p-3 bg-white border rounded-3 mb-3">
+								<div class="mb-3">
+									<label class="form-label fw-semibold text-primary">Select Specific Members</label>
+									<select id="annMemberSelect" class="form-select select2-members">
+										<option value="">-- Search and Select Members --</option>
+										@if (Model.Members != null && Model.Members.Any())
+										{
+											foreach (var member in Model.Members)
+											{
+												<option value="@member.Value">@member.Text</option>
+											}
+										}
+									</select>
+								</div>
+
+								<div>
+									<label class="form-label fw-semibold">Selected Members Preview</label>
+									<div id="selectedMembersPreview" class="border rounded-3 p-3 bg-light" style="min-height: 80px; max-height: 200px; overflow-y: auto;">
+										<div class="text-muted text-center mt-2"><i class="fa fa-user-times me-2"></i>No members selected</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="row g-3 mt-2">
+								<div class="col-md-4">
+									<div class="form-check form-switch fs-5">
+										<input id="annIsChurchWide" class="form-check-input cursor-pointer" type="checkbox" role="switch" />
+										<label class="form-check-label fs-6 mt-1 ms-2 cursor-pointer" for="annIsChurchWide">Church Wide</label>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-check form-switch fs-5">
+										<input id="annRequiresReminder" class="form-check-input cursor-pointer" type="checkbox" role="switch" />
+										<label class="form-check-label fs-6 mt-1 ms-2 cursor-pointer" for="annRequiresReminder">Requires Reminder</label>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-check form-switch fs-5">
+										<input id="annIsActive" class="form-check-input cursor-pointer" type="checkbox" role="switch" checked />
+										<label class="form-check-label fs-6 mt-1 ms-2 cursor-pointer" for="annIsActive">Active Status</label>
+									</div>
+								</div>
+							</div>
+							
+							<hr class="my-4 text-muted" />
+
+							<div class="row g-3">
+								<div class="col-md-6">
+									<div class="form-check form-switch fs-5 text-primary">
+										<input id="annSendSMS" class="form-check-input cursor-pointer" type="checkbox" role="switch" />
+										<label class="form-check-label fs-6 mt-1 ms-2 text-dark cursor-pointer" for="annSendSMS">
+											<i class="fa fa-commenting me-1 text-primary"></i> Send SMS
+										</label>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-check form-switch fs-5 text-primary">
+										<input id="annSendEmail" class="form-check-input cursor-pointer" type="checkbox" role="switch" />
+										<label class="form-check-label fs-6 mt-1 ms-2 text-dark cursor-pointer" for="annSendEmail">
+											<i class="fa fa-envelope me-1 text-primary"></i> Send Email
+										</label>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+
 					<input type="hidden" id="selectedMembersIds" name="SelectedMembersIds" />
 				</div>
-				<div class="modal-footer">
-					<button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
-					<button class="btn btn-primary" type="submit"><i class="fa fa-save me-1"></i>Save</button>
+				<div class="modal-footer border-0 bg-white p-3 rounded-bottom-4">
+					<button class="btn btn-light btn-lg px-4 rounded-pill" type="button" data-bs-dismiss="modal">Cancel</button>
+					<button class="btn btn-primary btn-lg px-4 rounded-pill shadow-sm" type="submit">
+						<i class="fa fa-paper-plane me-2"></i><span id="saveBtnText">Publish Announcement</span>
+					</button>
 				</div>
 			</form>
 		</div>
 	</div>
 </div>
-
-<!-- Include Select2 CSS and JS -->
-@* <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> *@
-@* <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> *@
 
 <script>
 	// Global variables
@@ -157,15 +223,16 @@
 	function updateMembersPreview() {
 		const previewContainer = $('#selectedMembersPreview');
 		if (selectedMembers.length === 0) {
-			previewContainer.html('<div class="text-muted text-center">No members selected</div>');
+			previewContainer.html('<div class="text-muted text-center mt-2"><i class="fa fa-user-times me-2"></i>No members selected</div>');
 			$('#selectedMembersIds').val('');
 		} else {
 			let html = '<div class="d-flex flex-wrap gap-2">';
 			selectedMembers.forEach(member => {
 				html += `
-					<div class="badge bg-primary p-2 d-flex align-items-center gap-2" style="font-size: 14px;">
+					<div class="badge bg-primary bg-opacity-10 text-primary border border-primary p-2 px-3 rounded-pill d-flex align-items-center gap-2" style="font-size: 14px;">
+						<i class="fa fa-user-circle"></i>
 						<span>${escapeHtml(member.text)}</span>
-						<button type="button" class="btn-close btn-close-white" style="font-size: 10px;" onclick="removeMember('${member.id}')"></button>
+						<button type="button" class="btn-close btn-close-dark ms-1" style="font-size: 10px;" onclick="removeMember('${member.id}')"></button>
 					</div>
 				`;
 			});
@@ -251,7 +318,11 @@
 		// Show/hide members section based on notification group selection
 		$('#annNotificationGroupId').on('change', function() {
 			const selectedGroupId = $(this).val();
-			console.log('Selected Group ID:', selectedGroupId); // Debug log
+			const selectedGroupText = $(this).find("option:selected").text().toLowerCase().trim();
+
+			if (selectedGroupText === 'all') {
+				$('#annIsChurchWide').prop('checked', true);
+			}
 
 			if (selectedGroupId === '3') {
 				$('#membersSection').slideDown(300);
@@ -277,6 +348,18 @@
 			}
 		});
 
+		// Dynamic UI Updates based on mode (Create vs Edit)
+		$('#createAnnouncementModal').on('show.bs.modal', function() {
+			const isEdit = $('#annEditId').val() !== '';
+			if (isEdit) {
+				$('#modalAnnouncementTitle').html('<i class="fa fa-edit me-2"></i>Edit Announcement');
+				$('#saveBtnText').text('Save Changes');
+			} else {
+				$('#modalAnnouncementTitle').html('<i class="fa fa-bullhorn me-2"></i>New Announcement');
+				$('#saveBtnText').text('Publish Announcement');
+			}
+		});
+
 		// Reset form when modal is hidden
 		$('#createAnnouncementModal').on('hidden.bs.modal', function() {
 			$('#createAnnouncementForm')[0].reset();
@@ -284,31 +367,34 @@
 			selectedMembers = [];
 			updateMembersPreview();
 			$('#annNotificationGroupId').val('').trigger('change');
-		});
-
-		// Optional: Log form submission
-		$('#createAnnouncementForm').on('submit', function() {
-			console.log('Selected Members IDs:', $('#selectedMembersIds').val());
+			$('#annMinistryId').val('').trigger('change');
+			$('#annGrowthCenterId').val('').trigger('change');
+			$('#annRcpsId').val('').trigger('change');
 		});
 	});
 </script>
 
 <style>
-	/* Custom styles for selected members preview */
-	#selectedMembersPreview .badge {
-		margin: 4px;
+	.cursor-pointer {
+		cursor: pointer;
 	}
-
+	.form-control:focus, .form-select:focus {
+		box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+		border-color: #86b7fe;
+	}
+	.form-switch .form-check-input {
+		width: 2.5em;
+		height: 1.25em;
+	}
 	.select2-container--default .select2-selection--single {
-		height: 38px;
-		padding: 5px;
+		height: 45px;
+		padding: 8px;
+		border-radius: 0.5rem;
+		border: 1px solid #dee2e6;
 	}
-
-		.select2-container--default .select2-selection--single .select2-selection__arrow {
-			height: 36px;
-		}
-
-	/* Ensure Select2 dropdown appears above modal */
+	.select2-container--default .select2-selection--single .select2-selection__arrow {
+		height: 43px;
+	}
 	.select2-container {
 		z-index: 9999;
 	}

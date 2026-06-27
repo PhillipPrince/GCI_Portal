@@ -1,4 +1,4 @@
-﻿using GCI_Admin.DBOperations;
+using GCI_Admin.DBOperations;
 using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
@@ -16,16 +16,18 @@ namespace GCI_Admin.Services.Service
         private readonly AppDbContext _context;
         private readonly Member member;
         private readonly SessionManager _sessionManager;
+        private readonly SystemConfigRepository _systemConfigRepository;
 
 
 
-        public AnnouncementsService(AnnouncementsRepository repo, CommunicationService communicationService, AppDbContext context, SessionManager session)
+        public AnnouncementsService(AnnouncementsRepository repo, CommunicationService communicationService, AppDbContext context, SessionManager session, SystemConfigRepository systemConfigRepository)
         {
             _repo = repo;
             _communicationService = communicationService;
             _context = context;
             _sessionManager = session;
             member =_sessionManager.GetUserSession<Member>();
+            _systemConfigRepository = systemConfigRepository;
         }
 
         public async Task<ApiResponse<Notification>> CreateAnnouncementAsync([FromBody] NotificationDto dto)
@@ -45,6 +47,17 @@ namespace GCI_Admin.Services.Service
                         Code = "400",
                         Message = result.Message
                     };
+                }
+
+                // Save image if present
+                if (!string.IsNullOrEmpty(dto.ImageBase64))
+                {
+                    var imageBasePath = await GCI_Admin.Utils.SystemConfigHelper.GetImageBasePathAsync(_systemConfigRepository);
+                    if (!string.IsNullOrEmpty(imageBasePath))
+                    {
+                        var imageBytes = GCI_Admin.Utils.ImageHelper.RemoveBase64Prefix(dto.ImageBase64);
+                        GCI_Admin.Utils.ImageHelper.SaveImage(imageBytes, imageBasePath, $"notification_{result.Data.NotificationId}", "jpg");
+                    }
                 }
 
                 // Fire-and-forget SMS (DO NOT block API)
@@ -190,6 +203,17 @@ namespace GCI_Admin.Services.Service
                     response.Code = "400";
                     response.Message = result.Message;
                     return response;
+                }
+
+                // Save image if present
+                if (!string.IsNullOrEmpty(dto.ImageBase64))
+                {
+                    var imageBasePath = await GCI_Admin.Utils.SystemConfigHelper.GetImageBasePathAsync(_systemConfigRepository);
+                    if (!string.IsNullOrEmpty(imageBasePath))
+                    {
+                        var imageBytes = GCI_Admin.Utils.ImageHelper.RemoveBase64Prefix(dto.ImageBase64);
+                        GCI_Admin.Utils.ImageHelper.SaveImage(imageBytes, imageBasePath, $"notification_{id}", "jpg");
+                    }
                 }
 
                 response.IsSuccess = true;

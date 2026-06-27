@@ -10,40 +10,60 @@ namespace GCI_Admin.Models
         public int NotificationId { get; set; }
 
         [Required]
-        [StringLength(250)]
+        [MaxLength(200)]
         public string Title { get; set; }
-
 
         [Required]
         public string Message { get; set; }
 
+        [Required]
         public int CreatedById { get; set; }
 
-        public bool IsChurchWide { get; set; }
+
+
+        public bool IsChurchWide { get; set; } = false;
 
         public int? MinistryId { get; set; }
 
-        public DateTime NotificationTime { get; set; }
+
+        public int? RcpsId { get; set; }
+        public int? GrowthCenterId { get; set; }
+
+        public DateTime? NotificationTime { get; set; }
 
         public DateTime? ExpiryTime { get; set; }
 
-        public bool RequiresReminder { get; set; }
+        public bool RequiresReminder { get; set; } = false;
 
-        public bool SendSMS { get; set; }
+        public bool SendSMS { get; set; } = false;
+        public bool SendPushNotification { get; set; } = false;
 
-        public bool SendEmail { get; set; }
+        public bool SendEmail { get; set; } = false;
 
-        [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public DateTime? UpdatedAt { get; set; }
 
         public bool IsActive { get; set; } = true;
         public int? NotificationGroupId { get; set; }
-        public bool IsSent { get; set; }
+        public bool IsSent { get; set; } = false;
+        public int? SmsSentCount { get; set; } = 0;
+        public int? PushSentCount { get; set; } = 0;
+        public string PushNotificationType { get; set; } = "general";
+        public string DeepLinkScreen { get; set; } = "notifications";
+        public string? DeepLinkId { get; set; }
+
+        [NotMapped]
+        public bool IsCareRequestNotification { get; set; } = false;
+        [NotMapped]
+        public int CareRequestId { get; set; }
+
+
+        [NotMapped]
+        public byte[]? ImageBase64 { get; set; }
     }
-   
-        public class NotificationGroup
+
+    public class NotificationGroup
         {
         [Key]
         public int GroupId { get; set; }

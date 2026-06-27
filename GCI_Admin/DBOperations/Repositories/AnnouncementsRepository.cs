@@ -35,7 +35,10 @@ namespace GCI_Admin.DBOperations.Repositories
                     IsActive = dto.IsActive,
                     CreatedById = dto.CreatedById.Value,
                     NotificationGroupId = dto.NotificationGroupId,
-                    IsSent = false
+                    IsSent = false,
+                    SendPushNotification=true,
+                    GrowthCenterId=0,
+                    RcpsId=0
                 };
 
                 _context.Notifications.Add(entity);

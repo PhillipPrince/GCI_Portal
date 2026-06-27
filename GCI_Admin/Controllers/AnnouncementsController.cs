@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
     using Microsoft.AspNetCore.Mvc;
@@ -12,11 +12,22 @@ namespace GCI_Admin.Controllers
     {
         private readonly IAnnouncementsService _announcementsService;
         private readonly IMembersService _membersService;
+        private readonly IMinistriesService _ministriesService;
+        private readonly IGrowthCentersService _growthCentersService;
+        private readonly IRcpsService _rcpsService;
 
-        public AnnouncementsController(IAnnouncementsService announcementsService, IMembersService membersService)
+        public AnnouncementsController(
+            IAnnouncementsService announcementsService, 
+            IMembersService membersService,
+            IMinistriesService ministriesService,
+            IGrowthCentersService growthCentersService,
+            IRcpsService rcpsService)
         {
             _announcementsService = announcementsService;
             _membersService = membersService;
+            _ministriesService = ministriesService;
+            _growthCentersService = growthCentersService;
+            _rcpsService = rcpsService;
         }
 
         public async Task<IActionResult> Index()
@@ -52,8 +63,7 @@ namespace GCI_Admin.Controllers
             NotificationDto notification = new NotificationDto();
             var notificationGroupsResponse = _announcementsService.GetAllNotificationGroupsAsync().Result.Data;
             
-            notification.NotificationGroups =
-                notification.NotificationGroups = notificationGroupsResponse.Select(m => new DropdownItem
+            notification.NotificationGroups = notificationGroupsResponse.Select(m => new DropdownItem
                       {
                           Value = m.GroupId.ToString(),
                           Text = m.GroupName.ToString()
@@ -65,6 +75,26 @@ namespace GCI_Admin.Controllers
                 Text = $"{m.FirstName} {m.OtherNames}"
             }).ToList();
 
+            var ministriesResponse = _ministriesService.GetAllMinistriesAsync().Result.Data;
+            notification.MinistriesList = ministriesResponse?.Select(m => new DropdownItem
+            {
+                Value = m.MinistryId.ToString(),
+                Text = m.MinistryName
+            }).ToList() ?? new List<DropdownItem>();
+
+            var growthCentersResponse = _growthCentersService.GetAllGrowthCentersAsync().Result.Data;
+            notification.GrowthCentersList = growthCentersResponse?.Select(g => new DropdownItem
+            {
+                Value = g.GrowthCenterId.ToString(),
+                Text = g.CenterName
+            }).ToList() ?? new List<DropdownItem>();
+
+            var rcpsResponse = _rcpsService.GetAllRcpsAsync().Result.Data;
+            notification.RcpsList = rcpsResponse?.Select(r => new DropdownItem
+            {
+                Value = r.Id.ToString(),
+                Text = r.Name
+            }).ToList() ?? new List<DropdownItem>();
 
             return View("_CreateAnnouncement",  notification);
         }
