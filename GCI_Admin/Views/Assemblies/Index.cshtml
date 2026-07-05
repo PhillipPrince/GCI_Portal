@@ -249,7 +249,7 @@
             initializeDataTables();
 
             // Handle tab changes - update button text and functionality
-            $('#assemblyTabs button').on('shown.bs.tab', function (e) {
+            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
                 const tabId = $(e.target).attr('id');
                 
                 if (tabId === 'leaders-tab') {
@@ -362,49 +362,23 @@
         }
 
         function initializeDataTables() {
-            // Initialize Assemblies DataTable
-            if ($.fn.DataTable.isDataTable('#assembliesTable')) {
-                $('#assembliesTable').DataTable().destroy();
+            // Both #assembliesTable and #assemblyLeadersTable have class 'datatable'
+            // and are handled by the global GCIDataTable initializer if it exists
+            if (typeof GCIDataTable !== 'undefined') {
+                GCIDataTable.init('#assembliesTable');
+                GCIDataTable.init('#assemblyLeadersTable');
+            } else if ($.fn.DataTable) {
+                // Fallback if GCIDataTable is not available
+                if ($.fn.DataTable.isDataTable('#assembliesTable')) {
+                    $('#assembliesTable').DataTable().destroy();
+                }
+                $('#assembliesTable').DataTable({ pageLength: 10 });
+                
+                if ($.fn.DataTable.isDataTable('#assemblyLeadersTable')) {
+                    $('#assemblyLeadersTable').DataTable().destroy();
+                }
+                $('#assemblyLeadersTable').DataTable({ pageLength: 10 });
             }
-
-            $('#assembliesTable').DataTable({
-                pageLength: 10,
-                language: {
-                    search: "Search assemblies:",
-                    lengthMenu: "Show _MENU_ assemblies",
-                    info: "Showing _START_ to _END_ of _TOTAL_ assemblies",
-                    emptyTable: "No assemblies available"
-                },
-                columnDefs: [
-                    {
-                        targets: -1,
-                        orderable: false,
-                        searchable: false
-                    }
-                ]
-            });
-
-            // Initialize Leaders DataTable
-            if ($.fn.DataTable.isDataTable('#assemblyLeadersTable')) {
-                $('#assemblyLeadersTable').DataTable().destroy();
-            }
-
-            $('#assemblyLeadersTable').DataTable({
-                pageLength: 10,
-                language: {
-                    search: "Search leaders:",
-                    lengthMenu: "Show _MENU_ leaders",
-                    info: "Showing _START_ to _END_ of _TOTAL_ leaders",
-                    emptyTable: "No assembly leaders found"
-                },
-                columnDefs: [
-                    {
-                        targets: -1,
-                        orderable: false,
-                        searchable: false
-                    }
-                ]
-            });
         }
 
         // Assembly functions

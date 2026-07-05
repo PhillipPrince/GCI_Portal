@@ -13,11 +13,13 @@ namespace GCI_Admin.Services.Service
     {
         private readonly AssembliesRepository _assembliesRepository;
         private readonly AppDbContext _context;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public AssembliesService(AssembliesRepository assembliesRepository, AppDbContext context)
+        public AssembliesService(AssembliesRepository assembliesRepository, AppDbContext context, ICloudinaryService cloudinaryService)
         {
             _assembliesRepository = assembliesRepository;
             _context = context;
+            _cloudinaryService = cloudinaryService;
         }
 
         // ✅ CREATE ASSEMBLY
@@ -249,6 +251,24 @@ namespace GCI_Admin.Services.Service
                 {
                     string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
                     Loggers.EventLogs($"Saved profile image for assembly leader {result.Data.AssemblyLeaderId} at {saved}");
+
+                    try
+                    {
+                        var cloudinaryUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.ProfileImageBase64);
+                        if (!string.IsNullOrEmpty(cloudinaryUrl))
+                        {
+                            var memberToUpdate = await _context.Members.FindAsync(result.Data.MemberId);
+                            if (memberToUpdate != null)
+                            {
+                                memberToUpdate.ProfilePictureUrl = cloudinaryUrl;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Loggers.DoLogs($"Cloudinary upload failed for assembly leader member {result.Data.MemberId}: {ex}");
+                    }
                 }
 
                 response.Data = result.Data;
@@ -318,6 +338,24 @@ namespace GCI_Admin.Services.Service
                 {
                     string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
                     Loggers.EventLogs($"Saved profile image for assembly leader {result.Data.AssemblyLeaderId} on update at {saved}");
+
+                    try
+                    {
+                        var cloudinaryUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.ProfileImageBase64);
+                        if (!string.IsNullOrEmpty(cloudinaryUrl))
+                        {
+                            var memberToUpdate = await _context.Members.FindAsync(result.Data.MemberId);
+                            if (memberToUpdate != null)
+                            {
+                                memberToUpdate.ProfilePictureUrl = cloudinaryUrl;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Loggers.DoLogs($"Cloudinary upload failed for assembly leader member {result.Data.MemberId}: {ex}");
+                    }
                 }
 
                 response.Data = result.Data;

@@ -36,6 +36,7 @@ var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.Configure<SmsConfig>(builder.Configuration.GetSection("SmsConfig"));
 builder.Services.Configure<DevelopmentSettings>(builder.Configuration.GetSection("DevelopmentSettings"));
 builder.Services.Configure<JwtSettings>(jwtSettings);
+builder.Services.Configure<CloudinaryConfig>(builder.Configuration.GetSection("Cloudinary"));
 
 // ================= AUTH SERVICES =================
 builder.Services.AddScoped<JwtTokenService>();
@@ -119,6 +120,7 @@ builder.Services.AddAuthentication(options =>
 
 // ================= INFRASTRUCTURE =================
 builder.Services.AddHttpClient<CommunicationService>();
+builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession(options =>
 {
@@ -144,6 +146,8 @@ builder.Services.AddScoped<AuthRepository>();
 builder.Services.AddScoped<RcpsRepository>();
 builder.Services.AddScoped<ReportsRepository>();
 builder.Services.AddScoped<MeetingsRepository>();
+builder.Services.AddScoped<GalleryRepository>();
+builder.Services.AddScoped<GECPositionRepository>();
 
 // ================= SERVICES =================
 builder.Services.AddScoped<IEventsService, EventsService>();
@@ -162,6 +166,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRcpsService, RcpsService>();
 builder.Services.AddScoped<IReportsService, ReportsService>();
 builder.Services.AddScoped<IMeetingsService, MeetingsService>();
+builder.Services.AddScoped<IGalleryService, GalleryService>();
+builder.Services.AddScoped<IGECPositionService, GECPositionService>();
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
 builder.Services.AddScoped<SessionManager>();
 
@@ -174,15 +181,14 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        db.Database.ExecuteSqlRaw("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Events') AND name = 'NotificationGroupId') ALTER TABLE Events ADD NotificationGroupId INT NULL;");
         db.Database.ExecuteSqlRaw("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Events') AND name = 'QrCode') ALTER TABLE Events ADD QrCode NVARCHAR(255) NULL;");
         db.Database.ExecuteSqlRaw("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('EventRegistrations') AND name = 'HasAttended') ALTER TABLE EventRegistrations ADD HasAttended BIT NULL;");
+        db.Database.ExecuteSqlRaw("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('AnnualThemes') AND name = 'Assembly') ALTER TABLE AnnualThemes ADD Assembly NVARCHAR(150) NULL;");
         
         // Populate existing events with a QrCode if they don't have one
         db.Database.ExecuteSqlRaw("UPDATE Events SET QrCode = LOWER(REPLACE(NEWID(), '-', '')) WHERE QrCode IS NULL OR QrCode = '';");
         db.Database.ExecuteSqlRaw("UPDATE EventRegistrations SET HasAttended = 0 WHERE HasAttended IS NULL;");
         
-        Console.WriteLine("Database schema verified: NotificationGroupId, QrCode, and HasAttended columns checked.");
     }
     catch (Exception ex)
     {

@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.DeaconDetailsViewModel
+@model GCI_Admin.Models.DeaconDetailsViewModel
 
 @{
     ViewData["Title"] = "Deacon Details";
@@ -81,7 +81,8 @@
                             <!-- Profile Image Display from Byte Array -->
                             <div class="profile-image-container mb-3">
                                 @{
-                                    // Check if member has profile image (byte array)
+                                    // Check if member has profile image (Cloudinary or byte array)
+                                    bool hasCloudinaryImage = !string.IsNullOrEmpty(member?.ProfilePictureUrl);
                                     var hasProfileImage = member?.ProfileImage != null && member.ProfileImage.Length > 0;
                                     
                                     // Convert byte array to base64 for display
@@ -90,16 +91,19 @@
                                     {
                                         imageBase64 = Convert.ToBase64String(member.ProfileImage);
                                     }
+                                    
+                                    string imageUrl = hasCloudinaryImage ? member.ProfilePictureUrl : (hasProfileImage ? $"data:image/jpeg;base64,{imageBase64}" : null);
+                                    bool hasImage = !string.IsNullOrEmpty(imageUrl);
                                 }
                                 
-                                @if (hasProfileImage)
+                                @if (hasImage)
                                 {
                                     <div class="profile-image-wrapper">
-                                        <img src="data:image/jpeg;base64,@imageBase64" 
+                                        <img src="@imageUrl" 
                                              alt="Deacon Profile" 
                                              class="rounded-circle profile-image"
                                              style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); cursor: pointer;"
-                                             onclick="viewFullImage('data:image/jpeg;base64,@imageBase64')"
+                                             onclick="viewFullImage('@imageUrl')"
                                              onerror="this.onerror=null; this.src='/images/default-avatar.png';" />
                                         <div class="profile-image-badge mt-2">
                                             <span class="badge bg-primary">
@@ -121,10 +125,10 @@
                                 <i class="fa fa-tag me-1"></i> Deacon ID: @deacon.DeaconId
                             </p>
                             
-                            @if (hasProfileImage)
+                            @if (hasImage)
                             {
                                 <div class="mt-2">
-                                    <button class="btn btn-sm btn-outline-primary" onclick="viewFullImage('data:image/jpeg;base64,@imageBase64')">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewFullImage('@imageUrl')">
                                         <i class="fa fa-expand"></i> View Full Image
                                     </button>
                                 </div>

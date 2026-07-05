@@ -1,0 +1,328 @@
+@model List<GCI_Admin.Models.DTOs.GalleryImageDto>
+@{
+    ViewData["Title"] = "Gallery Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0"><i class="fa fa-images me-2 text-primary"></i>Gallery Management</h2>
+        <p class="text-muted mb-0 mt-1">Manage website background images and media gallery</p>
+    </div>
+    <div>
+        <button class="btn btn-primary" onclick="openUploadModal()">
+            <i class="fa fa-upload me-1"></i> Upload Image
+        </button>
+    </div>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Stats bar -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                    <i class="fa fa-image text-primary fa-lg"></i>
+                </div>
+                <div>
+                    <div class="fs-4 fw-bold text-primary">@Model.Count</div>
+                    <div class="text-muted small">Total Images</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                    <i class="fa fa-globe text-success fa-lg"></i>
+                </div>
+                <div>
+                    <div class="fs-4 fw-bold text-success">Live</div>
+                    <div class="text-muted small">Website Slideshow Status</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                    <i class="fa fa-hdd text-info fa-lg"></i>
+                </div>
+                <div>
+                    <div class="fs-4 fw-bold text-info">
+                        @(Model.Count > 0 ? $"{(Model.Sum(m => m.SizeBytes) / 1024.0 / 1024.0):F1} MB" : "0 MB")
+                    </div>
+                    <div class="text-muted small">Total Storage Used</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image grid -->
+@if (Model.Count == 0)
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="fa fa-images fa-4x text-muted mb-3 d-block"></i>
+            <h5 class="text-muted">No images in the gallery yet</h5>
+            <p class="text-muted">Upload images to have them appear in the website's background slideshow.</p>
+            <button class="btn btn-primary" onclick="openUploadModal()">
+                <i class="fa fa-upload me-2"></i>Upload First Image
+            </button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-3" id="galleryGrid">
+        @foreach (var image in Model)
+        {
+            <div class="col-xl-3 col-lg-4 col-md-6" id="img-@image.FileName.Replace(".", "-")">
+                <div class="card border-0 shadow-sm h-100 gallery-card">
+                    <div class="gallery-img-wrapper position-relative">
+                        <img src="data:image/jpeg;base64,@image.ImageBytes" alt="@image.FileName"
+                             class="gallery-thumb"
+                             onerror="this.src='/images/placeholder.png'"
+                             onclick="previewImage('data:image/jpeg;base64,@image.ImageBytes', '@image.FileName')" />
+                        <div class="gallery-overlay">
+                            <button class="btn btn-sm btn-light me-1" onclick="previewImage('data:image/jpeg;base64,@image.ImageBytes', '@image.FileName')" title="Preview">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteImage('@image.FileName')" title="Delete">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body py-2 px-3">
+                        <div class="text-truncate small fw-semibold" title="@image.FileName">@image.FileName</div>
+                        <div class="text-muted" style="font-size:0.75rem">
+                            @(image.SizeBytes / 1024) KB &bull; @image.CreatedAt.ToString("dd MMM yyyy")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- ── Upload Modal ──────────────────────────────────────────────────────── -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-upload me-2"></i>Upload Gallery Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Drop zone -->
+                <div id="dropZone" class="border border-2 border-dashed rounded-3 text-center p-5 mb-3"
+                     style="border-color: #dee2e6 !important; cursor:pointer; transition: all 0.2s;"
+                     onclick="document.getElementById('fileInput').click()"
+                     ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+                    <i class="fa fa-cloud-upload-alt fa-3x text-muted mb-2 d-block"></i>
+                    <div class="fw-semibold mb-1">Click or drag &amp; drop to upload</div>
+                    <div class="text-muted small">JPG, PNG, WEBP, GIF &bull; Max 10 MB</div>
+                </div>
+
+                <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp,.gif" class="d-none"
+                       onchange="onFileSelected(this)" />
+
+                <!-- Preview -->
+                <div id="previewBox" class="d-none text-center">
+                    <img id="uploadPreview" src="#" alt="Preview"
+                         class="img-fluid rounded mb-2" style="max-height:200px;" />
+                    <div id="selectedFileName" class="small text-muted"></div>
+                </div>
+
+                <!-- Progress -->
+                <div id="uploadProgress" class="d-none mt-2">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:100%"></div>
+                    </div>
+                    <div class="text-center small text-muted mt-1">Uploading...</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" id="uploadBtn" onclick="submitUpload()" disabled>
+                    <i class="fa fa-upload me-1"></i> Upload
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Preview Modal ─────────────────────────────────────────────────────── -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewModalTitle">Image Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-2">
+                <img id="previewModalImg" src="#" alt="Preview" class="img-fluid rounded" style="max-height:70vh;" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .gallery-img-wrapper {
+        height: 180px;
+        overflow: hidden;
+        border-radius: 8px 8px 0 0;
+    }
+    .gallery-thumb {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+    .gallery-card:hover .gallery-thumb {
+        transform: scale(1.04);
+    }
+    .gallery-overlay {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        opacity: 0;
+        transition: opacity 0.2s;
+        display: flex;
+        gap: 4px;
+    }
+    .gallery-card:hover .gallery-overlay {
+        opacity: 1;
+    }
+    #dropZone.drag-over {
+        background: rgba(13,110,253,0.06) !important;
+        border-color: #0d6efd !important;
+    }
+</style>
+
+@section Scripts {
+<script>
+    let selectedFile = null;
+
+    function openUploadModal() {
+        selectedFile = null;
+        document.getElementById('fileInput').value = '';
+        document.getElementById('previewBox').classList.add('d-none');
+        document.getElementById('uploadProgress').classList.add('d-none');
+        document.getElementById('uploadBtn').disabled = true;
+        new bootstrap.Modal(document.getElementById('uploadModal')).show();
+    }
+
+    function onFileSelected(input) {
+        if (!input.files.length) return;
+        selectedFile = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            document.getElementById('uploadPreview').src = e.target.result;
+            document.getElementById('selectedFileName').textContent = selectedFile.name + ' (' + (selectedFile.size / 1024).toFixed(1) + ' KB)';
+            document.getElementById('previewBox').classList.remove('d-none');
+            document.getElementById('uploadBtn').disabled = false;
+        };
+        reader.readAsDataURL(selectedFile);
+    }
+
+    function onDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+    function onDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+    function onDrop(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
+        const dt = e.dataTransfer;
+        if (dt.files.length) {
+            const fakeInput = { files: dt.files };
+            onFileSelected(fakeInput);
+        }
+    }
+
+    async function submitUpload() {
+        if (!selectedFile) return;
+        document.getElementById('uploadProgress').classList.remove('d-none');
+        document.getElementById('uploadBtn').disabled = true;
+
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const base64Data = e.target.result;
+            
+            try {
+                const response = await fetch('@Url.Action("Upload", "Gallery")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imageBase64: base64Data })
+                });
+                const result = await response.json();
+
+                bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
+
+                if (result.isSuccess) {
+                    await Swal.fire({ icon: 'success', title: 'Uploaded!', text: result.message, timer: 2000, showConfirmButton: false });
+                    location.reload();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Upload Failed', text: result.message });
+                    document.getElementById('uploadBtn').disabled = false;
+                    document.getElementById('uploadProgress').classList.add('d-none');
+                }
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+                document.getElementById('uploadBtn').disabled = false;
+                document.getElementById('uploadProgress').classList.add('d-none');
+            }
+        };
+        reader.readAsDataURL(selectedFile);
+    }
+
+    function previewImage(url, name) {
+        document.getElementById('previewModalImg').src = url;
+        document.getElementById('previewModalTitle').textContent = name;
+        new bootstrap.Modal(document.getElementById('previewModal')).show();
+    }
+
+    async function deleteImage(filename) {
+        const result = await Swal.fire({
+            title: 'Delete Image?',
+            text: `"${filename}" will be permanently removed from the gallery and the website slideshow.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Yes, Delete',
+            cancelButtonText: 'Cancel'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            const response = await fetch('@Url.Action("Delete", "Gallery")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `filename=${encodeURIComponent(filename)}`
+            });
+            const data = await response.json();
+            if (data.isSuccess) {
+                await Swal.fire({ icon: 'success', title: 'Deleted!', timer: 1500, showConfirmButton: false });
+                // Remove card from DOM without reload
+                const safe = filename.replace(/\./g, '-');
+                const card = document.getElementById(`img-${safe}`);
+                if (card) card.remove();
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+            }
+        } catch (e) {
+            Swal.fire({ icon: 'error', title: 'Error', text: e.message });
+        }
+    }
+</script>
+}

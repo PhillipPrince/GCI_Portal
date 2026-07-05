@@ -36,9 +36,12 @@ namespace GCI_Admin.DBOperations.Repositories
                     CreatedById = dto.CreatedById.Value,
                     NotificationGroupId = dto.NotificationGroupId,
                     IsSent = false,
-                    SendPushNotification=true,
-                    GrowthCenterId=0,
-                    RcpsId=0
+                    SendPushNotification = true,
+                    GrowthCenterId = 0,
+                    RcpsId = 0,
+                    PushNotificationType = dto.PushNotificationType ?? "general",
+                    DeepLinkScreen = dto.DeepLinkScreen ?? "notifications",
+                    DeepLinkId = dto.DeepLinkId
                 };
 
                 _context.Notifications.Add(entity);

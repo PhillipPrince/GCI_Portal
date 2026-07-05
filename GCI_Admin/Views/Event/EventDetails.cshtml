@@ -4,12 +4,17 @@
     ViewData["Title"] = "Event Details - " + Model.Event.Title;
 }
 
+@Html.AntiForgeryToken()
+
 <div class="row mb-4">
     <div class="col-md-8">
         <h2 class="fw-bold mb-1">@Model.Event.Title</h2>
         <p class="text-muted mb-0">Event Details</p>
     </div>
     <div class="col-md-4 text-end">
+        <button class="btn btn-outline-primary me-2" onclick="copyGuestRegistrationLink(@Model.Event.EventId)">
+            <i class="fa fa-link me-2"></i>Copy Guest Link
+        </button>
         <a href="@Url.Action("Index", "Event")" class="btn btn-outline-secondary">
             <i class="fa fa-arrow-left me-2"></i>Back to Events
         </a>
@@ -17,6 +22,17 @@
 </div>
 
 <div class="row">
+    @if (Model.Event.EventImage != null && Model.Event.EventImage.Length > 0)
+    {
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-3 text-center">
+                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(Model.Event.EventImage)" class="img-fluid rounded-3" style="max-height: 400px; width: 100%; object-fit: cover;" alt="Event Cover Image" />
+                </div>
+            </div>
+        </div>
+    }
+
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white border-0 py-3">
@@ -182,6 +198,37 @@
                 </div>
             </div>
         </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa fa-users-cog me-2 text-primary"></i>
+                    Registration Age Groups
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info border-0 bg-info bg-opacity-10 d-flex align-items-center">
+                    <i class="fa fa-info-circle fa-lg text-info me-3"></i>
+                    <div>
+                        Configure the age group options presented to guests during registration. Add them one by one below.
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Add Age Group</label>
+                    <div class="input-group mb-2">
+                        <input type="text" id="newAgeGroupInput" class="form-control" placeholder="e.g. Youths (12-20)" />
+                        <button class="btn btn-outline-secondary" type="button" onclick="addAgeGroup()">Add</button>
+                    </div>
+                    <div id="ageGroupsListContainer" class="d-flex flex-wrap gap-2 mt-3">
+                        <!-- Chips will be rendered here -->
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary mt-2" onclick="saveAgeGroups()">
+                    <i class="fa fa-save me-2"></i>Save Age Groups
+                </button>
+            </div>
+        </div>
     </div>
 
     <div class="col-lg-4">
@@ -233,7 +280,12 @@
                     }
                     
                     <hr>
-                    
+
+                    <button class="btn btn-primary"
+                            onclick="openNotificationModal(@Model.Event.EventId)">
+                        <i class="fa fa-bell me-2"></i> Send Notification
+                    </button>
+
                     <button class="btn btn-outline-info"
                             onclick="window.print()">
                         <i class="fa fa-print me-2"></i> Print Details
@@ -424,6 +476,98 @@
     </div>
 </div>
 
+<!-- Send Notification Modal -->
+<div class="modal fade" id="sendNotificationModal" tabindex="-1" aria-labelledby="sendNotificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="sendNotificationModalLabel">
+                    <i class="fa fa-bell me-2"></i> Send Event Notification
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info d-flex align-items-center mb-3">
+                    <i class="fa fa-info-circle me-2"></i>
+                    <div>
+                        <strong>Target Group:</strong>
+                        @if (Model.Event.GroupId.HasValue)
+                        {
+                            <span class="badge bg-primary ms-1">Group ID: @Model.Event.GroupId</span>
+                            <small class="text-muted ms-2">This notification will be sent to the event's target group.</small>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success ms-1">Church-Wide</span>
+                            <small class="text-muted ms-2">This notification will be sent to all members.</small>
+                        }
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-medium">Notification Title <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fa fa-heading text-muted"></i></span>
+                            <input type="text" id="notifTitle" class="form-control"
+                                   placeholder="e.g., Reminder: @Model.Event.Title"
+                                   value="Reminder: @Model.Event.Title" />
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-medium">Message <span class="text-danger">*</span></label>
+                        <textarea id="notifMessage" class="form-control" rows="4"
+                                  placeholder="Write your notification message...">Don't miss our upcoming event: @Model.Event.Title on @Model.Event.EventDate.ToString("dddd, MMMM dd yyyy") at @Model.Event.Location. We look forward to seeing you!</textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-medium">Schedule Date &amp; Time <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fa fa-clock text-muted"></i></span>
+                            <input type="datetime-local" id="notifTime" class="form-control"
+                                   value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                        </div>
+                        <div class="form-text">Set when this notification should be sent.</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-medium d-block">Delivery Channels</label>
+                        <div class="border rounded-3 p-3 bg-light">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="notifSendSMS" checked>
+                                <label class="form-check-label" for="notifSendSMS">
+                                    <i class="fa fa-sms text-success me-1"></i> Send SMS
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="notifSendPush">
+                                <label class="form-check-label" for="notifSendPush">
+                                    <i class="fa fa-mobile-alt text-primary me-1"></i> Push Notification
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="notifSendEmail">
+                                <label class="form-check-label" for="notifSendEmail">
+                                    <i class="fa fa-envelope text-warning me-1"></i> Send Email
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="submitNotifBtn" onclick="submitEventNotification()">
+                    <i class="fa fa-paper-plane me-2"></i> Schedule Notification
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         // Global variables
@@ -577,7 +721,70 @@
             });
         }
 
-     
+        function openNotificationModal(eventId) {
+            $('#sendNotificationModal').modal('show');
+        }
+
+        function submitEventNotification() {
+            const title = $('#notifTitle').val().trim();
+            const message = $('#notifMessage').val().trim();
+            const notifTime = $('#notifTime').val();
+
+            if (!title || !message || !notifTime) {
+                Swal.fire('Validation Error', 'Please fill in the notification title, message and schedule time.', 'warning');
+                return;
+            }
+
+            const sendSMS = $('#notifSendSMS').is(':checked');
+            const sendPush = $('#notifSendPush').is(':checked');
+            const sendEmail = $('#notifSendEmail').is(':checked');
+
+            if (!sendSMS && !sendPush && !sendEmail) {
+                Swal.fire('No Channel Selected', 'Please select at least one delivery channel (SMS, Push, or Email).', 'warning');
+                return;
+            }
+
+            const payload = {
+                Title: title,
+                Message: message,
+                SendSMS: sendSMS,
+                SendPushNotification: sendPush,
+                SendEmail: sendEmail,
+                NotificationTime: notifTime
+            };
+
+            $('#submitNotifBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-2"></i>Scheduling...');
+
+            $.ajax({
+                url: `/Event/SendEventNotification?eventId=${eventId}`,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    $('#sendNotificationModal').modal('hide');
+                    if (response.isSuccess) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Notification Scheduled!',
+                            html: `Your notification has been saved and will be sent at the scheduled time.`,
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        Swal.fire('Error', response.message || 'Failed to schedule notification.', 'error');
+                    }
+                },
+                error: function(xhr) {
+                    const msg = xhr.responseJSON?.message || 'Failed to schedule notification.';
+                    Swal.fire('Error', msg, 'error');
+                },
+                complete: function() {
+                    $('#submitNotifBtn').prop('disabled', false).html('<i class="fa fa-paper-plane me-2"></i>Schedule Notification');
+                }
+            });
+        }
 
         // Initialize on page load
         $(document).ready(function() {
@@ -598,5 +805,114 @@
         $(window).on('beforeunload', function() {
             stopAutoRefresh();
         });
+
+        function copyGuestRegistrationLink(eventId) {
+            const url = window.location.origin + '/Register/Event/' + eventId;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(function() {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: 'Copied!',
+                            text: 'Guest registration link copied to clipboard.',
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        alert('Guest registration link copied to clipboard: ' + url);
+                    }
+                }, function(err) {
+                    console.error('Could not copy text: ', err);
+                    alert('Failed to copy link. Please manually copy: ' + url);
+                });
+            } else {
+                alert('Guest registration link: ' + url);
+            }
+        }
+
+        let ageGroupsArray = [];
+        const initialGroupsRaw = `@Html.Raw(Model.Event.AllowedAgeGroups ?? "")`;
+        if (initialGroupsRaw) {
+            try {
+                if (initialGroupsRaw.startsWith('[')) {
+                    ageGroupsArray = JSON.parse(initialGroupsRaw);
+                } else {
+                    ageGroupsArray = initialGroupsRaw.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                }
+            } catch (e) {
+                console.error("Could not parse age groups", e);
+            }
+        }
+
+        function renderAgeGroups() {
+            const container = document.getElementById('ageGroupsListContainer');
+            if(container) {
+                container.innerHTML = '';
+                ageGroupsArray.forEach((group, index) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'badge bg-secondary d-flex align-items-center p-2 fs-6 fw-normal';
+                    chip.innerHTML = `${group} <i class="fa fa-times ms-2 text-light" style="cursor:pointer;" onclick="removeAgeGroup(${index})"></i>`;
+                    container.appendChild(chip);
+                });
+            }
+        }
+
+        function addAgeGroup() {
+            const input = document.getElementById('newAgeGroupInput');
+            const val = input.value.trim();
+            if (val) {
+                if (!ageGroupsArray.includes(val)) {
+                    ageGroupsArray.push(val);
+                    input.value = '';
+                    renderAgeGroups();
+                } else {
+                    Swal.fire('Info', 'This age group is already added.', 'info');
+                }
+            }
+        }
+
+        function removeAgeGroup(index) {
+            ageGroupsArray.splice(index, 1);
+            renderAgeGroups();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderAgeGroups();
+            
+            const inputEl = document.getElementById('newAgeGroupInput');
+            if (inputEl) {
+                inputEl.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' || e.keyCode === 13) {
+                        e.preventDefault();
+                        addAgeGroup();
+                    }
+                });
+            }
+        });
+
+        function saveAgeGroups() {
+            var val = JSON.stringify(ageGroupsArray);
+            var eventId = @Model.Event.EventId;
+
+            $.ajax({
+                url: '@Url.Action("UpdateAgeGroups", "Event")',
+                type: 'POST',
+                data: {
+                    eventId: eventId,
+                    ageGroups: val
+                },
+                success: function(response) {
+                    if (response.isSuccess) {
+                        Swal.fire('Saved!', 'Age groups have been updated successfully.', 'success');
+                    } else {
+                        Swal.fire('Error', response.message || 'Failed to save age groups.', 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'An error occurred while saving age groups.', 'error');
+                }
+            });
+        }
     </script>
 }

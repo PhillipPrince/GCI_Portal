@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GCI_Admin.Models
@@ -24,6 +24,9 @@ namespace GCI_Admin.Models
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        [StringLength(150)]
+        public string? Assembly { get; set; }
 
         public DateTime? UpdatedAt { get; set; }
         [NotMapped]

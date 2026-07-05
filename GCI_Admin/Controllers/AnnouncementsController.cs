@@ -74,6 +74,8 @@ namespace GCI_Admin.Controllers
                 Value = m.Id.ToString(),
                 Text = $"{m.FirstName} {m.OtherNames}"
             }).ToList();
+            notification.RawMembers = membersResponse;
+
 
             var ministriesResponse = _ministriesService.GetAllMinistriesAsync().Result.Data;
             notification.MinistriesList = ministriesResponse?.Select(m => new DropdownItem

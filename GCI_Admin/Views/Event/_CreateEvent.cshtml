@@ -71,6 +71,16 @@
                                 <div class="form-text">Include important information attendees should know.</div>
                             </div>
                         </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-label fw-medium">
+                                    Event Image <span class="text-muted fw-normal">(Optional)</span>
+                                </label>
+                                <input type="file" id="EventImageFile" accept="image/*" class="form-control" />
+                                <div class="form-text">Upload a cover image for the event.</div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Date and Location -->
@@ -223,7 +233,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label class="form-label fw-medium" for="NotificationGroupId">
-                                    Target Group (Optional, defaults to General Member)
+                                    Target Group <span class="text-muted fw-normal">(Optional, defaults to General Member)</span>
                                 </label>
                                 <select id="NotificationGroupId" name="NotificationGroupId" class="form-select">
                                     <option value="">Select a target group</option>
@@ -235,7 +245,60 @@
                                         }
                                     }
                                 </select>
-                                <div class="form-text">Choose which demographic group this event is tailored for. If not selected, it will default to Group ID 1.</div>
+                                <div class="form-text">Choose which demographic group this event is tailored for.</div>
+                            </div>
+                        </div>
+
+                        <!-- Ministry dropdown (shown when GroupId = 9) -->
+                        <div class="col-md-12" id="ministryContainer" style="display:none;">
+                            <div class="form-group">
+                                <label class="form-label fw-medium" for="MinistryId">
+                                    <i class="fa fa-church text-primary me-1"></i> Select Ministry <span class="text-danger">*</span>
+                                </label>
+                                <select id="MinistryId" class="form-select">
+                                    <option value="">-- Select a Ministry --</option>
+                                    @if (ViewBag.Ministries != null)
+                                    {
+                                        foreach (var m in (List<GCI_Admin.Models.DropdownItem>)ViewBag.Ministries)
+                                        {
+                                            <option value="@m.Value">@m.Text</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Specific Members section (shown when GroupId = 3) -->
+                        <div class="col-md-12" id="membersContainer" style="display:none;">
+                            <div class="border rounded-3 p-3 bg-light">
+                                <label class="form-label fw-medium text-primary mb-2">
+                                    <i class="fa fa-users me-1"></i> Select Specific Members
+                                    <small class="text-muted fw-normal">(Search and add one at a time)</small>
+                                </label>
+
+                                @await Html.PartialAsync("_MemberSelector", new GCI_Admin.Models.ViewModels.MemberSelectorViewModel
+                                {
+                                    ControlId = "eventMemberPicker",
+                                    LabelText = "",
+                                    PlaceholderText = "-- Search member by name, phone or email --",
+                                    MemberIdFieldName = "_eventMemberPickerTemp",
+                                    SelectedMemberId = null,
+                                    Members = ViewBag.Members as List<GCI_Admin.Models.Member>,
+                                    IsRequired = false,
+                                    IsEdit = false,
+                                    ShowPhoneAndGender = false
+                                })
+
+                                <div class="mt-2">
+                                    <label class="form-label fw-semibold small text-muted">Selected Members</label>
+                                    <div id="eventSelectedMembersPreview"
+                                         class="border rounded-3 p-3 bg-white"
+                                         style="min-height: 70px; max-height: 200px; overflow-y: auto;">
+                                        <div class="text-muted text-center mt-1">
+                                            <i class="fa fa-user-times me-2"></i>No members selected yet
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -350,11 +413,26 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
+        let base64Image = null;
+
         $(document).ready(function () {
             // Initialize form with default values
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             tomorrow.setHours(9, 0, 0, 0);
+
+            $('#EventImageFile').on('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        base64Image = evt.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    base64Image = null;
+                }
+            });
 
             // Handle payment toggle
             $('input[name="IsPaid"]').on('change', function () {
@@ -367,13 +445,50 @@
                 }
             });
 
+            // Target group change — show/hide ministry or member selector
+            $('#NotificationGroupId').on('change', function () {
+                const val = $(this).val();
+                if (val === '9') {
+                    $('#ministryContainer').slideDown(250);
+                    $('#membersContainer').slideUp(250);
+                    eventSelectedMembers = [];
+                    updateEventMembersPreview();
+                } else if (val === '3') {
+                    $('#membersContainer').slideDown(250);
+                    $('#ministryContainer').slideUp(250);
+                } else {
+                    $('#ministryContainer').slideUp(250);
+                    $('#membersContainer').slideUp(250);
+                    eventSelectedMembers = [];
+                    updateEventMembersPreview();
+                }
+            });
+
+            // Listen for member selection from the _MemberSelector partial
+            $(document).on('memberSelected', function (e, data) {
+                if (!data || !data.controlId || data.controlId !== 'eventMemberPicker') return;
+                const id = String(data.memberId ?? data.id ?? '');
+                const name = data.member?.fullName ?? data.fullName ?? data.name ?? '';
+                if (id && name && !eventSelectedMembers.some(m => m.id === id)) {
+                    eventSelectedMembers.push({ id, name });
+                    updateEventMembersPreview();
+                    // Reset the selector for the next pick
+                    setTimeout(function () {
+                        $('#eventMemberPicker_selectedId').val('');
+                        $('#eventMemberPicker_display').val('');
+                        $('#eventMemberPicker_placeholder').show();
+                        $('#eventMemberPicker_selText').hide();
+                        $('#eventMemberPicker_avatar').hide();
+                        $('#eventMemberPicker_clearSel').hide();
+                        $('#eventMemberPicker_preview').hide();
+                    }, 50);
+                }
+            });
+
             // Live preview update
             $('input, textarea, select').on('input change', function() {
                 updatePreview();
             });
-
-            // Form submission with validation
-           
 
             // Check for query parameters (pre-filled date)
             const urlParams = new URLSearchParams(window.location.search);
@@ -384,6 +499,32 @@
                 $('#EventDate').val(dateObj.toISOString().slice(0, 16));
             }
         });
+
+        // ---- Member picker for Specific People ----
+        let eventSelectedMembers = [];
+
+        function updateEventMembersPreview() {
+            const container = $('#eventSelectedMembersPreview');
+            if (eventSelectedMembers.length === 0) {
+                container.html('<div class="text-muted text-center mt-1"><i class="fa fa-user-times me-2"></i>No members selected yet</div>');
+                return;
+            }
+            let html = '<div class="d-flex flex-wrap gap-2">';
+            eventSelectedMembers.forEach(m => {
+                html += `<div class="d-flex align-items-center gap-1 px-3 py-1 rounded-pill border" style="background:#eef2ff;border-color:#4f46e5!important;font-size:13px">
+                    <span class="fw-medium text-primary">${escapeHtml(m.name)}</span>
+                    <button type="button" class="btn-close ms-1" style="font-size:9px" onclick="removeEventMember('${m.id}')" title="Remove"></button>
+                </div>`;
+            });
+            html += '</div>';
+            container.html(html);
+        }
+
+        function removeEventMember(id) {
+            eventSelectedMembers = eventSelectedMembers.filter(m => m.id !== id);
+            updateEventMembersPreview();
+        }
+
 
         // Update preview function
         function updatePreview() {
@@ -500,7 +641,7 @@
         });
 
 
-                   function submitNewEvent() {
+        function submitNewEvent() {
 
             // Build DTO matching EventDto exactly
             let eventData = {
@@ -514,10 +655,14 @@
                     : null,
                 RequireRegistration: $('#RequireRegistration').is(':checked'),
                 AllowWalkIns: $('#AllowWalkIns').is(':checked'),
-                NotificationGroupId: $('#NotificationGroupId').val() ? parseInt($('#NotificationGroupId').val()) : null
+                GroupId: $('#NotificationGroupId').val() ? parseInt($('#NotificationGroupId').val()) : null,
+                MinistryId: ($('#NotificationGroupId').val() === '9' && $('#MinistryId').val())
+                    ? parseInt($('#MinistryId').val()) : null,
+                SpecificMemberIds: $('#NotificationGroupId').val() === '3'
+                    ? eventSelectedMembers.map(m => parseInt(m.id))
+                    : null,
+                ImageBase64: base64Image
             };
-
-        alert("Event Title: " + $('#Title').val());
 
             Swal.fire({
                 title: "Are you sure?",

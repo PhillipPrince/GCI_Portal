@@ -82,7 +82,7 @@ namespace GCI_Admin.DBOperations.Repositories
                     return response;
                 }
 
-                var allowedRoles = new[] { 1, 5,6 }; 
+                var allowedRoles = new[] { 1, 5,6,2 }; 
 
                 if (!allowedRoles.Contains(user.UserRole))
                 {

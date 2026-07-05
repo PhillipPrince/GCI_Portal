@@ -41,7 +41,7 @@
         <div class="card border-0 shadow-sm stat-card">
             <div class="card-body">
                 <h6 class="text-muted mb-1">Positions</h6>
-                <h3 class="fw-bold mb-0">@Model?.Select(m => m.PositionTitle).Distinct().Count() </h3>
+                <h3 class="fw-bold mb-0">@Model?.Select(m => m.GECPosition.Title).Distinct().Count() </h3>
             </div>
         </div>
     </div>

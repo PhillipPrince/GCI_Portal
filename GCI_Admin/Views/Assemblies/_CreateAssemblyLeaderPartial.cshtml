@@ -276,12 +276,17 @@
             }
 
             // Disable button and show loading
-            // Wait, we need to ensure the modal has a button to call confirmAndSubmit. 
-            // In Index.cshtml, the modal has an external footer button.
-            // Oh, Index.cshtml doesn't have a save button for leader modal in the html directly!
-            // Wait, let's look at `Index.cshtml` to see the leaderModal footer.
-            // Actually, in `Ministries/Index.cshtml` there might be a footer inside the partial or Index.
+            const $saveBtn = $('#saveLeaderBtnText');
+            const $loadingSpinner = $('#assemblyLeaderLoading');
             
+            $saveBtn.prop('disabled', true);
+            if ($loadingSpinner.length) {
+                $loadingSpinner.removeClass('d-none');
+            }
+            const originalHtml = $saveBtn.html();
+            $saveBtn.html('<i class="fa fa-spinner fa-spin me-1"></i>Saving...');
+
+            // Get anti-forgery token
             const token = $('input[name="__RequestVerificationToken"]', form).val();
 
             // Prepare JSON data
@@ -293,11 +298,13 @@
                 StartDate: startDate,
                 EndDate: endDate || null,
                 IsActive: isActive,
-                ProfileImageBase64: $('#assemblyLeaderProfileImage_base64').val() || null
+                ProfileImageBase64: $('#assemblyLeaderProfileImage_fileData').val() || null
             };
 
             const actionUrl = isEdit ? '/Assemblies/UpdateAssemblyLeader' : '/Assemblies/CreateAssemblyLeader';
             
+            console.log("Submitting Assembly Leader form data as JSON:", requestData);
+
             // Make AJAX request
             $.ajax({
                 url: form.attr('action') || actionUrl,
@@ -308,7 +315,17 @@
                     'RequestVerificationToken': token
                 },
                 success: function(response) {
+                    console.log("Response:", response);
+
+                    // Reset button state
+                    $saveBtn.prop('disabled', false);
+                    if ($loadingSpinner.length) {
+                        $loadingSpinner.addClass('d-none');
+                    }
+                    $saveBtn.html(originalHtml);
+
                     if (response.success) {
+                        // Show success message
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
@@ -316,34 +333,70 @@
                             showConfirmButton: false,
                             timer: 1500
                         }).then(() => {
+                            // Close modal and reload
                             $('#leaderModal').modal('hide');
                             location.reload();
                         });
                         resolve(response);
                     } else {
+                        // Show error message
                         let errorMessage = response.message || 'Failed to save assembly leader.';
+
+                        // Handle validation errors
                         if (response.errors && response.errors.length > 0) {
                             errorMessage = response.errors.join('<br>');
                         }
+
                         Swal.fire('Error', errorMessage, 'error');
                         reject(errorMessage);
                     }
                 },
                 error: function(xhr, status, error) {
+                    // Reset button state
+                    $saveBtn.prop('disabled', false);
+                    if ($loadingSpinner.length) {
+                        $loadingSpinner.addClass('d-none');
+                    }
+                    $saveBtn.html(originalHtml);
+
+                    // Handle different error scenarios
                     let errorMessage = 'An unexpected error occurred.';
+
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
                     } else if (xhr.status === 400) {
                         errorMessage = 'Invalid data sent to server.';
                     } else if (xhr.status === 409) {
                         errorMessage = 'This member is already a leader in this assembly.';
+                    } else if (xhr.status === 0) {
+                        errorMessage = 'Network error. Please check your connection.';
+                    } else if (xhr.status === 404) {
+                        errorMessage = 'Service endpoint not found. Please contact support.';
+                    } else if (xhr.status === 500) {
+                        errorMessage = 'Server error. Please try again later.';
                     }
+
+                    console.error('Form submission error:', xhr, status, error);
                     Swal.fire('Error', errorMessage, 'error');
                     reject(errorMessage);
                 }
             });
         });
     }
+
+    // Handle Enter key in form inputs
+    $(document).on('keypress', '#@formId input, #@formId select, #@formId textarea', function(e) {
+        if (e.which === 13 && !$(this).is('textarea')) {
+            e.preventDefault();
+            confirmAndSubmit();
+        }
+    });
+
+    // Listen for member selection to validate
+    $(document).on('memberSelected', function(e, data) {
+        console.log('Member selected for assembly leader:', data);
+        $('#assemblyLeaderMemberSelector_validation').text('');
+    });
 
     // Expose globally so onclick can find it
     window.confirmAndSubmit = confirmAndSubmit;

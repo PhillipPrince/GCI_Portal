@@ -71,10 +71,10 @@
 										}
 									</select>
 								</div>
-								<div class="col-md-6">
-									<label class="form-label fw-semibold">Ministry <span class="text-muted fw-normal">(Optional)</span></label>
-									<select id="annMinistryId" class="form-select rounded-3">
-										<option value="">-- Select Ministry --</option>
+								<div class="col-md-6" id="ministryContainer" style="display: none;">
+									<label class="form-label fw-semibold">Ministry <span class="text-danger">*</span></label>
+									<select id="annMinistryId" name="MinistryId" class="form-select rounded-3">
+										<option value="">-- Search and Select Ministry --</option>
 										@if (Model.MinistriesList != null && Model.MinistriesList.Any())
 										{
 											foreach (var ministry in Model.MinistriesList)
@@ -118,23 +118,29 @@
 							<!-- Members Section (shown only when Group ID = 3) -->
 							<div id="membersSection" style="display: none;" class="p-3 bg-white border rounded-3 mb-3">
 								<div class="mb-3">
-									<label class="form-label fw-semibold text-primary">Select Specific Members</label>
-									<select id="annMemberSelect" class="form-select select2-members">
-										<option value="">-- Search and Select Members --</option>
-										@if (Model.Members != null && Model.Members.Any())
-										{
-											foreach (var member in Model.Members)
-											{
-												<option value="@member.Value">@member.Text</option>
-											}
-										}
-									</select>
+									<label class="form-label fw-semibold text-primary mb-2">
+										Select Specific Members
+										<small class="text-muted fw-normal">(Search and add one at a time)</small>
+									</label>
+
+									@await Html.PartialAsync("_MemberSelector", new GCI_Admin.Models.ViewModels.MemberSelectorViewModel
+									{
+										ControlId = "annMemberPicker",
+										LabelText = "",
+										PlaceholderText = "-- Search member by name, phone or email --",
+										MemberIdFieldName = "_annMemberPickerTemp",
+										SelectedMemberId = null,
+										Members = Model.RawMembers,
+										IsRequired = false,
+										IsEdit = false,
+										ShowPhoneAndGender = false
+									})
 								</div>
 
 								<div>
 									<label class="form-label fw-semibold">Selected Members Preview</label>
 									<div id="selectedMembersPreview" class="border rounded-3 p-3 bg-light" style="min-height: 80px; max-height: 200px; overflow-y: auto;">
-										<div class="text-muted text-center mt-2"><i class="fa fa-user-times me-2"></i>No members selected</div>
+										<div class="text-muted text-center mt-2"><i class="fa fa-user-times me-2"></i>No members selected yet</div>
 									</div>
 								</div>
 							</div>
@@ -203,15 +209,12 @@
 
 	// Function to initialize Select2
 	function initializeSelect2() {
-		if ($('#annMemberSelect').length && $.fn.select2) {
-			// Destroy existing Select2 instance if any
-			if ($('#annMemberSelect').hasClass('select2-hidden-accessible')) {
-				$('#annMemberSelect').select2('destroy');
+		if ($('#annMinistryId').length && $.fn.select2) {
+			if ($('#annMinistryId').hasClass('select2-hidden-accessible')) {
+				$('#annMinistryId').select2('destroy');
 			}
-
-			// Initialize Select2
-			$('#annMemberSelect').select2({
-				placeholder: "Search and select members",
+			$('#annMinistryId').select2({
+				placeholder: "-- Search and Select Ministry --",
 				allowClear: true,
 				width: '100%',
 				dropdownParent: $('#createAnnouncementModal')
@@ -253,20 +256,29 @@
 		});
 	}
 
-	// Function to add member
-	window.addMember = function() {
-		const select = $('#annMemberSelect');
-		const selectedValue = select.val();
-		const selectedText = select.find('option:selected').text();
-
-		if (selectedValue && !selectedMembers.some(m => m.id === selectedValue)) {
-			selectedMembers.push({ id: selectedValue, text: selectedText });
+	// Listen for member selection from the _MemberSelector partial
+	$(document).on('memberSelected', function (e, data) {
+		if (!data || !data.controlId || data.controlId !== 'annMemberPicker') return;
+		const id = String(data.memberId ?? data.id ?? '');
+		const name = data.member?.fullName ?? data.fullName ?? data.name ?? '';
+		
+		if (id && name && !selectedMembers.some(m => m.id === id)) {
+			selectedMembers.push({ id: id, text: name });
 			updateMembersPreview();
-			select.val('').trigger('change');
-		} else if (selectedMembers.some(m => m.id === selectedValue)) {
+			// Reset the selector for the next pick
+			setTimeout(function () {
+				$('#annMemberPicker_selectedId').val('');
+				$('#annMemberPicker_display').val('');
+				$('#annMemberPicker_placeholder').show();
+				$('#annMemberPicker_selText').hide();
+				$('#annMemberPicker_avatar').hide();
+				$('#annMemberPicker_clearSel').hide();
+				$('#annMemberPicker_preview').hide();
+			}, 50);
+		} else if (selectedMembers.some(m => m.id === id)) {
 			Swal.fire('Info', 'Member already selected', 'info');
 		}
-	};
+	});
 
 	// Function to remove member
 	window.removeMember = function(memberId) {
@@ -283,9 +295,6 @@
 	window.clearAllMembers = function() {
 		selectedMembers = [];
 		updateMembersPreview();
-		if ($('#annMemberSelect').length) {
-			$('#annMemberSelect').val('').trigger('change');
-		}
 	};
 
 	// Function to load selected members for editing
@@ -295,11 +304,15 @@
 		// Clear existing members
 		selectedMembers = [];
 
-		// Get member names from the dropdown options
+		// This won't work perfectly with raw member list on edit unless the whole raw member list is parsed,
+		// but since we only need the ID, let's keep it simple: we can lookup the text from the _MemberSelector's options.
+		// Wait, the new UI doesn't use options, it uses a rich list. We'll find it from the DOM element data-fullname
 		memberIds.forEach(id => {
-			const option = $(`#annMemberSelect option[value='${id}']`);
-			if (option.length) {
-				selectedMembers.push({ id: id.toString(), text: option.text() });
+			const memberEl = $(`#annMemberPicker_opts .ms-opt[data-value='${id}']`);
+			if (memberEl.length) {
+				selectedMembers.push({ id: id.toString(), text: memberEl.attr('data-fullname') });
+			} else {
+				selectedMembers.push({ id: id.toString(), text: 'Member ' + id }); // Fallback
 			}
 		});
 
@@ -315,7 +328,7 @@
 		// Initialize Select2
 		initializeSelect2();
 
-		// Show/hide members section based on notification group selection
+		// Show/hide members and ministry sections based on notification group selection
 		$('#annNotificationGroupId').on('change', function() {
 			const selectedGroupId = $(this).val();
 			const selectedGroupText = $(this).find("option:selected").text().toLowerCase().trim();
@@ -324,27 +337,25 @@
 				$('#annIsChurchWide').prop('checked', true);
 			}
 
-			if (selectedGroupId === '3') {
-				$('#membersSection').slideDown(300);
-				// Re-initialize Select2 when showing (fixes display issues)
+			// Handle Ministry (Group 9)
+			if (selectedGroupId === '9') {
+				$('#ministryContainer').slideDown(300);
 				setTimeout(function() {
 					initializeSelect2();
 				}, 100);
+			} else {
+				$('#ministryContainer').slideUp(300);
+				$('#annMinistryId').val('').trigger('change');
+			}
+
+			// Handle Members (Group 3)
+			if (selectedGroupId === '3') {
+				$('#membersSection').slideDown(300);
 			} else {
 				$('#membersSection').slideUp(300);
 				// Clear selected members when hiding
 				selectedMembers = [];
 				updateMembersPreview();
-				if ($('#annMemberSelect').length) {
-					$('#annMemberSelect').val('').trigger('change');
-				}
-			}
-		});
-
-		// Listen for selection change on member dropdown
-		$('#annMemberSelect').on('change', function() {
-			if ($(this).val()) {
-				addMember();
 			}
 		});
 

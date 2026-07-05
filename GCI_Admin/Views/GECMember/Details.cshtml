@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.GECMemberDetailsViewModel
+@model GCI_Admin.Models.GECMemberDetailsViewModel
 
 @{
     ViewData["Title"] = "GEC Member Details";
@@ -21,9 +21,9 @@
             </div>
         </div>
         <div class="col-md-4 text-end">
-            <a href="@Url.Action("Edit", "GECMember", new { id = gecMember?.GECId })" class="btn btn-warning btn-lg me-2">
+            <button class="btn btn-warning btn-lg me-2" onclick="editGECMember(@gecMember?.GECId)">
                 <i class="fa fa-edit me-2"></i>Edit Member
-            </a>
+            </button>
             <button class="btn btn-danger btn-lg" onclick="deleteGECMember(@gecMember?.GECId)">
                 <i class="fa fa-trash me-2"></i>Delete
             </button>
@@ -51,14 +51,14 @@
                     }
                     else
                     {
-                        <span class="badge bg-danger fs-6 p-2">
-                            <i class="fa fa-ban me-1"></i> Inactive Member
+                        <span class="badge bg-secondary fs-6 p-2">
+                            <i class="fa fa-times-circle me-1"></i> Inactive Member
                         </span>
                     }
                     
                     <!-- Position Badge -->
                     <span class="badge bg-info fs-6 p-2">
-                        <i class="fa fa-briefcase me-1"></i> @gecMember.PositionTitle
+                        <i class="fa fa-briefcase me-1"></i> @(gecMember.GECPosition?.Title)
                     </span>
                 </div>
             </div>
@@ -73,7 +73,8 @@
                             <!-- Profile Image Display from Byte Array -->
                             <div class="profile-image-container mb-3">
                                 @{
-                                    // Check if member has profile image (byte array)
+                                    // Check if member has profile image (Cloudinary or byte array)
+                                    bool hasCloudinaryImage = !string.IsNullOrEmpty(member?.ProfilePictureUrl);
                                     var hasProfileImage = member?.ProfileImage != null && member.ProfileImage.Length > 0;
                                     
                                     // Convert byte array to base64 for display
@@ -82,16 +83,19 @@
                                     {
                                         imageBase64 = Convert.ToBase64String(member.ProfileImage);
                                     }
+                                    
+                                    string imageUrl = hasCloudinaryImage ? member.ProfilePictureUrl : (hasProfileImage ? $"data:image/jpeg;base64,{imageBase64}" : null);
+                                    bool hasImage = !string.IsNullOrEmpty(imageUrl);
                                 }
                                 
-                                @if (hasProfileImage)
+                                @if (hasImage)
                                 {
                                     <div class="profile-image-wrapper">
-                                        <img src="data:image/jpeg;base64,@imageBase64" 
+                                        <img src="@imageUrl" 
                                              alt="GEC Member Profile" 
                                              class="rounded-circle profile-image"
                                              style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); cursor: pointer;"
-                                             onclick="viewFullImage('data:image/jpeg;base64,@imageBase64')"
+                                             onclick="viewFullImage('@imageUrl')"
                                              onerror="this.onerror=null; this.src='/images/default-avatar.png';" />
                                         <div class="profile-image-badge mt-2">
                                             <span class="badge bg-primary">
@@ -113,10 +117,10 @@
                                 <i class="fa fa-tag me-1"></i> Member ID: @gecMember.GECId
                             </p>
                             
-                            @if (hasProfileImage)
+                            @if (hasImage)
                             {
                                 <div class="mt-2">
-                                    <button class="btn btn-sm btn-outline-primary" onclick="viewFullImage('data:image/jpeg;base64,@imageBase64')">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewFullImage('@imageUrl')">
                                         <i class="fa fa-expand"></i> View Full Image
                                     </button>
                                 </div>
@@ -308,12 +312,12 @@
                                     <div class="info-content flex-grow-1">
                                         <small class="text-muted d-block">Position Title</small>
                                         <strong>
-                                            @gecMember.PositionTitle
-                                            @if (gecMember.PositionTitle == "Chairperson")
+                                            @gecMember.GECPosition?.Title
+                                            @if (gecMember.GECPosition?.Title == "Chairperson")
                                             {
                                                 <i class="fa fa-star text-warning ms-1"></i>
                                             }
-                                            else if (gecMember.PositionTitle == "Vice Chairperson")
+                                            else if (gecMember.GECPosition?.Title == "Vice Chairperson")
                                             {
                                                 <i class="fa fa-star-half-o text-info ms-1"></i>
                                             }
@@ -427,19 +431,6 @@
                                             <strong>@member.CreatedAt.ToString("dd MMM yyyy")</strong>
                                         </div>
                                     </div>
-
-                                    @* @if (!string.IsNullOrEmpty(member.BaptismalStatus))
-                                    {
-                                        <div class="info-item d-flex py-2 border-bottom">
-                                            <div class="info-icon me-3 text-muted" style="width: 30px;">
-                                                <i class="fa fa-tint"></i>
-                                            </div>
-                                            <div class="info-content flex-grow-1">
-                                                <small class="text-muted d-block">Baptismal Status</small>
-                                                <strong>@member.BaptismalStatus</strong>
-                                            </div>
-                                        </div>
-                                    } *@
                                 </div>
 
                                 <div class="col-md-6">
@@ -468,19 +459,6 @@
                                             </div>
                                         </div>
                                     }
-
-                                    @* @if (!string.IsNullOrEmpty(member.Profession))
-                                    {
-                                        <div class="info-item d-flex py-2 border-bottom">
-                                            <div class="info-icon me-3 text-muted" style="width: 30px;">
-                                                <i class="fa fa-briefcase"></i>
-                                            </div>
-                                            <div class="info-content flex-grow-1">
-                                                <small class="text-muted d-block">Profession</small>
-                                                <strong>@member.Profession</strong>
-                                            </div>
-                                        </div>
-                                    } *@
                                 </div>
                             </div>
                         </div>
@@ -507,17 +485,17 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            @* <div class="col-md-6">
                                 <div class="info-item d-flex py-2 border-bottom">
                                     <div class="info-icon me-3 text-muted" style="width: 30px;">
                                         <i class="fa fa-pencil-square-o"></i>
                                     </div>
-                                    @* <div class="info-content flex-grow-1">
+                                    <div class="info-content flex-grow-1">
                                         <small class="text-muted d-block">Last Updated</small>
-                                        <strong>@(gecMember.UpdatedAt?.ToString("dd MMM yyyy hh:mm tt") ?? "Never")</strong>
-                                    </div> *@
+                                        <strong>@gecMember.UpdatedAt.ToString("dd MMM yyyy hh:mm tt")</strong>
+                                    </div>
                                 </div>
-                            </div>
+                            </div> *@
                         </div>
                     </div>
                 </div>
@@ -558,7 +536,35 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Member Modal -->
+<div class="modal fade" id="memberModal" tabindex="-1" aria-labelledby="memberModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="memberModalLabel">
+                    <i class="fa fa-user-plus me-2"></i>
+                    <span id="modalTitleMember">Edit Member</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="memberModalBody">
+                <div class="text-center p-4" id="memberLoading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveMemberBtn">
+                    <i class="fa fa-save me-1"></i>Save Member
+                </button>
             </div>
         </div>
     </div>
@@ -603,20 +609,84 @@
     }
 </style>
 
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- JavaScript Section -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-        let gecMemberIdToDelete = null;
+<script>
+    $(document).ready(function() {
+        // Initialize variables
+        var gecMemberIdToDelete = null;
 
         // View full image
-        function viewFullImage(imageUrl) {
+        window.viewFullImage = function(imageUrl) {
             $('#fullImageView').attr('src', imageUrl);
             $('#imageModal').modal('show');
-        }
+        };
+
+        // Edit GEC member
+        window.editGECMember = function(id) {
+            $('#memberModal').modal('show');
+            $('#modalTitleMember').text('Edit GEC Member');
+            $('#memberModalBody').html('<div class="text-center p-4"><div class="spinner-border text-primary"></div></div>');
+            $('#saveMemberBtn').prop('disabled', false);
+
+            $.get('@Url.Action("LoadEditForm", "GECMember")/' + id, function(data) {
+                $('#memberModalBody').html(data);
+                // Reinitialize any form validation or plugins if needed
+            }).fail(function() {
+                $('#memberModalBody').html('<div class="alert alert-danger">Failed to load form. Please try again.</div>');
+            });
+        };
+
+        // Submit member form
+        window.submitMemberForm = function() {
+            var form = $('#memberModalBody').find('form');
+            if (form.length === 0) {
+                Swal.fire('Error', 'Form not found', 'error');
+                return;
+            }
+
+            // Validate form if needed
+            if (form[0].checkValidity && !form[0].checkValidity()) {
+                form[0].reportValidity();
+                return;
+            }
+
+            $('#saveMemberBtn').prop('disabled', true);
+            $('#saveMemberBtn').html('<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...');
+
+            $.ajax({
+                url: form.attr('action'),
+                type: form.attr('method') || 'POST',
+                data: form.serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message || 'Member updated successfully',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(function() {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', response.message || 'Failed to update member', 'error');
+                        $('#saveMemberBtn').prop('disabled', false);
+                        $('#saveMemberBtn').html('<i class="fa fa-save me-1"></i>Save Member');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Failed to save member. Please try again.', 'error');
+                    $('#saveMemberBtn').prop('disabled', false);
+                    $('#saveMemberBtn').html('<i class="fa fa-save me-1"></i>Save Member');
+                }
+            });
+        };
 
         // Delete GEC member
-        function deleteGECMember(id) {
+        window.deleteGECMember = function(id) {
             gecMemberIdToDelete = id;
             Swal.fire({
                 title: 'Delete GEC Member',
@@ -627,12 +697,12 @@
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Yes, delete it',
                 cancelButtonText: 'Cancel'
-            }).then((result) => {
+            }).then(function(result) {
                 if (result.isConfirmed) {
                     Swal.fire({
                         title: 'Deleting...',
                         allowOutsideClick: false,
-                        didOpen: () => {
+                        didOpen: function() {
                             Swal.showLoading();
                         }
                     });
@@ -640,7 +710,7 @@
                     $.ajax({
                         url: '@Url.Action("Delete", "GECMember")',
                         type: 'POST',
-                        data: { id: id },
+                        data: { id: gecMemberIdToDelete },
                         success: function(response) {
                             if (response.success) {
                                 Swal.fire({
@@ -649,7 +719,7 @@
                                     text: response.message,
                                     timer: 2000,
                                     showConfirmButton: false
-                                }).then(() => {
+                                }).then(function() {
                                     window.location.href = '@Url.Action("Index", "GECMember")';
                                 });
                             } else {
@@ -662,25 +732,25 @@
                     });
                 }
             });
-        }
+        };
 
         // Toggle GEC member status
-        function toggleGECMemberStatus(id, activate) {
+        window.toggleGECMemberStatus = function(id, activate) {
             let actionText = activate ? "activate" : "deactivate";
 
             Swal.fire({
-                title: `Are you sure?`,
-                text: `You are about to ${actionText} this GEC member.`,
+                title: "Are you sure?",
+                text: "You are about to " + actionText + " this GEC member.",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonText: `Yes, ${actionText}`,
+                confirmButtonText: "Yes, " + actionText,
                 cancelButtonText: "Cancel"
-            }).then((result) => {
+            }).then(function(result) {
                 if (result.isConfirmed) {
                     Swal.fire({
                         title: "Processing...",
                         allowOutsideClick: false,
-                        didOpen: () => {
+                        didOpen: function() {
                             Swal.showLoading();
                         }
                     });
@@ -700,7 +770,7 @@
                                     text: response.message,
                                     timer: 2000,
                                     showConfirmButton: false
-                                }).then(() => {
+                                }).then(function() {
                                     location.reload();
                                 });
                             } else {
@@ -713,6 +783,25 @@
                     });
                 }
             });
-        }
-    </script>
-}
+        };
+
+        // Confirm delete button handler
+        $('#confirmDeleteBtn').click(function() {
+            if (gecMemberIdToDelete) {
+                deleteGECMember(gecMemberIdToDelete);
+            }
+        });
+
+        // Save member button handler
+        $('#saveMemberBtn').click(function() {
+            submitMemberForm();
+        });
+
+        // Make functions globally accessible
+        window.submitMemberForm = submitMemberForm;
+        window.deleteGECMember = deleteGECMember;
+        window.toggleGECMemberStatus = toggleGECMemberStatus;
+        window.editGECMember = editGECMember;
+        window.viewFullImage = viewFullImage;
+    });
+</script>

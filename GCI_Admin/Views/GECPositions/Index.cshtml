@@ -1,0 +1,171 @@
+@model List<GCI_Admin.Models.GECPosition>
+@{
+    ViewData["Title"] = "GEC Positions";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="mb-0 fw-bold">GEC Positions</h3>
+        <p class="text-muted mb-0">Manage positions for GEC members</p>
+    </div>
+    <button class="btn btn-primary" onclick="loadPositionForm(0)">
+        <i class="fa fa-plus me-1"></i> Add Position
+    </button>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="positionsTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var position in Model)
+                    {
+                        <tr>
+                            <td>@position.Id</td>
+                            <td><span class="fw-bold">@position.Title</span></td>
+                            <td>@(string.IsNullOrEmpty(position.Description) ? "-" : position.Description)</td>
+                            <td>
+                                @if (position.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactive</span>
+                                }
+                            </td>
+                            <td>@position.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-primary" onclick="loadPositionForm(@position.Id)">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm @(position.IsActive ? "btn-outline-warning" : "btn-outline-success")"
+                                        onclick="togglePositionStatus(@position.Id, @(position.IsActive ? "false" : "true"))"
+                                        title="@(position.IsActive ? "Deactivate" : "Activate")">
+                                    <i class="fa @(position.IsActive ? "fa-ban" : "fa-check")"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deletePosition(@position.Id)">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="positionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Add Position</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="positionModalBody">
+                <!-- Form loads here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            if ($.fn.DataTable.isDataTable('#positionsTable')) {
+                $('#positionsTable').DataTable().destroy();
+            }
+            GCIDataTable.init('#positionsTable');
+        });
+
+        function loadPositionForm(id) {
+            const url = id === 0 
+                ? '@Url.Action("LoadCreateForm", "GECPositions")' 
+                : '@Url.Action("LoadEditForm", "GECPositions")' + '?id=' + id;
+
+            $('#modalTitle').text(id === 0 ? 'Add Position' : 'Edit Position');
+
+            $.get(url, function (data) {
+                $('#positionModalBody').html(data);
+                $('#positionModal').modal('show');
+            }).fail(function () {
+                toastr.error('Failed to load form');
+            });
+        }
+
+        function togglePositionStatus(id, isActive) {
+            Swal.fire({
+                title: isActive ? 'Activate Position?' : 'Deactivate Position?',
+                text: "Are you sure you want to change this position's status?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, proceed!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("ToggleStatus", "GECPositions")',
+                        type: 'POST',
+                        data: { id: id, isActive: isActive },
+                        success: function (res) {
+                            if (res.success) {
+                                toastr.success(res.message);
+                                setTimeout(() => location.reload(), 1000);
+                            } else {
+                                toastr.error(res.message);
+                            }
+                        },
+                        error: function (xhr) {
+                            toastr.error('Failed to update status');
+                        }
+                    });
+                }
+            });
+        }
+
+        function deletePosition(id) {
+            Swal.fire({
+                title: 'Delete Position?',
+                text: "This cannot be undone! Note: You cannot delete a position assigned to a member.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("DeletePosition", "GECPositions")',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function (res) {
+                            if (res.success) {
+                                toastr.success(res.message);
+                                setTimeout(() => location.reload(), 1000);
+                            } else {
+                                toastr.error(res.message);
+                            }
+                        },
+                        error: function (xhr) {
+                            const msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to delete position';
+                            toastr.error(msg);
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

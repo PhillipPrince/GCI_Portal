@@ -13,5 +13,15 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<bool>> DeleteAnnouncementAsync(int id);
         Task<ApiResponse<bool>> ToggleAnnouncementStatusAsync(int id, bool isActive);
         Task<ApiResponse<List<NotificationGroup>>> GetAllNotificationGroupsAsync();
+
+    }
+    public class EventNotificationDto
+    {
+        public string Title { get; set; }
+        public string Message { get; set; }
+        public bool SendSMS { get; set; }
+        public bool SendPushNotification { get; set; }
+        public bool SendEmail { get; set; }
+        public DateTime NotificationTime { get; set; }
     }
 }

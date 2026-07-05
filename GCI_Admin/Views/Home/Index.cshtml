@@ -107,6 +107,74 @@
     </div>
 </div>
 
+<!-- Monthly Theme Modal -->
+<div class="modal fade" id="monthlyThemeModal" tabindex="-1" aria-labelledby="monthlyThemeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient-primary text-white border-0">
+                <h5 class="modal-title fw-bold" id="monthlyThemeModalLabel">
+                    <i class="fa fa-star me-2"></i>Theme of the Month
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- Display Mode -->
+                <div id="monthlyDisplayMode">
+                    <div class="text-center mb-4">
+                        <img id="monthlyModalImage" src="" alt="Theme Image" class="img-fluid rounded shadow-sm" style="max-height: 300px; width: auto;">
+                    </div>
+                    <h4 id="monthlyModalTitle" class="text-center fw-bold mb-3"></h4>
+                    <p id="monthlyModalDescription" class="text-center text-muted fst-italic mb-3"></p>
+                </div>
+
+                <!-- Edit Mode (hidden by default) -->
+                <div id="monthlyEditMode" style="display: none;">
+                    <div class="mb-3">
+                        <label for="monthlyEditImageFile" class="form-label fw-bold">Theme Image</label>
+                        <input type="file" class="form-control" id="monthlyEditImageFile" accept="image/*" onchange="previewMonthlyImage(this)">
+                        <small class="text-muted">Upload a new image (will be converted to base64)</small>
+                        <div class="mt-2 text-center">
+                            <img id="monthlyImagePreview" src="" alt="Preview" style="max-height: 150px; display: none;" class="img-fluid rounded">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="monthlyEditMonth" class="form-label fw-bold">Month</label>
+                            <input type="number" min="1" max="12" class="form-control" id="monthlyEditMonth" placeholder="e.g., 7">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="monthlyEditYear" class="form-label fw-bold">Year</label>
+                            <input type="number" class="form-control" id="monthlyEditYear" placeholder="e.g., 2026">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="monthlyEditTitle" class="form-label fw-bold">Theme Title</label>
+                        <input type="text" class="form-control" id="monthlyEditTitle" placeholder="Enter theme title">
+                    </div>
+                    <div class="mb-3">
+                        <label for="monthlyEditDescription" class="form-label fw-bold">Description</label>
+                        <input type="text" class="form-control" id="monthlyEditDescription" placeholder="Enter description">
+                    </div>
+                    <div class="mb-3">
+                        <label for="monthlyEditAssembly" class="form-label fw-bold">Assembly</label>
+                        <input type="text" class="form-control" id="monthlyEditAssembly" placeholder="Enter assembly">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="editMonthlyThemeButton" onclick="toggleMonthlyEditMode()">
+                    <i class="fa fa-edit me-2"></i>Edit
+                </button>
+                <button type="button" class="btn btn-success" id="saveMonthlyThemeButton" style="display: none;" onclick="saveMonthlyThemeChanges()">
+                    <i class="fa fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!-- Add Member Modal -->
 <div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -356,6 +424,7 @@
             
             $('#event-stats-container').load('@Url.Action("GetEventStats", "Home")', function() {
                 if (typeof loadCurrentYearTheme === 'function') loadCurrentYearTheme();
+                if (typeof loadCurrentMonthlyTheme === 'function') loadCurrentMonthlyTheme();
             });
             
             $('#meeting-stats-container').load('@Url.Action("GetMeetingStats", "Home")', function() {
@@ -1002,6 +1071,187 @@
             }
         }
         
+                let currentMonthlyThemeData = {};
+
+        function loadCurrentMonthlyTheme() {
+            $.ajax({
+                url: '/Event/GetCurrentMonthlyTheme',
+                type: 'GET',
+                success: function (response) {
+                    if (!response.isSuccess) {
+                        console.error(response.message);
+                        return;
+                    }
+                    var theme = response.data;
+                    currentMonthlyThemeData = theme;
+
+                    var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                    var monthName = theme.month > 0 && theme.month <= 12 ? monthNames[theme.month - 1] : theme.month;
+
+                    $("#monthlyThemeMonthTitle").text("Theme of " + monthName + " " + theme.year);
+                    $("#monthlyThemeTitle").text(theme.theme);
+                    $("#monthlyThemeActivity").text(theme.description);
+
+                    if (theme.monthThemeImage && theme.monthThemeImage.length > 0) {
+                        try {
+                            $("#monthlyThemeImage").attr('src', 'data:image/jpeg;base64,' + theme.monthThemeImage);
+                            $("#monthlyThemeImage").show();
+                        } catch (error) {
+                            console.error("Error setting image:", error);
+                        }
+                    } else {
+                        $("#monthlyThemeImage").hide();
+                    }
+                },
+                error: function (err) {
+                    console.error("Error loading monthly theme:", err);
+                }
+            });
+        }
+
+        function openMonthlyThemeModal() {
+            document.getElementById('monthlyModalImage').src = document.getElementById('monthlyThemeImage').src;
+            document.getElementById('monthlyModalTitle').innerText = document.getElementById('monthlyThemeTitle').innerText;
+            document.getElementById('monthlyModalDescription').innerText = document.getElementById('monthlyThemeActivity').innerText;
+
+            document.getElementById('monthlyDisplayMode').style.display = 'block';
+            document.getElementById('monthlyEditMode').style.display = 'none';
+            document.getElementById('editMonthlyThemeButton').style.display = 'inline-block';
+            document.getElementById('saveMonthlyThemeButton').style.display = 'none';
+
+            const modal = new bootstrap.Modal(document.getElementById('monthlyThemeModal'));
+            modal.show();
+        }
+
+        function toggleMonthlyEditMode() {
+            if (document.getElementById('monthlyEditMode').style.display === 'none') {
+                document.getElementById('monthlyEditMonth').value = currentMonthlyThemeData.month || '';
+                document.getElementById('monthlyEditYear').value = currentMonthlyThemeData.year || '';
+                document.getElementById('monthlyEditTitle').value = currentMonthlyThemeData.theme || '';
+                document.getElementById('monthlyEditDescription').value = currentMonthlyThemeData.description || '';
+                document.getElementById('monthlyEditAssembly').value = currentMonthlyThemeData.assembly || '';
+
+                document.getElementById('monthlyEditImageFile').value = '';
+                document.getElementById('monthlyImagePreview').style.display = 'none';
+                document.getElementById('monthlyImagePreview').src = '';
+
+                document.getElementById('monthlyDisplayMode').style.display = 'none';
+                document.getElementById('monthlyEditMode').style.display = 'block';
+                document.getElementById('editMonthlyThemeButton').style.display = 'none';
+                document.getElementById('saveMonthlyThemeButton').style.display = 'inline-block';
+            }
+        }
+
+        function previewMonthlyImage(input) {
+            const preview = document.getElementById('monthlyImagePreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function saveMonthlyThemeChanges() {
+            const saveButton = document.getElementById('saveMonthlyThemeButton');
+            const originalText = saveButton.innerHTML;
+
+            try {
+                saveButton.disabled = true;
+                saveButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+
+                const month = document.getElementById('monthlyEditMonth').value;
+                const year = document.getElementById('monthlyEditYear').value;
+                const title = document.getElementById('monthlyEditTitle').value;
+                const description = document.getElementById('monthlyEditDescription').value;
+                const assembly = document.getElementById('monthlyEditAssembly').value;
+                const imageFile = document.getElementById('monthlyEditImageFile').files[0];
+
+                if (!month || !year || !title) {
+                    Swal.fire({ icon: 'warning', title: 'Missing Fields', text: 'Please fill in Month, Year, and Theme Title.' });
+                    saveButton.disabled = false;
+                    saveButton.innerHTML = originalText;
+                    return;
+                }
+
+                let base64Image = currentMonthlyThemeData.themeImage || '';
+
+                if (imageFile) {
+                    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+                    if (!validTypes.includes(imageFile.type)) {
+                        Swal.fire({ icon: 'error', title: 'Invalid File Type', text: 'Please select a valid image file (JPEG, PNG, JPG, or GIF).' });
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = originalText;
+                        return;
+                    }
+
+                    if (imageFile.size > 5 * 1024 * 1024) {
+                        Swal.fire({ icon: 'error', title: 'File Too Large', text: 'Image size should be less than 5MB.' });
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = originalText;
+                        return;
+                    }
+
+                    base64Image = await convertImageToBase64(imageFile);
+                }
+
+                const themeData = {
+                    Id: currentMonthlyThemeData.themeId || currentMonthlyThemeData.id || 0,
+                    Month: parseInt(month),
+                    Year: parseInt(year),
+                    Theme: title,
+                    Description: description,
+                    Assembly: assembly,
+                    ThemeImage: base64Image
+                };
+
+                $.ajax({
+                    url: '/Event/UpdateMonthlyTheme?id=' + themeData.Id,
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(themeData),
+                    success: function (response) {
+                        if (response.isSuccess) {
+                            currentMonthlyThemeData = { ...themeData, monthThemeImage: base64Image.split(',')[1] || base64Image };
+                            
+                            var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                            var monthName = month > 0 && month <= 12 ? monthNames[month - 1] : month;
+
+                            document.getElementById('monthlyThemeMonthTitle').innerText = "Theme of " + monthName + " " + year;
+                            document.getElementById('monthlyThemeTitle').innerText = title;
+                            document.getElementById('monthlyThemeActivity').innerText = description;
+                            if (base64Image) {
+                                document.getElementById('monthlyThemeImage').src = base64Image;
+                                document.getElementById('monthlyModalImage').src = base64Image;
+                            }
+                            document.getElementById('monthlyDisplayMode').style.display = 'block';
+                            document.getElementById('monthlyEditMode').style.display = 'none';
+                            document.getElementById('editMonthlyThemeButton').style.display = 'inline-block';
+                            document.getElementById('saveMonthlyThemeButton').style.display = 'none';
+                            Swal.fire({ icon: 'success', title: 'Success!', text: 'Monthly theme updated successfully.', timer: 2000, showConfirmButton: false });
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Update Failed', text: response.message || 'An error occurred while updating the theme.' });
+                        }
+                    },
+                    error: function (xhr) {
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to update monthly theme. Please try again.' });
+                    },
+                    complete: function () {
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = originalText;
+                    }
+                });
+            } catch (error) {
+                console.error('Error converting image:', error);
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to process image. Please try again.' });
+                saveButton.disabled = false;
+                saveButton.innerHTML = originalText;
+            }
+        }
+
+
         // SweetAlert2 functions
         function joinMembershipClass(memberId) {
             Swal.fire({
@@ -1087,3 +1337,5 @@
         window.previewImage = previewImage;
     </script>
 }
+
+

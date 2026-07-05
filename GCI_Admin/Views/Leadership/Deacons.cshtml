@@ -13,7 +13,7 @@
         <button class="btn btn-success btn-lg me-2" onclick="downloadTemplate()">
             <i class="fa fa-download me-2"></i>Download Template
         </button>
-        <button type="button" class="btn btn-primary btn-lg" onclick="openAddDeaconModal()">
+        <button type="button" id="addDeaconBtn" class="btn btn-primary btn-lg" onclick="openAddDeaconModal()">
             <i class="fa fa-plus-circle me-2"></i>Add New Deacon
         </button>
     </div>
@@ -444,15 +444,30 @@
         });
 
         function openAddDeaconModal() {
+            const btn = $('#addDeaconBtn');
+            // Disable and show spinner immediately to prevent double-clicks
+            btn.prop('disabled', true)
+               .html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...');
+
+            const restoreBtn = function() {
+                btn.prop('disabled', false)
+                   .html('<i class="fa fa-plus-circle me-2"></i>Add New Deacon');
+            };
+
             if ($('#addDeaconModal').length === 0) {
                 $.get('/Leadership/AddDeaconPartial', function(data) {
                     $('#addDeaconModalContainer').html(data);
-                    $('#addDeaconModal').modal('show');
+                    const modal = $('#addDeaconModal');
+                    modal.one('shown.bs.modal', restoreBtn);
+                    modal.modal('show');
                 }).fail(function() {
+                    restoreBtn();
                     Swal.fire('Error', 'Failed to load add deacon form', 'error');
                 });
             } else {
-                $('#addDeaconModal').modal('show');
+                const modal = $('#addDeaconModal');
+                modal.one('shown.bs.modal', restoreBtn);
+                modal.modal('show');
                 if ($('#addDeaconForm').length) $('#addDeaconForm')[0].reset();
                 if ($.fn.select2) {
                     $('.select2-member').val(null).trigger('change');

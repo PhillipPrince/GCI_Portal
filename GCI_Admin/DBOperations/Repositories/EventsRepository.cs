@@ -32,7 +32,8 @@ namespace GCI_Admin.DBOperations.Repositories
                     AllowWalkIns = dto.AllowWalkIns,
                     StartDateTime = dto.StartDateTime,
                     EndDateTime = dto.EndDateTime,
-                    NotificationGroupId = dto.NotificationGroupId ?? 1,
+                    GroupId = dto.GroupId ?? 1,
+                    MinistryId = dto.MinistryId,
 
                     CreatedAt = DateTime.Now,
                     QrCode = Guid.NewGuid().ToString("N")
@@ -66,7 +67,7 @@ namespace GCI_Admin.DBOperations.Repositories
             try
             {
                 var events = await _context.Events
-                    .OrderByDescending(e => e.EventDate)
+                    .OrderBy(e => e.EventDate)
                     .ToListAsync();
 
                 return new DbResponse<List<Event>>
@@ -145,7 +146,8 @@ namespace GCI_Admin.DBOperations.Repositories
                 existingEvent.AllowWalkIns = dto.AllowWalkIns;
                 existingEvent.StartDateTime = dto.StartDateTime;
                 existingEvent.EndDateTime = dto.EndDateTime;
-                existingEvent.NotificationGroupId = dto.NotificationGroupId ?? 1;
+                existingEvent.GroupId = dto.GroupId ?? 1;
+                existingEvent.MinistryId = dto.MinistryId;
                 existingEvent.UpdatedAt = DateTime.Now;
 
                 if (string.IsNullOrEmpty(existingEvent.QrCode))
@@ -458,13 +460,23 @@ namespace GCI_Admin.DBOperations.Repositories
             }
         }
 
-        public async Task<DbResponse<AnnualTheme>> GetThemeForCurrentYearAsync(DateTime currentYear)
+        public async Task<DbResponse<AnnualTheme>> GetThemeForCurrentYearAsync(DateTime currentYear, string? assemblyName = null)
         {
             try
             {
+                var query = _context.AnnualThemes
+                    .Where(t => t.IsActive && t.Year == currentYear.Year);
 
-                var theme = await _context.AnnualThemes
-                    .Where(t => t.IsActive && t.Year == currentYear.Year)
+                if (!string.IsNullOrEmpty(assemblyName))
+                {
+                    query = query.Where(t => t.Assembly == assemblyName);
+                }
+                else
+                {
+                    query = query.Where(t => string.IsNullOrEmpty(t.Assembly));
+                }
+
+                var theme = await query
                     .OrderByDescending(t => t.CreatedAt)
                     .FirstOrDefaultAsync();
 
@@ -493,7 +505,113 @@ namespace GCI_Admin.DBOperations.Repositories
             }
         }
 
-        public async Task<DbResponse<AnnualTheme>> UpdateAnnualThemeAsync(int id, AnnualThemeDto dto)
+                public async Task<DbResponse<List<AnnualTheme>>> GetAllAnnualThemesAsync(string? assemblyName = null)
+        {
+            try
+            {
+                var query = _context.AnnualThemes.AsQueryable();
+                if (!string.IsNullOrEmpty(assemblyName))
+                    query = query.Where(t => t.Assembly == assemblyName);
+                
+                var themes = await query.OrderByDescending(t => t.CreatedAt).ToListAsync();
+                return new DbResponse<List<AnnualTheme>> { Success = true, Data = themes };
+            }
+            catch (Exception ex)
+            {
+                return new DbResponse<List<AnnualTheme>> { Success = false, Message = ex.Message };
+            }
+        }
+
+        public async Task<ApiResponse<Event>> UpdateEventAgeGroupsAsync(int eventId, string ageGroups)
+        {
+            var response = new ApiResponse<Event>();
+            try
+            {
+                var existingEvent = await _context.Events.FindAsync(eventId);
+                if (existingEvent == null)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = "Event not found";
+                    return response;
+                }
+
+                existingEvent.AllowedAgeGroups = ageGroups;
+                existingEvent.UpdatedAt = DateTime.UtcNow;
+
+                _context.Events.Update(existingEvent);
+                await _context.SaveChangesAsync();
+
+                response.IsSuccess = true;
+                response.Code = "200";
+                response.Message = "Age groups updated successfully";
+                response.Data = existingEvent;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+        public async Task<DbResponse<bool>> DeleteAnnualThemeAsync(int id)
+        {
+            try
+            {
+                var theme = await _context.AnnualThemes.FindAsync(id);
+                if (theme != null)
+                {
+                    _context.AnnualThemes.Remove(theme);
+                    await _context.SaveChangesAsync();
+                    return new DbResponse<bool> { Success = true, Data = true, Message = "Deleted successfully" };
+                }
+                return new DbResponse<bool> { Success = false, Message = "Not found" };
+            }
+            catch (Exception ex)
+            {
+                return new DbResponse<bool> { Success = false, Message = ex.Message };
+            }
+        }
+
+        public async Task<DbResponse<List<MonthlyTheme>>> GetAllMonthlyThemesAsync(string? assemblyName = null)
+        {
+            try
+            {
+                var query = _context.MonthlyThemes.AsQueryable();
+                if (!string.IsNullOrEmpty(assemblyName))
+                    query = query.Where(t => t.Assembly == assemblyName);
+                
+                var themes = await query.OrderByDescending(t => t.CreatedAt).ToListAsync();
+                return new DbResponse<List<MonthlyTheme>> { Success = true, Data = themes };
+            }
+            catch (Exception ex)
+            {
+                return new DbResponse<List<MonthlyTheme>> { Success = false, Message = ex.Message };
+            }
+        }
+
+        public async Task<DbResponse<bool>> DeleteMonthlyThemeAsync(int id)
+        {
+            try
+            {
+                var theme = await _context.MonthlyThemes.FindAsync(id);
+                if (theme != null)
+                {
+                    _context.MonthlyThemes.Remove(theme);
+                    await _context.SaveChangesAsync();
+                    return new DbResponse<bool> { Success = true, Data = true, Message = "Deleted successfully" };
+                }
+                return new DbResponse<bool> { Success = false, Message = "Not found" };
+            }
+            catch (Exception ex)
+            {
+                return new DbResponse<bool> { Success = false, Message = ex.Message };
+            }
+        }
+
+        public async Task<DbResponse<AnnualTheme>> UpdateAnnualThemeAsync(int id, AnnualThemeDto dto, string? assemblyName = null)
         {
             try
             {
@@ -505,9 +623,13 @@ namespace GCI_Admin.DBOperations.Repositories
                 }
                 else
                 {
-                    existing = await _context.AnnualThemes
-                        .Where(t =>  t.Year == dto.Year)
-                        .FirstOrDefaultAsync();
+                    var query = _context.AnnualThemes.Where(t => t.Year == dto.Year);
+                    if (!string.IsNullOrEmpty(assemblyName))
+                        query = query.Where(t => t.Assembly == assemblyName);
+                    else
+                        query = query.Where(t => string.IsNullOrEmpty(t.Assembly));
+
+                    existing = await query.FirstOrDefaultAsync();
                 }
 
                 
@@ -519,6 +641,7 @@ namespace GCI_Admin.DBOperations.Repositories
                         Verse = dto.Verse,
                         Description = dto.Description,
                         Year = dto.Year,
+                        Assembly = assemblyName,
                         IsActive = true,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now
@@ -565,6 +688,132 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+
+                public async Task<DbResponse<MonthlyTheme>> GetThemeForCurrentMonthAsync(DateTime currentDate, string? assemblyName = null)
+        {
+            try
+            {
+                var query = _context.MonthlyThemes
+                    .Where(t => t.IsActive && t.Year == currentDate.Year && t.Month == currentDate.Month);
+
+                if (!string.IsNullOrEmpty(assemblyName))
+                {
+                    query = query.Where(t => t.Assembly == assemblyName);
+                }
+                else
+                {
+                    query = query.Where(t => string.IsNullOrEmpty(t.Assembly));
+                }
+
+                var theme = await query
+                    .OrderByDescending(t => t.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                if (theme == null)
+                {
+                    return new DbResponse<MonthlyTheme>
+                    {
+                        Success = false,
+                        Message = "No active theme found for the current month."
+                    };
+                }
+
+                return new DbResponse<MonthlyTheme>
+                {
+                    Success = true,
+                    Data = theme
+                };
+            }
+            catch (Exception ex)
+            {
+                return new DbResponse<MonthlyTheme>
+                {
+                    Success = false,
+                    Message = $"Error fetching theme for current month: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<DbResponse<MonthlyTheme>> UpdateMonthlyThemeAsync(int id, MonthlyThemeDto dto, string? assemblyName = null)
+        {
+            try
+            {
+                MonthlyTheme existing = null;
+
+                if (id > 0)
+                {
+                    existing = await _context.MonthlyThemes.FindAsync(id);
+                }
+                else
+                {
+                    var query = _context.MonthlyThemes.Where(t => t.Year == dto.Year && t.Month == dto.Month);
+                    if (!string.IsNullOrEmpty(assemblyName))
+                        query = query.Where(t => t.Assembly == assemblyName);
+                    else
+                        query = query.Where(t => string.IsNullOrEmpty(t.Assembly));
+
+                    existing = await query.FirstOrDefaultAsync();
+                }
+
+                if (existing == null || existing.Year != dto.Year || existing.Month != dto.Month)
+                {
+                    var newTheme = new MonthlyTheme
+                    {
+                        Theme = dto.Theme,
+                        Description = dto.Description,
+                        Month = dto.Month,
+                        Year = dto.Year,
+                        Assembly = assemblyName,
+                        IsActive = true,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    };
+
+                    _context.MonthlyThemes.Add(newTheme);
+                    await _context.SaveChangesAsync();
+
+                    Loggers.DoLogs($"Created new monthly theme: {newTheme.Theme} for {newTheme.Month}/{newTheme.Year}");
+
+                    return new DbResponse<MonthlyTheme>
+                    {
+                        Success = true,
+                        Message = "Monthly theme created successfully",
+                        Data = newTheme
+                    };
+                }
+
+                existing.Theme = dto.Theme;
+                existing.Description = dto.Description;
+                if (!string.IsNullOrEmpty(assemblyName))
+                {
+                    existing.Assembly = assemblyName;
+                }
+                existing.IsActive = true;
+                existing.UpdatedAt = DateTime.Now;
+
+                Loggers.DoLogs($"Updated monthly theme: {existing.Theme} for {existing.Month}/{existing.Year}");
+
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<MonthlyTheme>
+                {
+                    Success = true,
+                    Message = "Monthly theme updated successfully",
+                    Data = existing
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"UpdateMonthlyThemeAsync Error: {ex}");
+
+                return new DbResponse<MonthlyTheme>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
 
         public async Task<DbResponse<List<Event>>> GetUpcomingEventsAsync()
         {
@@ -863,9 +1112,21 @@ namespace GCI_Admin.DBOperations.Repositories
             {
                 var registrations = await _context.EventRegistrations
                     .Where(r => r.EventId == eventId)
-                    .Include(r => r.Member)
                     .OrderByDescending(r => r.RegistrationDate)
                     .ToListAsync();
+
+                var memberIds = registrations.Where(r => r.MemberId != 0).Select(r => r.MemberId).Distinct().ToList();
+                if (memberIds.Any())
+                {
+                    var members = await _context.Members.Where(m => memberIds.Contains(m.Id)).ToDictionaryAsync(m => m.Id);
+                    foreach (var r in registrations.Where(r => r.MemberId != 0))
+                    {
+                        if (members.TryGetValue(r.MemberId, out var member))
+                        {
+                            r.Member = member;
+                        }
+                    }
+                }
                 return new DbResponse<List<EventRegistration>>
                 {
                     Success = true,
@@ -887,3 +1148,4 @@ namespace GCI_Admin.DBOperations.Repositories
 
         }
 }
+

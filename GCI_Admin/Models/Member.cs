@@ -51,6 +51,9 @@ namespace GCI_Admin.Models
         public string Token { get; set; } = string.Empty;
         [NotMapped]
         public byte[] ProfileImage { get; set; }
+        
+        public string? ProfilePictureUrl { get; set; }
+
 
     }
 

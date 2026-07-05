@@ -21,7 +21,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 var newMember = new GECMember
                 {
                     MemberId = dto.MemberId,
-                    PositionTitle = dto.PositionTitle,
+                    GECPositionId = dto.GECPositionId,
                     Bio = dto.Bio,
                     StartDate = dto.StartDate,
                     EndDate = dto.EndDate,
@@ -58,6 +58,7 @@ namespace GCI_Admin.DBOperations.Repositories
                     .Where(g => g.IsActive)
                     .OrderBy(g => g.GECId)
                     .Include(g=>g.Member)
+                    .Include(g=>g.GECPosition)
                     .ToListAsync();
 
                 return new DbResponse<List<GECMember>>
@@ -81,6 +82,7 @@ namespace GCI_Admin.DBOperations.Repositories
             try
             {
                 var member = await _context.GECMembers
+                    .Include(g => g.GECPosition)
                     .FirstOrDefaultAsync(x => x.GECId == gecId);
 
                 if (member == null)
@@ -124,7 +126,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 }
 
                 existingMember.MemberId = dto.MemberId;
-                existingMember.PositionTitle = dto.PositionTitle;
+                existingMember.GECPositionId = dto.GECPositionId;
                 existingMember.Bio = dto.Bio;
                 existingMember.StartDate = dto.StartDate;
                 existingMember.EndDate = dto.EndDate;

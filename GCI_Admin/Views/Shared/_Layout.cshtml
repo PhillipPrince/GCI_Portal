@@ -137,6 +137,7 @@
                     Roles = new[] { 1, 2, 5 }, // Church Admin, Branch Admin, Pastor
                     Children = new[] {
                         new { Title = "Central Leadership", Url = Url.Action("Index", "GECMember"), Controller = "gecmember", Roles = new[] { 1, 2 } },
+                        new { Title = "GEC Positions", Url = Url.Action("Index", "GECPositions"), Controller = "gecpositions", Roles = new[] { 1, 2 } },
                         new { Title = "Elders", Url = Url.Action("Elders", "Leadership"), Controller = "elders", Roles = new[] { 1, 2, 5 } },
                         new { Title = "Deacons", Url = Url.Action("Deacons", "Leadership"), Controller = "deacons", Roles = new[] { 1, 2, 5 } }
                     }
@@ -161,7 +162,7 @@
                     Roles = new[] { 1, 2, 3, 4, 5 }, // Almost all roles except Finance
                     Children = new[] {
                         new { Title = "Annual Calendar", Url = Url.Action("Index", "Event"), Controller = "event", Roles = new[] { 1, 2, 3, 4, 5 } },
-                        new { Title = "Event Registrations", Url = Url.Action("Index", "EventRegistrations"), Controller = "eventregistrations", Roles = new[] { 1, 2 } }
+                        new { Title = "Themes", Url = Url.Action("Themes", "Event"), Controller = "event", Roles = new[] { 1, 2 } }
                     }
                 },
                 ["meetings"] = new { 
@@ -184,7 +185,9 @@
                     Controller = "content",
                     Roles = new[] { 1, 2 }, // Church Admin, Branch Admin
                     Children = new[] {
-                        new { Title = "Announcements", Url = Url.Action("Index", "Announcements"), Controller = "announcements", Roles = new[] { 1, 2 } }
+                        new { Title = "Announcements", Url = Url.Action("Index", "Announcements"), Controller = "announcements", Roles = new[] { 1, 2 } },
+                        new { Title = "Gallery", Url = Url.Action("Index", "Gallery"), Controller = "gallery", Roles = new[] { 1, 2 } },
+                        new { Title = "Notification Groups", Url = Url.Action("Index", "NotificationGroups"), Controller = "notificationgroups", Roles = new[] { 1, 2 } }
                     }
                 },
                 ["reports"] = new { 
@@ -229,7 +232,7 @@
                     Url = Url.Action("Index", "FaithSpace"), 
                     Controller = "faithspace",
                     IsParent = false,
-                    Roles = new[] { 1, 2, 3, 4, 5, 6 }
+                    Roles = new[] { 1, 2, 3, 4, 5 }
                 },
                 ["settings"] = new { 
                     Title = "System Settings", 

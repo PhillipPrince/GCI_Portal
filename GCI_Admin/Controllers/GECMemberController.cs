@@ -16,13 +16,14 @@ namespace GCI_Admin.Controllers
         private readonly IGECMemberService _gecMemberService;
         private readonly AppDbContext _context;
         private readonly MembersRepository _membersRepository;
+        private readonly GECPositionRepository _positionsRepository;
 
-
-        public GECMemberController(IGECMemberService gecMemberService, AppDbContext context, MembersRepository repository)
+        public GECMemberController(IGECMemberService gecMemberService, AppDbContext context, MembersRepository repository, GECPositionRepository positionsRepository)
         {
             _gecMemberService = gecMemberService;
             _context = context;
             _membersRepository = repository;
+            _positionsRepository = positionsRepository;
         }
 
         // ✅ INDEX
@@ -49,8 +50,10 @@ namespace GCI_Admin.Controllers
             CreateGECMemberDto dto = new CreateGECMemberDto();
             // Get all members for the dropdown
             var members = await _membersRepository.GetAllMembersAsync();
+            var positions = await _positionsRepository.GetAllPositionsAsync();
 
             dto.Members = members.Data;
+            dto.Positions = positions.Data?.Where(p => p.IsActive).ToList() ?? new List<GECPosition>();
 
 
             return View(dto);
@@ -78,7 +81,9 @@ namespace GCI_Admin.Controllers
         {
             CreateGECMemberDto dto = new CreateGECMemberDto();
             var members = await _membersRepository.GetAllMembersAsync();
+            var positions = await _positionsRepository.GetAllPositionsAsync();
             dto.Members = members.Data;
+            dto.Positions = positions.Data?.Where(p => p.IsActive).ToList() ?? new List<GECPosition>();
 
             ViewBag.IsEdit = false;
             return PartialView("_CreateGECMemberPartial", dto);
@@ -200,6 +205,7 @@ namespace GCI_Admin.Controllers
         public async Task<IActionResult> LoadEditForm(int id)
         {
             var members = await _membersRepository.GetAllMembersAsync();
+            var positions = await _positionsRepository.GetAllPositionsAsync();
             var gecResponse = await _gecMemberService.GetGECMemberByIdAsync(id);
             if (gecResponse == null || !gecResponse.IsSuccess)
                 return NotFound("GEC Member not found");
@@ -207,11 +213,12 @@ namespace GCI_Admin.Controllers
             var dto = new CreateGECMemberDto
             {
                 Members = members.Data,
+                Positions = positions.Data?.Where(p => p.IsActive).ToList() ?? new List<GECPosition>(),
                 GECMember = new GECMemberDto
                 {
                     GECId = gecResponse.Data.GECId,
                     MemberId = gecResponse.Data.MemberId,
-                    PositionTitle = gecResponse.Data.PositionTitle,
+                    GECPositionId = gecResponse.Data.GECPositionId,
                     Bio = gecResponse.Data.Bio,
                     StartDate = gecResponse.Data.StartDate,
                     EndDate = gecResponse.Data.EndDate,
@@ -220,6 +227,17 @@ namespace GCI_Admin.Controllers
             };
 
             ViewBag.IsEdit = true;
+            if (gecResponse.Data.Member != null)
+            {
+                if (!string.IsNullOrEmpty(gecResponse.Data.Member.ProfilePictureUrl))
+                {
+                    ViewBag.CurrentImageUrl = gecResponse.Data.Member.ProfilePictureUrl;
+                }
+                else if (gecResponse.Data.Member.ProfileImage != null && gecResponse.Data.Member.ProfileImage.Length > 0)
+                {
+                    ViewBag.CurrentImageUrl = "data:image/jpeg;base64," + Convert.ToBase64String(gecResponse.Data.Member.ProfileImage);
+                }
+            }
             return PartialView("_CreateGECMemberPartial", dto);
         }
 

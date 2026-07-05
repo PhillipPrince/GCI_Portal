@@ -1,0 +1,34 @@
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message ?? "Update failed";
+                    return response;
+                }
+
+                string imageFolder = await SystemConfigHelper.GetImageBasePathAsync(_systemConfigRepository);
+                if (dto.ProfileImageBase64 != null)
+                {
+                    string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
+                    Loggers.EventLogs($"Saved profile image for deacon {result.Data.DeaconId} at {saved}");
+
+                    try
+                    {
+                        var cloudinaryUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.ProfileImageBase64);
+                        if (!string.IsNullOrEmpty(cloudinaryUrl))
+                        {
+                            var memberToUpdate = await _context.Members.FindAsync(result.Data.MemberId);
+                            if (memberToUpdate != null)
+                            {
+                                memberToUpdate.ProfilePictureUrl = cloudinaryUrl;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Loggers.DoLogs($"Cloudinary upload failed for deacon {result.Data.DeaconId}: {ex}");
+                    }
+                }
+
+                response.Data = result.Data;

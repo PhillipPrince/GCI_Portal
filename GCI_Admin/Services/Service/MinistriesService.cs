@@ -17,11 +17,13 @@ namespace GCI_Admin.Services.Service
     {
         private readonly MinistriesRepository _ministriesRepository;
         private readonly AppDbContext _context;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public MinistriesService(MinistriesRepository ministriesRepository, AppDbContext context)
+        public MinistriesService(MinistriesRepository ministriesRepository, AppDbContext context, ICloudinaryService cloudinaryService)
         {
             _ministriesRepository = ministriesRepository;
             _context = context;
+            _cloudinaryService = cloudinaryService;
         }
 
         // ✅ CREATE MINISTRY
@@ -258,6 +260,24 @@ namespace GCI_Admin.Services.Service
                 {
                     string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
                     Loggers.EventLogs($"Saved profile image for ministry leader {result.Data.MinistryLeaderId} at {saved}");
+
+                    try
+                    {
+                        var cloudinaryUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.ProfileImageBase64);
+                        if (!string.IsNullOrEmpty(cloudinaryUrl))
+                        {
+                            var memberToUpdate = await _context.Members.FindAsync(result.Data.MemberId);
+                            if (memberToUpdate != null)
+                            {
+                                memberToUpdate.ProfilePictureUrl = cloudinaryUrl;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Loggers.DoLogs($"Cloudinary upload failed for ministry leader {result.Data.MinistryLeaderId}: {ex}");
+                    }
                 }
 
                 response.Data = result.Data;
@@ -337,6 +357,24 @@ namespace GCI_Admin.Services.Service
                 {
                     string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
                     Loggers.EventLogs($"Saved profile image for ministry leader {result.Data.MinistryLeaderId} on update at {saved}");
+
+                    try
+                    {
+                        var cloudinaryUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.ProfileImageBase64);
+                        if (!string.IsNullOrEmpty(cloudinaryUrl))
+                        {
+                            var memberToUpdate = await _context.Members.FindAsync(result.Data.MemberId);
+                            if (memberToUpdate != null)
+                            {
+                                memberToUpdate.ProfilePictureUrl = cloudinaryUrl;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Loggers.DoLogs($"Cloudinary upload failed for ministry leader {result.Data.MinistryLeaderId}: {ex}");
+                    }
                 }
 
                 response.Data = result.Data;

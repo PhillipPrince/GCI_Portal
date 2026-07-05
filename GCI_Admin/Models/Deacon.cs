@@ -1,4 +1,4 @@
-﻿namespace GCI_Admin.Models
+namespace GCI_Admin.Models
 {
     public class Deacon
     {
@@ -14,6 +14,9 @@
 
         public bool IsActive { get; set; }
         public bool OnDuty { get; set; }
+
+        public bool HasSpecialDuties { get; set; }
+        public bool IsEmeritus { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

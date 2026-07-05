@@ -16,11 +16,13 @@ namespace GCI_Admin.Services.Service
     {
         private readonly GrowthCentersRepository _repository;
         private readonly AppDbContext _context;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public GrowthCentersService(GrowthCentersRepository repository, AppDbContext context)
+        public GrowthCentersService(GrowthCentersRepository repository, AppDbContext context, ICloudinaryService cloudinaryService)
         {
             _repository = repository;
             _context = context;
+            _cloudinaryService = cloudinaryService;
         }
 
         // ✅ CREATE GROWTH CENTER
@@ -307,6 +309,24 @@ namespace GCI_Admin.Services.Service
                 {
                     string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{dto.MemberId}", "jpg");
                     Loggers.EventLogs($"Saved profile image for GC leader at {saved}");
+
+                    try
+                    {
+                        var cloudinaryUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.ProfileImageBase64);
+                        if (!string.IsNullOrEmpty(cloudinaryUrl))
+                        {
+                            var memberToUpdate = await _context.Members.FindAsync(dto.MemberId);
+                            if (memberToUpdate != null)
+                            {
+                                memberToUpdate.ProfilePictureUrl = cloudinaryUrl;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Loggers.DoLogs($"Cloudinary upload failed for GC leader member {dto.MemberId}: {ex}");
+                    }
                 }
 
                 response.Data = leader;
@@ -349,6 +369,24 @@ namespace GCI_Admin.Services.Service
                 {
                     string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{dto.MemberId}", "jpg");
                     Loggers.EventLogs($"Saved profile image for GC leader on update at {saved}");
+
+                    try
+                    {
+                        var cloudinaryUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.ProfileImageBase64);
+                        if (!string.IsNullOrEmpty(cloudinaryUrl))
+                        {
+                            var memberToUpdate = await _context.Members.FindAsync(dto.MemberId);
+                            if (memberToUpdate != null)
+                            {
+                                memberToUpdate.ProfilePictureUrl = cloudinaryUrl;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Loggers.DoLogs($"Cloudinary upload failed for GC leader member {dto.MemberId}: {ex}");
+                    }
                 }
 
                 response.Data = leader;

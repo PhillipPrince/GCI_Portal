@@ -30,8 +30,13 @@ namespace GCI_Admin.Models
 
         public DateTime? EndDateTime { get; set; }
 
-        public int? NotificationGroupId { get; set; }
+        public int? GroupId { get; set; }
+        public int? MinistryId { get; set; }
         public string? QrCode { get; set; }
+        public string? AllowedAgeGroups { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+        public byte[]? EventImage { get; set; }
     }
 
     public class EventViewModel

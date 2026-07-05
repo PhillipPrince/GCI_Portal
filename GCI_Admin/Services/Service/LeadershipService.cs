@@ -4,6 +4,7 @@ using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using GCI_Admin.Utils;
 using Utils;
+using GCI_Admin.DBOperations;
 
 namespace GCI_Admin.Services.Service
 {
@@ -11,11 +12,15 @@ namespace GCI_Admin.Services.Service
     {
         private readonly LeadershipRepository _leadershipRepository;
         private readonly SystemConfigRepository _systemConfigRepository;
+        private readonly ICloudinaryService _cloudinaryService;
+        private readonly AppDbContext _context;
 
-        public LeadershipService(LeadershipRepository leadershipRepository, SystemConfigRepository systemConfigRepository)
+        public LeadershipService(LeadershipRepository leadershipRepository, SystemConfigRepository systemConfigRepository, ICloudinaryService cloudinaryService, AppDbContext context)
         {
             _leadershipRepository = leadershipRepository;
             _systemConfigRepository = systemConfigRepository;
+            _cloudinaryService = cloudinaryService;
+            _context = context;
         }
 
         // =========================================================
@@ -40,10 +45,26 @@ namespace GCI_Admin.Services.Service
                 string imageFolder = await SystemConfigHelper.GetImageBasePathAsync(_systemConfigRepository);
                 if (dto.ProfileImageBase64 != null)
                 {
-
-
                     string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
                     Loggers.EventLogs($"Saved profile image for deacon {result.Data.DeaconId} at {saved}");
+
+                    try
+                    {
+                        var cloudinaryUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.ProfileImageBase64);
+                        if (!string.IsNullOrEmpty(cloudinaryUrl))
+                        {
+                            var memberToUpdate = await _context.Members.FindAsync(result.Data.MemberId);
+                            if (memberToUpdate != null)
+                            {
+                                memberToUpdate.ProfilePictureUrl = cloudinaryUrl;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Loggers.DoLogs($"Cloudinary upload failed for deacon {result.Data.DeaconId}: {ex}");
+                    }
                 }
 
                 response.Data = result.Data;
@@ -243,6 +264,24 @@ namespace GCI_Admin.Services.Service
                 {
                     string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
                     Loggers.EventLogs($"Saved profile image for elder {result.Data.ElderId} at {saved}");
+
+                    try
+                    {
+                        var cloudinaryUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.ProfileImageBase64);
+                        if (!string.IsNullOrEmpty(cloudinaryUrl))
+                        {
+                            var memberToUpdate = await _context.Members.FindAsync(result.Data.MemberId);
+                            if (memberToUpdate != null)
+                            {
+                                memberToUpdate.ProfilePictureUrl = cloudinaryUrl;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Loggers.DoLogs($"Cloudinary upload failed for elder {result.Data.ElderId}: {ex}");
+                    }
                 }
 
                 response.Data = result.Data;
@@ -343,6 +382,24 @@ namespace GCI_Admin.Services.Service
                     string imageFolder = await SystemConfigHelper.GetImageBasePathAsync(_systemConfigRepository);
                     string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
                     Loggers.EventLogs($"Saved profile image for elder {result.Data.ElderId} on update at {saved}");
+
+                    try
+                    {
+                        var cloudinaryUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.ProfileImageBase64);
+                        if (!string.IsNullOrEmpty(cloudinaryUrl))
+                        {
+                            var memberToUpdate = await _context.Members.FindAsync(result.Data.MemberId);
+                            if (memberToUpdate != null)
+                            {
+                                memberToUpdate.ProfilePictureUrl = cloudinaryUrl;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Loggers.DoLogs($"Cloudinary upload failed for elder {result.Data.ElderId}: {ex}");
+                    }
                 }
 
                 response.Data = result.Data;
@@ -417,3 +474,4 @@ namespace GCI_Admin.Services.Service
         }
     }
 }
+

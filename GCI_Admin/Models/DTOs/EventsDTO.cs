@@ -26,6 +26,11 @@ namespace GCI_Admin.Models.DTOs
         public bool AllowWalkIns { get;set; }
         public DateTime? StartDateTime { get; set; }
         public DateTime? EndDateTime { get; set; }
-        public int? NotificationGroupId { get; set; }
+
+        public int? GroupId { get; set; }
+        public int? MinistryId { get; set; }
+        public List<int>? SpecificMemberIds { get; set; }
+        public string? ImageBase64 { get; set; }
+        public string? AllowedAgeGroups { get; set; }
     }
 }

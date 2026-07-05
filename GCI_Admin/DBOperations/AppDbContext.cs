@@ -20,6 +20,7 @@ namespace GCI_Admin.DBOperations
         public DbSet<Event> Events { get; set; }
         public DbSet<AnnualEventCalendar> AnnualEventCalendars { get; set; }
         public DbSet<GECMember> GECMembers { get; set; }
+        public DbSet<GECPosition> GECPositions { get; set; }
         public DbSet<SystemConfig> SystemConfig { get; set; }
         public DbSet<EventRegistration> EventRegistrations { get; set; }
         public DbSet<MemberAdditionalInformation> MemberAdditionalInformations { get; set; }
@@ -32,6 +33,7 @@ namespace GCI_Admin.DBOperations
         public DbSet<GrowthCenterLeader> GrowthCenterLeaders { get; set; }
         public DbSet<GrowthCenterMember> GrowthCenterMembers { get; set; }
         public DbSet<AnnualTheme> AnnualThemes { get; set; }
+        public DbSet<MonthlyTheme> MonthlyThemes { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<BenevolenceMember> BenevolenceMembers { get; set; }

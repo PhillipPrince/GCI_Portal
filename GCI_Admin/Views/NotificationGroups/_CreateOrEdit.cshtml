@@ -1,0 +1,37 @@
+<!-- Modal -->
+<div class="modal fade" id="createOrEditModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-bottom p-4">
+                <h5 class="modal-title fw-bold text-primary" id="modalTitle">Add Notification Group</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="groupForm">
+                    <input type="hidden" id="GroupId" name="GroupId" value="0" />
+                    
+                    <div class="mb-3">
+                        <label for="GroupName" class="form-label fw-medium text-dark">Group Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control rounded-3 py-2" id="GroupName" name="GroupName" required placeholder="e.g. All Members">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="Description" class="form-label fw-medium text-dark">Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control rounded-3" id="Description" name="Description" rows="3" required placeholder="Brief description of who is in this group"></textarea>
+                    </div>
+                    
+                    <div class="form-check form-switch mt-4 mb-2">
+                        <input class="form-check-input" type="checkbox" id="IsActive" name="IsActive" checked>
+                        <label class="form-check-label fw-medium text-dark ms-2" for="IsActive">Is Active</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top bg-light p-3 rounded-bottom-4">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="saveGroup()">
+                    <i class="fas fa-save me-2"></i>Save Group
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

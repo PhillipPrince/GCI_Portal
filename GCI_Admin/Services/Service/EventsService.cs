@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using GCI_Admin.DBOperations;
 using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
@@ -53,6 +53,12 @@ namespace GCI_Admin.Services.Service
                     response.Code = "400";
                     response.Message = result.Message ?? "Failed to create event";
                     return response;
+                }
+
+                if (!string.IsNullOrEmpty(dto.ImageBase64))
+                {
+                    var imageBytes = ImageHelper.RemoveBase64Prefix(dto.ImageBase64);
+                    ImageHelper.SaveImage(imageBytes, folderPath, $"event_{result.Data.EventId}", "jpg");
                 }
 
                 response.IsSuccess = true;
@@ -111,6 +117,8 @@ namespace GCI_Admin.Services.Service
                     return response;
                 }
 
+                result.Data.EventImage = ImageHelper.ReadImage(folderPath, $"event_{eventId}");
+
                 response.IsSuccess = true;
                 response.Code = "200";
                 response.Data = result.Data;
@@ -142,6 +150,12 @@ namespace GCI_Admin.Services.Service
                     return response;
                 }
 
+                if (!string.IsNullOrEmpty(dto.ImageBase64))
+                {
+                    var imageBytes = ImageHelper.RemoveBase64Prefix(dto.ImageBase64);
+                    ImageHelper.SaveImage(imageBytes, folderPath, $"event_{eventId}", "jpg");
+                }
+
                 response.IsSuccess = true;
                 response.Code = "200";
                 response.Data = result.Data;
@@ -155,6 +169,11 @@ namespace GCI_Admin.Services.Service
             }
 
             return response;
+        }
+
+        public async Task<ApiResponse<Event>> UpdateEventAgeGroupsAsync(int eventId, string ageGroups)
+        {
+            return await _eventsRepository.UpdateEventAgeGroupsAsync(eventId, ageGroups);
         }
 
         public async Task<ApiResponse<bool>> DeleteEventAsync(int eventId)
@@ -426,7 +445,95 @@ namespace GCI_Admin.Services.Service
         }
 
        
-        public async Task<ApiResponse<AnnualTheme>> GetCurrentYearThemeAsync()
+                public async Task<ApiResponse<List<AnnualTheme>>> GetAllAnnualThemesAsync(string? assemblyName = null)
+        {
+            var response = new ApiResponse<List<AnnualTheme>>();
+            try
+            {
+                var result = await _eventsRepository.GetAllAnnualThemesAsync(assemblyName);
+                if (result.Success)
+                {
+                    response.IsSuccess = true;
+                    response.Data = result.Data;
+                    response.Message = "Themes retrieved successfully";
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.Message = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<bool>> DeleteAnnualThemeAsync(int id)
+        {
+            var response = new ApiResponse<bool>();
+            try
+            {
+                var result = await _eventsRepository.DeleteAnnualThemeAsync(id);
+                response.IsSuccess = result.Success;
+                response.Data = result.Data;
+                response.Message = result.Message;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<List<MonthlyTheme>>> GetAllMonthlyThemesAsync(string? assemblyName = null)
+        {
+            var response = new ApiResponse<List<MonthlyTheme>>();
+            try
+            {
+                var result = await _eventsRepository.GetAllMonthlyThemesAsync(assemblyName);
+                if (result.Success)
+                {
+                    response.IsSuccess = true;
+                    response.Data = result.Data;
+                    response.Message = "Themes retrieved successfully";
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.Message = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<bool>> DeleteMonthlyThemeAsync(int id)
+        {
+            var response = new ApiResponse<bool>();
+            try
+            {
+                var result = await _eventsRepository.DeleteMonthlyThemeAsync(id);
+                response.IsSuccess = result.Success;
+                response.Data = result.Data;
+                response.Message = result.Message;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<AnnualTheme>> GetCurrentYearThemeAsync(string? assemblyName = null)
         {
             var response = new ApiResponse<AnnualTheme>();
 
@@ -435,7 +542,7 @@ namespace GCI_Admin.Services.Service
                 DateTime currentYear = DateTime.Now;
 
 
-                var result = await _eventsRepository.GetThemeForCurrentYearAsync(currentYear);
+                var result = await _eventsRepository.GetThemeForCurrentYearAsync(DateTime.Now, assemblyName);
 
                 if (result == null || result.Data == null)
                 {
@@ -446,7 +553,15 @@ namespace GCI_Admin.Services.Service
                     return response;
                 }
 
-                result.Data.YearThemeImage = ImageHelper.ReadImage(folderPath, currentYear.Year.ToString());
+                if (string.IsNullOrEmpty(assemblyName))
+                {
+                    result.Data.YearThemeImage = ImageHelper.ReadImage(folderPath, "theme_" + result.Data.Year);
+                }
+                else
+                {
+                    var assemblyFolder = Path.Combine(folderPath, "Assemblies", assemblyName);
+                    result.Data.YearThemeImage = ImageHelper.ReadImage(assemblyFolder, "theme_" + result.Data.Year);
+                }
 
                 response.IsSuccess = true;
                 response.Code = "200";
@@ -463,9 +578,9 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-        public Task<ApiResponse<AnnualTheme>> UpdateAnnualThemeAsync(int id, AnnualThemeDto dto)
+        public Task<ApiResponse<AnnualTheme>> UpdateAnnualThemeAsync(int id, AnnualThemeDto dto, string? assemblyName = null)
         {
-            var response = _eventsRepository.UpdateAnnualThemeAsync(id, dto);
+            var response = _eventsRepository.UpdateAnnualThemeAsync(id, dto, assemblyName);
             if (!response.Result.Success)
             {
                 return Task.FromResult(new ApiResponse<AnnualTheme>
@@ -476,9 +591,19 @@ namespace GCI_Admin.Services.Service
                 });
             }
             if (dto.ThemeImage != null) {
-
-                string savedImagePath = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ThemeImage), folderPath, dto.Year.ToString(), "jpg");
-                Loggers.EventLogs($"Saved theme image to: {savedImagePath}");
+                var imageBytes = ImageHelper.RemoveBase64Prefix(dto.ThemeImage);
+                if (string.IsNullOrEmpty(assemblyName))
+                {
+                    string savedImagePath = ImageHelper.SaveImage(imageBytes, folderPath, "theme_" + dto.Year, "jpg");
+                    Loggers.EventLogs($"Saved global theme image to: {savedImagePath}");
+                }
+                else
+                {
+                    var assemblyFolder = Path.Combine(folderPath, "Assemblies", assemblyName);
+                    if (!Directory.Exists(assemblyFolder)) Directory.CreateDirectory(assemblyFolder);
+                    string savedImagePath = ImageHelper.SaveImage(imageBytes, assemblyFolder, "theme_" + dto.Year, "jpg");
+                    Loggers.EventLogs($"Saved assembly theme image to: {savedImagePath}");
+                }
             }
 
             return Task.FromResult(new ApiResponse<AnnualTheme>
@@ -490,9 +615,91 @@ namespace GCI_Admin.Services.Service
             });
         }
 
+                public async Task<ApiResponse<MonthlyTheme>> GetCurrentMonthlyThemeAsync(string? assemblyName = null)
+        {
+            var response = new ApiResponse<MonthlyTheme>();
+
+            try
+            {
+                var result = await _eventsRepository.GetThemeForCurrentMonthAsync(DateTime.Now, assemblyName);
+
+                if (result == null || result.Data == null)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = "No theme found for the current month";
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(assemblyName))
+                {
+                    result.Data.MonthThemeImage = ImageHelper.ReadImage(folderPath, "monthlytheme_" + result.Data.Year + "_" + result.Data.Month);
+                }
+                else
+                {
+                    var assemblyFolder = Path.Combine(folderPath, "Assemblies", assemblyName);
+                    result.Data.MonthThemeImage = ImageHelper.ReadImage(assemblyFolder, "monthlytheme_" + result.Data.Year + "_" + result.Data.Month);
+                }
+
+                response.IsSuccess = true;
+                response.Code = "200";
+                response.Data = result.Data;
+                response.Message = "Current month theme retrieved successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = $"Error fetching monthly theme: {ex.Message}";
+            }
+
+            return response;
+        }
+
+
+
+        public Task<ApiResponse<MonthlyTheme>> UpdateMonthlyThemeAsync(int id, MonthlyThemeDto dto, string? assemblyName = null)
+        {
+            var response = _eventsRepository.UpdateMonthlyThemeAsync(id, dto, assemblyName);
+            if (!response.Result.Success)
+            {
+                return Task.FromResult(new ApiResponse<MonthlyTheme>
+                {
+                    IsSuccess = false,
+                    Code = "400",
+                    Message = response.Result.Message ?? "Failed to update monthly theme"
+                });
+            }
+            if (dto.ThemeImage != null) {
+                var imageBytes = ImageHelper.RemoveBase64Prefix(dto.ThemeImage);
+                if (string.IsNullOrEmpty(assemblyName))
+                {
+                    string savedImagePath = ImageHelper.SaveImage(imageBytes, folderPath, "monthlytheme_" + dto.Year + "_" + dto.Month, "jpg");
+                    Loggers.EventLogs($"Saved global monthly theme image to: {savedImagePath}");
+                }
+                else
+                {
+                    var assemblyFolder = Path.Combine(folderPath, "Assemblies", assemblyName);
+                    if (!Directory.Exists(assemblyFolder)) Directory.CreateDirectory(assemblyFolder);
+                    string savedImagePath = ImageHelper.SaveImage(imageBytes, assemblyFolder, "monthlytheme_" + dto.Year + "_" + dto.Month, "jpg");
+                    Loggers.EventLogs($"Saved assembly monthly theme image to: {savedImagePath}");
+                }
+            }
+
+            return Task.FromResult(new ApiResponse<MonthlyTheme>
+            {
+                IsSuccess = true,
+                Code = "200",
+                Message = response.Result.Message ?? "Monthly theme updated successfully",
+                Data = response.Result.Data
+            });
+        }
+
+
         public Task<ApiResponse<List<Event>>> GetUpcomingEventsAsync()
         {
             throw new NotImplementedException();
         }
     }
 }
+

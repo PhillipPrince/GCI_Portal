@@ -157,6 +157,48 @@
                             <h6 class="text-primary mb-3 border-bottom pb-2">
                                 <i class="fa fa-user me-2"></i>Personal Details
                             </h6>
+                            
+                            <!-- Profile Image Display -->
+                            <div class="text-center mb-4">
+                                @{
+                                    bool hasCloudinaryImage = !string.IsNullOrEmpty(member?.ProfilePictureUrl);
+                                    var hasProfileImage = member?.ProfileImage != null && member.ProfileImage.Length > 0;
+                                    
+                                    string imageBase64 = null;
+                                    if (hasProfileImage)
+                                    {
+                                        imageBase64 = Convert.ToBase64String(member.ProfileImage);
+                                    }
+                                    
+                                    string imageUrl = hasCloudinaryImage ? member.ProfilePictureUrl : (hasProfileImage ? $"data:image/jpeg;base64,{imageBase64}" : null);
+                                    bool hasImage = !string.IsNullOrEmpty(imageUrl);
+                                }
+                                
+                                @if (hasImage)
+                                {
+                                    <div class="profile-image-wrapper">
+                                        <img src="@imageUrl" 
+                                             alt="Member Profile" 
+                                             class="rounded-circle profile-image"
+                                             style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); cursor: pointer;"
+                                             onclick="viewFullImage('@imageUrl')"
+                                             onerror="this.onerror=null; this.src='/images/default-avatar.png';" />
+                                        <div class="mt-2">
+                                            <button class="btn btn-sm btn-outline-primary" onclick="viewFullImage('@imageUrl')">
+                                                <i class="fa fa-expand"></i> View Full Image
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="bg-primary bg-opacity-10 p-4 rounded-circle d-inline-block mb-3">
+                                        <i class="fa fa-user-circle-o text-primary fa-4x"></i>
+                                    </div>
+                                    <p class="text-muted small">No profile picture</p>
+                                }
+                            </div>
+                            
                             <table class="table table-borderless table-hover">
                                 <tr>
                                     <td class="text-muted" style="width: 40%"><strong>Full Name:</strong></td>
@@ -652,6 +694,24 @@
     </div>
 </div>
 
+<!-- Image Modal for Full Screen View -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Member Profile Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="fullImageView" src="" alt="Full Size Image" style="max-width: 100%; max-height: 70vh;" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -680,6 +740,12 @@
         let isRoleEditMode = false;
         let originalRoleId = '@member.UserRole';
         let originalRoleName = '@member.RoleName';
+        
+        // View full image
+        function viewFullImage(imageUrl) {
+            $('#fullImageView').attr('src', imageUrl);
+            $('#imageModal').modal('show');
+        }
 
         $(document).ready(function() {
         // Store original data

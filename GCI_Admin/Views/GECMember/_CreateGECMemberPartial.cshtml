@@ -41,7 +41,7 @@
                     IconClass = "fa fa-user-circle-o",
                     HelpText = "Upload a profile image for the growth center leader. Recommended size: 400x400 pixels. Max size: 5MB",
                     UploadButtonText = "Choose Image",
-                    CurrentImageUrl =null,
+                    CurrentImageUrl = ViewBag.CurrentImageUrl,
                     PreviewWidth = 150,
                     PreviewHeight = 150,
                     MaxFileSizeMB = 5,
@@ -59,16 +59,17 @@
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label class="form-label fw-bold">Position *</label>
-                <select asp-for="GECMember.PositionTitle" class="form-select" required>
+                <select asp-for="GECMember.GECPositionId" class="form-select" required>
                     <option value="">-- Select Position --</option>
-                    <option value="Chairperson">Chairperson</option>
-                    <option value="Vice Chairperson">Vice Chairperson</option>
-                    <option value="Secretary">Secretary</option>
-                    <option value="Treasurer">Treasurer</option>
-                    <option value="Member" selected>Member</option>
-                    <option value="Observer">Observer</option>
+                    @if (Model?.Positions != null)
+                    {
+                        foreach (var position in Model.Positions)
+                        {
+                            <option value="@position.Id">@position.Title</option>
+                        }
+                    }
                 </select>
-                <span asp-validation-for="GECMember.PositionTitle" class="text-danger"></span>
+                <span asp-validation-for="GECMember.GECPositionId" class="text-danger"></span>
             </div>
             <div class="col-md-6 mb-3">
                 <label class="form-label fw-bold">Bio</label>
@@ -128,7 +129,7 @@
         
         // Get all field values for the confirmation message
         const memberDisplayName = $('#gecMemberSelector_display').val();
-        const positionTitle = $('select[name="GECMember.PositionTitle"] option:selected').text();
+        const positionTitle = $('select[name="GECMember.GECPositionId"] option:selected').text();
         const startDate = $('#GECMember_StartDate').val();
         const isActive = $('#GECMember_IsActive').is(':checked');
         const hasImage = $('#gecProfileImage_fileData').val() ? 'Yes' : 'No';
@@ -224,7 +225,7 @@
             // Get all field values
             const gecId = $('#GECId').val() || '0';
             const memberId = $('#gecMemberSelector_selectedId').val();
-            const positionTitle = $('select[name="GECMember.PositionTitle"]').val();
+            const gecPositionId = $('select[name="GECMember.GECPositionId"]').val();
             const bio = $('#GECMember_Bio').val();
             const startDate = $('#GECMember_StartDate').val();
             const endDate = $('#GECMember_EndDate').val();
@@ -254,7 +255,7 @@
             }
 
             // Validate position is selected
-            if (!positionTitle || positionTitle === '') {
+            if (!gecPositionId || gecPositionId === '') {
                 Swal.fire('Validation Error', 'Please select a position', 'warning');
                 reject('Position not selected');
                 return;
@@ -284,7 +285,7 @@
             const requestData = {
                 GECId: parseInt(gecId) || 0,
                 MemberId: parseInt(memberId),
-                PositionTitle: positionTitle,
+                GECPositionId: parseInt(gecPositionId),
                 Bio: bio || '',
                 StartDate: startDate,
                 EndDate: endDate || null,
@@ -429,7 +430,7 @@
         }
         
         // Reset other fields (but keep default values)
-        $('select[name="GECMember.PositionTitle"]').val('Member');
+        $('select[name="GECMember.GECPositionId"]').val('');
         $('#GECMember_Bio').val('');
         $('#GECMember_StartDate').val(new Date().toISOString().split('T')[0]);
         $('#GECMember_EndDate').val('');

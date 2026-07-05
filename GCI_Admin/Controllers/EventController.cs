@@ -16,11 +16,20 @@ namespace GCI_Admin.Controllers
     {
         private readonly IEventsService _eventsService;
         private readonly AppDbContext _context;
+        private readonly SessionManager _sessionManager;
+        private readonly IAnnouncementsService _announcementsService;
+        private readonly IMinistriesService _ministriesService;
+        private readonly IMembersService _membersService;
 
-        public EventController(IEventsService eventsService, AppDbContext context)
+        public EventController(IEventsService eventsService, AppDbContext context, SessionManager sessionManager,
+            IAnnouncementsService announcementsService, IMinistriesService ministriesService, IMembersService membersService)
         {
             _eventsService = eventsService;
             _context = context;
+            _sessionManager = sessionManager;
+            _announcementsService = announcementsService;
+            _ministriesService = ministriesService;
+            _membersService = membersService;
         }
 
         public async Task<IActionResult> Index()
@@ -71,6 +80,20 @@ namespace GCI_Admin.Controllers
             {
                 ViewBag.NotificationGroups = new List<DropdownItem>();
             }
+            try
+            {
+                var ministriesRes = await _ministriesService.GetAllMinistriesAsync();
+                ViewBag.Ministries = ministriesRes.Data?.Where(m => m.IsActive)
+                    .Select(m => new DropdownItem { Value = m.MinistryId.ToString(), Text = m.MinistryName })
+                    .ToList() ?? new List<DropdownItem>();
+            }
+            catch { ViewBag.Ministries = new List<DropdownItem>(); }
+            try
+            {
+                var membersRes = await _membersService.GetAllMembersAsync();
+                ViewBag.Members = membersRes.Data ?? new List<Member>();
+            }
+            catch { ViewBag.Members = new List<Member>(); }
             return View("_CreateEvent", dto);
         }
 
@@ -99,7 +122,8 @@ namespace GCI_Admin.Controllers
                     AllowWalkIns = response.Data.AllowWalkIns,
                     StartDateTime = response.Data.StartDateTime,
                     EndDateTime = response.Data.EndDateTime,
-                    NotificationGroupId = response.Data.NotificationGroupId
+                    GroupId = response.Data.GroupId,
+                    MinistryId = response.Data.MinistryId
                 };
 
                 ViewBag.EventId = id;
@@ -114,6 +138,20 @@ namespace GCI_Admin.Controllers
                 {
                     ViewBag.NotificationGroups = new List<DropdownItem>();
                 }
+                try
+                {
+                    var ministriesRes = await _ministriesService.GetAllMinistriesAsync();
+                    ViewBag.Ministries = ministriesRes.Data?.Where(m => m.IsActive)
+                        .Select(m => new DropdownItem { Value = m.MinistryId.ToString(), Text = m.MinistryName })
+                        .ToList() ?? new List<DropdownItem>();
+                }
+                catch { ViewBag.Ministries = new List<DropdownItem>(); }
+                try
+                {
+                    var membersRes = await _membersService.GetAllMembersAsync();
+                    ViewBag.Members = membersRes.Data ?? new List<Member>();
+                }
+                catch { ViewBag.Members = new List<Member>(); }
 
                 return View("EditEvent", dto);
             }
@@ -191,6 +229,29 @@ namespace GCI_Admin.Controllers
             try
             {
                 ApiResponse<Event> response = await _eventsService.UpdateEventAsync(eventId, dto);
+
+                if (!response.IsSuccess)
+                    return BadRequest(response);
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<Event>
+                {
+                    IsSuccess = false,
+                    Code = "500",
+                    Message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateAgeGroups(int eventId, string ageGroups)
+        {
+            try
+            {
+                var response = await _eventsService.UpdateEventAgeGroupsAsync(eventId, ageGroups);
 
                 if (!response.IsSuccess)
                     return BadRequest(response);
@@ -326,19 +387,96 @@ namespace GCI_Admin.Controllers
 
 
         [HttpGet]
+                public IActionResult Themes()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllAnnualThemes()
+        {
+            var user = _sessionManager.GetUserSession<Member>();
+            string? assemblyName = (user != null && user.UserRole == 2) ? user.Assembly : null;
+            var result = await _eventsService.GetAllAnnualThemesAsync(assemblyName);
+            if (!result.IsSuccess) return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAnnualTheme(int id)
+        {
+            var result = await _eventsService.DeleteAnnualThemeAsync(id);
+            if (!result.IsSuccess) return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllMonthlyThemes()
+        {
+            var user = _sessionManager.GetUserSession<Member>();
+            string? assemblyName = (user != null && user.UserRole == 2) ? user.Assembly : null;
+            var result = await _eventsService.GetAllMonthlyThemesAsync(assemblyName);
+            if (!result.IsSuccess) return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteMonthlyTheme(int id)
+        {
+            var result = await _eventsService.DeleteMonthlyThemeAsync(id);
+            if (!result.IsSuccess) return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> GetCurrentYearTheme()
         {
-            var result = await _eventsService.GetCurrentYearThemeAsync();
+            var user = _sessionManager.GetUserSession<Member>();
+            string? assemblyName = (user != null && user.UserRole == 2) ? user.Assembly : null;
+
+            var result = await _eventsService.GetCurrentYearThemeAsync(assemblyName);
 
             if (!result.IsSuccess)
                 return BadRequest(result);
 
             return Ok(result);
         }
+
         [HttpPut]
         public async Task<IActionResult> UpdateAnnualTheme(int id, [FromBody] AnnualThemeDto dto)
         {
-            var result = await _eventsService.UpdateAnnualThemeAsync(id, dto);
+            var user = _sessionManager.GetUserSession<Member>();
+            string? assemblyName = (user != null && user.UserRole == 2) ? user.Assembly : null;
+
+            var result = await _eventsService.UpdateAnnualThemeAsync(id, dto, assemblyName);
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCurrentMonthlyTheme()
+        {
+            var user = _sessionManager.GetUserSession<Member>();
+            string? assemblyName = (user != null && user.UserRole == 2) ? user.Assembly : null;
+
+            var result = await _eventsService.GetCurrentMonthlyThemeAsync(assemblyName);
+
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateMonthlyTheme(int id, [FromBody] MonthlyThemeDto dto)
+        {
+            var user = _sessionManager.GetUserSession<Member>();
+            string? assemblyName = (user != null && user.UserRole == 2) ? user.Assembly : null;
+
+            var result = await _eventsService.UpdateMonthlyThemeAsync(id, dto, assemblyName);
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -396,5 +534,46 @@ namespace GCI_Admin.Controllers
         //        return Json(new { isSuccess = false, message = ex.Message });
         //    }
         //}
+
+        [HttpPost]
+        public async Task<IActionResult> SendEventNotification(int eventId, [FromBody] NotificationDto dto)
+        {
+            try
+            {
+                var eventResponse = await _eventsService.GetEventByIdAsync(eventId);
+                if (eventResponse.Data == null)
+                    return BadRequest(new { isSuccess = false, message = "Event not found." });
+
+                var currentUser = _sessionManager.GetUserSession<GCI_Admin.Models.Member>();
+                int createdById = currentUser?.Id ?? 0;
+
+                // Override targeting from the event record
+                dto.CreatedById = createdById;
+                dto.NotificationGroupId = eventResponse.Data.GroupId ?? 1;
+                dto.MinistryId = eventResponse.Data.MinistryId;
+                dto.IsChurchWide = !eventResponse.Data.GroupId.HasValue;
+                dto.PushNotificationType = "event";
+                dto.DeepLinkScreen = "events";
+                dto.DeepLinkId = eventId.ToString();
+
+                var savedNotification = await _announcementsService.CreateAnnouncementAsync(dto);
+                if (savedNotification != null && savedNotification.IsSuccess)
+                {
+                    return Ok(new { isSuccess = true, message = "Notification scheduled successfully.", notificationId = savedNotification.Data?.NotificationId });
+                }
+                else
+                {
+                    return BadRequest(new { isSuccess = false, message = savedNotification?.Message ?? "Failed to schedule notification." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { isSuccess = false, message = ex.Message });
+            }
+        }
     }
+
+   
 }
+
+

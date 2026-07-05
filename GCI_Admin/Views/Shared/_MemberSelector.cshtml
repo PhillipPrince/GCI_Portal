@@ -327,7 +327,7 @@ $(document).ready(function() {
         return ((parts[0] ? parts[0][0] : '') + (parts[1] ? parts[1][0] : '')).toUpperCase() || '?';
     }
     function esc(s) {
-        return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
     function hlMark(text, term) {
         if (!term) return esc(text);
@@ -341,13 +341,13 @@ $(document).ready(function() {
         $opts.find('.ms-opt').each(function() {
             var $o = $(this);
             membersData.push({
-                id:      String($o.data('value')),
-                name:    $o.data('fullname') || '',
-                email:   $o.data('email')    || '',
-                phone:   $o.data('phone')    || '',
-                gender:  $o.data('gender')   || '',
-                ini:     $o.data('ini')      || getIni($o.data('fullname')),
-                clr:     $o.data('clr')      || getColor(($o.data('fullname')||'').split(' ')[0])
+                id:      String($o.data('value') || ''),
+                name:    String($o.data('fullname') || ''),
+                email:   String($o.data('email')    || ''),
+                phone:   String($o.data('phone')    || ''),
+                gender:  String($o.data('gender')   || ''),
+                ini:     String($o.data('ini')      || getIni(String($o.data('fullname')))),
+                clr:     String($o.data('clr')      || getColor((String($o.data('fullname'))||'').split(' ')[0]))
             });
         });
     }
@@ -366,15 +366,15 @@ $(document).ready(function() {
             success: function(res) {
                 if (res.success && res.data) {
                     membersData = res.data.map(function(m) {
-                        var fn = ((m.firstName||'') + ' ' + (m.otherNames||'')).trim();
+                        var fn = (String(m.firstName||'') + ' ' + String(m.otherNames||'')).trim();
                         return {
-                            id:     String(m.id),
+                            id:     String(m.id || ''),
                             name:   fn,
-                            email:  m.email  || '',
-                            phone:  m.phone  || '',
-                            gender: m.gender || '',
+                            email:  String(m.email  || ''),
+                            phone:  String(m.phone  || ''),
+                            gender: String(m.gender || ''),
                             ini:    getIni(fn),
-                            clr:    getColor(m.firstName || fn)
+                            clr:    getColor(String(m.firstName || fn))
                         };
                     });
                     cb();

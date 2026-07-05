@@ -1,0 +1,76 @@
+@model IEnumerable<GCI_Admin.Models.NotificationGroup>
+
+<div class="table-responsive p-4">
+    <table class="table table-hover align-middle mb-0" id="notificationGroupsTable">
+        <thead class="table-light">
+            <tr>
+                <th class="border-0 rounded-start">Group ID</th>
+                <th class="border-0">Group Name</th>
+                <th class="border-0">Description</th>
+                <th class="border-0">Status</th>
+                <th class="border-0">Created At</th>
+                <th class="border-0 text-end rounded-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-muted fw-medium">#@item.GroupId</td>
+                        <td class="fw-bold">@item.GroupName</td>
+                        <td class="text-muted text-truncate" style="max-width: 200px;">@item.Description</td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill">Inactive</span>
+                            }
+                        </td>
+                        <td class="text-muted">@item.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-light text-primary me-2" onclick="editGroup(@item.GroupId)">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            @if (item.GroupId > 10) // Protect system groups assuming IDs <= 10 are system protected
+                            {
+                                <button class="btn btn-sm btn-light text-danger" onclick="deleteGroup(@item.GroupId)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">
+                        <i class="fas fa-folder-open mb-3 d-block" style="font-size: 2rem; color: #ddd;"></i>
+                        No notification groups found.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function() {
+        if (!$.fn.DataTable.isDataTable('#notificationGroupsTable')) {
+            $('#notificationGroupsTable').DataTable({
+                "pageLength": 10,
+                "ordering": true,
+                "info": true,
+                "lengthChange": true,
+                "dom": '<"row align-items-center mb-3"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 text-md-end"f>>' +
+                       '<"row"<"col-sm-12"tr>>' +
+                       '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+            });
+        }
+    });
+</script>

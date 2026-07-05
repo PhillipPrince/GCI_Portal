@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.Assembly>
+@model List<GCI_Admin.Models.Assembly>
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
@@ -14,11 +14,28 @@
                     <th class="text-end">Actions</th>
                 </tr>
 
-                <!-- Search Row -->
-                
+                <!-- Filter Row -->
+                <tr>
+                    <th>
+                        <input type="text" placeholder="Search Name" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Location" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Phone" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search Email" class="form-control form-control-sm" />
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
             </thead>
 
             <tbody>
+                @if (Model != null && Model.Any())
+                {
                 @foreach (var assembly in Model)
                 {
                     <tr>
@@ -48,6 +65,15 @@
                                 <i class="fa fa-trash"></i>
                             </button>
 
+                        </td>
+                    </tr>
+                }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            No assemblies available
                         </td>
                     </tr>
                 }

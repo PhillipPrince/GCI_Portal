@@ -4,7 +4,7 @@ namespace GCI_Admin.Models.DTOs
     {
         public int GECId { get; set; }
         public int MemberId { get; set; }
-        public string PositionTitle { get; set; }
+        public int GECPositionId { get; set; }
         public string? Bio { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
@@ -16,6 +16,7 @@ namespace GCI_Admin.Models.DTOs
     public class CreateGECMemberDto
     {
         public List<Member> Members { get; set; }
+        public List<GECPosition> Positions { get; set; }
         public GECMemberDto GECMember { get; set; }
     }
 }

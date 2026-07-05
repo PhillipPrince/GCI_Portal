@@ -67,9 +67,52 @@
                                 <span asp-validation-for="Description" class="text-danger small"></span>
                             </div>
                         </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="form-label fw-medium">
+                                    Update Event Image <span class="text-muted fw-normal">(Optional)</span>
+                                </label>
+                                <input type="file" id="EventImageFile" accept="image/*" class="form-control" />
+                                <div class="form-text">Upload a new cover image to replace the existing one.</div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Date and Location -->
+                    <!-- Event Category & Expected Attendees -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-medium">Event Category</label>
+                                <select class="form-select" id="EventCategory">
+                                    <option value="">Select a category</option>
+                                    <option value="service">Sunday Service</option>
+                                    <option value="conference">Conference</option>
+                                    <option value="youth">Youth Event</option>
+                                    <option value="prayer">Prayer Meeting</option>
+                                    <option value="bible-study">Bible Study</option>
+                                    <option value="fellowship">Fellowship</option>
+                                    <option value="outreach">Outreach</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label fw-medium">Expected Attendees</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fa fa-users text-muted"></i>
+                                    </span>
+                                    <input type="number" class="form-control border-start-0"
+                                           id="ExpectedAttendees" min="0" step="1"
+                                           placeholder="Optional" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -100,6 +143,37 @@
                                            value="@Model.Location" required />
                                 </div>
                                 <span asp-validation-for="Location" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Start / End Date Time -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="StartDateTime" class="form-label fw-medium">Start Date &amp; Time</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fa fa-hourglass-start text-muted"></i>
+                                    </span>
+                                    <input asp-for="StartDateTime" type="datetime-local" class="form-control border-start-0"
+                                           value="@(Model.StartDateTime.HasValue ? Model.StartDateTime.Value.ToString("yyyy-MM-ddTHH:mm") : "")" />
+                                </div>
+                                <span asp-validation-for="StartDateTime" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="EndDateTime" class="form-label fw-medium">End Date &amp; Time</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fa fa-hourglass-end text-muted"></i>
+                                    </span>
+                                    <input asp-for="EndDateTime" type="datetime-local" class="form-control border-start-0"
+                                           value="@(Model.EndDateTime.HasValue ? Model.EndDateTime.Value.ToString("yyyy-MM-ddTHH:mm") : "")" />
+                                </div>
+                                <span asp-validation-for="EndDateTime" class="text-danger small"></span>
                             </div>
                         </div>
                     </div>
@@ -148,7 +222,7 @@
                         <div class="col-md-12">
                             <h6 class="fw-medium mb-3">Additional Options</h6>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="RequireRegistration" @(Model.RequireRegistration ? "checked" : "")>
                                         <label class="form-check-label" for="RequireRegistration">
@@ -157,12 +231,30 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="AllowWalkIns" @(Model.AllowWalkIns ? "checked" : "")>
                                         <label class="form-check-label" for="AllowWalkIns">
                                             <i class="fa fa-door-open text-success me-1"></i>
                                             Allow Walk-ins
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="IsActive" @(Model.IsActive ? "checked" : "")>
+                                        <label class="form-check-label" for="IsActive">
+                                            <i class="fa fa-toggle-on text-primary me-1"></i>
+                                            Active
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mt-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="FeatureOnHomepage">
+                                        <label class="form-check-label" for="FeatureOnHomepage">
+                                            <i class="fa fa-star text-warning me-1"></i>
+                                            Feature on Homepage
                                         </label>
                                     </div>
                                 </div>
@@ -175,7 +267,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label class="form-label fw-medium" for="NotificationGroupId">
-                                    Target Group (Optional, defaults to General Member)
+                                    Target Group <span class="text-muted fw-normal">(Optional, defaults to General Member)</span>
                                 </label>
                                 <select id="NotificationGroupId" name="NotificationGroupId" class="form-select">
                                     <option value="">Select a target group</option>
@@ -183,7 +275,7 @@
                                     {
                                         foreach (var group in (List<GCI_Admin.Models.DropdownItem>)ViewBag.NotificationGroups)
                                         {
-                                            bool isSelected = group.Value == Model.NotificationGroupId?.ToString();
+                                            bool isSelected = group.Value == Model.GroupId?.ToString();
                                             if (isSelected)
                                             {
                                                 <option value="@group.Value" selected="selected">@group.Text</option>
@@ -195,7 +287,68 @@
                                         }
                                     }
                                 </select>
-                                <div class="form-text">Choose which demographic group this event is tailored for. If not selected, it will default to Group ID 1.</div>
+                                <div class="form-text">Choose which demographic group this event is tailored for.</div>
+                            </div>
+                        </div>
+
+                        <!-- Ministry dropdown (shown when GroupId = 9) -->
+                        <div class="col-md-12" id="ministryContainer" style="@(Model.GroupId == 9 ? "" : "display:none;")">
+                            <div class="form-group">
+                                <label class="form-label fw-medium">
+                                    <i class="fa fa-church text-primary me-1"></i> Select Ministry <span class="text-danger">*</span>
+                                </label>
+                                <select id="MinistryId" class="form-select">
+                                    <option value="">-- Select a Ministry --</option>
+                                    @if (ViewBag.Ministries != null)
+                                    {
+                                        foreach (var m in (List<GCI_Admin.Models.DropdownItem>)ViewBag.Ministries)
+                                        {
+                                            bool isMSel = m.Value == Model.MinistryId?.ToString();
+                                            if (isMSel)
+                                            {
+                                                <option value="@m.Value" selected="selected">@m.Text</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@m.Value">@m.Text</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Specific Members section (shown when GroupId = 3) -->
+                        <div class="col-md-12" id="membersContainer" style="@(Model.GroupId == 3 ? "" : "display:none;")">
+                            <div class="border rounded-3 p-3 bg-light">
+                                <label class="form-label fw-medium text-primary mb-2">
+                                    <i class="fa fa-users me-1"></i> Select Specific Members
+                                    <small class="text-muted fw-normal">(Search and add one at a time)</small>
+                                </label>
+
+                                @await Html.PartialAsync("_MemberSelector", new GCI_Admin.Models.ViewModels.MemberSelectorViewModel
+                                {
+                                    ControlId = "editEventMemberPicker",
+                                    LabelText = "",
+                                    PlaceholderText = "-- Search member by name, phone or email --",
+                                    MemberIdFieldName = "_editEventMemberPickerTemp",
+                                    SelectedMemberId = null,
+                                    Members = ViewBag.Members as List<GCI_Admin.Models.Member>,
+                                    IsRequired = false,
+                                    IsEdit = false,
+                                    ShowPhoneAndGender = false
+                                })
+
+                                <div class="mt-2">
+                                    <label class="form-label fw-semibold small text-muted">Selected Members</label>
+                                    <div id="eventSelectedMembersPreview"
+                                         class="border rounded-3 p-3 bg-white"
+                                         style="min-height: 70px; max-height: 200px; overflow-y: auto;">
+                                        <div class="text-muted text-center mt-1">
+                                            <i class="fa fa-user-times me-2"></i>No members selected yet
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -230,7 +383,20 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        let base64Image = null;
+
         $(document).ready(function () {
+            $('#EventImageFile').on('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) { base64Image = evt.target.result; };
+                    reader.readAsDataURL(file);
+                } else {
+                    base64Image = null;
+                }
+            });
+
             // Handle payment toggle
             $('input[name="IsPaid"]').on('change', function () {
                 if ($('#isPaidYes').is(':checked')) {
@@ -242,22 +408,81 @@
                 }
             });
 
+            // Target group change — show/hide ministry or member selector
+            $('#NotificationGroupId').on('change', function () {
+                const val = $(this).val();
+                if (val === '9') {
+                    $('#ministryContainer').slideDown(250);
+                    $('#membersContainer').slideUp(250);
+                    editEventSelectedMembers = [];
+                    updateEditEventMembersPreview();
+                } else if (val === '3') {
+                    $('#membersContainer').slideDown(250);
+                    $('#ministryContainer').slideUp(250);
+                } else {
+                    $('#ministryContainer').slideUp(250);
+                    $('#membersContainer').slideUp(250);
+                    editEventSelectedMembers = [];
+                    updateEditEventMembersPreview();
+                }
+            });
+
+            // Listen for member selection from the _MemberSelector partial
+            $(document).on('memberSelected', function (e, data) {
+                if (!data || !data.controlId || data.controlId !== 'editEventMemberPicker') return;
+                const id = String(data.memberId ?? data.id ?? '');
+                const name = data.member?.fullName ?? data.fullName ?? data.name ?? '';
+                if (id && name && !editEventSelectedMembers.some(m => m.id === id)) {
+                    editEventSelectedMembers.push({ id, name });
+                    updateEditEventMembersPreview();
+                    setTimeout(function () {
+                        $('#editEventMemberPicker_selectedId').val('');
+                        $('#editEventMemberPicker_placeholder').show();
+                        $('#editEventMemberPicker_selText').hide();
+                        $('#editEventMemberPicker_avatar').hide();
+                        $('#editEventMemberPicker_clearSel').hide();
+                        $('#editEventMemberPicker_preview').hide();
+                    }, 50);
+                }
+            });
+
             // Form submission
             $('#editEventForm').on('submit', function(e) {
                 e.preventDefault();
-
                 if (!$(this).valid()) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validation Error',
-                        text: 'Please correct the errors in the form'
-                    });
+                    Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Please correct the errors in the form' });
                     return;
                 }
-
                 submitUpdateEvent();
             });
         });
+
+        // ---- Member picker ----
+        let editEventSelectedMembers = [];
+
+
+        function updateEditEventMembersPreview() {
+            const container = $('#eventSelectedMembersPreview');
+            if (editEventSelectedMembers.length === 0) {
+                container.html('<div class="text-muted text-center mt-1"><i class="fa fa-user-times me-2"></i>No members selected yet</div>');
+                return;
+            }
+            let html = '<div class="d-flex flex-wrap gap-2">';
+            editEventSelectedMembers.forEach(m => {
+                html += `<div class="d-flex align-items-center gap-1 px-3 py-1 rounded-pill border" style="background:#eef2ff;border-color:#4f46e5!important;font-size:13px">
+                    <span class="fw-medium text-primary">${m.name}</span>
+                    <button type="button" class="btn-close ms-1" style="font-size:9px" onclick="removeEditEventMember('${m.id}')" title="Remove"></button>
+                </div>`;
+            });
+            html += '</div>';
+            container.html(html);
+        }
+
+        function removeEditEventMember(id) {
+            editEventSelectedMembers = editEventSelectedMembers.filter(m => m.id !== id);
+            updateEditEventMembersPreview();
+        }
+
 
         function submitUpdateEvent() {
             const eventId = @eventId;
@@ -272,8 +497,16 @@
                     : null,
                 RequireRegistration: $('#RequireRegistration').is(':checked'),
                 AllowWalkIns: $('#AllowWalkIns').is(':checked'),
-                IsActive: true, // Preserve active status during edits
-                NotificationGroupId: $('#NotificationGroupId').val() ? parseInt($('#NotificationGroupId').val()) : null
+                IsActive: $('#IsActive').is(':checked'),
+                StartDateTime: $('#StartDateTime').val() || null,
+                EndDateTime: $('#EndDateTime').val() || null,
+                GroupId: $('#NotificationGroupId').val() ? parseInt($('#NotificationGroupId').val()) : null,
+                MinistryId: ($('#NotificationGroupId').val() === '9' && $('#MinistryId').val())
+                    ? parseInt($('#MinistryId').val()) : null,
+                SpecificMemberIds: $('#NotificationGroupId').val() === '3'
+                    ? editEventSelectedMembers.map(m => parseInt(m.id))
+                    : null,
+                ImageBase64: base64Image
             };
 
             Swal.fire({

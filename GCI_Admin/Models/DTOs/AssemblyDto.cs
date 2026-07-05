@@ -13,11 +13,11 @@ namespace GCI_Admin.Models.DTOs
         public int AssemblyLeaderId { get; set; }
         public int MemberId { get; set; }
         public int AssemblyId { get; set; }
-        public string Bio { get; set; }
+        public string? Bio { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public bool IsActive { get; set; }
-        public string ProfileImageBase64 { get; set; }
+        public string? ProfileImageBase64 { get; set; }
     }
 
     public class CreateAssemblyLeaderDto

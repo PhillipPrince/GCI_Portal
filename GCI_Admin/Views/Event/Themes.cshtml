@@ -1,0 +1,461 @@
+@{
+    ViewData["Title"] = "Theme Management";
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">Theme Management</h2>
+        <p class="text-muted mb-0">Manage Annual and Monthly Themes for your Assembly</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+        <ul class="nav nav-tabs" id="themesTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold" id="monthly-tab" data-bs-toggle="tab" data-bs-target="#monthly" type="button" role="tab" aria-controls="monthly" aria-selected="true">Monthly Themes</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold" id="annual-tab" data-bs-toggle="tab" data-bs-target="#annual" type="button" role="tab" aria-controls="annual" aria-selected="false">Annual Themes</button>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="card-body">
+        <div class="tab-content" id="themesTabContent">
+            
+            <!-- MONTHLY THEMES TAB -->
+            <div class="tab-pane fade show active" id="monthly" role="tabpanel" aria-labelledby="monthly-tab">
+                <div class="d-flex justify-content-end mb-3">
+                    <button class="btn btn-primary" onclick="openMonthlyModal()">
+                        <i class="fa fa-plus-circle me-2"></i>Add Monthly Theme
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle w-100" id="monthlyThemesTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Theme</th>
+                                <th>Description</th>
+                                <th>Assembly</th>
+                                <th>Month/Year</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- ANNUAL THEMES TAB -->
+            <div class="tab-pane fade" id="annual" role="tabpanel" aria-labelledby="annual-tab">
+                <div class="d-flex justify-content-end mb-3">
+                    <button class="btn btn-primary" onclick="openAnnualModal()">
+                        <i class="fa fa-plus-circle me-2"></i>Add Annual Theme
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle w-100" id="annualThemesTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Theme</th>
+                                <th>Verse</th>
+                                <th>Year</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<!-- MONTHLY THEME MODAL -->
+<div class="modal fade" id="monthlyThemeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="monthlyThemeForm">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="monthlyModalTitle">Add Monthly Theme</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="monthlyThemeId" value="0" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Theme Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="m_Theme" required />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea class="form-control" id="m_Description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Assembly</label>
+                        <input type="text" class="form-control" id="m_Assembly" />
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Month <span class="text-danger">*</span></label>
+                            <select class="form-select" id="m_Month" required>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Year <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="m_Year" required value="@DateTime.Now.Year" />
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Theme Image (Optional)</label>
+                        <input type="file" class="form-control" id="m_ThemeImage" accept="image/*" />
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveMonthly">Save Theme</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ANNUAL THEME MODAL -->
+<div class="modal fade" id="annualThemeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="annualThemeForm">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="annualModalTitle">Add Annual Theme</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="annualThemeId" value="0" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Theme Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="a_Theme" required />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Key Verse <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="a_Verse" required />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea class="form-control" id="a_Description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Year <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="a_Year" required value="@DateTime.Now.Year" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Theme Image (Optional)</label>
+                        <input type="file" class="form-control" id="a_ThemeImage" accept="image/*" />
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveAnnual">Save Theme</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let monthlyTable, annualTable;
+
+        $(document).ready(function () {
+            initTables();
+            
+            // Form Submissions
+            $('#monthlyThemeForm').submit(function(e) {
+                e.preventDefault();
+                saveMonthlyTheme();
+            });
+            
+            $('#annualThemeForm').submit(function(e) {
+                e.preventDefault();
+                saveAnnualTheme();
+            });
+        });
+
+        function initTables() {
+            monthlyTable = $('#monthlyThemesTable').DataTable({
+                ajax: {
+                    url: '@Url.Action("GetAllMonthlyThemes", "Event")',
+                    type: 'GET',
+                    dataSrc: function (json) {
+                        return json.data || [];
+                    }
+                },
+                columns: [
+                    { data: 'theme', className: 'fw-bold' },
+                    { data: 'description' },
+                    { data: 'assembly' },
+                    { 
+                        data: null, 
+                        render: function(data, type, row) {
+                            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                            return monthNames[row.month - 1] + " " + row.year;
+                        }
+                    },
+                    { 
+                        data: 'createdAt', 
+                        render: function(data) {
+                            return new Date(data).toLocaleDateString();
+                        }
+                    },
+                    {
+                        data: 'themeId',
+                        orderable: false,
+                        render: function (data, type, row) {
+                            return `
+                                <button class="btn btn-sm btn-light text-primary me-1" onclick='editMonthly(${JSON.stringify(row)})'>
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-light text-danger" onclick="deleteMonthly(${data})">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            `;
+                        }
+                    }
+                ]
+            });
+
+            annualTable = $('#annualThemesTable').DataTable({
+                ajax: {
+                    url: '@Url.Action("GetAllAnnualThemes", "Event")',
+                    type: 'GET',
+                    dataSrc: function (json) {
+                        return json.data || [];
+                    }
+                },
+                columns: [
+                    { data: 'theme', className: 'fw-bold' },
+                    { data: 'verse' },
+                    { data: 'year' },
+                    { 
+                        data: 'createdAt', 
+                        render: function(data) {
+                            return new Date(data).toLocaleDateString();
+                        }
+                    },
+                    {
+                        data: 'themeId',
+                        orderable: false,
+                        render: function (data, type, row) {
+                            return `
+                                <button class="btn btn-sm btn-light text-primary me-1" onclick='editAnnual(${JSON.stringify(row)})'>
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-light text-danger" onclick="deleteAnnual(${data})">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            `;
+                        }
+                    }
+                ]
+            });
+        }
+
+        // --- Monthly Themes Logic ---
+        function openMonthlyModal() {
+            $('#monthlyThemeForm')[0].reset();
+            $('#monthlyThemeId').val(0);
+            $('#monthlyModalTitle').text('Add Monthly Theme');
+            $('#m_Year').val(new Date().getFullYear());
+            new bootstrap.Modal(document.getElementById('monthlyThemeModal')).show();
+        }
+
+        function editMonthly(row) {
+            $('#monthlyThemeId').val(row.themeId);
+            $('#m_Theme').val(row.theme);
+            $('#m_Description').val(row.description);
+            $('#m_Assembly').val(row.assembly);
+            $('#m_Month').val(row.month);
+            $('#m_Year').val(row.year);
+            $('#monthlyModalTitle').text('Edit Monthly Theme');
+            new bootstrap.Modal(document.getElementById('monthlyThemeModal')).show();
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function saveMonthlyTheme() {
+            const id = $('#monthlyThemeId').val();
+            const payload = {
+                theme: $('#m_Theme').val(),
+                description: $('#m_Description').val(),
+                assembly: $('#m_Assembly').val(),
+                month: parseInt($('#m_Month').val()),
+                year: parseInt($('#m_Year').val())
+            };
+
+            const fileInput = document.getElementById('m_ThemeImage');
+            if (fileInput.files.length > 0) {
+                payload.themeImage = await fileToBase64(fileInput.files[0]);
+            }
+
+            const btn = $('#btnSaveMonthly');
+            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i> Saving...');
+
+            $.ajax({
+                url: `/Event/UpdateMonthlyTheme/${id}`,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function (res) {
+                    $('#monthlyThemeModal').modal('hide');
+                    monthlyTable.ajax.reload();
+                    Swal.fire('Success', 'Theme saved successfully', 'success');
+                },
+                error: function (err) {
+                    Swal.fire('Error', 'Failed to save theme', 'error');
+                },
+                complete: function() {
+                    btn.prop('disabled', false).text('Save Theme');
+                }
+            });
+        }
+
+        function deleteMonthly(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This monthly theme will be deleted permanently!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/Event/DeleteMonthlyTheme/${id}`,
+                        type: 'DELETE',
+                        success: function (res) {
+                            monthlyTable.ajax.reload();
+                            Swal.fire('Deleted!', 'Theme has been deleted.', 'success');
+                        },
+                        error: function (err) {
+                            Swal.fire('Error', 'Failed to delete theme.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        // --- Annual Themes Logic ---
+        function openAnnualModal() {
+            $('#annualThemeForm')[0].reset();
+            $('#annualThemeId').val(0);
+            $('#annualModalTitle').text('Add Annual Theme');
+            $('#a_Year').val(new Date().getFullYear());
+            new bootstrap.Modal(document.getElementById('annualThemeModal')).show();
+        }
+
+        function editAnnual(row) {
+            $('#annualThemeId').val(row.themeId);
+            $('#a_Theme').val(row.theme);
+            $('#a_Verse').val(row.verse);
+            $('#a_Description').val(row.description);
+            $('#a_Year').val(row.year);
+            $('#annualModalTitle').text('Edit Annual Theme');
+            new bootstrap.Modal(document.getElementById('annualThemeModal')).show();
+        }
+
+        async function saveAnnualTheme() {
+            const id = $('#annualThemeId').val();
+            const payload = {
+                theme: $('#a_Theme').val(),
+                verse: $('#a_Verse').val(),
+                description: $('#a_Description').val(),
+                year: parseInt($('#a_Year').val())
+            };
+
+            const fileInput = document.getElementById('a_ThemeImage');
+            if (fileInput.files.length > 0) {
+                payload.themeImage = await fileToBase64(fileInput.files[0]);
+            }
+
+            const btn = $('#btnSaveAnnual');
+            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i> Saving...');
+
+            $.ajax({
+                url: `/Event/UpdateAnnualTheme/${id}`,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function (res) {
+                    $('#annualThemeModal').modal('hide');
+                    annualTable.ajax.reload();
+                    Swal.fire('Success', 'Theme saved successfully', 'success');
+                },
+                error: function (err) {
+                    Swal.fire('Error', 'Failed to save theme', 'error');
+                },
+                complete: function() {
+                    btn.prop('disabled', false).text('Save Theme');
+                }
+            });
+        }
+
+        function deleteAnnual(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This annual theme will be deleted permanently!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/Event/DeleteAnnualTheme/${id}`,
+                        type: 'DELETE',
+                        success: function (res) {
+                            annualTable.ajax.reload();
+                            Swal.fire('Deleted!', 'Theme has been deleted.', 'success');
+                        },
+                        error: function (err) {
+                            Swal.fire('Error', 'Failed to delete theme.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}
+

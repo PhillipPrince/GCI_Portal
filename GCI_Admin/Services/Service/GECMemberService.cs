@@ -17,15 +17,17 @@ namespace GCI_Admin.Services.Service
         private readonly string _imageBasePath = "";
         private readonly SystemConfigRepository _systemConfig;
         private readonly MembersRepository _membersRepository;
+        private readonly ICloudinaryService _cloudinaryService;
 
 
-        public GECMemberService(GECMemberRepository gecMemberRepository, AppDbContext context, MembersRepository membersRepository, SystemConfigRepository systemConfigRepository)
+        public GECMemberService(GECMemberRepository gecMemberRepository, AppDbContext context, MembersRepository membersRepository, SystemConfigRepository systemConfigRepository, ICloudinaryService cloudinaryService)
         {
             _gecMemberRepository = gecMemberRepository;
             _context = context;
             _systemConfig = systemConfigRepository;
             _imageBasePath = SystemConfigHelper.GetImageBasePathAsync(_systemConfig).GetAwaiter().GetResult();
             _membersRepository = membersRepository;
+            _cloudinaryService = cloudinaryService;
         }
 
         // ✅ CREATE
@@ -44,8 +46,30 @@ namespace GCI_Admin.Services.Service
                     response.Message = "Failed to create GEC member";
                     return response;
                 }
-                string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), _imageBasePath, $"{result.Data.MemberId}", "jpg");
-                Loggers.EventLogs($"Saved profile image for deacon {result.Data.GECId} at {saved}");
+                string imageFolder = await SystemConfigHelper.GetImageBasePathAsync(_systemConfig);
+                if (!string.IsNullOrEmpty(dto.ProfileImageBase64))
+                {
+                    string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
+                    Loggers.EventLogs($"Saved profile image for deacon {result.Data.GECId} at {saved}");
+
+                    try
+                    {
+                        var cloudinaryUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.ProfileImageBase64);
+                        if (!string.IsNullOrEmpty(cloudinaryUrl))
+                        {
+                            var memberToUpdate = await _context.Members.FindAsync(result.Data.MemberId);
+                            if (memberToUpdate != null)
+                            {
+                                memberToUpdate.ProfilePictureUrl = cloudinaryUrl;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Loggers.DoLogs($"Cloudinary upload failed for GEC member {result.Data.MemberId}: {ex}");
+                    }
+                }
 
 
                 response.Data = result.Data;
@@ -69,9 +93,10 @@ namespace GCI_Admin.Services.Service
             try
             {
                 var dbResponse = await _gecMemberRepository.GetGECMembersAsync();
+                string imageFolder = await SystemConfigHelper.GetImageBasePathAsync(_systemConfig);
                 foreach (var gecMember in dbResponse.Data)
                 {
-                    gecMember.Member.ProfileImage = ImageHelper.ReadImage(_imageBasePath, gecMember.MemberId.ToString());
+                    gecMember.Member.ProfileImage = ImageHelper.ReadImage(imageFolder, gecMember.MemberId.ToString());
                 }
 
                 response.IsSuccess = dbResponse.Success;
@@ -108,11 +133,14 @@ namespace GCI_Admin.Services.Service
                     response.Message = "GEC member not found";
                     return response;
                 }
-                var member = _membersRepository.GetMemberByIdAsync(result.Data.MemberId);
+                var memberResponse = await _membersRepository.GetMemberByIdAsync(result.Data.MemberId);
                 string imageFolder = await SystemConfigHelper.GetImageBasePathAsync(_systemConfig);
 
-                member.Result.Data.ProfileImage = ImageHelper.ReadImage(imageFolder, member.Result.Data.Id.ToString());
-                result.Data.Member = member.Result.Data;
+                if (memberResponse != null && memberResponse.Data != null)
+                {
+                    memberResponse.Data.ProfileImage = ImageHelper.ReadImage(imageFolder, memberResponse.Data.Id.ToString());
+                    result.Data.Member = memberResponse.Data;
+                }
 
 
                 response.Data = result.Data;
@@ -147,8 +175,27 @@ namespace GCI_Admin.Services.Service
 
                 if (!string.IsNullOrEmpty(dto.ProfileImageBase64))
                 {
-                    string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), _imageBasePath, $"{result.Data.MemberId}", "jpg");
+                    string imageFolder = await SystemConfigHelper.GetImageBasePathAsync(_systemConfig);
+                    string saved = ImageHelper.SaveImage(ImageHelper.RemoveBase64Prefix(dto.ProfileImageBase64), imageFolder, $"{result.Data.MemberId}", "jpg");
                     Loggers.EventLogs($"Saved profile image for GEC member {result.Data.GECId} on update at {saved}");
+
+                    try
+                    {
+                        var cloudinaryUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.ProfileImageBase64);
+                        if (!string.IsNullOrEmpty(cloudinaryUrl))
+                        {
+                            var memberToUpdate = await _context.Members.FindAsync(result.Data.MemberId);
+                            if (memberToUpdate != null)
+                            {
+                                memberToUpdate.ProfilePictureUrl = cloudinaryUrl;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Loggers.DoLogs($"Cloudinary upload failed for GEC member {result.Data.MemberId}: {ex}");
+                    }
                 }
 
                 response.Data = result.Data;

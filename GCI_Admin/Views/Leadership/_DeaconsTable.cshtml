@@ -14,6 +14,8 @@
                     <th>End Date</th>
                     <th>Status</th>
                     <th>On Duty</th>
+                    <th>Special Duties</th>
+                    <th>Emeritus</th>
                     <th>Created At</th>
                     <th class="text-end">Actions</th>
                 </tr>
@@ -45,6 +47,20 @@
                             <option value="">All</option>
                             <option value="On Duty">On Duty</option>
                             <option value="Off Duty">Off Duty</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
                         </select>
                     </th>
                     <th></th>
@@ -115,6 +131,30 @@
                             else
                             {
                                 <span class="badge bg-secondary">Off Duty</span>
+                            }
+                        </td>
+
+                        <!-- Special Duties -->
+                        <td>
+                            @if (d.HasSpecialDuties)
+                            {
+                                <span class="badge bg-warning text-dark">Yes</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-light text-dark">No</span>
+                            }
+                        </td>
+
+                        <!-- Emeritus -->
+                        <td>
+                            @if (d.IsEmeritus)
+                            {
+                                <span class="badge bg-info text-dark">Yes</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-light text-dark">No</span>
                             }
                         </td>
 

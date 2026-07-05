@@ -6,7 +6,7 @@
 
             <thead class="table-light">
                 <tr>
-                    <th>Member</th>
+                    <th>MemberId</th>
                     <th>Phone Number</th>
                     <th>Amount</th>
                     <th>Receipt No</th>
@@ -55,7 +55,7 @@
                         <td>
                             @if (payment.Member != null)
                             {
-                                <strong>@($"{payment.Member.FirstName} {payment.Member.OtherNames}")</strong>
+                                <strong>@($"{payment.Member.Id}")</strong>
                                 <div class="small text-muted">ID: #@payment.MemberId</div>
                             }
                             else

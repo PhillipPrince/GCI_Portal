@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.NewDeacon
+@model GCI_Admin.Models.NewDeacon
 
 @{
     Layout = null;
@@ -123,6 +123,26 @@
                             </div>
                             <small class="text-muted">Mark deacon as currently on duty (only one deacon can be on duty at a time)</small>
                         </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="HasSpecialDuties" name="HasSpecialDuties">
+                                <label class="form-check-label fw-bold" for="HasSpecialDuties">
+                                    <i class="fa fa-star me-1 text-info"></i>Special Duties
+                                </label>
+                            </div>
+                            <small class="text-muted">Deacon has special duties assigned</small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="IsEmeritus" name="IsEmeritus">
+                                <label class="form-check-label fw-bold" for="IsEmeritus">
+                                    <i class="fa fa-graduation-cap me-1 text-primary"></i>Deacon Emeritus
+                                </label>
+                            </div>
+                            <small class="text-muted">Honorary title for retired deacons</small>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -160,6 +180,8 @@
         const startDate = $('#StartDate').val();
         const isActive = $('#IsActive').is(':checked');
         const onDuty = $('#OnDuty').is(':checked');
+        const hasSpecialDuties = $('#HasSpecialDuties').is(':checked');
+        const isEmeritus = $('#IsEmeritus').is(':checked');
         const bio = $('#Bio').val();
         const hasImage = $('#deaconProfileImage_fileData').val() ? 'Yes' : 'No';
         
@@ -177,6 +199,8 @@
                 <p><strong>Start Date:</strong> ${formattedStartDate}</p>
                 <p><strong>Status:</strong> ${isActive ? 'Active' : 'Inactive'}</p>
                 <p><strong>On Duty:</strong> ${onDuty ? 'Yes' : 'No'}</p>
+                <p><strong>Special Duties:</strong> ${hasSpecialDuties ? 'Yes' : 'No'}</p>
+                <p><strong>Emeritus:</strong> ${isEmeritus ? 'Yes' : 'No'}</p>
                 <p><strong>Profile Image:</strong> ${hasImage}</p>
                 ${bio ? `<p><strong>Bio:</strong> ${bio.substring(0, 100)}${bio.length > 100 ? '...' : ''}</p>` : ''}
                 <hr>
@@ -226,6 +250,8 @@
             const startDate = $('#StartDate').val();
             const bio = $('#Bio').val();
             const onDuty = $('#OnDuty').is(':checked');
+            const hasSpecialDuties = $('#HasSpecialDuties').is(':checked');
+            const isEmeritus = $('#IsEmeritus').is(':checked');
             const token = $('input[name="__RequestVerificationToken"]').val();
             
             // Get image Base64 data from the image picker
@@ -275,6 +301,8 @@
                 StartDate: startDate,
                 EndDate: null,  // EndDate is null for new deacons
                 OnDuty: onDuty,
+                HasSpecialDuties: hasSpecialDuties,
+                IsEmeritus: isEmeritus,
                 ProfileImageBase64: profileImageBase64
             };
 

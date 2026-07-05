@@ -16,6 +16,7 @@
                     <th>Member</th>
                     <th>Email</th>
                     <th>Phone</th>
+                    <th>Assembly</th>
                     <th>Amount Paid</th>
                     <th>Payment Status</th>
                     <th>Attended</th>
@@ -31,6 +32,11 @@
                         <input type="text" placeholder="Search Email" class="form-control form-control-sm" />
                     </th>
                     <th></th>
+                    <th>
+                        <select class="form-select form-select-sm">
+                            <option value="">All Assemblies</option>
+                        </select>
+                    </th>
                     <th></th>
                     <th>
                         <select class="form-select form-select-sm">
@@ -64,20 +70,35 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="avatar-sm me-2">
-                                        <div class="avatar-title bg-primary bg-opacity-10 rounded-circle">
-                                            <i class="fa fa-user text-primary"></i>
+                                        <div class="avatar-title @(r.MemberId != 0 ? "bg-primary" : "bg-secondary") bg-opacity-10 rounded-circle">
+                                            <i class="fa fa-user @(r.MemberId != 0 ? "text-primary" : "text-secondary")"></i>
                                         </div>
                                     </div>
                                     <div>
-                                        <strong>@($"{r.Member?.FirstName} {r.Member?.OtherNames}")</strong>
+                                        <strong>
+                                            @if (r.MemberId != 0)
+                                            {
+                                                @($"{r.Member?.FirstName} {r.Member?.OtherNames}")
+                                            }
+                                            else
+                                            {
+                                                @($"{r.GuestName} ")
+                                            }
+                                        </strong>
                                     </div>
                                 </div>
                             </td>
                             <td>
-                                <small class="text-muted">@(r.Member?.Email ?? "N/A")</small>
+                                <small class="text-muted">@(r.MemberId != 0 ? r.Member?.Email ?? "N/A" : r.GuestEmail ?? "N/A")</small>
                             </td>
                             <td>
-                                <small class="text-muted">@(r.Member?.Phone ?? "N/A")</small>
+                                <small class="text-muted">@(r.MemberId != 0 ? r.Member?.Phone ?? "N/A" : r.GuestPhone ?? "N/A")</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="fa fa-map-marker-alt me-1 text-muted"></i>
+                                    @(r.MemberId != 0 ? r.Member?.Assembly ?? "N/A" : r.GuestAssembly ?? "N/A")
+                                </span>
                             </td>
                             <td class="fw-medium">KES @r.AmountPaid.ToString("N2")</td>
 

@@ -39,6 +39,8 @@ namespace GCI_Admin.DBOperations.Repositories
                     StartDate = dto.StartDate,
                     EndDate = dto.EndDate,
                     OnDuty = dto.OnDuty,
+                    HasSpecialDuties = dto.HasSpecialDuties,
+                    IsEmeritus = dto.IsEmeritus,
                     IsActive = true,
                     CreatedAt = DateTime.Now
                 };
@@ -150,6 +152,8 @@ namespace GCI_Admin.DBOperations.Repositories
                 existing.StartDate = dto.StartDate;
                 existing.EndDate = dto.EndDate;
                 existing.OnDuty = dto.OnDuty;
+                existing.HasSpecialDuties = dto.HasSpecialDuties;
+                existing.IsEmeritus = dto.IsEmeritus;
 
                 await _context.SaveChangesAsync();
 

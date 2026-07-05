@@ -1,4 +1,4 @@
-﻿using GCI_Admin.DBOperations.Repositories;
+using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Services.IService;
 using GCI_Admin.Utils;
@@ -599,7 +599,7 @@ namespace GCI_Admin.Services.Service
         }
 
         // =========================
-        // Dashboard (Original -保持向后兼容)
+        // Dashboard (Original -??????)
         // =========================
 
         public async Task<ApiResponse<DashboardSummaryModel>> GetDashboardSummaryAsync()

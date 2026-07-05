@@ -1,4 +1,4 @@
-﻿using GCI_Admin.DBOperations.Repositories;
+using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
@@ -166,7 +166,7 @@ namespace GCI_Admin.Services.Service
             return response;
         }
         // =========================================================
-        // ✅ CREATE
+        // ? CREATE
         // =========================================================
         public async Task<ApiResponse<RcpsPledges>> CreateRcpsPledgeAsync(RcpsPledgesDto dto)
         {
@@ -198,7 +198,7 @@ namespace GCI_Admin.Services.Service
         }
 
         // =========================================================
-        // ✅ GET ALL
+        // ? GET ALL
         // =========================================================
         public async Task<ApiResponse<List<RcpsPledges>>> GetAllRcpsPledgesAsync()
         {
@@ -230,7 +230,7 @@ namespace GCI_Admin.Services.Service
         }
 
         // =========================================================
-        // ✅ GET BY ID
+        // ? GET BY ID
         // =========================================================
         public async Task<ApiResponse<RcpsPledges>> GetRcpsPledgeByIdAsync(int id)
         {
@@ -262,7 +262,7 @@ namespace GCI_Admin.Services.Service
         }
 
         // =========================================================
-        // ✅ UPDATE
+        // ? UPDATE
         // =========================================================
         public async Task<ApiResponse<RcpsPledges>> UpdateRcpsPledgeAsync(int id, RcpsPledgesDto dto)
         {
@@ -294,7 +294,7 @@ namespace GCI_Admin.Services.Service
         }
 
         // =========================================================
-        // ✅ DELETE
+        // ? DELETE
         // =========================================================
         public async Task<ApiResponse<bool>> DeleteRcpsPledgeAsync(int id)
         {

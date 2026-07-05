@@ -1,0 +1,89 @@
+@model GCI_Admin.Models.GECPosition
+@{
+    var isEdit = ViewBag.IsEdit ?? false;
+}
+
+<form id="positionForm">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label fw-bold">Position Title *</label>
+        <input asp-for="Title" class="form-control" required placeholder="e.g. General Overseer" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label fw-bold">Description (Optional)</label>
+        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="mb-3 form-check form-switch">
+        <input class="form-check-input" type="checkbox" asp-for="IsActive" checked="@(isEdit ? Model.IsActive : true)">
+        <label class="form-check-label" asp-for="IsActive">Is Active?</label>
+    </div>
+
+    <div class="text-end mt-4">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btnSavePosition">
+            <span class="indicator-label">Save Position</span>
+            <span class="indicator-progress d-none">
+                Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+            </span>
+        </button>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('#btnSavePosition').click(function () {
+            const form = $('#positionForm');
+            if (!form[0].checkValidity()) {
+                form[0].reportValidity();
+                return;
+            }
+
+            const data = {
+                Id: parseInt($('#Id').val()) || 0,
+                Title: $('#Title').val(),
+                Description: $('#Description').val(),
+                IsActive: $('#IsActive').is(':checked')
+            };
+
+            const isEdit = data.Id > 0;
+            const url = isEdit ? '@Url.Action("UpdatePosition", "GECPositions")' : '@Url.Action("CreatePosition", "GECPositions")';
+
+            // Show loading
+            $('#btnSavePosition .indicator-label').addClass('d-none');
+            $('#btnSavePosition .indicator-progress').removeClass('d-none');
+            $('#btnSavePosition').prop('disabled', true);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (res) {
+                    if (res.success) {
+                        toastr.success(res.message);
+                        $('#positionModal').modal('hide');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        toastr.error(res.message);
+                        resetSaveButton();
+                    }
+                },
+                error: function (xhr) {
+                    const msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'An error occurred';
+                    toastr.error(msg);
+                    resetSaveButton();
+                }
+            });
+        });
+
+        function resetSaveButton() {
+            $('#btnSavePosition .indicator-label').removeClass('d-none');
+            $('#btnSavePosition .indicator-progress').addClass('d-none');
+            $('#btnSavePosition').prop('disabled', false);
+        }
+    });
+</script>

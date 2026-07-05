@@ -1,4 +1,4 @@
-﻿namespace GCI_Admin.Models
+namespace GCI_Admin.Models
 {
     public class DropdownItem
     {
@@ -12,5 +12,12 @@
 
         // Additional data
         public Dictionary<string, object> ExtraData { get; set; }
+    }
+
+    public class CloudinaryConfig
+    {
+        public string CloudName { get; set; }
+        public string ApiKey { get; set; }
+        public string ApiSecret { get; set; }
     }
 }

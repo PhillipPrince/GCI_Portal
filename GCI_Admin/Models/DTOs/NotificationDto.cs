@@ -29,17 +29,22 @@ namespace GCI_Admin.Models.DTOs
         public bool SendSMS { get; set; }
 
         public bool SendEmail { get; set; }
+        public bool SendPushNotification { get; set; }
 
         public bool IsActive { get; set; } = true;
 
         public List<DropdownItem> NotificationGroups { get; set; }
         public int NotificationGroupId { get; set; }
         public List<DropdownItem> Members { get; set; }
+        public List<Member>? RawMembers { get; set; }
         public List<int> SelectedMembers { get; set; }
         public string? ImageBase64 { get; set; }
 
         public List<DropdownItem>? MinistriesList { get; set; }
         public List<DropdownItem>? GrowthCentersList { get; set; }
         public List<DropdownItem>? RcpsList { get; set; }
+        public string PushNotificationType { get; set; } = "general";
+        public string DeepLinkScreen { get; set; } = "notifications";
+        public string? DeepLinkId { get; set; }
     }
 }   
