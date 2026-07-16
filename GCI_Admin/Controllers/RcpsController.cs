@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using System.IO;
 using System.Text;
 using Utils;
+using Microsoft.EntityFrameworkCore;
 
 namespace GCI_Admin.Controllers
 {
@@ -15,11 +16,15 @@ namespace GCI_Admin.Controllers
     {
         private readonly IRcpsService _rcpsService;
         private readonly ICompositeViewEngine _viewEngine;
+        private readonly IMembersService _membersService;
+        private readonly GCI_Admin.DBOperations.AppDbContext _context;
 
-        public RcpsController(IRcpsService rcpsService, ICompositeViewEngine viewEngine)
+        public RcpsController(IRcpsService rcpsService, ICompositeViewEngine viewEngine, IMembersService membersService, GCI_Admin.DBOperations.AppDbContext context)
         {
             _rcpsService = rcpsService;
             _viewEngine = viewEngine;
+            _membersService = membersService;
+            _context = context;
         }
 
         public async Task<IActionResult> Index()
@@ -44,6 +49,29 @@ namespace GCI_Admin.Controllers
                 else
                 {
                     rcpsViewModel.Rcps = new List<Rcps>();
+                }
+
+                var coordinatorsRes = await _rcpsService.GetAllRcpsCountyCoordinatorsAsync();
+                if (coordinatorsRes != null && coordinatorsRes.IsSuccess)
+                {
+                    rcpsViewModel.CountyCoordinators = coordinatorsRes.Data;
+                }
+                else
+                {
+                    rcpsViewModel.CountyCoordinators = new List<RcpsCountyCoordinator>();
+                }
+                var countiesRes = await _rcpsService.GetAllCountiesAsync();
+                if (countiesRes != null && countiesRes.IsSuccess)
+                {
+                    rcpsViewModel.Counties = countiesRes.Data.Select(c => new SelectListItem
+                    {
+                        Value = c.CountyCode,
+                        Text = c.CountyName
+                    }).ToList();
+                }
+                else
+                {
+                    rcpsViewModel.Counties = new List<SelectListItem>();
                 }
 
                 return View(rcpsViewModel);
@@ -93,6 +121,17 @@ namespace GCI_Admin.Controllers
                     return NotFound($"RCP with ID {id} not found");
                 }
 
+                var countyMembers = await _context.RcpCountyMembers
+                    .Include(m => m.Member)
+                    .Where(m => m.RcpsId == id)
+                    .ToListAsync();
+
+                rcpsDetailsViewModel.CountyMembers = countyMembers;
+                rcpsDetailsViewModel.CountyCoordinators = countyMembers
+                    .Where(m => m.IsLeader)
+                    .Select(m => new RcpsCountyCoordinator { MemberId = m.MemberId })
+                    .ToList(); // this is just a quick projection if needed, but I'll use CountyMembers directly.
+
                 return View(rcpsDetailsViewModel);
             }
             catch (Exception ex)
@@ -101,6 +140,41 @@ namespace GCI_Admin.Controllers
                 return View(new RcpsDetailsViewModel());
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> AddMember(int rcpsId, int memberId)
+        {
+            try
+            {
+                // Check if already a member
+                bool exists = await _context.RcpCountyMembers
+                    .AnyAsync(m => m.RcpsId == rcpsId && m.MemberId == memberId);
+
+                if (exists)
+                {
+                    return Json(new { success = false, message = "Member is already in this RCP." });
+                }
+
+                var newMember = new RcpCountyMember
+                {
+                    RcpsId = rcpsId,
+                    MemberId = memberId,
+                    IsLeader = false,
+                    Status = "Active",
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.RcpCountyMembers.Add(newMember);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Member added successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }
+
 
         public async Task<ActionResult> RcpsPledges(int? id)
         {
@@ -132,8 +206,8 @@ namespace GCI_Admin.Controllers
                     ["amountRaised"] = x.AmountRaised,
                     ["targetAmount"] = x.TargetAmount,
                     ["status"] = x.Status,
-                    ["startDate"] = x.StartDate.ToString("yyyy-MM-dd"),
-                    ["endDate"] = x.EndDate.ToString("yyyy-MM-dd")
+                    ["startDate"] = x.StartDate?.ToString("yyyy-MM-dd"),
+                    ["endDate"] = x.EndDate?.ToString("yyyy-MM-dd")
                 }
             }).ToList();
 
@@ -296,7 +370,7 @@ namespace GCI_Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAddRcpsPartial()
+        public async Task<IActionResult> GetAddRcpsPartial()
         {
             var model = new RcpsDto
             {
@@ -305,6 +379,21 @@ namespace GCI_Admin.Controllers
                 AmountRaised = 0,
                 Status = "Planning"
             };
+
+            var countiesRes = await _rcpsService.GetAllCountiesAsync();
+            if (countiesRes != null && countiesRes.IsSuccess)
+            {
+                ViewBag.Counties = countiesRes.Data.Select(c => new SelectListItem
+                {
+                    Value = c.CountyCode,
+                    Text = c.CountyName
+                }).ToList();
+            }
+            else
+            {
+                ViewBag.Counties = new List<SelectListItem>();
+            }
+
             return PartialView("_AddRcpsModal", model);
         }
 
@@ -348,6 +437,83 @@ namespace GCI_Admin.Controllers
                 {
                     return Json(new { success = false, message = result?.Message ?? "Failed to create Rcps" });
                 }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error: {ex.Message}" });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetEditRcpsPartial(int id)
+        {
+            var res = await _rcpsService.GetRcpsByIdAsync(id);
+            if (res != null && res.IsSuccess && res.Data != null)
+            {
+                var rcps = res.Data;
+                var model = new RcpsDto
+                {
+                    Id = rcps.Id,
+                    Name = rcps.Name,
+                    Description = rcps.Description,
+                    TargetAmount = rcps.TargetAmount,
+                    AmountRaised = rcps.AmountRaised,
+                    StartDate = rcps.StartDate ?? DateTime.Now,
+                    EndDate = rcps.EndDate ?? DateTime.Now.AddMonths(3),
+                    Status = rcps.Status,
+                    CountyCode = rcps.CountyCode
+                };
+
+                var countiesRes = await _rcpsService.GetAllCountiesAsync();
+                if (countiesRes != null && countiesRes.IsSuccess)
+                {
+                    ViewBag.Counties = countiesRes.Data.Select(c => new SelectListItem
+                    {
+                        Value = c.CountyCode,
+                        Text = c.CountyName
+                    }).ToList();
+                }
+                else
+                {
+                    ViewBag.Counties = new List<SelectListItem>();
+                }
+                
+                ViewBag.IsEdit = true;
+                return PartialView("_AddRcpsModal", model);
+            }
+            return NotFound();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<JsonResult> UpdateRcps([FromBody] RcpsDto model)
+        {
+            try
+            {
+                if (model == null) return Json(new { success = false, message = "Invalid data received" });
+                if (string.IsNullOrWhiteSpace(model.Name)) return Json(new { success = false, message = "Rcps name is required" });
+
+                var res = await _rcpsService.GetRcpsByIdAsync(model.Id);
+                if (res != null && res.IsSuccess && res.Data != null)
+                {
+                    var rcps = res.Data;
+                    rcps.Name = model.Name;
+                    rcps.Description = model.Description;
+                    rcps.TargetAmount = model.TargetAmount;
+                    rcps.AmountRaised = model.AmountRaised;
+                    rcps.StartDate = model.StartDate;
+                    rcps.EndDate = model.EndDate;
+                    rcps.Status = model.Status;
+                    rcps.CountyCode = model.CountyCode;
+                    
+                    var updateRes = await _rcpsService.UpdateRcpsAsync(rcps);
+                    if (updateRes != null && updateRes.IsSuccess)
+                    {
+                        return Json(new { success = true, message = "Rcps updated successfully!", data = updateRes.Data });
+                    }
+                    return Json(new { success = false, message = updateRes?.Message ?? "Failed to update Rcps" });
+                }
+                return Json(new { success = false, message = "Rcps not found" });
             }
             catch (Exception ex)
             {
@@ -538,6 +704,176 @@ namespace GCI_Admin.Controllers
             }
         }
 
-      
+        // =========================================================
+        // COUNTY COORDINATORS
+        // =========================================================
+
+        public async Task<IActionResult> LoadCoordinatorCreateForm()
+        {
+            CreateRcpsCountyCoordinatorDto dto = new CreateRcpsCountyCoordinatorDto();
+
+            var membersResult = await _membersService.GetAllMembersAsync();
+            if (membersResult.IsSuccess && membersResult.Data != null)
+            {
+                dto.Members = membersResult.Data;
+            }
+
+            var rcpsResult = await _rcpsService.GetAllRcpsAsync();
+            if (rcpsResult.IsSuccess && rcpsResult.Data != null)
+            {
+                dto.RcpsList = rcpsResult.Data.Select(r => new SelectListItem
+                {
+                    Value = r.Id.ToString(),
+                    Text = r.Name
+                }).ToList();
+            }
+
+            dto.Coordinator = new RcpsCountyCoordinatorDto
+            {
+                IsActive = true
+            };
+
+            ViewBag.IsEdit = false;
+            return PartialView("_CreateCountyCoordinatorPartial", dto);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCountyCoordinator([FromBody] RcpsCountyCoordinatorDto model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    return Json(new { success = false, message = "Validation errors.", errors = errors });
+                }
+
+                var existing = await _rcpsService.GetRcpsCountyCoordinatorsByRcpsAsync(model.RcpsId);
+                if (existing.IsSuccess && existing.Data != null)
+                {
+                    if (existing.Data.Any(c => c.MemberId == model.MemberId && c.IsActive))
+                    {
+                        return Json(new { success = false, message = "Member is already an active coordinator for this RCP." });
+                    }
+                }
+
+                var result = await _rcpsService.CreateRcpsCountyCoordinatorAsync(model);
+
+                if (result.IsSuccess)
+                {
+                    return Json(new { success = true, message = result.Message, data = result.Data });
+                }
+                return Json(new { success = false, message = result.Message ?? "Failed to create coordinator." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        public async Task<IActionResult> LoadCoordinatorEditForm(int id)
+        {
+            try
+            {
+                var coordResult = await _rcpsService.GetRcpsCountyCoordinatorByIdAsync(id);
+                if (!coordResult.IsSuccess || coordResult.Data == null)
+                {
+                    return Json(new { success = false, message = "Coordinator not found." });
+                }
+
+                var leader = coordResult.Data;
+                CreateRcpsCountyCoordinatorDto dto = new CreateRcpsCountyCoordinatorDto();
+                RcpsCountyCoordinatorDto rcpsDto = new RcpsCountyCoordinatorDto
+                {
+                    Id = leader.RcpsCountyCoordinatorId,
+                    MemberId = leader.MemberId,
+                    RcpsId = leader.RcpsId,
+                    Bio = leader.Bio,
+                    IsActive = leader.IsActive
+                };
+
+                var membersResult = await _membersService.GetAllMembersAsync();
+                var rcpsResult = await _rcpsService.GetAllRcpsAsync();
+                if (rcpsResult.IsSuccess && rcpsResult.Data != null)
+                {
+                    dto.RcpsList = rcpsResult.Data.Where(r => r.IsActive).Select(r => new SelectListItem
+                    {
+                        Value = r.Id.ToString(),
+                        Text = r.Name,
+                        Selected = (r.Id == leader.RcpsId)
+                    }).ToList();
+                }
+
+                dto.Coordinator = rcpsDto;
+                dto.Members = membersResult.IsSuccess ? membersResult.Data : new List<Member>();
+                
+                ViewBag.IsEdit = true;
+                return PartialView("_CreateCountyCoordinatorPartial", dto);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateCountyCoordinator([FromBody] RcpsCountyCoordinatorDto model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+                    return Json(new { success = false, message = "Validation errors.", errors = errors });
+                }
+
+                var result = await _rcpsService.UpdateRcpsCountyCoordinatorAsync(model);
+
+                if (result.IsSuccess)
+                {
+                    return Json(new { success = true, message = result.Message });
+                }
+                return Json(new { success = false, message = result.Message ?? "Failed to update coordinator." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteCountyCoordinator(int id)
+        {
+            try
+            {
+                var result = await _rcpsService.DeleteRcpsCountyCoordinatorAsync(id);
+                return Json(new { success = result.IsSuccess, message = result.Message });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleCoordinatorStatus(int id, bool isActive)
+        {
+            try
+            {
+                var result = await _rcpsService.ToggleCountyCoordinatorStatusAsync(id, isActive);
+                return Json(new { success = result.IsSuccess, message = result.Message });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
     }
 }

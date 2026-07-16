@@ -1,0 +1,64 @@
+@model GCI_Admin.Models.DTOs.ChurchDailyActivityDto
+
+<div class="modal-header bg-warning text-dark">
+    <h5 class="modal-title fw-bold"><i class="fa fa-edit me-2"></i> Edit Daily Activity</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form id="editActivityForm">
+        <input type="hidden" name="Id" value="@Model.Id" />
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-medium">Day of Week <span class="text-danger">*</span></label>
+                <select name="DayOfWeek" class="form-select" required>
+                    <option value="">Select Day</option>
+                    @{
+                        var days = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Daily" };
+                        foreach(var day in days)
+                        {
+                            if(Model.DayOfWeek == day)
+                            {
+                                <option value="@day" selected>@day</option>
+                            }
+                            else
+                            {
+                                <option value="@day">@day</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-medium">Activity Name <span class="text-danger">*</span></label>
+                <input type="text" name="ActivityName" class="form-control" value="@Model.ActivityName" required />
+            </div>
+            
+            <div class="col-12">
+                <label class="form-label fw-medium">Description</label>
+                <textarea name="Description" class="form-control" rows="3">@Model.Description</textarea>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-medium">Start Time</label>
+                <input type="time" name="StartTime" class="form-control" value="@(Model.StartTime?.ToString(@"hh\:mm"))" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-medium">End Time</label>
+                <input type="time" name="EndTime" class="form-control" value="@(Model.EndTime?.ToString(@"hh\:mm"))" />
+            </div>
+
+            <div class="col-12">
+                <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" name="IsActive" id="editIsActive" value="true" @(Model.IsActive ? "checked" : "")>
+                    <label class="form-check-label" for="editIsActive">Activity is Active</label>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+    <button type="button" class="btn btn-warning" onclick="submitActivityForm('/ChurchDailyActivities/Edit/@Model.Id', 'editActivityForm')">
+        <i class="fa fa-save me-1"></i> Update Activity
+    </button>
+</div>

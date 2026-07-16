@@ -229,13 +229,13 @@ namespace GCI_Admin.Controllers
             ViewBag.IsEdit = true;
             if (gecResponse.Data.Member != null)
             {
-                if (!string.IsNullOrEmpty(gecResponse.Data.Member.ProfilePictureUrl))
+                if (gecResponse.Data.Member.ProfileImage != null && gecResponse.Data.Member.ProfileImage.Length > 0)
                 {
-                    ViewBag.CurrentImageUrl = gecResponse.Data.Member.ProfilePictureUrl;
+                    ViewBag.CurrentImageUrl = $"data:image/jpeg;base64,{Convert.ToBase64String(gecResponse.Data.Member.ProfileImage)}";
                 }
-                else if (gecResponse.Data.Member.ProfileImage != null && gecResponse.Data.Member.ProfileImage.Length > 0)
+                else
                 {
-                    ViewBag.CurrentImageUrl = "data:image/jpeg;base64," + Convert.ToBase64String(gecResponse.Data.Member.ProfileImage);
+                    ViewBag.CurrentImageUrl = "/images/default-avatar.png";
                 }
             }
             return PartialView("_CreateGECMemberPartial", dto);

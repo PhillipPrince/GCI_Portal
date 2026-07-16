@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.DTOs.RcpsDto
+@model GCI_Admin.Models.DTOs.RcpsDto
 
 <div class="modal fade" id="addRCPSModal" tabindex="-1" aria-labelledby="addRCPSModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -13,6 +13,7 @@
             <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                 <form id="addRcpsForm">
                     @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" id="RcpsId" />
                     
                     <!-- Basic Information Section -->
                     <div class="card border-0 shadow-sm mb-4">
@@ -34,6 +35,19 @@
                                            autocomplete="off" />
                                     <span asp-validation-for="Name" class="text-danger small"></span>
                                     <small class="text-muted d-block mt-1">Example: "Harvest Rcps 2024" or "City Outreach Program"</small>
+                                </div>
+                                
+                                <div class="col-md-12 mb-3">
+                                    <label asp-for="CountyCode" class="form-label fw-bold">
+                                        <i class="fa fa-map-marker-alt me-1 text-primary"></i>County *
+                                    </label>
+                                    <select asp-for="CountyCode" class="form-select form-select-lg" 
+                                            id="CountyCode"
+                                            asp-items="@(ViewBag.Counties as List<SelectListItem> ?? new List<SelectListItem>())">
+                                        <option value="">-- Select a County --</option>
+                                    </select>
+                                    <span asp-validation-for="CountyCode" class="text-danger small"></span>
+                                    <small class="text-muted d-block mt-1">Select the county for this RCPS</small>
                                 </div>
                                 
                                 <div class="col-md-12 mb-3">
@@ -109,6 +123,7 @@
                                     </label>
                                     <input asp-for="StartDate" class="form-control form-control-lg" 
                                            id="StartDate"
+                                           value="@Model.StartDate.ToString("yyyy-MM-dd")"
                                            type="date" />
                                     <span asp-validation-for="StartDate" class="text-danger small"></span>
                                     <small class="text-muted">Rcps launch date</small>
@@ -120,6 +135,7 @@
                                     </label>
                                     <input asp-for="EndDate" class="form-control form-control-lg" 
                                            id="EndDate"
+                                           value="@Model.EndDate.ToString("yyyy-MM-dd")"
                                            type="date" />
                                     <span asp-validation-for="EndDate" class="text-danger small"></span>
                                     <small class="text-muted">Rcps closing date</small>
@@ -280,10 +296,18 @@
         var startDate = $('#StartDate').val();
         var endDate = $('#EndDate').val();
         var status = $('#RcpsStatus').val();
+        var countyCode = $('#CountyCode').val();
         
+        // Basic validation
         if (!name || name.trim() === '') {
-            Swal.fire('Validation Error', 'Please enter the Rcps name', 'error');
+            Swal.fire('Validation Error', 'Please enter a name for the Rcps', 'error');
             $('#RcpsName').focus();
+            return false;
+        }
+        
+        if (!countyCode) {
+            Swal.fire('Validation Error', 'Please select a County', 'error');
+            $('#CountyCode').focus();
             return false;
         }
         
@@ -316,9 +340,13 @@
             return false;
         }
         
+        var isEdit = $('#RcpsId').val() && $('#RcpsId').val() !== "0";
+        var title = isEdit ? 'Update Rcps?' : 'Create New Rcps?';
+        var confirmBtn = isEdit ? 'Yes, update Rcps!' : 'Yes, create Rcps!';
+
         // Show confirmation dialog
         Swal.fire({
-            title: 'Create New Rcps?',
+            title: title,
             html: `
                 <div class="text-start">
                     <p><strong>Rcps Name:</strong> ${escapeHtml(name)}</p>
@@ -332,7 +360,7 @@
             showCancelButton: true,
             confirmButtonColor: '#28a745',
             cancelButtonColor: '#dc3545',
-            confirmButtonText: 'Yes, create Rcps!',
+            confirmButtonText: confirmBtn,
             cancelButtonText: 'Cancel'
         }).then((result) => {
             if (result.isConfirmed) {
@@ -344,10 +372,13 @@
     }
     
     function submitFormData() {
+        var isEdit = $('#RcpsId').val() && $('#RcpsId').val() !== "0";
+        var loadingText = isEdit ? 'Updating Rcps...' : 'Creating Rcps...';
+        
         // Show loading state
         Swal.fire({
-            title: 'Creating Rcps...',
-            text: 'Please wait while we create the Rcps',
+            title: loadingText,
+            text: 'Please wait...',
             allowOutsideClick: false,
             didOpen: () => {
                 Swal.showLoading();
@@ -355,6 +386,7 @@
         });
         
         var formData = {
+            Id: parseInt($('#RcpsId').val()) || 0,
             Name: $('#RcpsName').val(),
             Description: $('#RcpsDescription').val(),
             TargetAmount: parseFloat($('#TargetAmount').val()),
@@ -362,11 +394,14 @@
             StartDate: $('#StartDate').val(),
             EndDate: $('#EndDate').val(),
             Status: $('#RcpsStatus').val(),
+            CountyCode: $('#CountyCode').val(),
             IsActive: $('#IsActive').is(':checked')
         };
         
+        var url = isEdit ? '/Rcps/UpdateRcps' : '/Rcps/CreateRcps';
+        
         $.ajax({
-            url: '/Rcps/CreateRcps',
+            url: url,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(formData),

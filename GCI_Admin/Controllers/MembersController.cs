@@ -137,6 +137,9 @@ public class MembersController : Controller
         if (!result.IsSuccess)
             return BadRequest(result);
 
+        // Invalidate cached active members
+        HttpContext.Session.Remove("ActiveMembers");
+
         return Ok(result);
     }
 

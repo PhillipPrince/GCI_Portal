@@ -285,7 +285,11 @@
 
 <script>
 /* Member Selector: @controlId */
-$(document).ready(function() {
+(function() {
+    function initMs() {
+        var $ = window.jQuery;
+        if (!$) return; // Fail-safe
+
 
     /* ── element refs ───────────────────────────────────── */
     var cid         = '@controlId';
@@ -651,5 +655,51 @@ $(document).ready(function() {
         });
     };
 
-});/* end ready */
+    window['msSetSelectedMember_' + cid] = function(id, name, email) {
+        ensureMembers(function() {
+            seedFromDom();
+            for (var i = 0; i < membersData.length; i++) {
+                if (String(membersData[i].id) === String(id)) {
+                    var m = membersData[i];
+                    selectedId = String(id);
+                    $hiddenId.val(selectedId);
+                    $placeholder.hide();
+                    $selAvatar.css('background', m.clr).text(m.ini).show();
+                    $selText.text(m.name).show();
+                    $clearSel.show();
+                    $('#' + cid + '_fullName').val(m.name);
+                    $('#' + cid + '_email').val(m.email);
+                    if ($('#' + cid + '_phone').length) $('#' + cid + '_phone').val(m.phone);
+                    if ($('#' + cid + '_gender').length) $('#' + cid + '_gender').val(m.gender);
+                    $prevAva.css('background', m.clr).text(m.ini);
+                    $preview.show();
+                    return;
+                }
+            }
+            // If member not found in data but we have basic info, set it anyway
+            if (id && name) {
+                selectedId = String(id);
+                $hiddenId.val(selectedId);
+                $placeholder.hide();
+                $selText.text(name).show();
+                $clearSel.show();
+                $('#' + cid + '_fullName').val(name);
+                if (email) $('#' + cid + '_email').val(email);
+                $preview.show();
+            }
+        });
+    };
+    
+    window['msClearSelection_' + cid] = function() {
+        clearSelection();
+    };
+
+    } // end initMs
+
+    if (window.jQuery) {
+        window.jQuery(initMs);
+    } else {
+        document.addEventListener("DOMContentLoaded", initMs);
+    }
+})();
 </script>

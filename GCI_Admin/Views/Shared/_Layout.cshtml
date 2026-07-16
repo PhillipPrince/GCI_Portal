@@ -162,7 +162,8 @@
                     Roles = new[] { 1, 2, 3, 4, 5 }, // Almost all roles except Finance
                     Children = new[] {
                         new { Title = "Annual Calendar", Url = Url.Action("Index", "Event"), Controller = "event", Roles = new[] { 1, 2, 3, 4, 5 } },
-                        new { Title = "Themes", Url = Url.Action("Themes", "Event"), Controller = "event", Roles = new[] { 1, 2 } }
+                        new { Title = "Themes", Url = Url.Action("Themes", "Event"), Controller = "event", Roles = new[] { 1, 2 } },
+                        new { Title = "Daily Activities", Url = Url.Action("Index", "ChurchDailyActivities"), Controller = "churchdailyactivities", Roles = new[] { 1, 2, 3, 4, 5 } }
                     }
                 },
                 ["meetings"] = new { 
@@ -496,7 +497,7 @@
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                    <a class="dropdown-item" href="@Url.Action("Logout", "Auth")">
+                    <a class="dropdown-item" href="@Url.Action("LogoutGet", "Auth")">
                         <i class="fa fa-sign-out-alt me-2"></i> Logout
                     </a>
                 </li>
@@ -734,6 +735,35 @@
         $(document).ajaxComplete(function(event, jqXHR, ajaxOptions) {
             // hideGlobalSpinner();
         });
+
+        // Global AJAX Error Handler for Session Expiration (401)
+        $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+            if (jqXHR.status === 401 || (jqXHR.responseJSON && jqXHR.responseJSON.redirectToLogin)) {
+                window.location.href = '@Url.Action("Index", "Auth")';
+            }
+        });
+
+        // Auto-logout idle timer matching the 20-minute server session timeout
+        (function() {
+            var timeoutMs = 20 * 60 * 1000; // 20 minutes
+            var logoutTimer;
+
+            function resetTimer() {
+                clearTimeout(logoutTimer);
+                logoutTimer = setTimeout(function() {
+                    window.location.href = '@Url.Action("LogoutGet", "Auth")';
+                }, timeoutMs);
+            }
+
+            // Reset timer on user interactions
+            window.addEventListener('mousemove', resetTimer, false);
+            window.addEventListener('mousedown', resetTimer, false);
+            window.addEventListener('keypress', resetTimer, false);
+            window.addEventListener('touchmove', resetTimer, false);
+            window.addEventListener('scroll', resetTimer, false);
+
+            resetTimer(); // Initialize timer
+        })();
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)

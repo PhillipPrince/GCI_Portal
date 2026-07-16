@@ -1088,13 +1088,15 @@
                 }
 
                 var table = $('#' + tableId).DataTable({
-                    processing: true,
-                    serverSide: true,
                     ajax: {
-                        url: '@Url.Action("GetMembersDataTable", "Members")',
-                        type: 'POST',
-                        data: function (d) {
-                            d.statusId = statusId;
+                        url: '@Url.Action("GetAllMembers", "Members")',
+                        type: 'GET',
+                        dataSrc: function (json) {
+                            // Filter by statusId if needed
+                            if (statusId && statusId != 0 && statusId != "0") {
+                                return json.filter(m => m.statusId == statusId);
+                            }
+                            return json;
                         }
                     },
                     columns: [
@@ -1191,7 +1193,18 @@
                             }
                         }
                     ],
-                    order: [[8, 'desc']] // Order by CreatedAt desc by default
+                    order: [[8, 'desc']], // Order by CreatedAt desc by default
+                    initComplete: function() {
+                        let tableApi = this.api();
+                        // Bind to the inputs in the filter-row of thead
+                        $('#' + tableId + ' thead tr.filter-row th').each(function(i) {
+                            $('input, select', this).on('keyup change clear', function() {
+                                if (tableApi.column(i).search() !== this.value) {
+                                    tableApi.column(i).search(this.value).draw();
+                                }
+                            });
+                        });
+                    }
                 });
 
                 // Realtime search
@@ -1296,9 +1309,13 @@
             }
 
             if (search) {
+                const searchLower = search.toLowerCase();
                 filteredMembers = filteredMembers.filter(m =>
-                    `${m.firstName} ${m.otherNames || ''} ${m.email || ''} ${m.phone || ''}`
-                    .toLowerCase().includes(search.toLowerCase())
+                    (m.firstName && m.firstName.toLowerCase().includes(searchLower)) ||
+                    (m.otherNames && m.otherNames.toLowerCase().includes(searchLower)) ||
+                    (m.email && m.email.toLowerCase().includes(searchLower)) ||
+                    (m.phone && m.phone.toLowerCase().includes(searchLower)) ||
+                    (m.assembly && m.assembly.toLowerCase().includes(searchLower))
                 );
             }
 

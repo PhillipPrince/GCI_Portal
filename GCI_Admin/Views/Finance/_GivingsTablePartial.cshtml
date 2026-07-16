@@ -6,7 +6,7 @@
 
             <thead class="table-light">
                 <tr>
-                    <th>MemberId</th>
+                    <th>Payment ID</th>
                     <th>Phone Number</th>
                     <th>Amount</th>
                     <th>Receipt No</th>
@@ -19,7 +19,7 @@
                 <!-- Search Row -->
                 <tr>
                     <th>
-                        <input type="text" placeholder="Search Member" class="form-control form-control-sm" />
+                        <input type="text" placeholder="Search Payment ID" class="form-control form-control-sm" />
                     </th>
                     <th>
                         <input type="text" placeholder="Search Phone" class="form-control form-control-sm" />
@@ -53,15 +53,7 @@
                 {
                     <tr>
                         <td>
-                            @if (payment.Member != null)
-                            {
-                                <strong>@($"{payment.Member.Id}")</strong>
-                                <div class="small text-muted">ID: #@payment.MemberId</div>
-                            }
-                            else
-                            {
-                                <span>ID: #@payment.MemberId</span>
-                            }
+                            <strong>#@payment.Id</strong>
                         </td>
                         <td>@payment.PhoneNumber</td>
                         <td>KES @payment.Amount.ToString("N2")</td>

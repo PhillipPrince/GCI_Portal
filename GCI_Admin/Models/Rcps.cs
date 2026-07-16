@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace GCI_Admin.Models
 {
@@ -6,15 +6,17 @@ namespace GCI_Admin.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public decimal TargetAmount { get; set; }
         public decimal AmountRaised { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public string Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool IsActive { get; set; }
+        public string? CountyCode { get; set; }
+        public virtual ICollection<RcpsCountyCoordinator> CountyCoordinators { get; set; }
 
 
         public decimal PercentageComplete
@@ -35,6 +37,8 @@ namespace GCI_Admin.Models
         public decimal TotalRaised { get; set; }
         public Rcps CurrentActiveRcps { get; set; }
         public List<Rcps> Rcps { get; set; }
+        public List<RcpsCountyCoordinator> CountyCoordinators { get; set; }
+        public List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> Counties { get; set; }
     }
     public enum RCPStatus
     {
@@ -57,6 +61,8 @@ namespace GCI_Admin.Models
     {
         public Rcps Rcps { get; set; }
         public List<RcpsPledges> Pledges { get; set; }
+        public List<RcpsCountyCoordinator> CountyCoordinators { get; set; }
+        public List<RcpCountyMember> CountyMembers { get; set; } = new List<RcpCountyMember>();
 
         // Statistics
         public int TotalPledges { get; set; }

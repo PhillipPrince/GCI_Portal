@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using GCI_Admin.Models;
@@ -82,6 +82,23 @@ namespace GCI_Admin.DBOperations.Repositories
                     return response;
                 }
 
+                if (user.IsLocked)
+                {
+                    if (user.LockedUntil != null && user.LockedUntil > DateTime.UtcNow)
+                    {
+                        response.Success = false;
+                        response.Message = "Account is locked. Try again later.";
+                        response.Data = null;
+                        return response;
+                    }
+                    else
+                    {
+                        user.IsLocked = false;
+                        user.FailedLoginAttempts = 0;
+                        user.LockedUntil = null;
+                    }
+                }
+
                 var allowedRoles = new[] { 1, 5,6,2 }; 
 
                 if (!allowedRoles.Contains(user.UserRole))
@@ -108,6 +125,10 @@ namespace GCI_Admin.DBOperations.Repositories
 
                 if (decryptedPassword == login.Password)
                 {
+                    user.FailedLoginAttempts = 0;
+                    user.LastLoginAt = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+
                     response.Success = true;
                     response.Message = "User validated successfully.";
                     response.Data = user;
@@ -115,8 +136,42 @@ namespace GCI_Admin.DBOperations.Repositories
                 }
                 else
                 {
+                    user.FailedLoginAttempts += 1;
+
+                    if (user.FailedLoginAttempts >= 5 && !user.IsLocked)
+                    {
+                        user.IsLocked = true;
+                        user.LockedUntil = DateTime.UtcNow.AddMinutes(30);
+
+                        string tempPassword = Guid.NewGuid().ToString().Substring(0, 8);
+                        user.PasswordHash = _security.EncryptStringAES(tempPassword, "GCI");
+                        user.MustChangePassword = true;
+
+                        string message = $"Your account has been locked due to too many failed login attempts. Use this temporary password to login and reset your password: {tempPassword}";
+
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(user.Phone))
+                            {
+                                _ = _communicationService.SendSmsAsync(user.Phone, message);
+                            }
+                            else if (!string.IsNullOrEmpty(user.Email))
+                            {
+                                _ = _communicationService.SendEmailAsync(user.Email, "Account Locked - Temporary Password", message);
+                            }
+                        }
+                        catch (Exception commsEx)
+                        {
+                            Loggers.DoLogs($"Failed to send lock temp password: {commsEx.Message}");
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+
                     response.Success = false;
-                    response.Message = "Invalid password.";
+                    response.Message = user.IsLocked 
+                        ? "Account locked due to too many failed attempts. A temporary password has been sent to your registered phone/email."
+                        : $"Invalid password. Attempts: {user.FailedLoginAttempts}/5";
                     response.Data = null;
                     return response;
                 }

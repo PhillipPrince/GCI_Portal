@@ -140,7 +140,7 @@
                     {
                         foreach (var evt in Model.UpcomingEvent.Take(3))
                         {
-                            <div class="list-group-item px-0 border-0 d-flex align-items-center">
+                            <a href="@Url.Action("EventDetails", "Event", new { id = evt.EventId })" class="list-group-item list-group-item-action px-0 border-0 d-flex align-items-center text-decoration-none text-dark">
                                 <div class="bg-primary bg-opacity-10 p-2 rounded-circle me-3">
                                     <i class="fa fa-church text-primary"></i>
                                 </div>
@@ -154,7 +154,7 @@
                                 <span class="badge @(evt.EventDate.Date == DateTime.Today ? "bg-primary" : "bg-secondary")">
                                     @(evt.EventDate.Date == DateTime.Today ? "Today" : "")
                                 </span>
-                            </div>
+                            </a>
                         }
                     }
                     else

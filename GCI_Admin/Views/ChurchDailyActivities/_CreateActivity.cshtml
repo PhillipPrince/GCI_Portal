@@ -1,0 +1,57 @@
+@model GCI_Admin.Models.DTOs.ChurchDailyActivityDto
+
+<div class="modal-header bg-primary text-white">
+    <h5 class="modal-title fw-bold"><i class="fa fa-plus-circle me-2"></i> Add Daily Activity</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form id="createActivityForm">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-medium">Day of Week <span class="text-danger">*</span></label>
+                <select name="DayOfWeek" class="form-select" required>
+                    <option value="">Select Day</option>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                    <option value="Daily">Daily</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-medium">Activity Name <span class="text-danger">*</span></label>
+                <input type="text" name="ActivityName" class="form-control" required placeholder="e.g. Morning Prayers" />
+            </div>
+            
+            <div class="col-12">
+                <label class="form-label fw-medium">Description</label>
+                <textarea name="Description" class="form-control" rows="3" placeholder="Details about the activity..."></textarea>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-medium">Start Time</label>
+                <input type="time" name="StartTime" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-medium">End Time</label>
+                <input type="time" name="EndTime" class="form-control" />
+            </div>
+
+            <div class="col-12">
+                <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" name="IsActive" id="createIsActive" checked value="true">
+                    <label class="form-check-label" for="createIsActive">Activity is Active</label>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+    <button type="button" class="btn btn-primary" onclick="submitActivityForm('/ChurchDailyActivities/Create', 'createActivityForm')">
+        <i class="fa fa-save me-1"></i> Save Activity
+    </button>
+</div>

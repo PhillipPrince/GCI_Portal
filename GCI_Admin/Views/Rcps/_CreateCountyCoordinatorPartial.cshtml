@@ -1,0 +1,159 @@
+@model GCI_Admin.Models.DTOs.CreateRcpsCountyCoordinatorDto
+
+@{
+    var isEdit = ViewBag.IsEdit ?? false;
+    var formId = isEdit ? "editCountyCoordinatorForm" : "createCountyCoordinatorForm";
+    var action = isEdit ? "UpdateCountyCoordinator" : "CreateCountyCoordinator";
+    var modalId = "countyCoordinatorModal";
+}
+
+<!-- Modal Body -->
+<div class="modal-body">
+    <form asp-action="@action" asp-controller="Rcps" method="post" id="@formId">
+        @Html.AntiForgeryToken()
+
+        @if (isEdit)
+        {
+            <input type="hidden" asp-for="Coordinator.Id" id="CountyCoordinatorId" />
+        }
+
+        <div class="alert alert-info">
+            <i class="fa fa-info-circle me-2"></i>
+            Assign a member as a County Coordinator for an RCP. The member will be responsible for overseeing RCP activities in the county and approving join requests.
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label class="form-label fw-bold">Rapid Church Planting Strategy (RCP) <span class="text-danger">*</span></label>
+                <select asp-for="Coordinator.RcpsId" class="form-select" id="RcpsId" name="RcpsId" required>
+                    <option value="">-- Select RCP --</option>
+                    @if (Model?.RcpsList != null)
+                    {
+                        foreach (var rcp in Model.RcpsList)
+                        {
+                            <option value="@rcp.Value" selected="@(Model?.Coordinator?.RcpsId.ToString() == rcp.Value)">@rcp.Text</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="Coordinator.RcpsId" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Member Selector Partial -->
+        @await Html.PartialAsync("_MemberSelector", new GCI_Admin.Models.ViewModels.MemberSelectorViewModel
+        {
+            ControlId = "countyCoordinatorMemberSelector",
+            LabelText = "Select Member",
+            MemberIdFieldName = "MemberId",
+            SelectedMemberId = Model?.Coordinator?.MemberId,
+            Members = Model?.Members,
+            IsRequired = true,
+            IsEdit = isEdit,
+            ShowPhoneAndGender = true,
+            DataUrl = "/Finance/GetActiveMembers" // Wait, Finance controller has GetActiveMembers. Ministry had it too. Let's reuse.
+        })
+
+        <hr />
+
+        <div class="row mt-3">
+            <div class="col-12">
+                @await Html.PartialAsync("_ImagePicker", new GCI_Admin.Models.ImagePickerViewModel
+                {
+                    ControlId = "countyCoordinatorProfileImage",
+                    LabelText = "Profile Image",
+                    IconClass = "fa fa-user-circle-o",
+                    HelpText = "Upload a profile image for the county coordinator. Recommended size: 400x400 pixels. Max size: 5MB",
+                    UploadButtonText = "Choose Image",
+                    CurrentImageUrl = Model?.Coordinator?.MemberId != null ? $"/uploads/{Model.Coordinator.MemberId}.jpg" : null,
+                    PreviewWidth = 150,
+                    PreviewHeight = 150,
+                    MaxFileSizeMB = 5,
+                    IsRequired = false,
+                    Rounded = true,
+                    FileInputName = "ProfileImage",
+                    ImageUrlFieldName = "ProfileImageUrl",
+                    Base64FieldName = "ProfileImageBase64"
+                })
+            </div>
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label class="form-label fw-bold">Bio / Description</label>
+                <textarea asp-for="Coordinator.Bio" class="form-control" id="Bio" name="Bio" rows="3" maxlength="500"
+                          placeholder="Brief biography, qualifications, or role description..."></textarea>
+                <span asp-validation-for="Coordinator.Bio" class="text-danger"></span>
+                <small class="text-muted">Optional: Provide a brief description of the coordinator's role and responsibilities</small>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <div class="form-check form-switch">
+                    <input asp-for="Coordinator.IsActive" class="form-check-input" type="checkbox" id="IsActive" name="IsActive"
+                           checked="@(Model?.Coordinator?.IsActive ?? true)">
+                    <label class="form-check-label fw-bold" asp-for="Coordinator.IsActive">Active Coordinator</label>
+                </div>
+                <small class="text-muted">Uncheck if this coordinator is no longer serving in this role</small>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Initialize modal and form handling
+    $(document).ready(function() {
+        // Ensure form validation
+        $('#@formId').on('submit', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        if (typeof initializeCustomDropdown === 'function') {
+            initializeCustomDropdown('countyCoordinatorMemberSelector');
+        }
+    });
+
+    function getCoordinatorFormData() {
+        const form = $('#@formId');
+        
+        // Validate form
+        if (!form[0].checkValidity()) {
+            form[0].reportValidity();
+            return null;
+        }
+
+        // Validate member selection
+        const memberId = $('#countyCoordinatorMemberSelector_selectedId').val();
+        if (!memberId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Member Required',
+                text: 'Please select a member to assign as coordinator.'
+            });
+            return null;
+        }
+        
+        var idVal = $('#CountyCoordinatorId').val();
+        
+        // Create base data object
+        const data = {
+            id: idVal ? parseInt(idVal) : 0,
+            rcpsId: parseInt($('#RcpsId').val()),
+            memberId: parseInt(memberId),
+            bio: $('#Bio').val(),
+            isActive: $('#IsActive').is(':checked')
+        };
+
+        // Add base64 image if present
+        const profileImageBase64 = $('#countyCoordinatorProfileImage_Base64').val();
+        if (profileImageBase64) {
+            data.profileImageBase64 = profileImageBase64;
+        }
+
+        return data;
+    }
+</script>

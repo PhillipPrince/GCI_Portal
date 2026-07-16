@@ -278,6 +278,47 @@
             const otherAssemblyContainer = document.getElementById('otherAssemblyContainer');
             const otherAssemblyInput = document.getElementById('otherAssembly');
             const submitBtn = document.getElementById('submitBtn');
+            const guestPhoneInput = document.getElementById('guestPhone');
+
+            let phoneCheckTimeout;
+            guestPhoneInput.addEventListener('input', function() {
+                clearTimeout(phoneCheckTimeout);
+                const phone = this.value.trim();
+                const eventId = document.getElementById('eventId').value;
+                if (phone.length >= 9) {
+                    phoneCheckTimeout = setTimeout(() => {
+                        fetch(`/Register/CheckRegistration?phone=${encodeURIComponent(phone)}&eventId=${eventId}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.isRegistered && data.records && data.records.length > 0) {
+                                    let detailsHtml = '<div style="text-align: left; font-size: 14px; max-height: 200px; overflow-y: auto; margin-top: 10px;">';
+                                    data.records.forEach((record, index) => {
+                                        let statusText = record.paymentStatusId === 4 ? '<span style="color: green;">Paid</span>' : '<span style="color: orange;">Pending Payment</span>';
+                                        detailsHtml += `<div style="padding: 10px; border-bottom: 1px solid #ddd;">
+                                            <strong>Name:</strong> ${record.guestName || 'N/A'}<br/>
+                                            <strong>Status:</strong> ${statusText}<br/>
+                                        </div>`;
+                                    });
+                                    detailsHtml += '</div>';
+
+                                    Swal.fire({
+                                        title: 'Existing Registrations Found',
+                                        html: `The following registrations exist for this phone number:<br/>${detailsHtml}<br/>Do you want to proceed and register/pay for someone else?`,
+                                        icon: 'info',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Yes, proceed',
+                                        cancelButtonText: 'No, clear number'
+                                    }).then((result) => {
+                                        if (!result.isConfirmed) {
+                                            guestPhoneInput.value = '';
+                                        }
+                                    });
+                                }
+                            })
+                            .catch(err => console.error(err));
+                    }, 500);
+                }
+            });
 
             assemblySelect.addEventListener('change', function() {
                 if (this.value === 'Other') {
@@ -294,7 +335,7 @@
 
                 const eventId = document.getElementById('eventId').value;
                 const guestName = document.getElementById('guestName').value;
-                const guestPhone = document.getElementById('guestPhone').value;
+                const guestPhone = guestPhoneInput.value;
                 const guestEmail = document.getElementById('guestEmail').value;
                 const amountPaid = document.getElementById('amountPaid').value;
                 const ageGroupContainer = document.getElementById('ageGroupContainer');
@@ -341,14 +382,62 @@
                 .then(response => response.json().then(data => ({ status: response.status, body: data })))
                 .then(res => {
                     if (res.status >= 200 && res.status < 300 && res.body.isSuccess !== false) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'You have successfully registered for this event.',
-                            icon: 'success',
-                            confirmButtonColor: '#1e4a6b'
-                        }).then(() => {
-                            window.location.reload();
-                        });
+                        const amtPaid = parseFloat(amountPaid);
+                        if (amtPaid > 0 && res.body.data && res.body.data.registrationId) {
+                            let regId = res.body.data.registrationId;
+                            Swal.fire({
+                                title: 'Awaiting Payment...',
+                                text: 'Please enter your M-Pesa PIN on your phone to confirm registration.',
+                                icon: 'info',
+                                allowOutsideClick: false,
+                                showConfirmButton: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                    let attempts = 0;
+                                    const maxAttempts = 20; // 60 seconds at 3s interval
+                                    const pollInterval = setInterval(() => {
+                                        attempts++;
+                                        fetch(`/Register/CheckPaymentStatus/${regId}`)
+                                            .then(r => r.json())
+                                            .then(statusData => {
+                                                if (statusData.paymentStatusId === 4) {
+                                                    clearInterval(pollInterval);
+                                                    Swal.fire({
+                                                        title: 'Success!',
+                                                        text: 'You have successfully registered for this event.',
+                                                        icon: 'success',
+                                                        confirmButtonColor: '#1e4a6b'
+                                                    }).then(() => {
+                                                        window.location.reload();
+                                                    });
+                                                } else if (attempts >= maxAttempts) {
+                                                    clearInterval(pollInterval);
+                                                    submitBtn.disabled = false;
+                                                    submitBtn.innerText = 'Complete Registration';
+                                                    Swal.fire('Timeout', 'Payment taking too long or failed. Please check your phone or try again.', 'warning');
+                                                }
+                                            })
+                                            .catch(() => {
+                                                if (attempts >= maxAttempts) {
+                                                    clearInterval(pollInterval);
+                                                    submitBtn.disabled = false;
+                                                    submitBtn.innerText = 'Complete Registration';
+                                                    Swal.close();
+                                                }
+                                            });
+                                    }, 3000);
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'You have successfully registered for this event.',
+                                icon: 'success',
+                                confirmButtonColor: '#1e4a6b'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        }
                     } else {
                         throw new Error(res.body.message || 'Registration failed.');
                     }

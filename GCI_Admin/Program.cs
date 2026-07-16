@@ -148,6 +148,7 @@ builder.Services.AddScoped<ReportsRepository>();
 builder.Services.AddScoped<MeetingsRepository>();
 builder.Services.AddScoped<GalleryRepository>();
 builder.Services.AddScoped<GECPositionRepository>();
+builder.Services.AddScoped<ChurchDailyActivitiesRepository>();
 
 // ================= SERVICES =================
 builder.Services.AddScoped<IEventsService, EventsService>();
@@ -158,6 +159,7 @@ builder.Services.AddScoped<IMinistriesService, MinistriesService>();
 builder.Services.AddScoped<IGrowthCentersService, GrowthCentersService>();
 builder.Services.AddScoped<IAnnouncementsService, AnnouncementsService>();
 builder.Services.AddScoped<IPaymentsService, PaymentsService>();
+builder.Services.AddScoped<IChurchDailyActivitiesService, ChurchDailyActivitiesService>();
 builder.Services.AddScoped<IBenevolenceService, BenevolenceService>();
 builder.Services.AddScoped<ILeadershipService, LeadershipService>();
 builder.Services.AddScoped<ISystemConfigService, SystemConfigService>();

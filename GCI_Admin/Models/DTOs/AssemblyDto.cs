@@ -6,6 +6,8 @@ namespace GCI_Admin.Models.DTOs
         public string Location { get; set; }
         public string? ContactPhone { get; set; }
         public string? ContactEmail { get; set; }
+        public int? LeaderMemberId { get; set; }
+        public string? ProfileImageBase64 { get; set; }
     }
 
     public class AssemblyLeaderDto

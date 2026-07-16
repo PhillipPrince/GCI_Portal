@@ -63,7 +63,8 @@ namespace GCI_Admin.Controllers
             DateTime? fromDate = null,
             DateTime? toDate = null,
             int? filterYear = null,
-            int? filterMonth = null)
+            int? filterMonth = null,
+            string paybill = null)
         {
             try
             {
@@ -88,17 +89,19 @@ namespace GCI_Admin.Controllers
                     query = query.Where(p =>
                         (p.PhoneNumber != null && p.PhoneNumber.Contains(search)) ||
                         (p.MpesaReceiptNumber != null && p.MpesaReceiptNumber.Contains(search)) ||
-                        (p.AccountReference != null && p.AccountReference.Contains(search)) ||
-                        (p.Member != null && (
-                            (p.Member.FirstName != null && p.Member.FirstName.Contains(search)) ||
-                            (p.Member.OtherNames != null && p.Member.OtherNames.Contains(search))
-                        ))
+                        (p.AccountReference != null && p.AccountReference.Contains(search)) 
+                       
                     );
                 }
 
                 if (!string.IsNullOrEmpty(accountReference))
                 {
                     query = query.Where(p => p.AccountReference == accountReference);
+                }
+
+                if (!string.IsNullOrEmpty(paybill))
+                {
+                    query = query.Where(p => p.Paybill == paybill);
                 }
 
                 if (!string.IsNullOrEmpty(paymentStatus) && int.TryParse(paymentStatus, out int statusId))
@@ -189,7 +192,7 @@ namespace GCI_Admin.Controllers
                         break;
                 }
 
-                var filteredPayments = query.OrderByDescending(p => p.TransactionDate).ToList();
+                var filteredPayments = query.OrderBy(p => p.Id).ToList();
 
                 return PartialView("_GivingsTablePartial", filteredPayments);
             }
@@ -204,6 +207,12 @@ namespace GCI_Admin.Controllers
         {
             try
             {
+                var cachedMembersJson = HttpContext.Session.GetString("ActiveMembers");
+                if (!string.IsNullOrEmpty(cachedMembersJson))
+                {
+                    return Content("{\"success\":true,\"data\":" + cachedMembersJson + "}", "application/json");
+                }
+
                 var members = await _context.Members
                     .Where(m => m.StatusId == 1)
                     .OrderBy(m => m.FirstName)
@@ -216,6 +225,9 @@ namespace GCI_Admin.Controllers
                         gender = m.Gender
                     })
                     .ToListAsync();
+
+                HttpContext.Session.SetString("ActiveMembers", JsonSerializer.Serialize(members));
+
                 return Ok(new { success = true, data = members });
             }
             catch (Exception ex)
@@ -239,6 +251,7 @@ namespace GCI_Admin.Controllers
                 payment.CreatedAt = DateTime.UtcNow;
                 payment.MerchantRequestID = "MANUAL";
                 payment.CheckoutRequestID = "MANUAL";
+                payment.Paybill = "CASH";
 
                 // Save to database
                 _context.Payments.Add(payment);

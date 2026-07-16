@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.Rcps>
+@model List<GCI_Admin.Models.Rcps>
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
@@ -67,15 +67,18 @@
                         <td>KES @rcps.TargetAmount.ToString("N2")</td>
                         <td>KES @rcps.AmountRaised.ToString("N2")</td>
                         <td>
+                            @{
+                                decimal percentage = rcps.TargetAmount > 0 ? ((decimal)rcps.AmountRaised / rcps.TargetAmount * 100) : 0;
+                            }
                             <div class="d-flex align-items-center">
-                                <span class="me-2">@(((decimal)rcps.AmountRaised / rcps.TargetAmount * 100).ToString("F0"))%</span>
+                                <span class="me-2">@(percentage.ToString("F0"))%</span>
                                 <div class="progress flex-grow-1" style="height: 6px;">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: @((decimal)rcps.AmountRaised / rcps.TargetAmount * 100)%"></div>
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: @(percentage)%"></div>
                                 </div>
                             </div>
                         </td>
-                        <td>@rcps.StartDate.ToString("dd MMM yyyy")</td>
-                        <td>@rcps.EndDate.ToString("dd MMM yyyy")</td>
+                        <td>@rcps.StartDate?.ToString("dd MMM yyyy")</td>
+                        <td>@rcps.EndDate?.ToString("dd MMM yyyy")</td>
                         <td>
                             @if (rcps.Status == "Ongoing")
                             {

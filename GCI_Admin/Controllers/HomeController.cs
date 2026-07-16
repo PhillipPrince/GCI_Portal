@@ -14,11 +14,14 @@ namespace GCI_Admin.Controllers
         private readonly IMembersService _membersService;
         private readonly IEventsService _eventsService;
         private readonly MeetingsRepository _meetingsRepository;
-        public HomeController(IMembersService membersService, IEventsService eventsService, MeetingsRepository meetingsRepository)
+        private readonly IChurchDailyActivitiesService _activitiesService;
+
+        public HomeController(IMembersService membersService, IEventsService eventsService, MeetingsRepository meetingsRepository, IChurchDailyActivitiesService activitiesService)
         {
             _membersService = membersService;
             _eventsService = eventsService;
             _meetingsRepository = meetingsRepository;
+            _activitiesService = activitiesService;
         }
 
         // GET: HomeController1
@@ -33,11 +36,35 @@ namespace GCI_Admin.Controllers
             try
             {
                 var dashboard = new DashboardViewModel();
-                var allMembers = await _membersService.GetAllMembersAsync();
-                var previousMonthMembers = allMembers.Data.Where(m => m.CreatedAt >= DateTime.Now.AddMonths(-1) && m.CreatedAt <= DateTime.Now).ToList();
-                var previousMonthActiveMembers = allMembers.Data.Where(m => m.StatusId == 1 && m.CreatedAt >= DateTime.Now.AddMonths(-1) && m.CreatedAt <= DateTime.Now).ToList();
+                
+                List<Member> members;
+                var cachedMembersJson = HttpContext.Session.GetString("AllMembers");
+                if (!string.IsNullOrEmpty(cachedMembersJson))
+                {
+                    members = System.Text.Json.JsonSerializer.Deserialize<List<Member>>(cachedMembersJson);
+                }
+                else
+                {
+                    var allMembers = await _membersService.GetAllMembersAsync();
+                    members = allMembers?.Data ?? new List<Member>();
+                    HttpContext.Session.SetString("AllMembers", System.Text.Json.JsonSerializer.Serialize(members));
 
-                var members = allMembers?.Data ?? new List<Member>();
+                    var activeMembersForCache = members.Where(m => m.StatusId == 1)
+                        .OrderBy(m => m.FirstName)
+                        .Select(m => new {
+                            id = m.Id,
+                            firstName = m.FirstName,
+                            otherNames = m.OtherNames,
+                            email = m.Email,
+                            phone = m.Phone,
+                            gender = m.Gender
+                        })
+                        .ToList();
+                    HttpContext.Session.SetString("ActiveMembers", System.Text.Json.JsonSerializer.Serialize(activeMembersForCache));
+                }
+
+                var previousMonthMembers = members.Where(m => m.CreatedAt >= DateTime.Now.AddMonths(-1) && m.CreatedAt <= DateTime.Now).ToList();
+                var previousMonthActiveMembers = members.Where(m => m.StatusId == 1 && m.CreatedAt >= DateTime.Now.AddMonths(-1) && m.CreatedAt <= DateTime.Now).ToList();
 
                 if (dashboard.MemberStatus == null)
                 {
@@ -93,25 +120,41 @@ namespace GCI_Admin.Controllers
                 var events = await _eventsService.GetAllEventsAsync();
                 var previousMonthEvents = await _eventsService.GetEventsByDateRangeAsync(DateTime.Now.AddMonths(-1), DateTime.Now);
 
-                var upcomingEvents = events.Data.Where(e => e.IsActive);
+                var upcomingEvents = events.Data?.Where(e => e.IsActive) ?? new List<Event>();
                 int previousEvents = previousMonthEvents?.Data?.Count ?? 0;
 
                 dashboard.UpcomingEvents = upcomingEvents.Count();
                 dashboard.UpcomingEvent = upcomingEvents.ToList();
 
-                dashboard.EventCompletionPercentage = dashboard.UpcomingEvents > 0 ?
-                    Math.Round((decimal)events?.Data?.Count(e => e.EventDate >= DateTime.Now && e.EventDate <= DateTime.Now.AddDays(7)) / dashboard.UpcomingEvents * 100, 2) : 0;
-
                 dashboard.EventChangePercentage = previousEvents > 0
                     ? Math.Round((decimal)(dashboard.UpcomingEvents - previousEvents) / previousEvents * 100, 2)
                     : (dashboard.UpcomingEvents > 0 ? 100 : 0);
+
+                var totalEventsThisYear = events.Data?.Count(e => e.EventDate.Year == DateTime.Now.Year) ?? 0;
+                dashboard.EventCompletionPercentage = totalEventsThisYear > 0
+                    ? Math.Round((decimal)(totalEventsThisYear - dashboard.UpcomingEvents) / totalEventsThisYear * 100, 2)
+                    : 0;
+
+                // Fetch current themes
+                var annualThemeResponse = await _eventsService.GetCurrentYearThemeAsync();
+                var monthlyThemeResponse = await _eventsService.GetCurrentMonthlyThemeAsync();
+                dashboard.CurrentAnnualTheme = annualThemeResponse?.Data;
+                dashboard.CurrentMonthlyTheme = monthlyThemeResponse?.Data;
+
+                // Fetch today's activities
+                var activitiesResponse = await _activitiesService.GetAllAsync();
+                var todayDayOfWeek = DateTime.Today.DayOfWeek.ToString();
+                dashboard.TodayDayOfWeek = todayDayOfWeek;
+                dashboard.TodayDate = DateTime.Today.ToString("dddd, MMM dd yyyy");
+                dashboard.TodayActivities = activitiesResponse.Data?.Where(a => a.IsActive && 
+                    (a.DayOfWeek.Equals(todayDayOfWeek, StringComparison.OrdinalIgnoreCase) || a.DayOfWeek.Equals("Daily", StringComparison.OrdinalIgnoreCase))).ToList() ?? new List<ChurchDailyActivity>();
 
                 return PartialView("_EventStats", dashboard);
             }
             catch (Exception ex)
             {
                 Loggers.DoLogs($"HomeController GetEventStats Error: {ex}");
-                return PartialView("_EventStats", new DashboardViewModel { UpcomingEvent = new List<Event>() });
+                return PartialView("_EventStats", new DashboardViewModel());
             }
         }
 
@@ -126,8 +169,31 @@ namespace GCI_Admin.Controllers
                 // but since we only have membersService.GetAllMembersAsync() here, we might have to use that.
                 // Wait, maybe we can fetch all members just for this or it's slow?
                 // The gender breakdown requires counts. 
-                var allMembers = await _membersService.GetAllMembersAsync();
-                var members = allMembers?.Data ?? new List<Member>();
+                List<Member> members;
+                var cachedMembersJson = HttpContext.Session.GetString("AllMembers");
+                if (!string.IsNullOrEmpty(cachedMembersJson))
+                {
+                    members = System.Text.Json.JsonSerializer.Deserialize<List<Member>>(cachedMembersJson);
+                }
+                else
+                {
+                    var allMembers = await _membersService.GetAllMembersAsync();
+                    members = allMembers?.Data ?? new List<Member>();
+                    HttpContext.Session.SetString("AllMembers", System.Text.Json.JsonSerializer.Serialize(members));
+
+                    var activeMembersForCache = members.Where(m => m.StatusId == 1)
+                        .OrderBy(m => m.FirstName)
+                        .Select(m => new {
+                            id = m.Id,
+                            firstName = m.FirstName,
+                            otherNames = m.OtherNames,
+                            email = m.Email,
+                            phone = m.Phone,
+                            gender = m.Gender
+                        })
+                        .ToList();
+                    HttpContext.Session.SetString("ActiveMembers", System.Text.Json.JsonSerializer.Serialize(activeMembersForCache));
+                }
                 dashboard.TotalMale = members.Count(x => x.Gender == "Male");
                 dashboard.TotalFemale = members.Count(x => x.Gender == "Female");
                 // dashboard.TotalChildren = members.Count(x => x.Age < 18);
@@ -309,7 +375,7 @@ namespace GCI_Admin.Controllers
                         var membersInWeek = await _membersService.GetMembersByDateRangeAsync(
                             weekStart.Date,
                             weekEnd.Date.AddDays(1).AddSeconds(-1));
-                        data.Add(membersInWeek.Data.Count );
+                        data.Add(membersInWeek?.Data?.Count ?? 0);
                     }
                 }
                 else if (period == "yearly")
@@ -325,7 +391,7 @@ namespace GCI_Admin.Controllers
                         var membersInMonth = await _membersService.GetMembersByDateRangeAsync(
                             startDate.Date,
                             endDate.Date.AddDays(1).AddSeconds(-1));
-                        data.Add(membersInMonth.Data.Count );
+                        data.Add(membersInMonth?.Data?.Count ?? 0);
                     }
                 }
 
@@ -384,7 +450,7 @@ namespace GCI_Admin.Controllers
                         var fullMembersInWeek = await _membersService.GetFullMembersByDateRangeAsync(
                             weekStart.Date,
                             weekEnd.Date.AddDays(1).AddSeconds(-1));
-                        data.Add(fullMembersInWeek.Data.Count );
+                        data.Add(fullMembersInWeek?.Data?.Count ?? 0);
                     }
                 }
                 else if (period == "yearly")
@@ -400,7 +466,7 @@ namespace GCI_Admin.Controllers
                         var fullMembersInMonth = await _membersService.GetFullMembersByDateRangeAsync(
                             startDate.Date,
                             endDate.Date.AddDays(1).AddSeconds(-1));
-                        data.Add(fullMembersInMonth.Data.Count );
+                        data.Add(fullMembersInMonth?.Data?.Count ?? 0);
                     }
                 }
 

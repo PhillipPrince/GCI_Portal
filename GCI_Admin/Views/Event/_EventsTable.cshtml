@@ -49,7 +49,7 @@
             <tbody>
                 @foreach (var e in Model)
                 {
-                    <tr>
+                    <tr data-event-id="@e.EventId">
                         <td>@e.Title</td>
                         <td>@e.Description</td>
                         <td data-sort="@e.EventDate.ToString("yyyy-MM-ddTHH:mm:ss")">@e.EventDate.ToString("dd MMM yyyy")</td>

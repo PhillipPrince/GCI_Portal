@@ -1105,7 +1105,6 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
-        //get even registrations by event id
         public async Task<DbResponse<List<EventRegistration>>> GetEventRegistrationsByEventIdAsync(int eventId)
         {
             try
@@ -1115,18 +1114,43 @@ namespace GCI_Admin.DBOperations.Repositories
                     .OrderByDescending(r => r.RegistrationDate)
                     .ToListAsync();
 
-                var memberIds = registrations.Where(r => r.MemberId != 0).Select(r => r.MemberId).Distinct().ToList();
+                var memberIds = registrations
+                    .Where(r => r.MemberId != 0)
+                    .Select(r => r.MemberId)
+                    .Distinct()
+                    .ToList();
+
                 if (memberIds.Any())
                 {
-                    var members = await _context.Members.Where(m => memberIds.Contains(m.Id)).ToDictionaryAsync(m => m.Id);
-                    foreach (var r in registrations.Where(r => r.MemberId != 0))
+                    var members = await _context.Members
+                        .Where(m => memberIds.Contains(m.Id))
+                        .ToDictionaryAsync(m => m.Id);
+
+                    var assemblyIds = members.Values
+                        .Where(m => int.TryParse(m.Assembly?.ToString(), out _))
+                        .Select(m => int.Parse(m.Assembly.ToString()))
+                        .Distinct()
+                        .ToList();
+
+                    var assemblies = await _context.Assemblies
+                        .Where(a => assemblyIds.Contains(a.Id))
+                        .ToDictionaryAsync(a => a.Id);
+
+                    foreach (var registration in registrations.Where(r => r.MemberId != 0))
                     {
-                        if (members.TryGetValue(r.MemberId, out var member))
+                        if (members.TryGetValue(registration.MemberId, out var member))
                         {
-                            r.Member = member;
+                            registration.Member = member;
+
+                            if (int.TryParse(member.Assembly?.ToString(), out int assemblyId) &&
+                                assemblies.TryGetValue(assemblyId, out var assembly))
+                            {
+                                registration.Member.Assembly = assembly.Name;
+                            }
                         }
                     }
                 }
+
                 return new DbResponse<List<EventRegistration>>
                 {
                     Success = true,
@@ -1136,7 +1160,8 @@ namespace GCI_Admin.DBOperations.Repositories
             }
             catch (Exception ex)
             {
-                Loggers.DoLogs($"Error fetching registrations for event ID {eventId}: {ex.ToString()}");
+                Loggers.DoLogs($"Error fetching registrations for event ID {eventId}: {ex}");
+
                 return new DbResponse<List<EventRegistration>>
                 {
                     Success = false,
@@ -1144,8 +1169,6 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
-
-
-        }
+    }
 }
 

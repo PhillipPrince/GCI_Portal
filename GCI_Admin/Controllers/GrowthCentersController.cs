@@ -69,6 +69,69 @@ namespace GCI_Admin.Controllers
             return Ok(response.Data);
         }
 
+        // GET: /GrowthCenters/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var centerRes = await _growthCentersService.GetGrowthCenterByIdAsync(id);
+            if (!centerRes.IsSuccess || centerRes.Data == null)
+            {
+                return NotFound("Growth Center not found.");
+            }
+
+            var leaders = await _context.GrowthCenterLeaders
+                .Include(l => l.Member)
+                .Where(l => l.GrowthCenterId == id)
+                .ToListAsync();
+
+            var members = await _context.GrowthCenterMembers
+                .Include(m => m.Member)
+                .Where(m => m.GrowthCenterId == id)
+                .ToListAsync();
+
+            var data = new GrowthCenterDetailsData
+            {
+                GrowthCenter = centerRes.Data,
+                Leaders = leaders,
+                Members = members
+            };
+
+            return View(data);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddMember(int growthCenterId, int memberId)
+        {
+            try
+            {
+                // Check if already a member
+                bool exists = await _context.GrowthCenterMembers
+                    .AnyAsync(m => m.GrowthCenterId == growthCenterId && m.MemberId == memberId);
+
+                if (exists)
+                {
+                    return Json(new { success = false, message = "Member is already in this Growth Center." });
+                }
+
+                var newMember = new GrowthCenterMember
+                {
+                    GrowthCenterId = growthCenterId,
+                    MemberId = memberId,
+                    IsActive = true,
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.GrowthCenterMembers.Add(newMember);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Member added successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }
+
+
 
         public async Task<IActionResult> LoadCreateForm()
         {

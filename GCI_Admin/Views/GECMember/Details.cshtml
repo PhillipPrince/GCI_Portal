@@ -73,18 +73,15 @@
                             <!-- Profile Image Display from Byte Array -->
                             <div class="profile-image-container mb-3">
                                 @{
-                                    // Check if member has profile image (Cloudinary or byte array)
-                                    bool hasCloudinaryImage = !string.IsNullOrEmpty(member?.ProfilePictureUrl);
                                     var hasProfileImage = member?.ProfileImage != null && member.ProfileImage.Length > 0;
                                     
-                                    // Convert byte array to base64 for display
                                     string imageBase64 = null;
                                     if (hasProfileImage)
                                     {
                                         imageBase64 = Convert.ToBase64String(member.ProfileImage);
                                     }
                                     
-                                    string imageUrl = hasCloudinaryImage ? member.ProfilePictureUrl : (hasProfileImage ? $"data:image/jpeg;base64,{imageBase64}" : null);
+                                    string imageUrl = hasProfileImage ? $"data:image/jpeg;base64,{imageBase64}" : null;
                                     bool hasImage = !string.IsNullOrEmpty(imageUrl);
                                 }
                                 

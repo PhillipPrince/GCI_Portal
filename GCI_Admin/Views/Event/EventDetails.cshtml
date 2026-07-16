@@ -12,9 +12,15 @@
         <p class="text-muted mb-0">Event Details</p>
     </div>
     <div class="col-md-4 text-end">
-        <button class="btn btn-outline-primary me-2" onclick="copyGuestRegistrationLink(@Model.Event.EventId)">
-            <i class="fa fa-link me-2"></i>Copy Guest Link
-        </button>
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa fa-share-alt me-2"></i>Share Links
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="javascript:void(0)" onclick="copyGuestRegistrationLink(@Model.Event.EventId)"><i class="fa fa-user me-2"></i>Guest Registration</a></li>
+                <li><a class="dropdown-item" href="javascript:void(0)" onclick="copyUsherRegistrationLink(@Model.Event.EventId)"><i class="fa fa-users-cog me-2"></i>Usher Registration</a></li>
+            </ul>
+        </div>
         <a href="@Url.Action("Index", "Event")" class="btn btn-outline-secondary">
             <i class="fa fa-arrow-left me-2"></i>Back to Events
         </a>
@@ -347,6 +353,92 @@
     </div>
 </div>
 
+<!-- Registration & Financial Summaries -->
+@if (Model.Event.RequireRegistration && Model.Registrations != null)
+{
+    var assemblySummary = Model.Registrations
+        .GroupBy(r => !string.IsNullOrWhiteSpace(r.GuestAssembly) ? r.GuestAssembly : (r.Member != null ? (r.Member.Assembly ?? "Unknown") : "Unknown"))
+        .Select(g => new { Assembly = g.Key, Count = g.Count() })
+        .OrderByDescending(x => x.Count)
+        .ToList();
+
+    int totalSuccessfulPayments = Model.Registrations.Where(r => r.PaymentStatusId == 4).Count();
+    int totalFailedPayments = Model.Registrations.Where(r => r.PaymentStatusId != 4 && r.PaymentStatusId != 2).Count();
+    int totalPendingPayments = Model.Registrations.Where(r => r.PaymentStatusId == 2).Count();
+    
+    decimal successfulRevenue = Model.Registrations.Where(r => r.PaymentStatusId == 4).Sum(r => r.AmountPaid);
+    decimal expectedFromPending = totalPendingPayments * (Model.Event.Price ?? 0);
+    decimal expectedFromFailed = totalFailedPayments * (Model.Event.Price ?? 0);
+
+    <div class="row mt-4">
+        <!-- Assembly Summary Card -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fa fa-church me-2 text-primary"></i>
+                        Assembly Summary
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>Assembly</th>
+                                    <th class="text-end">Registrations</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach(var item in assemblySummary)
+                                {
+                                    <tr>
+                                        <td>@item.Assembly</td>
+                                        <td class="text-end fw-bold text-primary">@item.Count</td>
+                                    </tr>
+                                }
+                                @if(!assemblySummary.Any())
+                                {
+                                    <tr><td colspan="2" class="text-center text-muted">No registrations found.</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Summary Card (if paid) -->
+        @if(Model.Event.IsPaid)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fa fa-money-bill-wave me-2 text-success"></i>
+                            Financial Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
+                            <span class="text-success fw-bold"><i class="fa fa-check-circle me-1"></i> Successful Payments</span>
+                            <span class="fw-bold">KES @successfulRevenue.ToString("N2") <span class="text-muted small">(@totalSuccessfulPayments)</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
+                            <span class="text-warning fw-bold"><i class="fa fa-clock me-1"></i> Pending Payments</span>
+                            <span class="fw-bold">KES @expectedFromPending.ToString("N2") <span class="text-muted small">(@totalPendingPayments)</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-danger fw-bold"><i class="fa fa-times-circle me-1"></i> Failed Payments</span>
+                            <span class="fw-bold">KES @expectedFromFailed.ToString("N2") <span class="text-muted small">(@totalFailedPayments)</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
 <!-- Registrations Section - Only shown if registration is required -->
 @if (Model.Event.RequireRegistration)
 {
@@ -360,6 +452,15 @@
                         <span class="badge bg-primary ms-2" id="registrationBadge">@(Model.Registrations?.Count ?? 0)</span>
                     </h5>
                     <div>
+                        @if (Model.Event.IsPaid)
+                        {
+                            <button class="btn btn-sm btn-outline-warning me-2" onclick="sendBulkPaymentReminders(@Model.Event.EventId)">
+                                <i class="fa fa-bell me-1"></i> Remind Unpaid
+                            </button>
+                        }
+                        <button class="btn btn-sm btn-outline-info me-2" onclick="sendBulkAttendanceReminders(@Model.Event.EventId)">
+                            <i class="fa fa-calendar-check me-1"></i> Remind Attendance
+                        </button>
                         <button class="btn btn-sm btn-outline-primary me-2" onclick="refreshRegistrations()">
                             <i class="fa fa-refresh me-1"></i> Refresh
                         </button>
@@ -370,7 +471,7 @@
                 </div>
                 <div class="card-body p-0">
                     <div id="registrationsTableContainer">
-                        @await Html.PartialAsync("_EventRegistrationsTable", Model.Registrations)
+                        @await Html.PartialAsync("_EventRegistrationsTable", Model.Registrations, new ViewDataDictionary(ViewData) { { "AllowedAgeGroups", Model.Event.AllowedAgeGroups } })
                     </div>
                 </div>
             </div>
@@ -569,6 +670,9 @@
 </div>
 
 @section Scripts {
+    <!-- SheetJS for Excel handling -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
     <script>
         // Global variables
         let autoRefreshInterval = null;
@@ -646,8 +750,87 @@
             });
         }
 
+        const rawRegistrations = @Html.Raw(Model.Registrations != null ? System.Text.Json.JsonSerializer.Serialize(Model.Registrations.Select(r => new {
+            Name = !string.IsNullOrWhiteSpace(r.GuestName) ? r.GuestName : (r.Member != null ? r.Member.FirstName + " " + r.Member.OtherNames : "Unknown"),
+            Email = !string.IsNullOrWhiteSpace(r.GuestEmail) ? r.GuestEmail : (r.Member != null ? r.Member.Email : ""),
+            Phone = !string.IsNullOrWhiteSpace(r.GuestPhone) ? r.GuestPhone : (r.Member != null ? r.Member.Phone : ""),
+            Assembly = !string.IsNullOrWhiteSpace(r.GuestAssembly) ? r.GuestAssembly : (r.Member != null ? (r.Member.Assembly ?? "Unknown") : "Unknown"),
+            AmountPaid = r.AmountPaid,
+            PaymentStatus = r.PaymentStatusId == 4 ? "Paid" : (r.PaymentStatusId == 2 ? "Pending" : "Failed"),
+            Attended = r.HasAttended == true ? "Yes" : "No",
+            RegistrationDate = r.RegistrationDate.ToString("yyyy-MM-dd HH:mm")
+        })) : "[]");
+
         function exportRegistrations(eventId) {
-            window.location.href = `/Event/ExportRegistrations/${eventId}`;
+            if (!rawRegistrations || rawRegistrations.length === 0) {
+                Swal.fire('Info', 'No registrations to export.', 'info');
+                return;
+            }
+
+            // Create an empty worksheet
+            const ws = XLSX.utils.aoa_to_sheet([]);
+            let currentRow = 0;
+
+            // --- 1. Assembly Summary ---
+            XLSX.utils.sheet_add_aoa(ws, [["ASSEMBLY SUMMARY"]], { origin: { r: currentRow, c: 0 } });
+            currentRow++;
+            
+            const assemblyCounts = {};
+            rawRegistrations.forEach(r => {
+                const asm = r.Assembly || "Unknown";
+                assemblyCounts[asm] = (assemblyCounts[asm] || 0) + 1;
+            });
+            const assemblySummaryArray = Object.keys(assemblyCounts).map(asm => ({ Assembly: asm, Registrations: assemblyCounts[asm] }));
+            assemblySummaryArray.sort((a, b) => b.Registrations - a.Registrations);
+            
+            XLSX.utils.sheet_add_json(ws, assemblySummaryArray, { origin: { r: currentRow, c: 0 }, skipHeader: false });
+            currentRow += assemblySummaryArray.length + 2; // +1 for header, +1 for empty spacing row
+
+            // --- 2. Financial Summary (if paid) ---
+            const isPaidEvent = '@Model.Event.IsPaid.ToString().ToLower()' === 'true';
+            if (isPaidEvent) {
+                XLSX.utils.sheet_add_aoa(ws, [["FINANCIAL SUMMARY"]], { origin: { r: currentRow, c: 0 } });
+                currentRow++;
+                
+                let successCount = 0;
+                let successAmount = 0;
+                let pendingCount = 0;
+                let failedCount = 0;
+
+                rawRegistrations.forEach(r => {
+                    if (r.PaymentStatus === 'Paid') {
+                        successCount++;
+                        successAmount += r.AmountPaid;
+                    } else if (r.PaymentStatus === 'Pending') {
+                        pendingCount++;
+                    } else {
+                        failedCount++;
+                    }
+                });
+
+                const eventPrice = @(Model.Event.Price ?? 0);
+                const financialSummaryArray = [
+                    { Category: 'Successful Payments', Count: successCount, Amount: successAmount },
+                    { Category: 'Pending Payments', Count: pendingCount, Amount: pendingCount * eventPrice },
+                    { Category: 'Failed Payments', Count: failedCount, Amount: failedCount * eventPrice }
+                ];
+                
+                XLSX.utils.sheet_add_json(ws, financialSummaryArray, { origin: { r: currentRow, c: 0 }, skipHeader: false });
+                currentRow += financialSummaryArray.length + 2; // +1 for header, +1 for empty spacing row
+            }
+
+            // --- 3. Full Registrations ---
+            XLSX.utils.sheet_add_aoa(ws, [["FULL REGISTRATIONS"]], { origin: { r: currentRow, c: 0 } });
+            currentRow++;
+            
+            XLSX.utils.sheet_add_json(ws, rawRegistrations, { origin: { r: currentRow, c: 0 }, skipHeader: false });
+
+            // Create Workbook and append the single sheet
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Event Summary");
+
+            const fileName = "Event_Registrations_@Html.Raw(Model.Event.Title.Replace(" ", "_").Replace("\"", ""))" + ".xlsx";
+            XLSX.writeFile(wb, fileName);
         }
 
         function sendReminders(eventId) {
@@ -675,6 +858,84 @@
                         },
                         error: function() {
                             Swal.fire('Error', 'Failed to send reminders.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function sendBulkPaymentReminders(eventId) {
+            Swal.fire({
+                title: 'Send Bulk Payment Reminders?',
+                text: 'This will send SMS/Email payment reminders to ALL registrants who have not paid. Are you sure?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Send Reminders'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Sending...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        url: '/Event/SendBulkPaymentReminders',
+                        type: 'POST',
+                        data: { eventId: eventId },
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            if (response.isSuccess) {
+                                Swal.fire('Success', response.message, 'success');
+                            } else {
+                                Swal.fire('Error', response.message || 'No unpaid registrations found.', 'info');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'Failed to send bulk payment reminders.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function sendBulkAttendanceReminders(eventId) {
+            Swal.fire({
+                title: 'Send Bulk Attendance Reminders?',
+                text: 'This will send SMS/Email attendance reminders to ALL registrants who have not yet been marked as attended. Are you sure?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Send Reminders'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Sending...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        url: '/Event/SendBulkAttendanceReminders',
+                        type: 'POST',
+                        data: { eventId: eventId },
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            if (response.isSuccess) {
+                                Swal.fire('Success', response.message, 'success');
+                            } else {
+                                Swal.fire('Error', response.message || 'No pending attendance registrations found.', 'info');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'Failed to send bulk attendance reminders.', 'error');
                         }
                     });
                 }
@@ -830,6 +1091,32 @@
                 alert('Guest registration link: ' + url);
             }
         }
+
+        function copyUsherRegistrationLink(eventId) {
+            const url = window.location.origin + '/Register/Usher/' + eventId;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(function() {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: 'Copied!',
+                            text: 'Usher registration link copied to clipboard.',
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        alert('Usher registration link copied to clipboard: ' + url);
+                    }
+                }, function(err) {
+                    console.error('Could not copy text: ', err);
+                    alert('Failed to copy link. Please manually copy: ' + url);
+                });
+            } else {
+                alert('Usher registration link: ' + url);
+            }
+        }
+
 
         let ageGroupsArray = [];
         const initialGroupsRaw = `@Html.Raw(Model.Event.AllowedAgeGroups ?? "")`;

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GCI_Admin.Models
@@ -30,6 +30,9 @@ namespace GCI_Admin.Models
             [MaxLength(50)]
             public string? MpesaReceiptNumber { get; set; }
 
+            [MaxLength(50)]
+            public string? Paybill { get; set; }
+
             public DateTime? TransactionDate { get; set; }
 
             public int PaymentStatusId { get; set; }
@@ -43,9 +46,7 @@ namespace GCI_Admin.Models
 
             public DateTime? UpdatedAt { get; set; }
 
-            // Optional Navigation Property (if you have Members table)
-            [ForeignKey("MemberId")]
-            public virtual Member? Member { get; set; }
+            
         }
     
 }

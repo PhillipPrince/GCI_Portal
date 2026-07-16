@@ -1,5 +1,8 @@
-﻿using GCI_Admin.Models.DTOs;
+using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
+using GCI_Admin.DBOperations;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -12,11 +15,13 @@ namespace GCI_Admin.Controllers
     {
         private readonly IAuthService _userService;
         private readonly ILogger<AuthController> _logger;
+        private readonly AppDbContext _context;
 
-        public AuthController(IAuthService userService, ILogger<AuthController> logger)
+        public AuthController(IAuthService userService, ILogger<AuthController> logger, AppDbContext context)
         {
             _userService = userService;
             _logger = logger;
+            _context = context;
         }
 
         [HttpGet]
@@ -276,6 +281,7 @@ namespace GCI_Admin.Controllers
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
+
         }
 
         // Get current user info

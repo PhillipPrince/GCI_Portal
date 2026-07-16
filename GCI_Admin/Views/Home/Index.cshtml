@@ -21,6 +21,12 @@
 
 <!-- DASHBOARD CONTAINER -->
 <div id="dashboard-container">
+    <div id="event-stats-container">
+        <div class="text-center py-4">
+            <div class="spinner-border text-warning" role="status"></div>
+            <h6 class="mt-2 text-muted">Loading Event Data...</h6>
+        </div>
+    </div>
     <div id="membership-stats-container">
         <div class="text-center py-4">
             <div class="spinner-border text-primary" role="status"></div>
@@ -28,12 +34,7 @@
         </div>
     </div>
     
-    <div id="event-stats-container">
-        <div class="text-center py-4">
-            <div class="spinner-border text-warning" role="status"></div>
-            <h6 class="mt-2 text-muted">Loading Event Data...</h6>
-        </div>
-    </div>
+   
     
     <div id="meeting-stats-container">
         <div class="text-center py-4">
@@ -416,10 +417,6 @@
                 $('#members-list-container').append($('#members-list-section'));
                 
                 setTimeout(initializeDataTables, 200);
-                setTimeout(function() {
-                    if (typeof loadMemberGrowthData === 'function') loadMemberGrowthData('weekly');
-                    if (typeof loadFullMembershipData === 'function') loadFullMembershipData('weekly');
-                }, 300);
             });
             
             $('#event-stats-container').load('@Url.Action("GetEventStats", "Home")', function() {
@@ -429,6 +426,8 @@
             
             $('#meeting-stats-container').load('@Url.Action("GetMeetingStats", "Home")', function() {
                 setTimeout(function() {
+                    if (typeof loadMemberGrowthData === 'function') loadMemberGrowthData('weekly');
+                    if (typeof loadFullMembershipData === 'function') loadFullMembershipData('weekly');
                     if (typeof initGenderChart === 'function') initGenderChart();
                     if (typeof initAttendanceTrendChart === 'function') initAttendanceTrendChart();
                 }, 200);

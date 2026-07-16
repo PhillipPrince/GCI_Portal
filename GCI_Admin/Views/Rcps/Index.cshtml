@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.RcpsViewModel
+@model GCI_Admin.Models.RcpsViewModel
 
 @{
     ViewData["Title"] = "Rapid Church Planting Strategy (RCPS)";
@@ -112,7 +112,7 @@
                         <div>
                             <h3 class="fw-bold mb-0">@Model.CurrentActiveRcps.Name</h3>
                             <p class="text-muted mb-0">
-                                <i class="fa fa-calendar me-1"></i>@Model.CurrentActiveRcps.StartDate.ToString("MMM dd, yyyy") - @Model.CurrentActiveRcps.EndDate.ToString("MMM dd, yyyy")
+                                <i class="fa fa-calendar me-1"></i>@Model.CurrentActiveRcps.StartDate?.ToString("MMM dd, yyyy") - @Model.CurrentActiveRcps.EndDate?.ToString("MMM dd, yyyy")
                             </p>
                         </div>
                     </div>
@@ -146,7 +146,7 @@
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span class="small">Raised: KES @Model.CurrentActiveRcps.AmountRaised.ToString("N0")</span>
-                                <span class="small">Remaining: KES @(Model.CurrentActiveRcps.TargetAmount - Model.CurrentActiveRcps.AmountRaised).ToString("N0")</span>
+                                <span class="small">Remaining: KES @((Model.CurrentActiveRcps.TargetAmount - Model.CurrentActiveRcps.AmountRaised).ToString("N0"))</span>
                             </div>
                             <button class="btn btn-primary btn-sm mt-3" onclick="viewRCPDetails(@Model.CurrentActiveRcps.Id)">
                                 <i class="fa fa-eye me-1"></i>View Full Details
@@ -169,52 +169,118 @@
     </div>
 </div>
 
-<!-- Search and Filter -->
-<div class="card border-0 shadow-sm mb-3">
-    <div class="card-body">
-        <div class="row g-3">
-            <div class="col-md-4">
-                <div class="input-group">
-                    <span class="input-group-text bg-transparent border-end-0">
-                        <i class="fa fa-search text-muted"></i>
-                    </span>
-                    <input type="text" class="form-control border-start-0" id="rcpSearch" placeholder="Search by name, description...">
+<!-- Tabs Navigation -->
+<ul class="nav nav-tabs mb-4" id="rcpsTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="rcps-tab" data-bs-toggle="tab" data-bs-target="#rcps-list" type="button" role="tab" aria-controls="rcps-list" aria-selected="true">
+            <i class="fa fa-church me-2"></i>RCPs
+            <span class="badge bg-primary ms-2" id="rcpsCount">@Model.Rcps?.Count</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="county-coordinators-tab" data-bs-toggle="tab" data-bs-target="#county-coordinators" type="button" role="tab" aria-controls="county-coordinators" aria-selected="false">
+            <i class="fa fa-users me-2"></i>County Coordinators
+            <span class="badge bg-primary ms-2" id="countyCoordinatorsCount">@Model.CountyCoordinators?.Count</span>
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="rcpsTabsContent">
+    <!-- RCPs Tab -->
+    <div class="tab-pane fade show active" id="rcps-list" role="tabpanel" aria-labelledby="rcps-tab">
+        <!-- Search and Filter -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-end-0">
+                                <i class="fa fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0" id="rcpSearch" placeholder="Search by name, description...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="Active">Active</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Planning">Planning</option>
+                            <option value="On Hold">On Hold</option>
+                            <option value="Upcoming">Upcoming</option>
+                            <option value="Suspended">Suspended</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-secondary" onclick="clearFilters()">
+                            <i class="fa fa-times me-1"></i>Clear Filters
+                        </button>
+                        <button class="btn btn-primary ms-2" onclick="applyFilters()">
+                            <i class="fa fa-filter me-1"></i>Apply
+                        </button>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <button class="btn btn-outline-success" onclick="exportRCPs()">
+                            <i class="fa fa-file-excel me-1"></i>Export
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <select class="form-select" id="statusFilter">
-                    <option value="">All Status</option>
-                    <option value="Active">Active</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Planning">Planning</option>
-                    <option value="On Hold">On Hold</option>
-                    <option value="Upcoming">Upcoming</option>
-                    <option value="Suspended">Suspended</option>
-                </select>
+        </div>
+
+        <div id="rcpsTableContainer">
+            @await Html.PartialAsync("_RcpsTable", Model.Rcps)
+        </div>
+    </div>
+
+    <!-- County Coordinators Tab -->
+    <div class="tab-pane fade" id="county-coordinators" role="tabpanel" aria-labelledby="county-coordinators-tab">
+        <div class="d-flex justify-content-end mb-3">
+            <button type="button" class="btn btn-primary" onclick="openAddCountyCoordinatorModal()">
+                <i class="fa fa-user-plus me-2"></i>Assign County Coordinator
+            </button>
+        </div>
+        <div id="countyCoordinatorsTableContainer">
+            @await Html.PartialAsync("_CountyCoordinatorsTable", Model.CountyCoordinators)
+        </div>
+    </div>
+</div>
+
+<!-- Add RCP Modal Container -->
+<div id="addRCPSModalContainer"></div>
+
+<!-- County Coordinator Modal -->
+<div class="modal fade" id="countyCoordinatorModal" tabindex="-1" aria-labelledby="countyCoordinatorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="countyCoordinatorModalLabel">
+                    <i class="fa fa-user-plus me-2"></i>
+                    <span id="modalTitleCountyCoordinator">Assign County Coordinator</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="col-md-3">
-                <button class="btn btn-outline-secondary" onclick="clearFilters()">
-                    <i class="fa fa-times me-1"></i>Clear Filters
-                </button>
-                <button class="btn btn-primary ms-2" onclick="applyFilters()">
-                    <i class="fa fa-filter me-1"></i>Apply
-                </button>
+            
+            <div id="countyCoordinatorModalContent">
+                <div class="text-center p-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading form...</p>
+                </div>
             </div>
-            <div class="col-md-2 text-end">
-                <button class="btn btn-outline-success" onclick="exportRCPs()">
-                    <i class="fa fa-file-excel me-1"></i>Export
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmAndSubmitCoordinator()" id="saveCoordinatorBtn">
+                    <i class="fa fa-save me-1"></i><span id="saveCoordinatorBtnText">Save Coordinator</span>
+                    <span id="coordinatorLoading" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                 </button>
             </div>
         </div>
     </div>
 </div>
-
-<div id="rcpsTableContainer">
-    @await Html.PartialAsync("_RcpsTable", Model.Rcps)
-</div>
-
-<!-- Add RCP Modal Container -->
-<div id="addRCPSModalContainer"></div>
 
 <!-- Toast Container -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
@@ -256,20 +322,34 @@
                 type: 'GET',
                 success: function(data) {
                     $('#addRCPSModalContainer').html(data);
+                    $('#addRCPSModalLabel').html('<i class="fa fa-plus-circle me-2"></i>Add New RCP Rcps');
                     $('#addRCPSModal').modal('show');
                     
-                    // Initialize date picker or any additional scripts if needed
                     if (typeof initializeModalDateValidation === 'function') {
                         initializeModalDateValidation();
                     }
                 },
                 error: function(xhr, status, error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Failed to load the add Rcps form: ' + error,
-                        confirmButtonColor: '#d33'
-                    });
+                    Swal.fire('Error', 'Failed to load the form: ' + error, 'error');
+                }
+            });
+        }
+
+        function editRcps(id) {
+            $.ajax({
+                url: '/Rcps/GetEditRcpsPartial/' + id,
+                type: 'GET',
+                success: function(data) {
+                    $('#addRCPSModalContainer').html(data);
+                    $('#addRCPSModalLabel').html('<i class="fa fa-edit me-2"></i>Edit RCP Rcps');
+                    $('#addRCPSModal').modal('show');
+                    
+                    if (typeof initializeModalDateValidation === 'function') {
+                        initializeModalDateValidation();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire('Error', 'Failed to load the form: ' + error, 'error');
                 }
             });
         }
@@ -467,6 +547,164 @@ function getCsrfToken() {
     // Alternative: get from meta tag
     const metaToken = $('meta[name="csrf-token"]').attr('content');
     return metaToken || '';
+}
+// =========================================================
+// COUNTY COORDINATOR FUNCTIONS
+// =========================================================
+
+function openAddCountyCoordinatorModal() {
+    $('#modalTitleCountyCoordinator').text('Assign County Coordinator');
+    $('#saveCoordinatorBtnText').text('Save Coordinator');
+    $('#countyCoordinatorModalContent').html('<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Loading form...</p></div>');
+    
+    var modal = new bootstrap.Modal(document.getElementById('countyCoordinatorModal'));
+    modal.show();
+
+    $.ajax({
+        url: '/Rcps/LoadCoordinatorCreateForm',
+        type: 'GET',
+        success: function (result) {
+            $('#countyCoordinatorModalContent').html(result);
+            // Re-initialize Select2 or any plugins if needed inside the partial
+        },
+        error: function () {
+            $('#countyCoordinatorModalContent').html('<div class="alert alert-danger">Failed to load form.</div>');
+        }
+    });
+}
+
+function editCountyCoordinator(id) {
+    $('#modalTitleCountyCoordinator').text('Edit County Coordinator');
+    $('#saveCoordinatorBtnText').text('Update Coordinator');
+    $('#countyCoordinatorModalContent').html('<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Loading form...</p></div>');
+    
+    var modal = new bootstrap.Modal(document.getElementById('countyCoordinatorModal'));
+    modal.show();
+
+    $.ajax({
+        url: '/Rcps/LoadCoordinatorEditForm/' + id,
+        type: 'GET',
+        success: function (result) {
+            if (result.success === false) {
+                modal.hide();
+                showToast(result.message, 'error');
+                return;
+            }
+            $('#countyCoordinatorModalContent').html(result);
+        },
+        error: function () {
+            $('#countyCoordinatorModalContent').html('<div class="alert alert-danger">Failed to load form.</div>');
+        }
+    });
+}
+
+function confirmAndSubmitCoordinator() {
+    if (typeof getCoordinatorFormData !== 'function') {
+        console.error('getCoordinatorFormData function not found');
+        return;
+    }
+
+    const data = getCoordinatorFormData();
+    if (!data) return; // Validation failed
+
+    const isEdit = data.id > 0;
+    const url = isEdit ? '/Rcps/UpdateCountyCoordinator' : '/Rcps/CreateCountyCoordinator';
+
+    $('#saveCoordinatorBtn').prop('disabled', true);
+    $('#coordinatorLoading').removeClass('d-none');
+
+    $.ajax({
+        url: url,
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        headers: {
+            'RequestVerificationToken': getCsrfToken()
+        },
+        success: function (response) {
+            if (response.success) {
+                bootstrap.Modal.getInstance(document.getElementById('countyCoordinatorModal')).hide();
+                showToast(response.message, 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(response.message || 'Operation failed', 'error');
+            }
+        },
+        error: function (xhr) {
+            showToast('An error occurred while saving the coordinator', 'error');
+        },
+        complete: function () {
+            $('#saveCoordinatorBtn').prop('disabled', false);
+            $('#coordinatorLoading').addClass('d-none');
+        }
+    });
+}
+
+function toggleCountyCoordinatorStatus(id, newStatus) {
+    Swal.fire({
+        title: newStatus ? 'Activate Coordinator?' : 'Deactivate Coordinator?',
+        text: `Are you sure you want to ${newStatus ? 'activate' : 'deactivate'} this coordinator?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: newStatus ? '#28a745' : '#ffc107',
+        confirmButtonText: 'Yes, proceed'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/Rcps/ToggleCoordinatorStatus',
+                type: 'POST',
+                data: { 
+                    id: id, 
+                    isActive: newStatus,
+                    __RequestVerificationToken: getCsrfToken() 
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showToast(response.message, 'success');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showToast(response.message, 'error');
+                    }
+                },
+                error: function() {
+                    showToast('Failed to update status', 'error');
+                }
+            });
+        }
+    });
+}
+
+function deleteCountyCoordinator(id) {
+    Swal.fire({
+        title: 'Delete Coordinator?',
+        text: 'Are you sure you want to remove this coordinator? This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        confirmButtonText: 'Yes, delete it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/Rcps/DeleteCountyCoordinator',
+                type: 'POST',
+                data: { 
+                    id: id,
+                    __RequestVerificationToken: getCsrfToken()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showToast('Coordinator removed successfully', 'success');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showToast(response.message, 'error');
+                    }
+                },
+                error: function() {
+                    showToast('Failed to delete coordinator', 'error');
+                }
+            });
+        }
+    });
 }
     </script>
 }

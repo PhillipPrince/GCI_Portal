@@ -28,8 +28,8 @@ namespace Repo_GCI
             try
             {
                 var payments = await _context.Payments
-                    .Include(x => x.Member)
-                    .OrderByDescending(x => x.CreatedAt)
+                    .Where(x => x.PaymentStatusId == 2)
+                    .OrderBy(x => x.Id)
                     .ToListAsync();
 
                 return new DbResponse<List<Payment>>
@@ -53,9 +53,7 @@ namespace Repo_GCI
             try
             {
                 var payments = await _context.Payments
-                    .Include(x => x.Member)
-                    .Where(x => x.MemberId == memberId)
-                    .OrderByDescending(x => x.CreatedAt)
+                    .OrderBy(x => x.Id)
                     .ToListAsync();
 
                 return new DbResponse<List<Payment>>

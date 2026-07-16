@@ -1,4 +1,4 @@
-﻿namespace GCI_Admin.Models
+namespace GCI_Admin.Models
 {
     public class DashboardViewModel
     {
@@ -7,6 +7,12 @@
         public int UpcomingEvents { get; set; }
         public List<Event> UpcomingEvent { get; set; }
         public MemberStatusModel MemberStatus { get; set; }
+
+        public List<ChurchDailyActivity> TodayActivities { get; set; }
+        public MonthlyTheme CurrentMonthlyTheme { get; set; }
+        public AnnualTheme CurrentAnnualTheme { get; set; }
+        public string TodayDate { get; set; }
+        public string TodayDayOfWeek { get; set; }
 
         public decimal MemberGrowthPercentage { get; set; }
         public decimal ActiveMemberGrowthPercentage { get; set; }

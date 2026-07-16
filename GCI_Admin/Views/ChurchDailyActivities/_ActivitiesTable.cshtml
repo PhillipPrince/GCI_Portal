@@ -1,0 +1,152 @@
+@model List<GCI_Admin.Models.ChurchDailyActivity>
+
+@Html.AntiForgeryToken()
+
+<div class="table-responsive p-3">
+    <table id="churchActivitiesTable" class="table table-striped table-hover align-middle datatable">
+        <thead class="table-light">
+            <tr>
+                <th>Day</th>
+                <th>Activity</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var act in Model)
+            {
+                <tr>
+                    <td class="fw-bold">@act.DayOfWeek</td>
+                    <td>
+                        <div class="fw-bold">@act.ActivityName</div>
+                        <small class="text-muted text-truncate d-inline-block" style="max-width: 250px;">
+                            @act.Description
+                        </small>
+                    </td>
+                    <td>
+                        @if (act.StartTime.HasValue || act.EndTime.HasValue)
+                        {
+                            <span>
+                                @(act.StartTime?.ToString(@"hh\:mm") ?? "") 
+                                @if(act.EndTime.HasValue) { <span> - @act.EndTime.Value.ToString(@"hh\:mm")</span> }
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">N/A</span>
+                        }
+                    </td>
+                    <td>
+                        @if (act.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Inactive</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-info" title="View Details" onclick="openViewActivityModal(@act.Id)">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-warning" title="Edit" onclick="openEditActivityModal(@act.Id)">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            @if (act.IsActive)
+                            {
+                                <button class="btn btn-outline-secondary" title="Deactivate" onclick="toggleActivityStatus(@act.Id, false)">
+                                    <i class="fa fa-ban"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-outline-success" title="Activate" onclick="toggleActivityStatus(@act.Id, true)">
+                                    <i class="fa fa-check"></i>
+                                </button>
+                            }
+                            <button class="btn btn-outline-danger" title="Delete" onclick="deleteActivity(@act.Id)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function () {
+        if (!$.fn.DataTable.isDataTable('#churchActivitiesTable')) {
+            $('#churchActivitiesTable').DataTable();
+        }
+    });
+
+    function toggleActivityStatus(id, isActive) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `You are about to ${isActive ? 'activate' : 'deactivate'} this activity.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, do it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/ChurchDailyActivities/ToggleStatus',
+                    type: 'POST',
+                    data: { id: id, isActive: isActive },
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.isSuccess) {
+                            Swal.fire('Success', response.message, 'success');
+                            refreshActivities();
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'An error occurred.', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    function deleteActivity(id) {
+        Swal.fire({
+            title: 'Delete Activity?',
+            text: 'This action cannot be undone!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/ChurchDailyActivities/Delete',
+                    type: 'POST',
+                    data: { id: id },
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.isSuccess) {
+                            Swal.fire('Deleted!', response.message, 'success');
+                            refreshActivities();
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Failed to delete activity.', 'error');
+                    }
+                });
+            }
+        });
+    }
+</script>

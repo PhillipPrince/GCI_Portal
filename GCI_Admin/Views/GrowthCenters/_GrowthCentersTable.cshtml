@@ -35,10 +35,9 @@
                             <td class="text-end">
 
                                 <!-- View -->
-                                <button class="btn btn-sm btn-outline-info"
-                                        onclick="openCenterModal('@Url.Action("Details", "GrowthCenters", new { id = center.GrowthCenterId })')">
+                                <a href="@Url.Action("Details", "GrowthCenters", new { id = center.GrowthCenterId })" class="btn btn-sm btn-outline-info">
                                     <i class="fa fa-eye"></i>
-                                </button>
+                                </a>
 
                                 <!-- Edit -->
                                 <button class="btn btn-sm btn-outline-warning"

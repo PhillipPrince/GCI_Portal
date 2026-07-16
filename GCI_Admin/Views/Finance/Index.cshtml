@@ -198,8 +198,28 @@
     </div>
 </div>
 
-<div id="givingsTableContainer">
-    @await Html.PartialAsync("_GivingsTablePartial", Model.Payments)
+<ul class="nav nav-tabs mb-3" id="paymentTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-all" data-bs-toggle="tab" data-bs-target="#content-all" type="button" role="tab" onclick="filterByPaybill('')">All Payments</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-844632" data-bs-toggle="tab" data-bs-target="#content-all" type="button" role="tab" onclick="filterByPaybill('844632')">Paybill 844632</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-4099245" data-bs-toggle="tab" data-bs-target="#content-all" type="button" role="tab" onclick="filterByPaybill('4099245')">Paybill 4099245 (GBI)</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-cash" data-bs-toggle="tab" data-bs-target="#content-all" type="button" role="tab" onclick="filterByPaybill('CASH')">Manual (Cash)</button>
+    </li>
+</ul>
+
+<div class="tab-content" id="paymentTabsContent">
+    <div class="tab-pane fade show active" id="content-all" role="tabpanel">
+        <input type="hidden" id="activePaybillFilter" value="" />
+        <div id="givingsTableContainer">
+            @await Html.PartialAsync("_GivingsTablePartial", Model.Payments)
+        </div>
+    </div>
 </div>
 
 <!-- Record Payment Modal -->
@@ -421,8 +441,14 @@
                 fromDate: $('#fromDate').val(),
                 toDate: $('#toDate').val(),
                 filterYear: $('#filterYear').val(),
-                filterMonth: $('#filterMonth').val()
+                filterMonth: $('#filterMonth').val(),
+                paybill: $('#activePaybillFilter').val()
             };
+        }
+
+        function filterByPaybill(paybill) {
+            $('#activePaybillFilter').val(paybill);
+            applyFilters();
         }
 
         function updateStats() {
@@ -436,37 +462,52 @@
             let weekTotal = 0, weekCount = 0;
             let monthTotal = 0, monthCount = 0;
             let yearTotal = 0, yearCount = 0;
+            
+            const selectedPaybill = $('#activePaybillFilter').val();
+            const selectedAccount = $('#accountReference').val();
+            const search = $('#givingSearch').val().toLowerCase();
 
             payments.forEach(p => {
+                if (p.paymentStatusId !== 2) return; // Only count success
+
+                if (selectedPaybill && p.paybill !== selectedPaybill) return;
+                if (selectedAccount && p.accountReference !== selectedAccount) return;
+                
+                if (search && !(
+                    (p.phoneNumber && p.phoneNumber.toLowerCase().includes(search)) ||
+                    (p.mpesaReceiptNumber && p.mpesaReceiptNumber.toLowerCase().includes(search)) ||
+                    (p.accountReference && p.accountReference.toLowerCase().includes(search))
+                )) return;
+
                 if (p.transactionDate) {
                     const date = moment(p.transactionDate).format('YYYY-MM-DD');
 
-                    if (date === today && p.paymentStatusId === 2) {
+                    if (date === today) {
                         todayTotal += p.amount;
                         todayCount++;
                     }
-                    if (date >= weekStart && p.paymentStatusId === 2) {
+                    if (date >= weekStart) {
                         weekTotal += p.amount;
                         weekCount++;
                     }
-                    if (date >= monthStart && p.paymentStatusId === 2) {
+                    if (date >= monthStart) {
                         monthTotal += p.amount;
                         monthCount++;
                     }
-                    if (date >= yearStart && p.paymentStatusId === 2) {
+                    if (date >= yearStart) {
                         yearTotal += p.amount;
                         yearCount++;
                     }
                 }
             });
 
-            $('#todayTotal').text('KES ' + formatNumber(todayTotal));
+            $('#todayTotal').text('KES ' + todayTotal.toLocaleString('en-US', {minimumFractionDigits: 2}));
             $('#todayCount').text(todayCount + ' transactions');
-            $('#weekTotal').text('KES ' + formatNumber(weekTotal));
+            $('#weekTotal').text('KES ' + weekTotal.toLocaleString('en-US', {minimumFractionDigits: 2}));
             $('#weekCount').text(weekCount + ' transactions');
-            $('#monthTotal').text('KES ' + formatNumber(monthTotal));
+            $('#monthTotal').text('KES ' + monthTotal.toLocaleString('en-US', {minimumFractionDigits: 2}));
             $('#monthCount').text(monthCount + ' transactions');
-            $('#yearTotal').text('KES ' + formatNumber(yearTotal));
+            $('#yearTotal').text('KES ' + yearTotal.toLocaleString('en-US', {minimumFractionDigits: 2}));
             $('#yearCount').text(yearCount + ' transactions');
         }
 
@@ -619,7 +660,7 @@
 
                 // Format data for export
                 const exportData = data.map(p => ({
-                    'Member ID': p.memberId,
+                    'Payment ID': p.id,
                     'Phone Number': p.phoneNumber,
                     'Amount (KES)': p.amount,
                     'Receipt Number': p.mpesaReceiptNumber || '-',
@@ -633,7 +674,7 @@
 
                 // Set column widths
                 ws['!cols'] = [
-                    { wch: 10 }, // Member ID
+                    { wch: 10 }, // Payment ID
                     { wch: 15 }, // Phone
                     { wch: 15 }, // Amount
                     { wch: 20 }, // Receipt

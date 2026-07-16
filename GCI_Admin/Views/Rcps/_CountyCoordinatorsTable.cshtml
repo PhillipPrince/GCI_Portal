@@ -1,0 +1,86 @@
+@model List<GCI_Admin.Models.RcpsCountyCoordinator>
+
+<div class="card shadow-sm">
+    <div class="table-responsive p-3">
+        <table id="countyCoordinatorsTable" class="table table-striped table-hover align-middle datatable">
+
+            <thead class="table-light">
+                <tr>
+                    <th>Coordinator Name</th>
+                    <th>RCP</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+
+                <!-- Search Row -->
+                <tr>
+                    <th>
+                        <input type="text" placeholder="Search Name" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <input type="text" placeholder="Search RCP" class="form-control form-control-sm" />
+                    </th>
+                    <th>
+                        <select class="form-control form-control-sm">
+                            <option value="">All</option>
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model != null)
+                {
+                    @foreach (var coordinator in Model)
+                    {
+                        <tr>
+                            <td>@(coordinator.Member?.FirstName + " " + coordinator.Member?.OtherNames)</td>
+                            <td>@coordinator.Rcps?.Name</td>
+                            <td>
+                                @if (coordinator.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactive</span>
+                                }
+                            </td>
+                            <td class="text-end">
+
+                                <!-- View -->
+                                <button class="btn btn-sm btn-outline-info"
+                                        onclick="viewCountyCoordinator(@coordinator.RcpsCountyCoordinatorId)">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+
+                                <!-- Edit -->
+                                <button class="btn btn-sm btn-outline-warning"
+                                        onclick="editCountyCoordinator(@coordinator.RcpsCountyCoordinatorId)">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+
+                                <!-- Toggle Status -->
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        onclick="toggleCountyCoordinatorStatus(@coordinator.RcpsCountyCoordinatorId, @(!coordinator.IsActive).ToString().ToLower())">
+                                    <i class="fa fa-toggle-on"></i>
+                                </button>
+
+                                <!-- Delete -->
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="deleteCountyCoordinator(@coordinator.RcpsCountyCoordinatorId)">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>

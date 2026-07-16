@@ -1,0 +1,84 @@
+@model GCI_Admin.Models.ChurchDailyActivity
+
+<div class="modal-header bg-info text-white">
+    <h5 class="modal-title fw-bold"><i class="fa fa-info-circle me-2"></i> Activity Details</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body p-4">
+    <div class="row mb-3">
+        <div class="col-sm-4 text-muted fw-bold">Activity Name</div>
+        <div class="col-sm-8 fw-medium fs-5">@Model.ActivityName</div>
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col-sm-4 text-muted fw-bold">Day of Week</div>
+        <div class="col-sm-8">
+            <span class="badge bg-primary fs-6">@Model.DayOfWeek</span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-sm-4 text-muted fw-bold">Time</div>
+        <div class="col-sm-8">
+            @if (Model.StartTime.HasValue || Model.EndTime.HasValue)
+            {
+                <span class="text-dark">
+                    <i class="fa fa-clock me-1"></i>
+                    @(Model.StartTime?.ToString(@"hh\:mm") ?? "") 
+                    @if(Model.EndTime.HasValue) { <span> - @Model.EndTime.Value.ToString(@"hh\:mm")</span> }
+                </span>
+            }
+            else
+            {
+                <span class="text-muted">Not Specified</span>
+            }
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-sm-4 text-muted fw-bold">Status</div>
+        <div class="col-sm-8">
+            @if (Model.IsActive)
+            {
+                <span class="badge bg-success">Active</span>
+            }
+            else
+            {
+                <span class="badge bg-danger">Inactive</span>
+            }
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-sm-4 text-muted fw-bold">Description</div>
+        <div class="col-sm-8">
+            @if(!string.IsNullOrEmpty(Model.Description))
+            {
+                <p class="mb-0 text-break bg-light p-3 rounded border">@Model.Description</p>
+            }
+            else
+            {
+                <span class="text-muted fst-italic">No description provided.</span>
+            }
+        </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <div class="row">
+        <div class="col-sm-6 text-muted small">
+            <strong>Created:</strong><br />
+            @(Model.CreatedAt?.ToString("dd MMM yyyy hh:mm tt") ?? "N/A")
+        </div>
+        <div class="col-sm-6 text-muted small">
+            <strong>Last Updated:</strong><br />
+            @(Model.UpdatedAt?.ToString("dd MMM yyyy hh:mm tt") ?? "N/A")
+        </div>
+    </div>
+</div>
+<div class="modal-footer bg-light">
+    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+    <button type="button" class="btn btn-warning" onclick="openEditActivityModal(@Model.Id)">
+        <i class="fa fa-edit me-1"></i> Edit
+    </button>
+</div>

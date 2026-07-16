@@ -54,6 +54,70 @@ namespace GCI_Admin.Controllers
             }
         }
 
+        // GET: /Ministries/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var ministryRes = await _ministriesService.GetMinistryByIdAsync(id);
+            if (!ministryRes.IsSuccess || ministryRes.Data == null)
+            {
+                return NotFound("Ministry not found.");
+            }
+
+            var leaders = await _context.MinistryLeaders
+                .Include(l => l.Member)
+                .Where(l => l.MinistryId == id)
+                .ToListAsync();
+
+            var members = await _context.MinistryMembers
+                .Include(m => m.Member)
+                .Where(m => m.MinistryId == id)
+                .ToListAsync();
+
+            var data = new MinistryDetailsData
+            {
+                Ministry = ministryRes.Data,
+                Leaders = leaders,
+                Members = members
+            };
+
+            return View(data);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddMember(int ministryId, int memberId)
+        {
+            try
+            {
+                // Check if already a member
+                bool exists = await _context.MinistryMembers
+                    .AnyAsync(m => m.MinistryId == ministryId && m.MemberId == memberId);
+
+                if (exists)
+                {
+                    return Json(new { success = false, message = "Member is already in this Ministry." });
+                }
+
+                var newMember = new MinistryMember
+                {
+                    MinistryId = ministryId,
+                    MemberId = memberId,
+                    IsApproved = true,
+                    RequestedAt=DateTime.Now,
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.MinistryMembers.Add(newMember);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Member added successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }
+
+
         // GET: Load Create Form
         public async Task<IActionResult> LoadCreateForm()
         {

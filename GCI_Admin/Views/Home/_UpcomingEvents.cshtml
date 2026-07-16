@@ -5,7 +5,7 @@
     {
         foreach (var evt in Model.Take(3))
         {
-            <div class="list-group-item px-0 border-0 d-flex align-items-center">
+            <div class="list-group-item px-0 border-0 d-flex align-items-center" style="cursor: pointer;" onclick="location.href='@Url.Action("EventDetails", "Event", new { id = evt.EventId })'">
                 <div class="bg-primary bg-opacity-10 p-2 rounded-circle me-3">
                     <i class="fa fa-church text-primary"></i>
                 </div>

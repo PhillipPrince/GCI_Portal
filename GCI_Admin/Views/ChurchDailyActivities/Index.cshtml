@@ -1,0 +1,199 @@
+@model List<GCI_Admin.Models.ChurchDailyActivity>
+
+@{
+    ViewData["Title"] = "Church Daily Activities";
+    var todayActivities = ViewBag.TodayActivities as List<GCI_Admin.Models.ChurchDailyActivity> ?? new List<GCI_Admin.Models.ChurchDailyActivity>();
+    var todayEvents = ViewBag.TodayEvents as List<GCI_Admin.Models.Event> ?? new List<GCI_Admin.Models.Event>();
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm bg-primary text-white">
+            <div class="card-body p-4">
+                <h4 class="fw-bold mb-3">
+                    <i class="fa fa-calendar-day me-2"></i> Today's Overview: @ViewBag.TodayDayOfWeek (@ViewBag.TodayDate)
+                </h4>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-uppercase fw-bold text-white-50 mb-2">Daily Activities</h6>
+                        @if(todayActivities.Any())
+                        {
+                            <ul class="list-unstyled mb-0">
+                                @foreach(var act in todayActivities)
+                                {
+                                    <li class="mb-2">
+                                        <i class="fa fa-check-circle me-2 text-warning"></i>
+                                        <strong>@act.ActivityName</strong>
+                                        @if(act.StartTime.HasValue)
+                                        {
+                                            <span class="ms-2 opacity-75"><i class="fa fa-clock me-1"></i>@act.StartTime.Value.ToString(@"hh\:mm")</span>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="mb-0 opacity-75 fst-italic">No regular activities scheduled for today.</p>
+                        }
+                    </div>
+
+                    @if(todayEvents.Any())
+                    {
+                        <div class="col-md-6 mt-3 mt-md-0 border-start border-light border-opacity-25">
+                            <h6 class="text-uppercase fw-bold text-white-50 mb-2">Special Events</h6>
+                            <ul class="list-unstyled mb-0">
+                                @foreach(var ev in todayEvents)
+                                {
+                                    <li class="mb-2">
+                                        <i class="fa fa-star me-2 text-warning"></i>
+                                        <strong>@ev.Title</strong>
+                                        <span class="ms-2 opacity-75">
+                                            @if(ev.StartDateTime.HasValue)
+                                            {
+                                                <i class="fa fa-clock me-1"></i>@ev.StartDateTime.Value.ToString("hh:mm tt")
+                                            }
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa fa-calendar-alt me-2 text-primary"></i> Church Daily Activities
+                </h5>
+                <div>
+                    <button class="btn btn-outline-primary me-2" onclick="refreshActivities()">
+                        <i class="fa fa-refresh me-1"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openCreateActivityModal()">
+                        <i class="fa fa-plus-circle me-1"></i> Add Activity
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="activitiesTableContainer">
+                    @await Html.PartialAsync("_ActivitiesTable", Model)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Container -->
+<div class="modal fade" id="activityModal" tabindex="-1" aria-labelledby="activityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="activityModalContent">
+            <!-- Modal content loaded via AJAX -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialization happens in partial script
+        });
+
+        function refreshActivities() {
+            $('#activitiesTableContainer').html('<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-2x"></i><p class="mt-2">Loading activities...</p></div>');
+            
+            $.ajax({
+                url: '/ChurchDailyActivities/GetActivities',
+                type: 'GET',
+                success: function (response) {
+                    $('#activitiesTableContainer').html(response);
+                },
+                error: function () {
+                    $('#activitiesTableContainer').html('<div class="alert alert-danger m-3">Failed to load activities.</div>');
+                }
+            });
+        }
+
+        function openCreateActivityModal() {
+            $.ajax({
+                url: '/ChurchDailyActivities/Create',
+                type: 'GET',
+                success: function (response) {
+                    $('#activityModalContent').html(response);
+                    $('#activityModal').modal('show');
+                },
+                error: function () {
+                    Swal.fire('Error', 'Failed to load create form', 'error');
+                }
+            });
+        }
+
+        function openEditActivityModal(id) {
+            $.ajax({
+                url: '/ChurchDailyActivities/Edit/' + id,
+                type: 'GET',
+                success: function (response) {
+                    $('#activityModalContent').html(response);
+                    $('#activityModal').modal('show');
+                },
+                error: function () {
+                    Swal.fire('Error', 'Failed to load edit form', 'error');
+                }
+            });
+        }
+
+        function openViewActivityModal(id) {
+            $.ajax({
+                url: '/ChurchDailyActivities/ViewDetails/' + id,
+                type: 'GET',
+                success: function (response) {
+                    $('#activityModalContent').html(response);
+                    $('#activityModal').modal('show');
+                },
+                error: function () {
+                    Swal.fire('Error', 'Failed to load view details', 'error');
+                }
+            });
+        }
+        
+        function submitActivityForm(url, formId) {
+            const formData = {
+                DayOfWeek: $(`#${formId} [name='DayOfWeek']`).val(),
+                ActivityName: $(`#${formId} [name='ActivityName']`).val(),
+                Description: $(`#${formId} [name='Description']`).val(),
+                StartTime: $(`#${formId} [name='StartTime']`).val(),
+                EndTime: $(`#${formId} [name='EndTime']`).val(),
+                IsActive: $(`#${formId} [name='IsActive']`).is(':checked')
+            };
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.isSuccess) {
+                        $('#activityModal').modal('hide');
+                        Swal.fire('Success', response.message, 'success');
+                        refreshActivities();
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function (xhr) {
+                    Swal.fire('Error', 'An error occurred while saving', 'error');
+                }
+            });
+        }
+    </script>
+}

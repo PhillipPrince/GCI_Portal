@@ -177,6 +177,7 @@
             </div>
             <div class="modal-body" id="assemblyModalBody">
                 <form id="assemblyForm">
+                    <input type="hidden" id="assemblyId" name="Id" value="" />
                     <div class="mb-3">
                         <label for="assemblyName" class="form-label">Assembly Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="assemblyName" name="Name" placeholder="Enter assembly name" required>
@@ -196,6 +197,32 @@
                     <div class="mb-3">
                         <label for="assemblyPhone" class="form-label">Phone (Optional)</label>
                         <input type="text" class="form-control" id="assemblyPhone" name="ContactPhone" placeholder="Enter phone number">
+                    </div>
+                    <div class="mb-3">
+                        @await Html.PartialAsync("_MemberSelector", new GCI_Admin.Models.ViewModels.MemberSelectorViewModel { 
+                            ControlId = "assemblyLeaderSelector",
+                            LabelText = "Assembly Leader (Optional)",
+                            MemberIdFieldName = "LeaderMemberId",
+                            IsRequired = false
+                        })
+                    </div>
+                    <div class="mb-3">
+                        @await Html.PartialAsync("_ImagePicker", new GCI_Admin.Models.ImagePickerViewModel
+                        {
+                            ControlId = "assemblyLeaderImage",
+                            LabelText = "Leader Profile Image (Optional)",
+                            IconClass = "fa fa-user-circle-o",
+                            HelpText = "Upload a profile image for the assembly leader. Recommended size: 400x400 pixels. Max size: 5MB",
+                            UploadButtonText = "Choose Image",
+                            PreviewWidth = 150,
+                            PreviewHeight = 150,
+                            MaxFileSizeMB = 5,
+                            IsRequired = false,
+                            Rounded = true,
+                            FileInputName = "ProfileImage",
+                            ImageUrlFieldName = "ProfileImageUrl",
+                            Base64FieldName = "ProfileImageBase64"
+                        })
                     </div>
                 </form>
                 <div class="text-center p-4 d-none" id="assemblyLoading">
@@ -249,39 +276,58 @@
             initializeDataTables();
 
             // Handle tab changes - update button text and functionality
-            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-                const tabId = $(e.target).attr('id');
-                
-                if (tabId === 'leaders-tab') {
-                    // Update button for Leaders tab
-                    $('#dynamicBtnText').text('Assign Assembly Leader');
-                    $('#dynamicActionBtn').off('click').on('click', function(e) {
-                        e.preventDefault();
-                        openLeaderModal();
-                    });
+            const tabElements = document.querySelectorAll('#assemblyTabs button[data-bs-toggle="tab"]');
+            tabElements.forEach(tabEl => {
+                tabEl.addEventListener('shown.bs.tab', function (e) {
+                    const tabId = e.target.id;
+                    console.log("Tab switched to: " + tabId);
                     
-                    // Adjust DataTable columns
-                    if ($.fn.DataTable.isDataTable('#assemblyLeadersTable')) {
-                        $('#assemblyLeadersTable').DataTable().columns.adjust().draw();
+                    if (tabId === 'leaders-tab') {
+                        // Update button for Leaders tab
+                        $('#dynamicBtnText').text('Add Assembly Leader');
+                        $('#dynamicActionBtn').off('click').on('click', function(ev) {
+                            ev.preventDefault();
+                            openLeaderModal();
+                        });
+                        
+                        // Adjust DataTable columns if DataTable exists
+                        if (typeof $.fn.DataTable !== 'undefined' && $.fn.DataTable.isDataTable('#assemblyLeadersTable')) {
+                            $('#assemblyLeadersTable').DataTable().columns.adjust().draw();
+                        }
                     }
-                }
-                else if (tabId === 'assemblies-tab') {
-                    // Update button for Assemblies tab
-                    $('#dynamicBtnText').text('Create New Assembly');
-                    $('#dynamicActionBtn').off('click').on('click', function(e) {
-                        e.preventDefault();
-                        $('#assemblyModal').modal('show');
-                        $('#assemblyForm')[0].reset();
-                        $('#assemblyLoading').addClass('d-none');
-                        $('#saveAssemblyBtn').prop('disabled', false);
-                        $('#modalTitle').text('Add New Assembly');
-                    });
-                    
-                    // Adjust DataTable columns
-                    if ($.fn.DataTable.isDataTable('#assembliesTable')) {
-                        $('#assembliesTable').DataTable().columns.adjust().draw();
+                    else if (tabId === 'assemblies-tab') {
+                        // Update button for Assemblies tab
+                        $('#dynamicBtnText').text('Create New Assembly');
+                        $('#dynamicActionBtn').off('click').on('click', function(ev) {
+                            ev.preventDefault();
+                            $('#assemblyModal').modal('show');
+                            $('#assemblyForm')[0].reset();
+                            $('#assemblyId').val('');
+                            $('#assemblyLoading').addClass('d-none');
+                            $('#saveAssemblyBtn').prop('disabled', false);
+                            $('#modalTitle').text('Add New Assembly');
+                            if (typeof window['msClearSelection_assemblyLeaderSelector'] === 'function') {
+                                window['msClearSelection_assemblyLeaderSelector']();
+                            } else {
+                                $('input[name="LeaderMemberId"]').val('');
+                            }
+                            if (typeof window.resetImagePicker === 'function') {
+                                window.resetImagePicker('assemblyLeaderImage');
+                            } else {
+                                $('#assemblyLeaderImage_preview').attr('src', '/images/default-avatar.png').removeClass('image-preview-loaded');
+                                $('#assemblyLeaderImage_fileData').val('');
+                                $('#assemblyLeaderImage_url').val('');
+                                $('#assemblyLeaderImage_clearBtn').hide();
+                                $('#assemblyLeaderImage_fileInput').val('');
+                            }
+                        });
+                        
+                        // Adjust DataTable columns if DataTable exists
+                        if (typeof $.fn.DataTable !== 'undefined' && $.fn.DataTable.isDataTable('#assembliesTable')) {
+                            $('#assembliesTable').DataTable().columns.adjust().draw();
+                        }
                     }
-                }
+                });
             });
 
             // Set initial button state for active tab (Assemblies)
@@ -290,9 +336,24 @@
                 e.preventDefault();
                 $('#assemblyModal').modal('show');
                 $('#assemblyForm')[0].reset();
+                $('#assemblyId').val('');
                 $('#assemblyLoading').addClass('d-none');
                 $('#saveAssemblyBtn').prop('disabled', false);
                 $('#modalTitle').text('Add New Assembly');
+                if (typeof window['msClearSelection_assemblyLeaderSelector'] === 'function') {
+                    window['msClearSelection_assemblyLeaderSelector']();
+                } else {
+                    $('input[name="LeaderMemberId"]').val('');
+                }
+                if (typeof window.resetImagePicker === 'function') {
+                    window.resetImagePicker('assemblyLeaderImage');
+                } else {
+                    $('#assemblyLeaderImage_preview').attr('src', '/images/default-avatar.png').removeClass('image-preview-loaded');
+                    $('#assemblyLeaderImage_fileData').val('');
+                    $('#assemblyLeaderImage_url').val('');
+                    $('#assemblyLeaderImage_clearBtn').hide();
+                    $('#assemblyLeaderImage_fileInput').val('');
+                }
             });
         });
 
@@ -482,16 +543,11 @@
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        const response = await fetch('@Url.Action("ToggleLeaderStatus", "Assemblies")', {
+                        const response = await fetch(`@Url.Action("ToggleLeaderStatus", "Assemblies")?id=${id}&isActive=${setActive}`, {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/json',
                                 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                            },
-                            body: JSON.stringify({
-                                id: id,
-                                isActive: setActive
-                            })
+                            }
                         });
 
                         const resData = await response.json();
@@ -520,7 +576,7 @@
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        const response = await fetch('@Url.Action("DeleteAssemblyLeader", "Assemblies")/' + id, {
+                        const response = await fetch(`@Url.Action("DeleteAssemblyLeader", "Assemblies")?id=${id}`, {
                             method: 'POST',
                             headers: {
                                 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
@@ -557,20 +613,31 @@
                 return;
             }
 
+            const id = $('#assemblyId').val();
+            const isEdit = id && id !== "0" && id !== "";
+
+            const leaderVal = $('input[name="LeaderMemberId"]').val();
+            const profileImageBase64 = $('input[name="ProfileImageBase64"]').val();
+
             const dto = {
                 Name: $('#assemblyName').val()?.trim() || "",
                 Location: $('#assemblyLocation').val()?.trim() || "",
                 Description: $('#assemblyDescription').val()?.trim() || "",
                 ContactEmail: $('#assemblyEmail').val()?.trim() || null,
-                ContactPhone: $('#assemblyPhone').val()?.trim() || null
+                ContactPhone: $('#assemblyPhone').val()?.trim() || null,
+                LeaderMemberId: leaderVal ? parseInt(leaderVal) : null,
+                ProfileImageBase64: profileImageBase64 || null
             };
 
             $('#saveAssemblyBtn').prop('disabled', true);
             $('#assemblyLoading').removeClass('d-none');
 
+            const url = isEdit ? `/Assemblies/Update?assemblyId=${id}` : '/Assemblies/SubmitNewAssembly';
+            const method = isEdit ? 'PUT' : 'POST';
+
             $.ajax({
-                url: '/Assemblies/SubmitNewAssembly',
-                type: 'POST',
+                url: url,
+                type: method,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 data: JSON.stringify(dto),
@@ -583,13 +650,13 @@
                         Swal.fire({
                             icon: 'success',
                             title: 'Success',
-                            text: 'Assembly created successfully!'
+                            text: isEdit ? 'Assembly updated successfully!' : 'Assembly created successfully!'
                         }).then(() => {
                             $('#assemblyModal').modal('hide');
-                            location.reload();
+                            reloadAssembliesTable();
                         });
                     } else {
-                        Swal.fire('Error', response.message || 'Failed to create assembly.', 'error');
+                        Swal.fire('Error', response.message || 'Failed to save assembly.', 'error');
                     }
                 },
 
@@ -605,6 +672,72 @@
                     Swal.fire('Error', message, 'error');
                 }
             });
+        }
+
+        function editAssembly(id) {
+            $.ajax({
+                url: '/Assemblies/GetById?assemblyId=' + id,
+                type: 'GET',
+                success: function (response) {
+                    if (response.isSuccess && response.data) {
+                        const data = response.data;
+                        const assembly = data.assembly || data; // handle backward compatibility
+                        
+                        $('#assemblyId').val(assembly.id);
+                        $('#assemblyName').val(assembly.name);
+                        $('#assemblyLocation').val(assembly.location);
+                        $('#assemblyDescription').val(assembly.description);
+                        $('#assemblyEmail').val(assembly.contactEmail);
+                        $('#assemblyPhone').val(assembly.contactPhone);
+                        
+                        // Set the member selector value
+                        if (data.leaderMemberId) {
+                            if (typeof window['msSetSelectedMember_assemblyLeaderSelector'] === 'function') {
+                                window['msSetSelectedMember_assemblyLeaderSelector'](data.leaderMemberId, data.leaderName || 'Current Leader');
+                            } else {
+                                $('input[name="LeaderMemberId"]').val(data.leaderMemberId);
+                            }
+                        } else {
+                            if (typeof window['msClearSelection_assemblyLeaderSelector'] === 'function') {
+                                window['msClearSelection_assemblyLeaderSelector']();
+                            } else {
+                                $('input[name="LeaderMemberId"]').val('');
+                            }
+                        }
+                        
+                        // Reset image picker
+                        if (typeof window.resetImagePicker === 'function') {
+                            window.resetImagePicker('assemblyLeaderImage');
+                        } else {
+                            $('#assemblyLeaderImage_preview').attr('src', '/images/default-avatar.png').removeClass('image-preview-loaded');
+                            $('#assemblyLeaderImage_fileData').val('');
+                            $('#assemblyLeaderImage_url').val('');
+                            $('#assemblyLeaderImage_clearBtn').hide();
+                            $('#assemblyLeaderImage_fileInput').val('');
+                        }
+                        
+                        // Set the profile image if available
+                        if (data.leaderProfileImage) {
+                            $('#assemblyLeaderImage_preview').attr('src', data.leaderProfileImage).addClass('image-preview-loaded');
+                            $('#assemblyLeaderImage_url').val(data.leaderProfileImage);
+                            $('#assemblyLeaderImage_clearBtn').show();
+                        }
+                        
+                        $('#modalTitle').text('Edit Assembly');
+                        $('#assemblyModal').modal('show');
+                    } else {
+                        Swal.fire('Error', 'Failed to load assembly details.', 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Error', 'An error occurred while loading details.', 'error');
+                }
+            });
+        }
+
+        function viewAssembly(id) {
+            // Usually redirects to Details page or opens a view-only modal
+            window.location.href = '/Assemblies/Details/' + id;
         }
 
         // Make functions globally available

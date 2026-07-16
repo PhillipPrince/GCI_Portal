@@ -1,0 +1,414 @@
+@model dynamic
+@{
+    ViewData["Title"] = "Event Registration";
+    Layout = null;
+    var targetEvent = ViewBag.Event as GCI_Admin.Models.Event;
+    var assemblies = ViewBag.Assemblies as List<GCI_Admin.Models.Assembly>;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Usher Event Registration | Gospel Centres International</title>
+    <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" asp-append-version="true" />
+    <link rel="icon" type="image/png" href="~/favicon.png" asp-append-version="true" />
+    <!-- Include SweetAlert for notifications -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f8fafc;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            line-height: 1.5;
+            color: #1e293b;
+            padding: 24px 16px;
+        }
+
+        .policy-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .policy-header {
+            background: #1e4a6b;
+            background: linear-gradient(135deg, #1e4a6b 0%, #0f2c3f 100%);
+            padding: 28px 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .policy-header h1 {
+            font-size: 1.85rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .policy-header .church-name {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #cbd5e6;
+            background: rgba(255,255,255,0.15);
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 40px;
+            backdrop-filter: blur(2px);
+        }
+
+        .policy-content {
+            padding: 28px 28px 44px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #0f2c3f;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #cbd5e6;
+            border-radius: 12px;
+            font-size: 1rem;
+            color: #1e293b;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #1e4a6b;
+            box-shadow: 0 0 0 3px rgba(30, 74, 107, 0.1);
+        }
+        
+        .event-info {
+            background-color: #f1f5f9;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border-left: 4px solid #1e4a6b;
+        }
+
+        .event-info h3 {
+            margin-bottom: 8px;
+            color: #0f2c3f;
+        }
+
+        .event-info p {
+            font-size: 0.95rem;
+            color: #475569;
+        }
+
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #1e4a6b;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 24px;
+        }
+
+        .btn-submit:hover {
+            background: #0f2c3f;
+        }
+
+        .btn-submit:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        #otherAssemblyContainer {
+            display: none;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="policy-container">
+        <div class="policy-header">
+            <h1>Usher Registration</h1>
+            <div class="church-name">Gospel Centres International</div>
+        </div>
+
+        <div class="policy-content">
+            @if(targetEvent != null)
+            {
+                <div class="event-info">
+                    <h3>@targetEvent.Title</h3>
+                    @if (!string.IsNullOrEmpty(targetEvent.Description))
+                    {
+                        <p class="mb-2 text-muted">@targetEvent.Description</p>
+                    }
+                    
+                    <hr style="opacity: 0.1; margin: 12px 0;" />
+                    
+                    @if(targetEvent.StartDateTime.HasValue && targetEvent.EndDateTime.HasValue)
+                    {
+                        var timeDiff = targetEvent.EndDateTime.Value - targetEvent.StartDateTime.Value;
+                        var dateDiff = (targetEvent.EndDateTime.Value.Date - targetEvent.StartDateTime.Value.Date).TotalDays + 1;
+                        
+                        string durationStr = dateDiff > 1 
+                            ? $"{dateDiff} Days" 
+                            : $"{timeDiff.TotalHours:F1} Hours";
+                        
+                        <p><strong>Starts:</strong> @targetEvent.StartDateTime.Value.ToString("dd MMM yyyy, hh:mm tt")</p>
+                        <p><strong>Ends:</strong> @targetEvent.EndDateTime.Value.ToString("dd MMM yyyy, hh:mm tt")</p>
+                        <p><strong>Duration:</strong> @durationStr</p>
+                    }
+                    else
+                    {
+                        <p><strong>Date:</strong> @targetEvent.EventDate.ToString("dd MMM yyyy, hh:mm tt")</p>
+                    }
+                    
+                    <p class="mt-2"><strong>Price:</strong> @(targetEvent.IsPaid ? $"KES {targetEvent.Price:N2}" : "Free")</p>
+                </div>
+
+                <form id="registrationForm">
+                    <input type="hidden" id="eventId" value="@targetEvent.EventId" />
+
+                    <div class="form-group">
+                        <label for="guestName">Full Name <span style="color:red;">*</span></label>
+                        <input type="text" id="guestName" class="form-control" required placeholder="e.g. John Doe">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="guestPhone">Phone Number <span style="color:red;">*</span></label>
+                        <input type="tel" id="guestPhone" class="form-control" required placeholder="e.g. +254712345678">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="guestEmail">Email Address (Optional)</label>
+                        <input type="email" id="guestEmail" class="form-control" placeholder="e.g. john@example.com">
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(targetEvent.AllowedAgeGroups))
+                    {
+                        IEnumerable<string> groups = new List<string>();
+                        try {
+                            if (targetEvent.AllowedAgeGroups.Trim().StartsWith("[")) {
+                                groups = System.Text.Json.JsonSerializer.Deserialize<List<string>>(targetEvent.AllowedAgeGroups);
+                            } else {
+                                groups = targetEvent.AllowedAgeGroups.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(g => g.Trim());
+                            }
+                        } catch { }
+
+                        if (groups.Any())
+                        {
+                            <div class="form-group" id="ageGroupContainer">
+                                <label>Age Group <span style="color:red;">*</span></label>
+                                <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 8px;">
+                                    @foreach (var ageGroup in groups)
+                                    {
+                                        <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                            <input type="radio" name="guestAgeGroup" value="@ageGroup" required>
+                                            @ageGroup
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+
+                    <div class="form-group">
+                        <label for="assemblySelect">Your Assembly / Branch <span style="color:red;">*</span></label>
+                        <select id="assemblySelect" class="form-control" required>
+                            <option value="">-- Select an Assembly --</option>
+                            @if(assemblies != null)
+                            {
+                                foreach(var assembly in assemblies.OrderBy(a => a.Name))
+                                {
+                                    <option value="@assembly.Name">@assembly.Name</option>
+                                }
+                            }
+                            <option value="Other">Other</option>
+                        </select>
+
+                        <div id="otherAssemblyContainer">
+                            <input type="text" id="otherAssembly" class="form-control" placeholder="Please specify your assembly">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amountPaid">Amount to Pay <span style="color:red;">*</span></label>
+                        <input type="number" id="amountPaid" class="form-control" required value="@(targetEvent.IsPaid ? targetEvent.Price : 0)" min="0" step="0.01">
+                    </div>
+
+                    <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="isPaid" style="width: 20px; height: 20px;" checked>
+                        <label for="isPaid" style="margin-bottom: 0;">Payment Received</label>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="btn-submit">Complete Registration</button>
+                </form>
+            }
+            else
+            {
+                <div class="event-info" style="border-left-color: #ef4444;">
+                    <h3>Event Not Found</h3>
+                    <p>We're sorry, but this event is either not found, has concluded, or is not active.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('registrationForm');
+            if(!form) return;
+
+            const assemblySelect = document.getElementById('assemblySelect');
+            const otherAssemblyContainer = document.getElementById('otherAssemblyContainer');
+            const otherAssemblyInput = document.getElementById('otherAssembly');
+            const submitBtn = document.getElementById('submitBtn');
+            const guestPhoneInput = document.getElementById('guestPhone');
+
+            let phoneCheckTimeout;
+            guestPhoneInput.addEventListener('input', function() {
+                clearTimeout(phoneCheckTimeout);
+                const phone = this.value.trim();
+                const eventId = document.getElementById('eventId').value;
+                if (phone.length >= 9) {
+                    phoneCheckTimeout = setTimeout(() => {
+                        fetch(`/Register/CheckRegistration?phone=${encodeURIComponent(phone)}&eventId=${eventId}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.isRegistered && data.records && data.records.length > 0) {
+                                    let detailsHtml = '<div style="text-align: left; font-size: 14px; max-height: 200px; overflow-y: auto; margin-top: 10px;">';
+                                    data.records.forEach((record, index) => {
+                                        let statusText = record.paymentStatusId === 4 ? '<span style="color: green;">Paid</span>' : '<span style="color: orange;">Pending Payment</span>';
+                                        detailsHtml += `<div style="padding: 10px; border-bottom: 1px solid #ddd;">
+                                            <strong>Name:</strong> ${record.guestName || 'N/A'}<br/>
+                                            <strong>Status:</strong> ${statusText}<br/>
+                                        </div>`;
+                                    });
+                                    detailsHtml += '</div>';
+
+                                    Swal.fire({
+                                        title: 'Existing Registrations Found',
+                                        html: `The following registrations exist for this phone number:<br/>${detailsHtml}<br/>Do you want to proceed and register/pay for someone else?`,
+                                        icon: 'info',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Yes, proceed',
+                                        cancelButtonText: 'No, clear number'
+                                    }).then((result) => {
+                                        if (!result.isConfirmed) {
+                                            guestPhoneInput.value = '';
+                                        }
+                                    });
+                                }
+                            })
+                            .catch(err => console.error(err));
+                    }, 500);
+                }
+            });
+
+            assemblySelect.addEventListener('change', function() {
+                if (this.value === 'Other') {
+                    otherAssemblyContainer.style.display = 'block';
+                    otherAssemblyInput.setAttribute('required', 'required');
+                } else {
+                    otherAssemblyContainer.style.display = 'none';
+                    otherAssemblyInput.removeAttribute('required');
+                }
+            });
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const eventId = document.getElementById('eventId').value;
+                const guestName = document.getElementById('guestName').value;
+                const guestPhone = guestPhoneInput.value;
+                const guestEmail = document.getElementById('guestEmail').value;
+                const amountPaid = document.getElementById('amountPaid').value;
+                const ageGroupContainer = document.getElementById('ageGroupContainer');
+                
+                let guestAgeGroup = '';
+                if (ageGroupContainer) {
+                    const ageGroupRadio = document.querySelector('input[name="guestAgeGroup"]:checked');
+                    guestAgeGroup = ageGroupRadio ? ageGroupRadio.value : '';
+                }
+
+                let assembly = assemblySelect.value;
+
+                if (assembly === 'Other') {
+                    assembly = otherAssemblyInput.value;
+                }
+
+                const isPaid = document.getElementById('isPaid').checked;
+
+                if (!guestName || !guestPhone || !assembly || !amountPaid || (ageGroupContainer && !guestAgeGroup)) {
+                    Swal.fire('Error', 'Please fill all required fields.', 'error');
+                    return;
+                }
+
+                const payload = {
+                    eventId: parseInt(eventId, 10),
+                    guestName: guestName,
+                    guestPhone: guestPhone,
+                    guestEmail: guestEmail,
+                    guestAssembly: assembly,
+                    guestAgeGroup: guestAgeGroup,
+                    amountPaid: parseFloat(amountPaid),
+                    isPaid: isPaid
+                };
+
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Registering...';
+
+                // API call to local UsherSubmit endpoint
+                fetch('/Register/UsherSubmit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => response.json().then(data => ({ status: response.status, body: data })))
+                .then(res => {
+                    if (res.status >= 200 && res.status < 300 && res.body.isSuccess !== false) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'You have successfully registered this guest.',
+                            icon: 'success',
+                            confirmButtonColor: '#1e4a6b'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        throw new Error(res.body.message || 'Registration failed.');
+                    }
+                })
+                .catch(err => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Complete Registration';
+                    Swal.fire('Registration Error', err.message, 'error');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

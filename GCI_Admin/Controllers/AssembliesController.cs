@@ -101,6 +101,19 @@ namespace GCI_Admin.Controllers
                 if (!response.IsSuccess)
                     return BadRequest(response);
 
+                if (dto.LeaderMemberId.HasValue && dto.LeaderMemberId.Value > 0)
+                {
+                    var leaderDto = new AssemblyLeaderDto
+                    {
+                        MemberId = dto.LeaderMemberId.Value,
+                        AssemblyId = response.Data.Id,
+                        StartDate = DateTime.Now,
+                        IsActive = true,
+                        ProfileImageBase64 = dto.ProfileImageBase64
+                    };
+                    await _assembliesService.CreateAssemblyLeaderAsync(leaderDto);
+                }
+
                 return Ok(response);
             }
             catch (Exception ex)
@@ -125,7 +138,17 @@ namespace GCI_Admin.Controllers
                 if (!response.IsSuccess)
                     return NotFound(response);
 
-                return Ok(response);
+                var leadersResponse = await _assembliesService.GetAllAssemblyLeadersAsync();
+                var activeLeader = leadersResponse.Data?.FirstOrDefault(l => l.AssemblyId == assemblyId && l.IsActive);
+                
+                var responseData = new {
+                    assembly = response.Data,
+                    leaderMemberId = activeLeader?.MemberId,
+                    leaderName = activeLeader?.Member != null ? $"{activeLeader.Member.FirstName} {activeLeader.Member.OtherNames}" : null,
+                    leaderProfileImage = (activeLeader?.Member?.ProfileImage != null && activeLeader.Member.ProfileImage.Length > 0 ? $"data:image/jpeg;base64,{Convert.ToBase64String(activeLeader.Member.ProfileImage)}" : null)
+                };
+
+                return Ok(new { isSuccess = true, data = responseData });
             }
             catch (Exception ex)
             {
@@ -138,9 +161,38 @@ namespace GCI_Admin.Controllers
             }
         }
 
+        // Get Details
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            try
+            {
+                var assemblyResponse = await _assembliesService.GetAssemblyByIdAsync(id);
+                if (!assemblyResponse.IsSuccess || assemblyResponse.Data == null)
+                    return NotFound(assemblyResponse.Message ?? "Assembly not found.");
+
+                var leadersResponse = await _assembliesService.GetAllAssemblyLeadersAsync();
+                var assemblyLeaders = leadersResponse.IsSuccess && leadersResponse.Data != null 
+                    ? leadersResponse.Data.Where(l => l.AssemblyId == id).ToList() 
+                    : new List<AssemblyLeader>();
+
+                var model = new AssembliesData
+                {
+                    Assembly = new List<Assembly> { assemblyResponse.Data },
+                    AssemblyLeader = assemblyLeaders
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index");
+            }
+        }
+
         // Update
         [HttpPut]
-        public async Task<IActionResult> Update(int assemblyId, AssemblyDto dto)
+        public async Task<IActionResult> Update(int assemblyId, [FromBody] AssemblyDto dto)
         {
             try
             {
@@ -148,6 +200,71 @@ namespace GCI_Admin.Controllers
 
                 if (!response.IsSuccess)
                     return BadRequest(response);
+
+                if (dto.LeaderMemberId.HasValue && dto.LeaderMemberId.Value > 0)
+                {
+                    // Check if already an active leader for this assembly
+                    var leadersResponse = await _assembliesService.GetAllAssemblyLeadersAsync();
+                    var existingActive = leadersResponse.Data?.FirstOrDefault(l => l.AssemblyId == assemblyId && l.IsActive);
+                    
+                    if (existingActive == null || existingActive.MemberId != dto.LeaderMemberId.Value)
+                    {
+                        // If there is an existing leader, deactivate them
+                        if (existingActive != null)
+                        {
+                            await _assembliesService.ToggleAssemblyLeaderStatusAsync(existingActive.AssemblyLeaderId, false);
+                        }
+                        
+                        // Check if the member was a leader before
+                        var previousLeader = leadersResponse.Data?.FirstOrDefault(l => l.AssemblyId == assemblyId && l.MemberId == dto.LeaderMemberId.Value);
+                        if (previousLeader != null)
+                        {
+                            await _assembliesService.ToggleAssemblyLeaderStatusAsync(previousLeader.AssemblyLeaderId, true);
+                            
+                            // If they uploaded an image, update it
+                            if (!string.IsNullOrEmpty(dto.ProfileImageBase64))
+                            {
+                                var updateDto = new AssemblyLeaderDto
+                                {
+                                    AssemblyLeaderId = previousLeader.AssemblyLeaderId,
+                                    MemberId = dto.LeaderMemberId.Value,
+                                    AssemblyId = assemblyId,
+                                    StartDate = previousLeader.StartDate,
+                                    IsActive = true,
+                                    ProfileImageBase64 = dto.ProfileImageBase64
+                                };
+                                await _assembliesService.UpdateAssemblyLeaderAsync(previousLeader.AssemblyLeaderId, updateDto);
+                            }
+                        }
+                        else
+                        {
+                            // Create new
+                            var leaderDto = new AssemblyLeaderDto
+                            {
+                                MemberId = dto.LeaderMemberId.Value,
+                                AssemblyId = response.Data.Id,
+                                StartDate = DateTime.Now,
+                                IsActive = true,
+                                ProfileImageBase64 = dto.ProfileImageBase64
+                            };
+                            await _assembliesService.CreateAssemblyLeaderAsync(leaderDto);
+                        }
+                    }
+                    else if (existingActive != null && existingActive.MemberId == dto.LeaderMemberId.Value && !string.IsNullOrEmpty(dto.ProfileImageBase64))
+                    {
+                        // They are the same leader, but uploaded a new image
+                        var updateDto = new AssemblyLeaderDto
+                        {
+                            AssemblyLeaderId = existingActive.AssemblyLeaderId,
+                            MemberId = dto.LeaderMemberId.Value,
+                            AssemblyId = assemblyId,
+                            StartDate = existingActive.StartDate,
+                            IsActive = true,
+                            ProfileImageBase64 = dto.ProfileImageBase64
+                        };
+                        await _assembliesService.UpdateAssemblyLeaderAsync(existingActive.AssemblyLeaderId, updateDto);
+                    }
+                }
 
                 return Ok(response);
             }

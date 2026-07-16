@@ -47,6 +47,11 @@ namespace GCI_Admin.DBOperations
         public DbSet<CareRequest> CareRequests { get; set; }
         public DbSet<Rcps> Rcps { get; set; }
         public DbSet<RcpsPledges> RcpsPledges { get; set; }
+        public DbSet<RcpsPlan> RcpsPlans { get; set; }
+        public DbSet<RcpsInvite> RcpsInvites { get; set; }
+        public DbSet<RcpsFriendContribution> RcpsFriendContributions { get; set; }
+        public DbSet<RcpsCountyCoordinator> RcpsCountyCoordinators { get; set; }
+        public DbSet<RcpCountyMember> RcpCountyMembers { get; set; }
         public DbSet<GrowthCenterMeeting> GrowthCenterMeetings { get; set; }
         public DbSet<GrowthCenterMeetingAttendee> GrowthCenterMeetingAttendees { get; set; }
         public DbSet<GrowthCenterMeetingVisitor> GrowthCenterMeetingVisitors { get; set; }
@@ -60,6 +65,9 @@ namespace GCI_Admin.DBOperations
         public DbSet<EventFeedback> EventFeedbacks { get; set; }
         public DbSet<FaithPost> FaithPosts { get; set; }
         public DbSet<FaithPostComment> FaithPostComments { get; set; }
+        public DbSet<County> Counties { get; set; }
+        public DbSet<EventAttendance> EventAttendances { get; set; }
+        public DbSet<ChurchDailyActivity> ChurchDailyActivities { get; set; }
 
     }
 }

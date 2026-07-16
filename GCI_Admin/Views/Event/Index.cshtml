@@ -1,3 +1,4 @@
+@model List<GCI_Admin.Models.Event>
 @{
     ViewData["Title"] = "Events";
 }
@@ -96,8 +97,8 @@
 <!-- Filter Bar -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
-        <div class="row g-3 align-items-center">
-            <div class="col-md-3">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-2">
                 <div class="input-group">
                     <span class="input-group-text bg-transparent border-end-0">
                         <i class="fa fa-search text-muted"></i>
@@ -106,14 +107,10 @@
                 </div>
             </div>
             <div class="col-md-2">
-                <select class="form-select" id="eventType">
-                    <option value="">All Types</option>
-                    <option value="service">Service</option>
-                    <option value="conference">Conference</option>
-                    <option value="meeting">Meeting</option>
-                    <option value="youth">Youth</option>
-                    <option value="prayer">Prayer</option>
-                </select>
+                <input type="month" class="form-control" id="eventMonthFilter" title="Filter by Year & Month">
+            </div>
+            <div class="col-md-2">
+                <input type="date" class="form-control" id="eventDateFilter" title="Filter by Exact Date">
             </div>
             <div class="col-md-2">
                 <select class="form-select" id="eventStatus">
@@ -130,12 +127,12 @@
                     <option value="free">Free Events</option>
                 </select>
             </div>
-            <div class="col-md-3 text-end">
-                <button class="btn btn-outline-secondary me-2" onclick="clearFilters()">
-                    <i class="fa fa-times me-1"></i>Clear
+            <div class="col-md-2 text-end">
+                <button class="btn btn-outline-secondary btn-sm me-1" onclick="clearFilters()">
+                    <i class="fa fa-times"></i>
                 </button>
-                <button class="btn btn-primary" onclick="applyFilters()">
-                    <i class="fa fa-filter me-1"></i>Apply
+                <button class="btn btn-primary btn-sm" onclick="applyFilters()">
+                    <i class="fa fa-filter"></i> Apply
                 </button>
             </div>
         </div>
@@ -371,12 +368,76 @@
         // Global variables
         let calendar = null;
         let currentView = 'table';
-        let events = [];
+        let events = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+            Model?.Select(e => new {
+                eventId = e.EventId,
+                title = e.Title,
+                description = e.Description,
+                eventDate = e.EventDate,
+                location = e.Location,
+                isPaid = e.IsPaid,
+                price = e.Price,
+                createdAt = e.CreatedAt,
+                updatedAt = e.UpdatedAt,
+                isActive = e.IsActive,
+                requireRegistration = e.RequireRegistration,
+                allowWalkIns = e.AllowWalkIns,
+                startDateTime = e.StartDateTime,
+                endDateTime = e.EndDateTime
+            }) ?? Enumerable.Empty<object>()
+        ));
         let selectedFile = null;
 
         $(document).ready(function() {
             loadEvents();
             initializeDataTable();
+
+            // Custom DataTable filter for status, month, date, and paid
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                if (settings.nTable.id !== 'eventsTable') return true;
+                
+                let search = $('#eventSearch').val().toLowerCase();
+                let eventStatus = $('#eventStatus').val();
+                let paidFilter = $('#paidFilter').val();
+                let eventMonthFilter = $('#eventMonthFilter').val(); // YYYY-MM
+                let eventDateFilter = $('#eventDateFilter').val(); // YYYY-MM-DD
+                
+                // Assuming date is in column 2, title is in 0, description is in 1, paid is in 4
+                // but actually date is usually formatted, so it's safer to use the events array
+                // Safely get the eventId from the row
+                let nTr = settings.aoData[dataIndex].nTr;
+                if (!nTr) return true;
+                let eventId = $(nTr).data('event-id');
+                if (!eventId) return true;
+                
+                let eventObj = events.find(e => e.eventId == eventId);
+                if (!eventObj) return true;
+
+                if (search && !eventObj.title.toLowerCase().includes(search) && !(eventObj.description && eventObj.description.toLowerCase().includes(search))) {
+                    return false;
+                }
+
+                if (paidFilter === 'paid' && !eventObj.isPaid) return false;
+                if (paidFilter === 'free' && eventObj.isPaid) return false;
+
+                let eDate = moment(eventObj.eventDate);
+                
+                if (eventStatus) {
+                    let now = moment();
+                    if (eventStatus === 'upcoming' && !eDate.isAfter(now)) return false;
+                    if (eventStatus === 'past' && !eDate.isBefore(now)) return false;
+                }
+
+                if (eventMonthFilter) {
+                    if (eDate.format('YYYY-MM') !== eventMonthFilter) return false;
+                }
+
+                if (eventDateFilter) {
+                    if (eDate.format('YYYY-MM-DD') !== eventDateFilter) return false;
+                }
+
+                return true;
+            });
 
             // Check for success message from TempData
             @if (TempData["SuccessMessage"] != null)
@@ -393,21 +454,21 @@
                         showToast('@TempData["ErrorMessage"]', 'error');
                         </text>
             }
+
+            // Bind keyup to auto-filter on main search
+            $('#eventSearch').on('keyup', function() {
+                applyFilters();
+            });
         });
 
         // Load events from server
         function loadEvents() {
-            $.get('@Url.Action("GetEvents", "Event")', function(data) {
-                events = data;
-                updateStats();
-                if (currentView === 'calendar') {
-                    setTimeout(() => initializeCalendar(), 100);
-                } else if (currentView === 'grid') {
-                    renderGridView();
-                }
-            }).fail(function() {
-                console.error('Failed to load events');
-            });
+            updateStats();
+            if (currentView === 'calendar') {
+                setTimeout(() => initializeCalendar(), 100);
+            } else if (currentView === 'grid') {
+                renderGridView();
+            }
         }
 
         // Update statistics
@@ -421,8 +482,8 @@
                 return eventDate.getMonth() === currentMonth && eventDate.getFullYear() === currentYear;
             }).length;
 
-            const upcoming = events.filter(e => new Date(e.eventDate) > now).length;
-            const paidEvents = events.filter(e => e.isPaid).length;
+        const upcoming = events.filter(e => new Date(e.eventDate) > now && e.isactive).length;
+        const paidEvents = events.filter(e => e.isPaid).length;
 
             $('#totalEvents').text(events.length);
             $('#upcomingEvents').text(upcoming);
@@ -671,7 +732,7 @@
 
         // View event details - redirect to details page
         function viewEvent(id) {
-            window.location.href = '@Url.Action("Details", "Event")/' + id;
+            window.location.href = '@Url.Action("EventDetails", "Event")/' + id;
         }
 
         // Delete event with SweetAlert2 confirmation
@@ -800,7 +861,9 @@
             const grid = $('#eventGrid');
             grid.empty();
 
-            if (events.length === 0) {
+            let visibleEvents = getFilteredEventsArray();
+
+            if (visibleEvents.length === 0) {
                 grid.html(`
                     <div class="col-12">
                         <div class="text-center py-5">
@@ -816,7 +879,7 @@
                 return;
             }
 
-            events.forEach(event => {
+            visibleEvents.forEach(event => {
                 const eventDate = moment(event.eventDate);
                 const now = moment();
                 const isUpcoming = eventDate.isAfter(now);
@@ -923,42 +986,86 @@
                 initComplete: function() {
                     // Add action buttons styling
                     $('#eventsTable .btn-group .btn').addClass('action-btn');
+                    
+                    let table = this.api();
+                    // Bind to the inputs in the second row of thead
+                    $('#eventsTable thead tr:eq(1) th').each(function(i) {
+                        $('input, select', this).on('keyup change clear', function() {
+                            if (table.column(i).search() !== this.value) {
+                                table.column(i).search(this.value).draw();
+                                if (typeof updateFilteredStats === 'function') {
+                                    updateFilteredStats();
+                                }
+                            }
+                        });
+                    });
                 }
             });
         }
 
         // Filter functions
         function applyFilters() {
-            const search = $('#eventSearch').val();
-            const type = $('#eventType').val();
-            const status = $('#eventStatus').val();
-            const paidFilter = $('#paidFilter').val();
-
             if (currentView === 'table') {
-                const table = $('#eventsTable').DataTable();
-                table.search(search).draw();
-
-                // Custom filtering for paid/free
-                if (paidFilter === 'paid') {
-                    // You would need to implement column filtering based on your table structure
-                } else if (paidFilter === 'free') {
-                    // Implement free filter
-                }
+                $('#eventsTable').DataTable().draw();
+                updateFilteredStats();
             } else if (currentView === 'grid') {
-                filterGridView(search, type, status, paidFilter);
+                renderGridView();
+                updateFilteredStats();
             } else if (currentView === 'calendar') {
-                filterCalendarView(search, type, status, paidFilter);
+                filterCalendarView();
             }
         }
+        
+        function updateFilteredStats() {
+            // Update stats based on currently visible events in the datatable/grid
+            let visibleEvents = [];
+            if (currentView === 'table') {
+                let table = $('#eventsTable').DataTable();
+                let dataIndices = table.rows({ filter: 'applied' }).indexes();
+                dataIndices.each(function(index) {
+                    let tr = table.row(index).node();
+                    if (!tr) return;
+                    let eventId = $(tr).data('event-id');
+                    if (eventId) {
+                        let ev = events.find(e => e.eventId == eventId);
+                        if (ev) visibleEvents.push(ev);
+                    }
+                });
+            } else {
+                visibleEvents = getFilteredEventsArray();
+            }
 
-        function filterGridView(search, type, status, paidFilter) {
-            // Simple client-side filtering for grid view
-            const filteredEvents = events.filter(e => {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            const monthEvents = visibleEvents.filter(e => {
+                const eventDate = new Date(e.eventDate);
+                return eventDate.getMonth() === currentMonth && eventDate.getFullYear() === currentYear;
+            }).length;
+
+            const upcoming = visibleEvents.filter(e => new Date(e.eventDate) > now).length;
+            const paidEvents = visibleEvents.filter(e => e.isPaid).length;
+
+            $('#totalEvents').text(visibleEvents.length);
+            $('#upcomingEvents').text(upcoming);
+            $('#paidEvents').text(paidEvents);
+            $('#monthEvents').text(monthEvents);
+        }
+
+        function getFilteredEventsArray() {
+            const search = $('#eventSearch').val().toLowerCase();
+            const status = $('#eventStatus').val();
+            const paidFilter = $('#paidFilter').val();
+            const eventMonthFilter = $('#eventMonthFilter').val();
+            const eventDateFilter = $('#eventDateFilter').val();
+            
+            return events.filter(e => {
                 let matches = true;
 
                 if (search) {
-                    matches = matches && (e.title.toLowerCase().includes(search.toLowerCase()) ||
-                               (e.description && e.description.toLowerCase().includes(search.toLowerCase())));
+                    matches = matches && (e.title.toLowerCase().includes(search) ||
+                               (e.description && e.description.toLowerCase().includes(search)));
                 }
 
                 if (paidFilter === 'paid') {
@@ -967,43 +1074,47 @@
                     matches = matches && !e.isPaid;
                 }
 
+                const eventDate = moment(e.eventDate);
+                
                 if (status) {
                     const now = moment();
-                    const eventDate = moment(e.eventDate);
-
                     if (status === 'upcoming') {
                         matches = matches && eventDate.isAfter(now);
                     } else if (status === 'past') {
                         matches = matches && eventDate.isBefore(now);
                     }
                 }
+                
+                if (eventMonthFilter) {
+                    matches = matches && (eventDate.format('YYYY-MM') === eventMonthFilter);
+                }
+                
+                if (eventDateFilter) {
+                    matches = matches && (eventDate.format('YYYY-MM-DD') === eventDateFilter);
+                }
 
                 return matches;
             });
-
-            // Re-render with filtered events
-            const tempEvents = events;
-            events = filteredEvents;
-            renderGridView();
-            events = tempEvents;
         }
 
-        function filterCalendarView(search, type, status, paidFilter) {
-            // For calendar, we'll just show a message
+        function filterCalendarView() {
             showToast('Filters applied to calendar view', 'info');
         }
 
         function clearFilters() {
             $('#eventSearch').val('');
-            $('#eventType').val('');
             $('#eventStatus').val('');
             $('#paidFilter').val('');
+            $('#eventMonthFilter').val('');
+            $('#eventDateFilter').val('');
 
             if (currentView === 'table') {
                 const table = $('#eventsTable').DataTable();
-                table.search('').columns().search('').draw();
+                table.search('').draw();
+                updateStats(); // reset stats
             } else if (currentView === 'grid') {
                 renderGridView();
+                updateStats(); // reset stats
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Utils;
@@ -30,6 +30,7 @@ namespace GCI_Admin.DBOperations.Repositories
                     StartDate = dto.StartDate,
                     EndDate = dto.EndDate,
                     Status = dto.Status,
+                    CountyCode = dto.CountyCode,
                     IsActive = false,
                     CreatedAt = DateTime.Now
                 };
@@ -64,7 +65,6 @@ namespace GCI_Admin.DBOperations.Repositories
             try
             {
                 var data = await _context.Rcps
-                    .Where(x => x.IsActive)
                     .OrderByDescending(x => x.CreatedAt)
                     .ToListAsync();
 
@@ -147,6 +147,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 existing.StartDate = dto.StartDate;
                 existing.EndDate = dto.EndDate;
                 existing.Status = dto.Status;
+                existing.CountyCode = dto.CountyCode;
                 existing.UpdatedAt = DateTime.Now;
 
                 await _context.SaveChangesAsync();
@@ -436,6 +437,229 @@ namespace GCI_Admin.DBOperations.Repositories
                 Loggers.DoLogs($"GetPledgesByRcpsIdAsync Error: {ex}");
 
                 return new DbResponse<List<RcpsPledges>>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        // =========================================================
+        // COUNTY COORDINATORS CRUD
+        // =========================================================
+
+        public async Task<DbResponse<RcpsCountyCoordinator>> CreateRcpsCountyCoordinatorAsync(RcpsCountyCoordinatorDto dto)
+        {
+            try
+            {
+                var coordinator = new RcpsCountyCoordinator
+                {
+                    MemberId = dto.MemberId,
+                    RcpsId = dto.RcpsId,
+                    Bio = dto.Bio,
+                    IsActive = dto.IsActive
+                };
+
+                _context.RcpsCountyCoordinators.Add(coordinator);
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<RcpsCountyCoordinator>
+                {
+                    Success = true,
+                    Data = coordinator,
+                    Message = "County Coordinator created successfully"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error creating county coordinator: {ex}");
+                return new DbResponse<RcpsCountyCoordinator>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<RcpsCountyCoordinator>> GetRcpsCountyCoordinatorByIdAsync(int id)
+        {
+            try
+            {
+                var coordinator = await _context.RcpsCountyCoordinators
+                    .Include(c => c.Member)
+                    .Include(c => c.Rcps)
+                    .FirstOrDefaultAsync(c => c.RcpsCountyCoordinatorId == id);
+
+                return new DbResponse<RcpsCountyCoordinator>
+                {
+                    Success = coordinator != null,
+                    Data = coordinator,
+                    Message = coordinator != null ? "Success" : "Not found"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error getting county coordinator: {ex}");
+                return new DbResponse<RcpsCountyCoordinator>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<List<RcpsCountyCoordinator>>> GetAllRcpsCountyCoordinatorsAsync()
+        {
+            try
+            {
+                var coordinators = await _context.RcpsCountyCoordinators
+                    .Include(x => x.Member)
+                    .Include(x => x.Rcps)
+                    .ToListAsync();
+                return new DbResponse<List<RcpsCountyCoordinator>>
+                {
+                    Success = true,
+                    Data = coordinators
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error getting all county coordinators: {ex}");
+                return new DbResponse<List<RcpsCountyCoordinator>>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<List<RcpsCountyCoordinator>>> GetRcpsCountyCoordinatorsByRcpsAsync(int rcpsId)
+        {
+            try
+            {
+                var coordinators = await _context.RcpsCountyCoordinators
+                    .Include(c => c.Member)
+                    .Include(c => c.Rcps)
+                    .Where(c => c.RcpsId == rcpsId)
+                    .ToListAsync();
+
+                return new DbResponse<List<RcpsCountyCoordinator>>
+                {
+                    Success = true,
+                    Data = coordinators
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error getting county coordinators by Rcps: {ex}");
+                return new DbResponse<List<RcpsCountyCoordinator>>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<RcpsCountyCoordinator>> UpdateRcpsCountyCoordinatorAsync(RcpsCountyCoordinatorDto dto)
+        {
+            try
+            {
+                var coordinator = await _context.RcpsCountyCoordinators.FindAsync(dto.Id);
+                if (coordinator == null)
+                {
+                    return new DbResponse<RcpsCountyCoordinator>
+                    {
+                        Success = false,
+                        Message = "County Coordinator not found"
+                    };
+                }
+
+                coordinator.MemberId = dto.MemberId;
+                coordinator.RcpsId = dto.RcpsId;
+                coordinator.Bio = dto.Bio;
+                coordinator.IsActive = dto.IsActive;
+
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<RcpsCountyCoordinator>
+                {
+                    Success = true,
+                    Data = coordinator,
+                    Message = "County Coordinator updated successfully"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error updating county coordinator: {ex}");
+                return new DbResponse<RcpsCountyCoordinator>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<bool>> DeleteRcpsCountyCoordinatorAsync(int id)
+        {
+            try
+            {
+                var coordinator = await _context.RcpsCountyCoordinators.FindAsync(id);
+                if (coordinator == null)
+                {
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "County Coordinator not found"
+                    };
+                }
+
+                coordinator.IsActive = false;
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<bool>
+                {
+                    Success = true,
+                    Message = "County Coordinator soft deleted successfully"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error deleting county coordinator: {ex}");
+                return new DbResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<DbResponse<bool>> ToggleCountyCoordinatorStatusAsync(int id, bool isActive)
+        {
+            try
+            {
+                var coordinator = await _context.RcpsCountyCoordinators.FindAsync(id);
+                if (coordinator == null)
+                {
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "County Coordinator not found"
+                    };
+                }
+
+                coordinator.IsActive = isActive;
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<bool>
+                {
+                    Success = true,
+                    Message = $"County Coordinator status updated to {(isActive ? "Active" : "Inactive")}"
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error toggling county coordinator status: {ex}");
+                return new DbResponse<bool>
                 {
                     Success = false,
                     Message = ex.Message

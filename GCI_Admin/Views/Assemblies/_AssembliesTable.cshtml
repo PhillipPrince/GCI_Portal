@@ -49,13 +49,13 @@
 
                             <!-- View -->
                             <button class="btn btn-sm btn-outline-info"
-                                    onclick="openAssemblyModal('@Url.Action("Details", "Assemblies", new { id = assembly.Id })')">
+                                    onclick="viewAssembly(@assembly.Id)">
                                 <i class="fa fa-eye"></i>
                             </button>
 
                             <!-- Edit -->
                             <button class="btn btn-sm btn-outline-warning"
-                                    onclick="openAssemblyModal('@Url.Action("Edit", "Assemblies", new { id = assembly.Id })')">
+                                    onclick="editAssembly(@assembly.Id)">
                                 <i class="fa fa-edit"></i>
                             </button>
 
@@ -68,14 +68,6 @@
                         </td>
                     </tr>
                 }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
-                            No assemblies available
-                        </td>
-                    </tr>
                 }
             </tbody>
 

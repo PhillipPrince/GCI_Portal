@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Utils;
 
@@ -26,5 +26,13 @@ namespace GCI_Admin.Services.IService
 
         Task<ApiResponse<bool>> DeleteRcpsPledgeAsync(int id);
         Task<ApiResponse<List<RcpsPledges>>> GetPledgesByRcpsIdAsync(int id);
+        Task<ApiResponse<RcpsCountyCoordinator>> CreateRcpsCountyCoordinatorAsync(RcpsCountyCoordinatorDto dto);
+        Task<ApiResponse<List<RcpsCountyCoordinator>>> GetAllRcpsCountyCoordinatorsAsync();
+        Task<ApiResponse<RcpsCountyCoordinator>> GetRcpsCountyCoordinatorByIdAsync(int id);
+        Task<ApiResponse<List<RcpsCountyCoordinator>>> GetRcpsCountyCoordinatorsByRcpsAsync(int rcpsId);
+        Task<ApiResponse<RcpsCountyCoordinator>> UpdateRcpsCountyCoordinatorAsync(RcpsCountyCoordinatorDto dto);
+        Task<ApiResponse<bool>> DeleteRcpsCountyCoordinatorAsync(int id);
+        Task<ApiResponse<bool>> ToggleCountyCoordinatorStatusAsync(int id, bool isActive);
+        Task<ApiResponse<List<County>>> GetAllCountiesAsync();
     }
 }

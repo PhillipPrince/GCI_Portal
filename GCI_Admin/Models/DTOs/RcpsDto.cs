@@ -1,7 +1,8 @@
-﻿namespace GCI_Admin.Models.DTOs
+namespace GCI_Admin.Models.DTOs
 {
     public class RcpsDto
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal TargetAmount { get; set; }
@@ -9,6 +10,7 @@
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string Status { get; set; }
+        public string? CountyCode { get; set; }
     }
 
 

@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.Ministry>
+@model List<GCI_Admin.Models.Ministry>
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
@@ -56,10 +56,9 @@
                         <td class="text-end">
 
                             <!-- View -->
-                            <button class="btn btn-sm btn-outline-info"
-                                    onclick="openMinistryModal('@Url.Action("Details", "Ministries", new { id = ministry.MinistryId })')">
+                            <a href="@Url.Action("Details", "Ministries", new { id = ministry.MinistryId })" class="btn btn-sm btn-outline-info">
                                 <i class="fa fa-eye"></i>
-                            </button>
+                            </a>
 
                             <!-- Edit -->
                             <button class="btn btn-sm btn-outline-warning"

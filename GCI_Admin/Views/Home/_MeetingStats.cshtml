@@ -1,108 +1,55 @@
 @model GCI_Admin.Models.DashboardViewModel
 
-<!-- ðŸ†• ATTENDANCE KPI CARDS - New Section -->
+<!-- CHARTS SECTION - All four charts grouped together -->
 <div class="row g-4 mb-4">
-    <div class="col-12">
-        <h5 class="fw-bold mb-3"><i class="fa fa-church me-2 text-primary"></i>Church Attendance Overview</h5>
-    </div>
-    
-    <div class="col-md-3">
+    <!-- Member Growth Chart -->
+    <div class="col-md-6">
         <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-calendar-alt fa-2x text-primary"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Total Meetings</h6>
-                        <h3 class="fw-bold mb-0">@Model.TotalMeetings.ToString("N0")</h3>
-                        <small class="text-muted"><i class="fa fa-clock me-1"></i>@Model.MeetingTypesCount meeting types</small>
+            <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0">📈 Member Growth</h6>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-secondary active" data-chart="member-growth" data-period="weekly">Weekly</button>
+                        <button class="btn btn-outline-secondary" data-chart="member-growth" data-period="monthly">Monthly</button>
+                        <button class="btn btn-outline-secondary" data-chart="member-growth" data-period="yearly">Yearly</button>
                     </div>
                 </div>
+            </div>
+            <div class="card-body">
+                <canvas id="membersChart" height="120"></canvas>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
+    <!-- Full Membership Attainment Chart -->
+    <div class="col-md-6">
         <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-users fa-2x text-success"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Total Attendance</h6>
-                        <h3 class="fw-bold mb-0">@Model.TotalAttendees.ToString("N0")</h3>
-                        @if (Model.AttendanceGrowthPercentage > 0)
-                        {
-                            <small class="text-success"><i class="fa fa-arrow-up me-1"></i>+@Model.AttendanceGrowthPercentage% from last month</small>
-                        }
-                        else if (Model.AttendanceGrowthPercentage < 0)
-                        {
-                            <small class="text-danger"><i class="fa fa-arrow-down me-1"></i>@Model.AttendanceGrowthPercentage% from last month</small>
-                        }
-                        else
-                        {
-                            <small class="text-muted"><i class="fa fa-minus me-1"></i>No change</small>
-                        }
+            <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0">👑 Full Membership Attainment</h6>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-secondary active" data-chart="full-membership" data-period="weekly">Weekly</button>
+                        <button class="btn btn-outline-secondary" data-chart="full-membership" data-period="monthly">Monthly</button>
+                        <button class="btn btn-outline-secondary" data-chart="full-membership" data-period="yearly">Yearly</button>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-chart-line fa-2x text-info"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Avg. Attendance/Meeting</h6>
-                        <h3 class="fw-bold mb-0">@Model.AverageAttendance.ToString("N0")</h3>
-                        <small class="text-muted"><i class="fa fa-calendar me-1"></i>Per service</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa fa-chart-bar fa-2x text-warning"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Last 30 Days</h6>
-                        <h3 class="fw-bold mb-0">@Model.AttendeesLast30Days.ToString("N0")</h3>
-                        <small class="text-muted"><i class="fa fa-calendar me-1"></i>@Model.MeetingsLast30Days meetings</small>
-                    </div>
-                </div>
+                <canvas id="fullMembersChart" height="120"></canvas>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ðŸ†• GENDER BREAKDOWN SECTION -->
 <div class="row g-4 mb-4">
+    <!-- Gender Distribution Chart -->
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white border-0 py-3">
                 <h6 class="fw-bold mb-0"><i class="fa fa-venus-mars me-2 text-primary"></i>Gender Distribution</h6>
             </div>
             <div class="card-body">
-                <div id="genderData" data-male="@Model.TotalMale" data-female="@Model.TotalFemale" data-children="0" style="display:none;"></div>
+                <div id="genderData" data-male="@Model.TotalMale" data-female="@Model.TotalFemale" data-children="@Model.TotalChildren" style="display:none;"></div>
                 <canvas id="genderChart" height="200"></canvas>
                 <div class="row mt-3 text-center">
                     <div class="col-4">
@@ -128,6 +75,7 @@
         </div>
     </div>
 
+    <!-- Monthly Attendance Trend Chart -->
     <div class="col-md-8">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white border-0 py-3">
@@ -142,49 +90,3 @@
         </div>
     </div>
 </div>
-
-<!-- ðŸ†• RECENT MEETINGS SECTION -->
-@if (Model.RecentMeetings != null && Model.RecentMeetings.Any())
-{
-    <div class="row g-4 mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0 py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="fw-bold mb-0"><i class="fa fa-history me-2 text-primary"></i>Recent Meetings</h6>
-                        <a href="@Url.Action("Index", "Meetings")" class="btn btn-link btn-sm p-0">View All</a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle" id="recentMeetingsTable">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Meeting Type</th>
-                                    <th>Total</th>
-                                    <th>Male</th>
-                                    <th>Female</th>
-                                    <th>Children</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var meeting in Model.RecentMeetings)
-                                {
-                                    <tr>
-                                        <td>@meeting.MeetingDate.ToString("MMM dd, yyyy")</td>
-                                        <td><span class="badge bg-primary bg-opacity-10 text-primary">@meeting.MeetingType</span></td>
-                                        <td><strong>@meeting.TotalAttendees</strong></td>
-                                        <td>@meeting.MaleCount</td>
-                                        <td>@meeting.FemaleCount</td>
-                                        <td>@meeting.ChildrenCount</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-}
