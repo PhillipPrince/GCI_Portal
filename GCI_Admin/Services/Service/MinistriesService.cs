@@ -539,5 +539,76 @@ namespace GCI_Admin.Services.Service
 
             return response;
         }
+        // ✅ GET MINISTRY MEMBERS
+        public async Task<ApiResponse<List<MinistryMember>>> GetMinistryMembersAsync(int ministryId)
+        {
+            var response = new ApiResponse<List<MinistryMember>>();
+            try
+            {
+                var result = await _ministriesRepository.GetMinistryMembersAsync(ministryId);
+                
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "Ministry members retrieved successfully";
+                response.Code = "200";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in GetMinistryMembersAsync service: {ex}");
+            }
+            return response;
+        }
+
+        // ✅ ADD MEMBER TO MINISTRY
+        public async Task<ApiResponse<bool>> AddMemberToMinistryAsync(int ministryId, int memberId)
+        {
+            var response = new ApiResponse<bool>();
+            try
+            {
+                var newMember = new MinistryMember
+                {
+                    MinistryId = ministryId,
+                    MemberId = memberId,
+                    IsApproved = true,
+                    RequestedAt = DateTime.Now,
+                    CreatedAt = DateTime.Now
+                };
+
+                var result = await _ministriesRepository.AddMemberToMinistryAsync(newMember);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                Loggers.EventLogs($"Member ID {memberId} successfully added to Ministry ID {ministryId}.");
+
+                response.Data = result.Data;
+                response.Message = result.Message;
+                response.Code = "200";
+                response.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in AddMemberToMinistryAsync service: {ex}");
+            }
+            return response;
+        }
     }
 }

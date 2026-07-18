@@ -230,6 +230,11 @@
                                                 onclick="sendPaymentReminder(@r.RegistrationId)">
                                             <i class="fa fa-bell"></i>
                                         </button>
+                                        <button class="btn btn-outline-success"
+                                                title="Mark as Paid"
+                                                onclick="markPaymentPaid(@r.RegistrationId)">
+                                            <i class="fa fa-money-bill-wave"></i>
+                                        </button>
                                     }
 
                                     <!-- Delete -->
@@ -427,6 +432,44 @@ else
     $(document).ready(function () {
         // Global DataTable initializer handles #eventRegistrationsTable (has datatable class + filter row)
     });
+
+    async function markPaymentPaid(id) {
+        const result = await Swal.fire({
+            title: 'Mark as Paid',
+            text: 'Are you sure you want to mark this registration as paid?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Mark Paid'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch('@Url.Action("UpdatePaymentStatus", "Event")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    body: JSON.stringify({ id: id, paymentStatusId: 4 })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire('Updated!', data.message, 'success').then(() => {
+                        if (typeof refreshRegistrations === 'function') {
+                            refreshRegistrations();
+                        } else {
+                            location.reload();
+                        }
+                    });
+                } else {
+                    Swal.fire('Error', data.message || 'Failed to update payment status.', 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'An error occurred while updating the payment status.', 'error');
+            }
+        }
+    }
 
     async function sendPaymentReminder(id) {
         const result = await Swal.fire({

@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using Microsoft.EntityFrameworkCore;
 using Utils;
 
@@ -157,10 +157,11 @@ namespace GCI_Admin.DBOperations.Repositories
             try
             {
                 var reports = await _context.MinistryLeaderReports
-    .Include(x => x.Ministry)
-    .Include(x => x.SubmittedByMinistryLeader)
-    .OrderByDescending(x => x.ReportingMonth)
-    .ToListAsync();
+                    .Include(x => x.Ministry)
+                    .Include(x => x.SubmittedByMinistryLeader)
+                        .ThenInclude(l => l.Member)
+                    .OrderByDescending(x => x.ReportingMonth)
+                    .ToListAsync();
 
                 var memberIds = reports
                     .Where(x => x.SubmittedByMinistryLeader != null)
@@ -175,7 +176,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 foreach (var report in reports)
                 {
                     var member = members.FirstOrDefault(x =>
-                        x.Id == report.SubmittedByMinistryLeader.MemberId);
+                        x.Id == report.SubmittedByMinistryLeader?.MemberId);
 
                     report.SubmittedByMinistryLeaderName = member != null
                         ? $"{member.FirstName} {member.OtherNames}"
@@ -206,6 +207,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 var report = await _context.MinistryLeaderReports
                     .Include(x => x.Ministry)
                     .Include(x => x.SubmittedByMinistryLeader)
+                        .ThenInclude(l => l.Member)
                     .FirstOrDefaultAsync(x => x.MinistryLeaderReportId == reportId);
 
                 if (report == null)
@@ -242,6 +244,7 @@ namespace GCI_Admin.DBOperations.Repositories
                     .Where(x => x.MinistryId == ministryId)
                     .Include(x => x.Ministry)
                     .Include(x => x.SubmittedByMinistryLeader)
+                        .ThenInclude(l => l.Member)
                     .OrderByDescending(x => x.ReportingMonth)
                     .ToListAsync();
 
@@ -270,6 +273,7 @@ namespace GCI_Admin.DBOperations.Repositories
                     .Where(x => x.SubmittedByMinistryLeaderId == leaderId)
                     .Include(x => x.Ministry)
                     .Include(x => x.SubmittedByMinistryLeader)
+                        .ThenInclude(l => l.Member)
                     .OrderByDescending(x => x.ReportingMonth)
                     .ToListAsync();
 

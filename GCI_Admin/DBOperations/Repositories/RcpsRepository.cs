@@ -666,5 +666,107 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+
+        // ✅ GET RCP COUNTY MEMBERS
+        public async Task<DbResponse<List<RcpCountyMember>>> GetRcpCountyMembersByRcpsAsync(int rcpsId)
+        {
+            try
+            {
+                var members = await _context.RcpCountyMembers
+                    .Include(m => m.Member)
+                    .Where(m => m.RcpsId == rcpsId)
+                    .ToListAsync();
+
+                return new DbResponse<List<RcpCountyMember>>
+                {
+                    Success = true,
+                    Data = members
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching RCP county members: {ex}");
+                return new DbResponse<List<RcpCountyMember>>
+                {
+                    Success = false,
+                    Message = $"Error fetching RCP county members: {ex.Message}"
+                };
+            }
+        }
+
+        // ✅ ADD MEMBER TO RCP COUNTY
+        public async Task<DbResponse<bool>> AddMemberToRcpCountyAsync(RcpCountyMember newMember)
+        {
+            try
+            {
+                bool exists = await _context.RcpCountyMembers
+                    .AnyAsync(m => m.RcpsId == newMember.RcpsId && m.MemberId == newMember.MemberId);
+
+                if (exists)
+                {
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Member is already in this RCP County."
+                    };
+                }
+
+                _context.RcpCountyMembers.Add(newMember);
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<bool>
+                {
+                    Success = true,
+                    Message = "Member added successfully.",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error adding RCP county member: {ex}");
+                return new DbResponse<bool>
+                {
+                    Success = false,
+                    Message = $"Error adding member: {ex.Message}"
+                };
+            }
+        }
+
+        // ✅ GET RCPS INVITE
+        public async Task<DbResponse<RcpsInvite>> GetRcpsInviteByCodeAsync(string code)
+        {
+            try
+            {
+                var invite = await _context.RcpsInvites
+                    .Include(i => i.RcpsPlan)
+                    .ThenInclude(p => p.Rcps)
+                    .Include(i => i.Member)
+                    .FirstOrDefaultAsync(i => i.UniqueLinkCode == code);
+
+                if (invite == null)
+                {
+                    return new DbResponse<RcpsInvite>
+                    {
+                        Success = false,
+                        Message = "Invite not found"
+                    };
+                }
+
+                return new DbResponse<RcpsInvite>
+                {
+                    Success = true,
+                    Data = invite
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching RcpsInvite: {ex}");
+                return new DbResponse<RcpsInvite>
+                {
+                    Success = false,
+                    Message = $"Error fetching RcpsInvite: {ex.Message}"
+                };
+            }
+        }
     }
 }

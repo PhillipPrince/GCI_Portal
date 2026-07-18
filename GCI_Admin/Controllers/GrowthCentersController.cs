@@ -78,15 +78,11 @@ namespace GCI_Admin.Controllers
                 return NotFound("Growth Center not found.");
             }
 
-            var leaders = await _context.GrowthCenterLeaders
-                .Include(l => l.Member)
-                .Where(l => l.GrowthCenterId == id)
-                .ToListAsync();
+            var leadersResult = await _growthCentersService.GetGrowthCenterLeadersByCenterAsync(id);
+            var leaders = leadersResult.IsSuccess ? leadersResult.Data : new List<GrowthCenterLeader>();
 
-            var members = await _context.GrowthCenterMembers
-                .Include(m => m.Member)
-                .Where(m => m.GrowthCenterId == id)
-                .ToListAsync();
+            var membersResult = await _growthCentersService.GetGrowthCenterMembersAsync(id);
+            var members = membersResult.IsSuccess ? membersResult.Data : new List<GrowthCenterMember>();
 
             var data = new GrowthCenterDetailsData
             {
@@ -101,34 +97,8 @@ namespace GCI_Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> AddMember(int growthCenterId, int memberId)
         {
-            try
-            {
-                // Check if already a member
-                bool exists = await _context.GrowthCenterMembers
-                    .AnyAsync(m => m.GrowthCenterId == growthCenterId && m.MemberId == memberId);
-
-                if (exists)
-                {
-                    return Json(new { success = false, message = "Member is already in this Growth Center." });
-                }
-
-                var newMember = new GrowthCenterMember
-                {
-                    GrowthCenterId = growthCenterId,
-                    MemberId = memberId,
-                    IsActive = true,
-                    CreatedAt = DateTime.Now
-                };
-
-                _context.GrowthCenterMembers.Add(newMember);
-                await _context.SaveChangesAsync();
-
-                return Json(new { success = true, message = "Member added successfully." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "An error occurred: " + ex.Message });
-            }
+            var response = await _growthCentersService.AddMemberToGrowthCenterAsync(growthCenterId, memberId);
+            return Json(new { success = response.IsSuccess, message = response.Message });
         }
 
 
@@ -304,26 +274,25 @@ namespace GCI_Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMembersByGrowthCenter(int growthCenterId)
         {
-            try
+            var result = await _growthCentersService.GetGrowthCenterMembersAsync(growthCenterId);
+            if (!result.IsSuccess)
             {
-                var members = await _context.GrowthCenterMembers
-                    .Where(m => m.GrowthCenterId == growthCenterId && m.Member.StatusId == 1)
-                    .Include(m => m.Member)
-                    .Select(m => new {
-                        id = m.Member.Id,
-                        firstName = m.Member.FirstName,
-                        otherNames = m.Member.OtherNames,
-                        email = m.Member.Email,
-                        phone = m.Member.Phone,
-                        gender = m.Member.Gender
-                    })
-                    .ToListAsync();
-                return Json(new { success = true, data = members });
+                return Json(new { success = false, message = result.Message });
             }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
+
+            var members = result.Data
+                .Where(m => m.Member != null && m.Member.StatusId == 1)
+                .Select(m => new {
+                    id = m.Member.Id,
+                    firstName = m.Member.FirstName,
+                    otherNames = m.Member.OtherNames,
+                    email = m.Member.Email,
+                    phone = m.Member.Phone,
+                    gender = m.Member.Gender
+                })
+                .ToList();
+
+            return Json(new { success = true, data = members });
         }
     }
 }

@@ -454,5 +454,102 @@ namespace GCI_Admin.Services.Service
             }
             return response;
         }
+        public async Task<ApiResponse<List<GrowthCenterLeader>>> GetGrowthCenterLeadersByCenterAsync(int centerId)
+        {
+            var response = new ApiResponse<List<GrowthCenterLeader>>();
+            try
+            {
+                var result = await _repository.GetGrowthCenterLeadersByCenterAsync(centerId);
+                
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "GC leaders retrieved successfully";
+                response.Code = "200";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in GetGrowthCenterLeadersByCenterAsync service: {ex}");
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<List<GrowthCenterMember>>> GetGrowthCenterMembersAsync(int centerId)
+        {
+            var response = new ApiResponse<List<GrowthCenterMember>>();
+            try
+            {
+                var result = await _repository.GetGrowthCenterMembersAsync(centerId);
+                
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "GC members retrieved successfully";
+                response.Code = "200";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in GetGrowthCenterMembersAsync service: {ex}");
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<bool>> AddMemberToGrowthCenterAsync(int centerId, int memberId)
+        {
+            var response = new ApiResponse<bool>();
+            try
+            {
+                var newMember = new GrowthCenterMember
+                {
+                    GrowthCenterId = centerId,
+                    MemberId = memberId,
+                    IsActive = true,
+                    CreatedAt = DateTime.Now
+                };
+
+                var result = await _repository.AddMemberToGrowthCenterAsync(newMember);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                Loggers.EventLogs($"Member ID {memberId} successfully added to Growth Center ID {centerId}.");
+
+                response.Data = result.Data;
+                response.Message = result.Message;
+                response.Code = "200";
+                response.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in AddMemberToGrowthCenterAsync service: {ex}");
+            }
+            return response;
+        }
     }
 }

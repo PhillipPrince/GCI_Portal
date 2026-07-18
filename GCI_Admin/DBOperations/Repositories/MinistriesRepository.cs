@@ -762,5 +762,70 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+
+        // ✅ GET MINISTRY MEMBERS
+        public async Task<DbResponse<List<MinistryMember>>> GetMinistryMembersAsync(int ministryId)
+        {
+            try
+            {
+                var members = await _context.MinistryMembers
+                    .Include(m => m.Member)
+                    .Where(m => m.MinistryId == ministryId)
+                    .ToListAsync();
+
+                return new DbResponse<List<MinistryMember>>
+                {
+                    Success = true,
+                    Data = members
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error in GetMinistryMembersAsync: {ex}");
+                return new DbResponse<List<MinistryMember>>
+                {
+                    Success = false,
+                    Message = $"Error fetching ministry members: {ex.Message}"
+                };
+            }
+        }
+
+        // ✅ ADD MEMBER TO MINISTRY
+        public async Task<DbResponse<bool>> AddMemberToMinistryAsync(MinistryMember newMember)
+        {
+            try
+            {
+                bool exists = await _context.MinistryMembers
+                    .AnyAsync(m => m.MinistryId == newMember.MinistryId && m.MemberId == newMember.MemberId);
+
+                if (exists)
+                {
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Member is already in this Ministry."
+                    };
+                }
+
+                _context.MinistryMembers.Add(newMember);
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<bool>
+                {
+                    Success = true,
+                    Message = "Member added successfully.",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error in AddMemberToMinistryAsync: {ex}");
+                return new DbResponse<bool>
+                {
+                    Success = false,
+                    Message = $"Error adding member: {ex.Message}"
+                };
+            }
+        }
     }
 }

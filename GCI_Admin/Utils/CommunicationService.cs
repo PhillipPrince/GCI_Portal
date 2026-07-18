@@ -59,10 +59,7 @@ namespace Utils
                 {
                     Loggers.DoLogs($"SMS sending failed. Status: {(int)response.StatusCode}, Response: {responseContent}");
                 }
-                else
-                {
-                    Loggers.EventLogs($"SMS sent successfully to {mobile}. Response: {responseContent}");
-                }
+                
 
                 return responseContent;
             }

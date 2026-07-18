@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GCI_Admin")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1f23039688c6aa9a1e6f399213026e7cb52595b3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a47241fa960b5382710b7a0f54b812d1b54cfe3")]
 [assembly: System.Reflection.AssemblyProductAttribute("GCI_Admin")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GCI_Admin")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

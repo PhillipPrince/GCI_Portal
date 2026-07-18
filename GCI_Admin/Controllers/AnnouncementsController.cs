@@ -58,45 +58,46 @@ namespace GCI_Admin.Controllers
         }
 
         [HttpGet]
-        public IActionResult CreateAnnouncement()
+        public async Task<IActionResult> CreateAnnouncement()
         {
             NotificationDto notification = new NotificationDto();
-            var notificationGroupsResponse = _announcementsService.GetAllNotificationGroupsAsync().Result.Data;
+            var notificationGroupsResponse = await _announcementsService.GetAllNotificationGroupsAsync();
             
-            notification.NotificationGroups = notificationGroupsResponse.Select(m => new DropdownItem
+            notification.NotificationGroups = (notificationGroupsResponse.Data ?? new List<NotificationGroup>()).Select(m => new DropdownItem
                       {
                           Value = m.GroupId.ToString(),
                           Text = m.GroupName.ToString()
                       }).ToList();
-            var membersResponse = _membersService.GetAllMembersAsync().Result.Data;
-            notification.Members = membersResponse.Select(m => new DropdownItem
+            
+            var membersResponse = await _membersService.GetAllMembersAsync();
+            notification.Members = (membersResponse.Data ?? new List<Member>()).Select(m => new DropdownItem
             {
                 Value = m.Id.ToString(),
                 Text = $"{m.FirstName} {m.OtherNames}"
             }).ToList();
-            notification.RawMembers = membersResponse;
+            notification.RawMembers = membersResponse.Data;
 
 
-            var ministriesResponse = _ministriesService.GetAllMinistriesAsync().Result.Data;
-            notification.MinistriesList = ministriesResponse?.Select(m => new DropdownItem
+            var ministriesResponse = await _ministriesService.GetAllMinistriesAsync();
+            notification.MinistriesList = (ministriesResponse.Data ?? new List<Ministry>()).Select(m => new DropdownItem
             {
                 Value = m.MinistryId.ToString(),
                 Text = m.MinistryName
-            }).ToList() ?? new List<DropdownItem>();
+            }).ToList();
 
-            var growthCentersResponse = _growthCentersService.GetAllGrowthCentersAsync().Result.Data;
-            notification.GrowthCentersList = growthCentersResponse?.Select(g => new DropdownItem
+            var growthCentersResponse = await _growthCentersService.GetAllGrowthCentersAsync();
+            notification.GrowthCentersList = (growthCentersResponse.Data ?? new List<GrowthCenter>()).Select(g => new DropdownItem
             {
                 Value = g.GrowthCenterId.ToString(),
                 Text = g.CenterName
-            }).ToList() ?? new List<DropdownItem>();
+            }).ToList();
 
-            var rcpsResponse = _rcpsService.GetAllRcpsAsync().Result.Data;
-            notification.RcpsList = rcpsResponse?.Select(r => new DropdownItem
+            var rcpsResponse = await _rcpsService.GetAllRcpsAsync();
+            notification.RcpsList = (rcpsResponse.Data ?? new List<Rcps>()).Select(r => new DropdownItem
             {
                 Value = r.Id.ToString(),
                 Text = r.Name
-            }).ToList() ?? new List<DropdownItem>();
+            }).ToList();
 
             return View("_CreateAnnouncement",  notification);
         }
@@ -152,12 +153,17 @@ namespace GCI_Admin.Controllers
             }
         }
 
+        public class DeleteAnnouncementRequest
+        {
+            public int NotificationId { get; set; }
+        }
+
         [HttpDelete]
-        public async Task<IActionResult> Delete([FromBody] int notificationId)
+        public async Task<IActionResult> Delete([FromBody] DeleteAnnouncementRequest req)
         {
             try
             {
-                var response = await _announcementsService.DeleteAnnouncementAsync(notificationId);
+                var response = await _announcementsService.DeleteAnnouncementAsync(req.NotificationId);
                 if (!response.IsSuccess)
                     return BadRequest(response);
 
@@ -169,12 +175,18 @@ namespace GCI_Admin.Controllers
             }
         }
 
+        public class ToggleStatusRequest
+        {
+            public int NotificationId { get; set; }
+            public bool IsActive { get; set; }
+        }
+
         [HttpPost]
-        public async Task<IActionResult> ToggleStatus(int notificationId, bool isActive)
+        public async Task<IActionResult> ToggleStatus([FromBody] ToggleStatusRequest req)
         {
             try
             {
-                var response = await _announcementsService.ToggleAnnouncementStatusAsync(notificationId, isActive);
+                var response = await _announcementsService.ToggleAnnouncementStatusAsync(req.NotificationId, req.IsActive);
                 if (!response.IsSuccess)
                     return BadRequest(response);
 

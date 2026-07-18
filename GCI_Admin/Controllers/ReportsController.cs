@@ -1,4 +1,4 @@
-﻿using GCI_Admin.DBOperations;
+using GCI_Admin.DBOperations;
 using GCI_Admin.Models;
 using GCI_Admin.Services.IService;
 using Microsoft.AspNetCore.Mvc;
@@ -9,12 +9,17 @@ namespace GCI_Admin.Controllers
     public class ReportsController : Controller
     {
         private readonly IReportsService _reportsService;
-        private readonly AppDbContext _context;
+        private readonly IGrowthCentersService _growthCentersService;
+        private readonly ILeadershipService _leadershipService;
 
-        public ReportsController(IReportsService reportsService, AppDbContext context)
+        public ReportsController(
+            IReportsService reportsService, 
+            IGrowthCentersService growthCentersService,
+            ILeadershipService leadershipService)
         {
             _reportsService = reportsService;
-            _context = context;
+            _growthCentersService = growthCentersService;
+            _leadershipService = leadershipService;
         }
 
         public async Task<IActionResult> Index()
@@ -538,11 +543,6 @@ namespace GCI_Admin.Controllers
                     growthCenterMeeting.Visitors = new List<GrowthCenterMeetingVisitor>();
                 }
 
-                if (growthCenterMeeting.GrowthCenter == null && growthCenterMeeting.GrowthCenterId > 0)
-                {
-                    growthCenterMeeting.GrowthCenter = await _context.GrowthCenters
-                        .FirstOrDefaultAsync(g => g.GrowthCenterId == growthCenterMeeting.GrowthCenterId);
-                }
 
                 return View(growthCenterMeeting);
             }
@@ -595,18 +595,7 @@ namespace GCI_Admin.Controllers
 
                 var report = reportResult.Data;
 
-                if (report.Ministry == null && report.MinistryId > 0)
-                {
-                    report.Ministry = await _context.Ministries
-                        .FirstOrDefaultAsync(x => x.MinistryId == report.MinistryId);
-                }
 
-                if (report.SubmittedByMinistryLeader == null && report.SubmittedByMinistryLeaderId > 0)
-                {
-                    report.SubmittedByMinistryLeader = await _context.MinistryLeaders
-                        .Include(x => x.Member)
-                        .FirstOrDefaultAsync(x => x.MinistryLeaderId == report.SubmittedByMinistryLeaderId);
-                }
 
                 return View(report);
             }
@@ -689,9 +678,8 @@ namespace GCI_Admin.Controllers
 
                 foreach (var id in deaconIds)
                 {
-                    var deacon = await _context.Deacons
-                        .Include(d => d.Member)
-                        .FirstOrDefaultAsync(d => d.DeaconId == id);
+                    var deaconResult = await _leadershipService.GetDeaconByIdAsync(id);
+                    var deacon = deaconResult.IsSuccess ? deaconResult.Data : null;
 
                     if (deacon != null && deacon.Member != null)
                     {
@@ -724,12 +712,6 @@ namespace GCI_Admin.Controllers
                     return RedirectToAction("Deacons");
                 }
                 var report = response.Data;
-                //if (report.Deacon == null && report.DeaconId > 0)
-                //{
-                //    report.Deacon = await _context.Deacons
-                //        .Include(d => d.Member)
-                //        .FirstOrDefaultAsync(d => d.DeaconId == report.DeaconId);
-                //}
                 return View(report);
             }
             catch (Exception ex)
@@ -765,12 +747,13 @@ namespace GCI_Admin.Controllers
         {
             try
             {
-                var centers = await _context.GrowthCenters
-                    .Where(g => g.IsActive)
-                    .Select(g => new { id = g.GrowthCenterId, name = g.CenterName })
-                    .ToListAsync();
-
-                return Json(centers);
+                var centersResult = await _growthCentersService.GetAllGrowthCentersAsync();
+                if (centersResult.IsSuccess && centersResult.Data != null)
+                {
+                    var centers = centersResult.Data.Where(g => g.IsActive).Select(g => new { id = g.GrowthCenterId, name = g.CenterName }).ToList();
+                    return Json(centers);
+                }
+                return Json(new List<object>());
             }
             catch (Exception ex)
             {
@@ -784,16 +767,16 @@ namespace GCI_Admin.Controllers
         {
             try
             {
-                var deacons = await _context.Deacons
-                    .Include(d => d.Member)
-                    .Where(d => d.IsActive)
-                    .Select(d => new {
+                var deaconsResult = await _leadershipService.GetAllDeaconsAsync();
+                if (deaconsResult.IsSuccess && deaconsResult.Data != null)
+                {
+                    var deacons = deaconsResult.Data.Where(d => d.IsActive).Select(d => new {
                         id = d.DeaconId,
                         name = d.Member != null ? $"{d.Member.FirstName} {d.Member.OtherNames}" : $"Deacon {d.DeaconId}"
-                    })
-                    .ToListAsync();
-
-                return Json(deacons);
+                    }).ToList();
+                    return Json(deacons);
+                }
+                return Json(new List<object>());
             }
             catch (Exception ex)
             {
@@ -826,14 +809,6 @@ namespace GCI_Admin.Controllers
                     filteredMeetings = filteredMeetings.Where(m => m.GrowthCenterId == growthCenterId.Value);
 
                 var result = filteredMeetings.ToList();
-                foreach (var meeting in result)
-                {
-                    if (meeting.GrowthCenter == null)
-                    {
-                        meeting.GrowthCenter = await _context.GrowthCenters
-                            .FirstOrDefaultAsync(g => g.GrowthCenterId == meeting.GrowthCenterId);
-                    }
-                }
 
                 return PartialView("_GrowthCentersReportTable", result);
             }
@@ -940,8 +915,8 @@ namespace GCI_Admin.Controllers
 
         private async Task<string> GetGrowthCenterName(int centerId)
         {
-            var center = await _context.GrowthCenters
-                .FirstOrDefaultAsync(g => g.GrowthCenterId == centerId);
+            var centerResult = await _growthCentersService.GetGrowthCenterByIdAsync(centerId);
+            var center = centerResult.IsSuccess ? centerResult.Data : null;
             return center?.CenterName ?? $"Center {centerId}";
         }
 

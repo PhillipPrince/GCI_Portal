@@ -34,5 +34,12 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<bool>> DeleteRcpsCountyCoordinatorAsync(int id);
         Task<ApiResponse<bool>> ToggleCountyCoordinatorStatusAsync(int id, bool isActive);
         Task<ApiResponse<List<County>>> GetAllCountiesAsync();
+
+        // ✅ RcpCountyMembers
+        Task<ApiResponse<List<RcpCountyMember>>> GetRcpCountyMembersByRcpsAsync(int rcpsId);
+        Task<ApiResponse<bool>> AddMemberToRcpCountyAsync(int rcpsId, int memberId);
+
+        // ✅ RcpsInvites
+        Task<ApiResponse<RcpsInvite>> GetRcpsInviteByCodeAsync(string code);
     }
 }

@@ -25,5 +25,9 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<List<MinistryLeader>>> GetMinistryLeadersByMinistryAsync(int ministryId);
         Task<ApiResponse<List<MinistryLeader>>> GetActiveMinistryLeadersAsync();
         Task<ApiResponse<bool>> ToggleMinistryLeaderStatusAsync(int ministryLeaderId, bool isActive);
+
+        // ✅ Ministry Members
+        Task<ApiResponse<List<MinistryMember>>> GetMinistryMembersAsync(int ministryId);
+        Task<ApiResponse<bool>> AddMemberToMinistryAsync(int ministryId, int memberId);
     }
 }

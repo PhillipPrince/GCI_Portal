@@ -1,8 +1,7 @@
-using GCI_Admin.DBOperations;
 using GCI_Admin.Models;
+using GCI_Admin.Services.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace GCI_Admin.Controllers
@@ -10,11 +9,11 @@ namespace GCI_Admin.Controllers
     [AllowAnonymous]
     public class PublicRcpsController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IRcpsService _rcpsService;
 
-        public PublicRcpsController(AppDbContext context)
+        public PublicRcpsController(IRcpsService rcpsService)
         {
-            _context = context;
+            _rcpsService = rcpsService;
         }
 
         [HttpGet("Rcps/Contribute/{code}")]
@@ -25,18 +24,14 @@ namespace GCI_Admin.Controllers
                 return NotFound("Invalid invite code.");
             }
 
-            var invite = await _context.RcpsInvites
-                .Include(i => i.RcpsPlan)
-                .ThenInclude(p => p.Rcps)
-                .Include(i => i.Member)
-                .FirstOrDefaultAsync(i => i.UniqueLinkCode == code);
+            var result = await _rcpsService.GetRcpsInviteByCodeAsync(code);
 
-            if (invite == null)
+            if (!result.IsSuccess || result.Data == null)
             {
                 return NotFound("This invite link does not exist or has been removed.");
             }
 
-            return View(invite);
+            return View(result.Data);
         }
     }
 }

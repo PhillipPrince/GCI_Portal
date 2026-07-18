@@ -52,7 +52,7 @@ namespace Utils
 
                     errMsg = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} | {errMsg}";
 
-                    File.AppendAllText(path, errMsg + Environment.NewLine);
+                    File.AppendAllText(path, errMsg + Environment.NewLine+ "================================================================================================================\n");
                 }
             }
             catch
@@ -74,7 +74,7 @@ namespace Utils
 
                     errMsg = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} | {errMsg}";
 
-                    File.AppendAllText(path, errMsg + Environment.NewLine);
+                    File.AppendAllText(path, errMsg + Environment.NewLine +"================================================================================================================\n");
                 }
             }
             catch (Exception ex)

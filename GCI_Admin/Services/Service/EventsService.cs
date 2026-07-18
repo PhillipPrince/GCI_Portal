@@ -21,18 +21,21 @@ namespace GCI_Admin.Services.Service
         private readonly MembersRepository _membersRepository;
         private readonly AppDbContext _context;
         private readonly SystemConfigRepository _systemConfigRepository;
+        private readonly CommunicationService _communicationService;
         private readonly string folderPath;
 
         public EventsService(
             EventsRepository eventsRepository,
             MembersRepository membersRepository,
             AppDbContext context,
-            SystemConfigRepository systemConfigRepository)
+            SystemConfigRepository systemConfigRepository,
+            CommunicationService communicationService)
         {
             _eventsRepository = eventsRepository;
             _membersRepository = membersRepository;
             _context = context;
             _systemConfigRepository = systemConfigRepository;
+            _communicationService = communicationService;
 
             folderPath = SystemConfigHelper
                 .GetImageBasePathAsync(_systemConfigRepository)
@@ -699,6 +702,452 @@ namespace GCI_Admin.Services.Service
         public Task<ApiResponse<List<Event>>> GetUpcomingEventsAsync()
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<ApiResponse<string>> SendPaymentReminderAsync(int id)
+        {
+            var response = new ApiResponse<string>();
+            try
+            {
+                var reg = await _eventsRepository.GetEventRegistrationByIdAsync(id);
+
+                if (reg == null)
+                {
+                    Loggers.EventLogs($"SendPaymentReminder: No record found for Registration ID: {id}");
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = "Registration not found.";
+                    return response;
+                }
+
+                if (reg.PaymentStatusId == 4)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = "User has already paid.";
+                    return response;
+                }
+
+                string phone = "";
+                string email = "";
+                string name = "Guest";
+
+                if (reg.MemberId != 0)
+                {
+                    var memberResponse = await _membersRepository.GetMemberByIdAsync(reg.MemberId);
+                    var member = memberResponse.Data;
+                    phone = member?.Phone;
+                    email = member?.Email;
+                    name = member?.FirstName ?? "Guest";
+                }
+                else
+                {
+                    phone = reg.GuestPhone;
+                    email = reg.GuestEmail;
+                    name = !string.IsNullOrWhiteSpace(reg.GuestName) ? reg.GuestName : "Guest";
+                }
+
+                string eventName = reg.Event?.Title ?? "the upcoming event";
+
+                if (string.IsNullOrEmpty(phone) && string.IsNullOrEmpty(email))
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = "No contact information available for this user.";
+                    return response;
+                }
+
+                string message =
+                    $"Hello {name}, we hope you're doing well. This is a gentle reminder that your payment for {eventName} is still pending." +
+                    $"\nPlease click the link to complete your payment." +
+                    $"\nhttps://portal.gospelcentresinternational.com/Register/Event/{reg.EventId}" +
+                    $"\nThank you and God bless!";
+
+                bool sent = false;
+
+                if (!string.IsNullOrEmpty(phone))
+                {
+                    await _communicationService.SendSmsAsync(phone, message);
+                    sent = true;
+                }
+
+                if (!string.IsNullOrEmpty(email) && !sent)
+                {
+                    await _communicationService.SendEmailAsync(email, $"Payment Reminder: {eventName}", message);
+                }
+
+                response.IsSuccess = true;
+                response.Code = "200";
+                response.Message = "Payment reminder sent successfully.";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<string>> SendBulkPaymentRemindersAsync(int eventId)
+        {
+            var response = new ApiResponse<string>();
+            try
+            {
+                Loggers.EventLogs($"SendBulkPaymentReminders: Starting to send payment reminders for Event ID: {eventId}");
+                
+                var registrations = await _eventsRepository.GetEventRegistrationsForPaymentReminderAsync(eventId);
+                    
+                Loggers.EventLogs($"SendBulkPaymentReminders: Found {registrations.Count} registrations for Event ID: {eventId} with unpaid status.");
+
+                if (!registrations.Any())
+                {
+                    Loggers.EventLogs($"SendBulkPaymentReminders: No record found for Event ID: {eventId}");
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = "No unpaid registrations found for this event.";
+                    return response;
+                }
+
+                int count = 0;
+
+                foreach (var item in registrations)
+                {
+                    string phone = "";
+                    string email = "";
+                    string name = "Guest";
+
+                    if (item.MemberId != 0)
+                    {
+                        var memberResponse = await _membersRepository.GetMemberByIdAsync(item.MemberId);
+                        var member = memberResponse.Data;
+                        phone = member?.Phone;
+                        email = member?.Email;
+                        name = member?.FirstName ?? "Guest";
+                    }
+                    else
+                    {
+                        phone = item.GuestPhone;
+                        email = item.GuestEmail;
+                        name = !string.IsNullOrWhiteSpace(item.GuestName) ? item.GuestName : "Guest";
+                    }
+
+                    string eventName = item.Event?.Title ?? "the upcoming event";
+
+                    if (!string.IsNullOrEmpty(phone) || !string.IsNullOrEmpty(email))
+                    {
+                        string message =
+                            $"Hello {name}, we hope you're doing well. This is a gentle reminder that your payment for {eventName} is still pending." +
+                            $"\nPlease click the link to complete your payment." +
+                            $"\nhttps://portal.gospelcentresinternational.com/Register/Event/{item.EventId}" +
+                            $"\nThank you and God bless!";
+
+                        if (!string.IsNullOrEmpty(phone))
+                        {
+                            await _communicationService.SendSmsAsync(phone, message);
+                        }
+                        else
+                        {
+                            await _communicationService.SendEmailAsync(email, $"Payment Reminder: {eventName}", message);
+                        }
+
+                        count++;
+                    }
+                }
+
+                response.IsSuccess = true;
+                response.Code = "200";
+                response.Message = $"Successfully sent payment reminders to {count} registrants.";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<string>> SendAttendanceReminderAsync(int id)
+        {
+            var response = new ApiResponse<string>();
+            try
+            {
+                var reg = await _eventsRepository.GetEventRegistrationByIdAsync(id);
+
+                if (reg == null)
+                {
+                    Loggers.EventLogs($"SendAttendanceReminder: No record found for Registration ID: {id}");
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = "Registration not found.";
+                    return response;
+                }
+
+                string phone = "";
+                string email = "";
+                string name = "Guest";
+
+                if (reg.MemberId != 0)
+                {
+                    var memberResponse = await _membersRepository.GetMemberByIdAsync(reg.MemberId);
+                    var member = memberResponse.Data;
+                    phone = member?.Phone;
+                    email = member?.Email;
+                    name = member?.FirstName ?? "Guest";
+                }
+                else
+                {
+                    phone = reg.GuestPhone;
+                    email = reg.GuestEmail;
+                    name = !string.IsNullOrWhiteSpace(reg.GuestName) ? reg.GuestName : "Guest";
+                }
+
+                string eventName = reg.Event?.Title ?? "the upcoming event";
+
+                if (string.IsNullOrEmpty(phone) && string.IsNullOrEmpty(email))
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = "No contact information available for this user.";
+                    return response;
+                }
+
+                string message =
+                    $"Hello {name}, we hope you're doing well. This is a Gentle reminder about your upcoming attendance for {eventName}. We are looking forward to welcoming you and sharing this special time together. We can't wait to see you. Thank you and God bless!";
+
+                bool sent = false;
+
+                if (!string.IsNullOrEmpty(phone))
+                {
+                    await _communicationService.SendSmsAsync(phone, message);
+                    sent = true;
+                }
+
+                if (!string.IsNullOrEmpty(email) && !sent)
+                {
+                    await _communicationService.SendEmailAsync(email, $"Attendance Reminder: {eventName}", message);
+                }
+
+                response.IsSuccess = true;
+                response.Code = "200";
+                response.Message = "Attendance reminder sent successfully.";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<string>> SendBulkAttendanceRemindersAsync(int eventId)
+        {
+            var response = new ApiResponse<string>();
+            try
+            {
+                var registrations = await _eventsRepository.GetEventRegistrationsForAttendanceReminderAsync(eventId);
+
+                if (!registrations.Any())
+                {
+                    Loggers.EventLogs($"SendBulkAttendanceReminders: No record found for Event ID: {eventId}");
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = "No registrations pending attendance found for this event.";
+                    return response;
+                }
+
+                int count = 0;
+
+                foreach (var item in registrations)
+                {
+                    string phone = "";
+                    string email = "";
+                    string name = "Guest";
+
+                    if (item.MemberId != 0)
+                    {
+                        var memberResponse = await _membersRepository.GetMemberByIdAsync(item.MemberId);
+                        var member = memberResponse.Data;
+                        phone = member?.Phone;
+                        email = member?.Email;
+                        name = member?.FirstName ?? "Guest";
+                    }
+                    else
+                    {
+                        phone = item.GuestPhone;
+                        email = item.GuestEmail;
+                        name = !string.IsNullOrWhiteSpace(item.GuestName) ? item.GuestName : "Guest";
+                    }
+
+                    string eventName = item.Event?.Title ?? "the upcoming event";
+
+                    if (!string.IsNullOrEmpty(phone) || !string.IsNullOrEmpty(email))
+                    {
+                        string message =
+                            $"Hello {name}, we hope you're doing well. This is a Gentle reminder about your upcoming attendance for {eventName}. We are looking forward to welcoming you and sharing this special time together. We can't wait to see you. Thank you and God bless!";
+
+                        if (!string.IsNullOrEmpty(phone))
+                        {
+                            await _communicationService.SendSmsAsync(phone, message);
+                        }
+                        else
+                        {
+                            await _communicationService.SendEmailAsync(email, $"Attendance Reminder: {eventName}", message);
+                        }
+
+                        count++;
+                    }
+                }
+
+                response.IsSuccess = true;
+                response.Code = "200";
+                response.Message = $"Successfully sent attendance reminders to {count} registrants.";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+        public async Task<ApiResponse<object>> CheckEventRegistrationAsync(string phone, int eventId)
+        {
+            var response = new ApiResponse<object>();
+            try
+            {
+                var registrationsQuery = await _eventsRepository.GetEventRegistrationsByPhoneAndEventAsync(phone, eventId);
+
+                if (!registrationsQuery.Any())
+                {
+                    response.IsSuccess = true;
+                    response.Data = new { isRegistered = false };
+                    return response;
+                }
+
+                var records = registrationsQuery.Select(r => new {
+                    paymentStatusId = r.PaymentStatusId,
+                    registrationId = r.RegistrationId,
+                    guestName = r.GuestName ?? (r.Member != null ? $"{r.Member.FirstName} {r.Member.OtherNames}".Trim() : "N/A")
+                }).ToList();
+
+                response.IsSuccess = true;
+                response.Data = new { 
+                    isRegistered = true, 
+                    records = records 
+                };
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error checking event registration: {ex}");
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<int>> CheckPaymentStatusAsync(int registrationId)
+        {
+            var response = new ApiResponse<int>();
+            try
+            {
+                var registration = await _eventsRepository.GetEventRegistrationByIdAsync(registrationId);
+
+                if (registration == null)
+                {
+                    response.IsSuccess = false;
+                    response.Message = "Registration not found";
+                    return response;
+                }
+
+                response.IsSuccess = true;
+                response.Data = registration.PaymentStatusId;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error checking payment status: {ex}");
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<bool>> UsherSubmitRegistrationAsync(GCI_Admin.Controllers.UsherRegistrationDto dto)
+        {
+            var response = new ApiResponse<bool>();
+            try
+            {
+                var eventItem = await _eventsRepository.GetEventByIdAsync(dto.eventId);
+                if (eventItem.Data == null)
+                {
+                    response.IsSuccess = false;
+                    response.Message = "Event not found.";
+                    return response;
+                }
+
+                var existingMember = await _eventsRepository.GetMemberByPhoneOrEmailAsync(dto.guestPhone, dto.guestEmail);
+                var memberId = existingMember != null ? existingMember.Id : 0;
+
+                EventRegistration existingRegistration = null;
+                if (memberId != 0)
+                {
+                    existingRegistration = await _eventsRepository.GetEventRegistrationByMemberAsync(dto.eventId, memberId);
+                }
+                var existingGuestRegistration = await _eventsRepository.GetGuestEventRegistrationAsync(dto.eventId, dto.guestPhone, dto.guestName);
+
+                int newPaymentStatusId = dto.isPaid ? 4 : 2; // 4 = Paid, 2 = Pending/Not Paid
+                if ((existingRegistration != null && existingRegistration.PaymentStatusId == 4) || 
+                    (existingGuestRegistration != null && existingGuestRegistration.PaymentStatusId == 4))
+                {
+                    response.IsSuccess = false;
+                    response.Message = "Guest is already registered and paid.";
+                    return response;
+                }
+                else if ((existingRegistration != null && existingRegistration.PaymentStatusId != 4) || 
+                         (existingGuestRegistration != null && existingGuestRegistration.PaymentStatusId != 4))
+                {
+                    var regToUpdate = existingRegistration ?? existingGuestRegistration;
+                    regToUpdate.PaymentStatusId = newPaymentStatusId;
+                    regToUpdate.RegistrationDate = DateTime.UtcNow;
+                    regToUpdate.AmountPaid = dto.amountPaid;
+                    
+                    await _eventsRepository.UpdateEventRegistrationAsync(regToUpdate);
+                    
+                    response.IsSuccess = true;
+                    response.Message = dto.isPaid ? "Registration updated to paid." : "Registration updated.";
+                    return response;
+                }
+
+                var registration = new EventRegistration
+                {
+                    EventId = dto.eventId,
+                    MemberId = memberId,
+                    GuestName = dto.guestName,
+                    GuestEmail = dto.guestEmail,
+                    GuestPhone = dto.guestPhone,
+                    GuestAssembly = dto.guestAssembly,
+                    GuestAgeGroup = dto.guestAgeGroup,
+                    PaymentStatusId = newPaymentStatusId,
+                    AmountPaid = dto.amountPaid,
+                    RegistrationDate = DateTime.UtcNow,
+                    HasAttended = false
+                };
+
+                await _eventsRepository.AddEventRegistrationAsync(registration);
+
+                response.IsSuccess = true;
+                response.Message = "Registration successful.";
+                Loggers.EventLogs($"Registration added for Event ID {dto.eventId} via UsherSubmit.");
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = "An error occurred: " + ex.Message;
+                Loggers.DoLogs($"Error in UsherSubmitRegistrationAsync: {ex}");
+            }
+            return response;
         }
     }
 }

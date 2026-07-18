@@ -1,88 +1,72 @@
 using Microsoft.AspNetCore.Mvc;
-using GCI_Admin.DBOperations;
 using GCI_Admin.Models;
-using Microsoft.EntityFrameworkCore;
+using GCI_Admin.Services.IService;
+using System.Threading.Tasks;
 
 namespace GCI_Admin.Controllers
 {
     public class NotificationGroupsController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IAnnouncementsService _announcementsService;
 
-        public NotificationGroupsController(AppDbContext context)
+        public NotificationGroupsController(IAnnouncementsService announcementsService)
         {
-            _context = context;
+            _announcementsService = announcementsService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var groups = await _context.NotificationGroups.ToListAsync();
+            var result = await _announcementsService.GetAllNotificationGroupsAsync();
+            var groups = result.IsSuccess ? result.Data : new List<NotificationGroup>();
             return View(groups);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetGroup(int id)
         {
-            var group = await _context.NotificationGroups.FindAsync(id);
-            if (group == null)
+            var result = await _announcementsService.GetNotificationGroupByIdAsync(id);
+            if (!result.IsSuccess || result.Data == null)
             {
                 return NotFound(new { message = "Notification Group not found" });
             }
-            return Json(group);
+            return Json(result.Data);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateOrUpdate([FromBody] NotificationGroup model)
         {
-            try
+            var result = await _announcementsService.CreateOrUpdateNotificationGroupAsync(model);
+            
+            if (result.IsSuccess)
             {
-                if (model.GroupId == 0)
-                {
-                    model.CreatedAt = DateTime.Now;
-                    _context.NotificationGroups.Add(model);
-                }
-                else
-                {
-                    var existingGroup = await _context.NotificationGroups.FindAsync(model.GroupId);
-                    if (existingGroup == null)
-                    {
-                        return NotFound(new { message = "Notification Group not found" });
-                    }
-
-                    existingGroup.GroupName = model.GroupName;
-                    existingGroup.Description = model.Description;
-                    existingGroup.IsActive = model.IsActive;
-                    existingGroup.UpdatedAt = DateTime.Now;
-                    _context.NotificationGroups.Update(existingGroup);
-                }
-
-                await _context.SaveChangesAsync();
-                return Ok(new { success = true, message = "Notification Group saved successfully" });
+                return Ok(new { success = true, message = result.Message });
             }
-            catch (Exception ex)
+            else
             {
-                return StatusCode(500, new { success = false, message = "An error occurred while saving the group", error = ex.Message });
+                if (result.Message == "Notification Group not found")
+                {
+                    return NotFound(new { message = result.Message });
+                }
+                return StatusCode(500, new { success = false, message = "An error occurred while saving the group", error = result.Message });
             }
         }
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            try
+            var result = await _announcementsService.DeleteNotificationGroupAsync(id);
+            
+            if (result.IsSuccess)
             {
-                var group = await _context.NotificationGroups.FindAsync(id);
-                if (group == null)
-                {
-                    return NotFound(new { success = false, message = "Notification Group not found" });
-                }
-
-                _context.NotificationGroups.Remove(group);
-                await _context.SaveChangesAsync();
-                return Ok(new { success = true, message = "Notification Group deleted successfully" });
+                return Ok(new { success = true, message = result.Message });
             }
-            catch (Exception ex)
+            else
             {
-                return StatusCode(500, new { success = false, message = "An error occurred while deleting the group", error = ex.Message });
+                if (result.Message == "Notification Group not found")
+                {
+                    return NotFound(new { success = false, message = result.Message });
+                }
+                return StatusCode(500, new { success = false, message = "An error occurred while deleting the group", error = result.Message });
             }
         }
     }

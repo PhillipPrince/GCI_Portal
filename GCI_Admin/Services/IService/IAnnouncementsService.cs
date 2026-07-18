@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Utils;
 
@@ -13,7 +13,9 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<bool>> DeleteAnnouncementAsync(int id);
         Task<ApiResponse<bool>> ToggleAnnouncementStatusAsync(int id, bool isActive);
         Task<ApiResponse<List<NotificationGroup>>> GetAllNotificationGroupsAsync();
-
+        Task<ApiResponse<NotificationGroup>> GetNotificationGroupByIdAsync(int id);
+        Task<ApiResponse<NotificationGroup>> CreateOrUpdateNotificationGroupAsync(NotificationGroup model);
+        Task<ApiResponse<bool>> DeleteNotificationGroupAsync(int id);
     }
     public class EventNotificationDto
     {

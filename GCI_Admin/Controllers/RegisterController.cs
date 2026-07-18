@@ -1,33 +1,36 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using GCI_Admin.Models;
-using GCI_Admin.DBOperations;
+using GCI_Admin.Services.IService;
 using System.Threading.Tasks;
 
 namespace GCI_Admin.Controllers
 {
     public class RegisterController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IEventsService _eventsService;
+        private readonly IAssembliesService _assembliesService;
 
-        public RegisterController(AppDbContext context)
+        public RegisterController(IEventsService eventsService, IAssembliesService assembliesService)
         {
-            _context = context;
+            _eventsService = eventsService;
+            _assembliesService = assembliesService;
         }
 
         [HttpGet("Register/Event/{eventId}")]
         public async Task<IActionResult> Event(int eventId)
         {
-            var targetEvent = await _context.Events
-                .FirstOrDefaultAsync(e => e.EventId == eventId && e.IsActive == true && e.IsPaid);
+            var eventResult = await _eventsService.GetEventByIdAsync(eventId);
+            var targetEvent = eventResult.IsSuccess ? eventResult.Data : null;
 
-            if (targetEvent == null)
+            if (targetEvent == null || targetEvent.IsActive != true || !targetEvent.IsPaid)
             {
                 return NotFound("Active paid event not found or has concluded.");
             }
 
             ViewBag.Event = targetEvent;
-            ViewBag.Assemblies = await _context.Assemblies.ToListAsync();
+            
+            var assembliesResult = await _assembliesService.GetAllAssembliesAsync();
+            ViewBag.Assemblies = assembliesResult.IsSuccess ? assembliesResult.Data : new List<Assembly>();
 
             return View();
         }
@@ -40,55 +43,42 @@ namespace GCI_Admin.Controllers
 
             phone = global::Utils.PhoneHelper.NormalizeKenyanPhoneOrEmail(phone);
 
-            var registrationsQuery = await _context.EventRegistrations
-                .Include(r => r.Member)
-                .Where(r => r.EventId == eventId && 
-                            (r.GuestPhone == phone || (r.Member != null && r.Member.Phone == phone)))
-                .OrderByDescending(r => r.RegistrationDate)
-                .ToListAsync();
-
-            if (!registrationsQuery.Any())
+            var result = await _eventsService.CheckEventRegistrationAsync(phone, eventId);
+            
+            if (result.IsSuccess)
             {
-                return Json(new { isRegistered = false });
+                return Json(result.Data);
             }
 
-            var records = registrationsQuery.Select(r => new {
-                paymentStatusId = r.PaymentStatusId,
-                registrationId = r.RegistrationId,
-                guestName = r.GuestName ?? (r.Member != null ? $"{r.Member.FirstName} {r.Member.OtherNames}".Trim() : "N/A")
-            }).ToList();
-
-            return Json(new { 
-                isRegistered = true, 
-                records = records 
-            });
+            return Json(new { isRegistered = false });
         }
 
         [HttpGet("Register/CheckPaymentStatus/{registrationId}")]
         public async Task<IActionResult> CheckPaymentStatus(int registrationId)
         {
-            var registration = await _context.EventRegistrations
-                .FirstOrDefaultAsync(r => r.RegistrationId == registrationId);
+            var result = await _eventsService.CheckPaymentStatusAsync(registrationId);
 
-            if (registration == null)
+            if (!result.IsSuccess)
                 return NotFound();
 
-            return Json(new { paymentStatusId = registration.PaymentStatusId });
+            return Json(new { paymentStatusId = result.Data });
         }
 
         [HttpGet("Register/Usher/{eventId}")]
         public async Task<IActionResult> Usher(int eventId)
         {
-            var targetEvent = await _context.Events
-                .FirstOrDefaultAsync(e => e.EventId == eventId && e.IsActive == true);
+            var eventResult = await _eventsService.GetEventByIdAsync(eventId);
+            var targetEvent = eventResult.IsSuccess ? eventResult.Data : null;
 
-            if (targetEvent == null)
+            if (targetEvent == null || targetEvent.IsActive != true)
             {
                 return NotFound("Active event not found or has concluded.");
             }
 
             ViewBag.Event = targetEvent;
-            ViewBag.Assemblies = await _context.Assemblies.ToListAsync();
+            
+            var assembliesResult = await _assembliesService.GetAllAssembliesAsync();
+            ViewBag.Assemblies = assembliesResult.IsSuccess ? assembliesResult.Data : new List<Assembly>();
 
             return View("Usher");
         }
@@ -99,65 +89,24 @@ namespace GCI_Admin.Controllers
             if (dto == null || dto.eventId <= 0)
                 return BadRequest(new { isSuccess = false, message = "Invalid data." });
 
-            var eventItem = await _context.Events.FirstOrDefaultAsync(e => e.EventId == dto.eventId);
-            if (eventItem == null)
-                return NotFound(new { isSuccess = false, message = "Event not found." });
-
             dto.guestPhone = global::Utils.PhoneHelper.NormalizeKenyanPhoneOrEmail(dto.guestPhone);
 
-            var memberId = 0;
-            var existingMember = await _context.Members.FirstOrDefaultAsync(m => m.Phone == dto.guestPhone || (!string.IsNullOrEmpty(dto.guestEmail) && m.Email == dto.guestEmail));
-            if (existingMember != null)
+            var result = await _eventsService.UsherSubmitRegistrationAsync(dto);
+
+            if (result.IsSuccess)
             {
-                memberId = existingMember.Id;
+                return Ok(new { isSuccess = true, message = result.Message });
             }
-
-            EventRegistration existingRegistration = null;
-            if (memberId != 0)
+            else
             {
-                existingRegistration = await _context.EventRegistrations
-                    .FirstOrDefaultAsync(r => r.EventId == dto.eventId && r.MemberId == memberId);
+                // To keep backward compatibility with the existing JS which might check the HTTP status, 
+                // if it's "Event not found." or similar, we might return NotFound or BadRequest.
+                if (result.Message == "Event not found.")
+                {
+                    return NotFound(new { isSuccess = false, message = result.Message });
+                }
+                return BadRequest(new { isSuccess = false, message = result.Message });
             }
-            var existingGuestRegistration = await _context.EventRegistrations
-                .FirstOrDefaultAsync(r => r.EventId == dto.eventId && r.GuestPhone == dto.guestPhone && r.GuestName == dto.guestName);
-
-            int newPaymentStatusId = dto.isPaid ? 4 : 2; // 4 = Paid, 2 = Pending/Not Paid
-            if ((existingRegistration != null && existingRegistration.PaymentStatusId == 4) || 
-                (existingGuestRegistration != null && existingGuestRegistration.PaymentStatusId == 4))
-            {
-                return BadRequest(new { isSuccess = false, message = "Guest is already registered and paid." });
-            }
-            else if ((existingRegistration != null && existingRegistration.PaymentStatusId != 4) || 
-                     (existingGuestRegistration != null && existingGuestRegistration.PaymentStatusId != 4))
-            {
-                var regToUpdate = existingRegistration ?? existingGuestRegistration;
-                regToUpdate.PaymentStatusId = newPaymentStatusId;
-                regToUpdate.RegistrationDate = System.DateTime.UtcNow;
-                regToUpdate.AmountPaid = dto.amountPaid;
-                await _context.SaveChangesAsync();
-                
-                return Ok(new { isSuccess = true, message = dto.isPaid ? "Registration updated to paid." : "Registration updated." });
-            }
-
-            var registration = new EventRegistration
-            {
-                EventId = dto.eventId,
-                MemberId = memberId,
-                GuestName = dto.guestName,
-                GuestEmail = dto.guestEmail,
-                GuestPhone = dto.guestPhone,
-                GuestAssembly = dto.guestAssembly,
-                GuestAgeGroup = dto.guestAgeGroup,
-                PaymentStatusId = newPaymentStatusId,
-                AmountPaid = dto.amountPaid,
-                RegistrationDate = System.DateTime.UtcNow,
-                HasAttended = false
-            };
-
-            _context.EventRegistrations.Add(registration);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { isSuccess = true, message = "Registration successful." });
         }
     }
 

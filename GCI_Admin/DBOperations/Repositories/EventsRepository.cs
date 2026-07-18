@@ -1169,6 +1169,69 @@ namespace GCI_Admin.DBOperations.Repositories
                 };
             }
         }
+
+        public async Task<EventRegistration> GetEventRegistrationByIdAsync(int id)
+        {
+            return await _context.EventRegistrations
+                .Include(r => r.Event)
+                .FirstOrDefaultAsync(r => r.RegistrationId == id);
+        }
+
+        public async Task<List<EventRegistration>> GetEventRegistrationsForPaymentReminderAsync(int eventId)
+        {
+            return await _context.EventRegistrations
+                .Where(r => r.EventId == eventId && r.PaymentStatusId != 4)
+                .Include(r => r.Event)
+                .ToListAsync();
+        }
+
+        public async Task<List<EventRegistration>> GetEventRegistrationsForAttendanceReminderAsync(int eventId)
+        {
+            return await _context.EventRegistrations
+                .Where(r => r.EventId == eventId && r.HasAttended != true)
+                .Include(r => r.Event)
+                .ToListAsync();
+        }
+
+        public async Task<List<EventRegistration>> GetEventRegistrationsByPhoneAndEventAsync(string phone, int eventId)
+        {
+            return await _context.EventRegistrations
+                .Include(r => r.Member)
+                .Where(r => r.EventId == eventId && 
+                            (r.GuestPhone == phone || (r.Member != null && r.Member.Phone == phone)))
+                .OrderByDescending(r => r.RegistrationDate)
+                .ToListAsync();
+        }
+
+        public async Task<Member> GetMemberByPhoneOrEmailAsync(string phone, string email)
+        {
+            return await _context.Members
+                .FirstOrDefaultAsync(m => m.Phone == phone || (!string.IsNullOrEmpty(email) && m.Email == email));
+        }
+
+        public async Task<EventRegistration> GetEventRegistrationByMemberAsync(int eventId, int memberId)
+        {
+            return await _context.EventRegistrations
+                .FirstOrDefaultAsync(r => r.EventId == eventId && r.MemberId == memberId);
+        }
+
+        public async Task<EventRegistration> GetGuestEventRegistrationAsync(int eventId, string guestPhone, string guestName)
+        {
+            return await _context.EventRegistrations
+                .FirstOrDefaultAsync(r => r.EventId == eventId && r.GuestPhone == guestPhone && r.GuestName == guestName);
+        }
+
+        public async Task UpdateEventRegistrationAsync(EventRegistration registration)
+        {
+            _context.EventRegistrations.Update(registration);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task AddEventRegistrationAsync(EventRegistration registration)
+        {
+            _context.EventRegistrations.Add(registration);
+            await _context.SaveChangesAsync();
+        }
     }
 }
 

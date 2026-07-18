@@ -305,5 +305,86 @@ namespace GCI_Admin.Services.Service
             }
             return response;
         }
+        public async Task<ApiResponse<NotificationGroup>> GetNotificationGroupByIdAsync(int id)
+        {
+            var response = new ApiResponse<NotificationGroup>();
+            try
+            {
+                var result = await _repo.GetNotificationGroupByIdAsync(id);
+                if (result.Success)
+                {
+                    response.IsSuccess = true;
+                    response.Data = result.Data;
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.Message = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = "Error fetching notification group.";
+                Loggers.DoLogs($"Error fetching notification group by id {id}: {ex.Message}");
+            }
+            return response;
         }
+
+        public async Task<ApiResponse<NotificationGroup>> CreateOrUpdateNotificationGroupAsync(NotificationGroup model)
+        {
+            var response = new ApiResponse<NotificationGroup>();
+            try
+            {
+                var result = await _repo.CreateOrUpdateNotificationGroupAsync(model);
+                if (result.Success)
+                {
+                    response.IsSuccess = true;
+                    response.Data = result.Data;
+                    response.Message = result.Message;
+                    Loggers.EventLogs(model.GroupId == 0 ? $"Created Notification Group: {model.GroupName}" : $"Updated Notification Group: {model.GroupName}");
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.Message = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = "Error saving notification group.";
+                Loggers.DoLogs($"Error saving notification group {model.GroupName}: {ex.Message}");
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<bool>> DeleteNotificationGroupAsync(int id)
+        {
+            var response = new ApiResponse<bool>();
+            try
+            {
+                var result = await _repo.DeleteNotificationGroupAsync(id);
+                if (result.Success)
+                {
+                    response.IsSuccess = true;
+                    response.Data = result.Data;
+                    response.Message = result.Message;
+                    Loggers.EventLogs($"Deleted Notification Group ID: {id}");
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.Message = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = "Error deleting notification group.";
+                Loggers.DoLogs($"Error deleting notification group id {id}: {ex.Message}");
+            }
+            return response;
+        }
+    }
 }

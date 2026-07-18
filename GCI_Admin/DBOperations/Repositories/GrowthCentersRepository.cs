@@ -1,4 +1,4 @@
-﻿using GCI_Admin.Models;
+using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Utils;
@@ -236,6 +236,98 @@ namespace GCI_Admin.DBOperations.Repositories
                 {
                     Success = false,
                     Message = $"Error fetching growth center leaders: {ex.Message}"
+                };
+            }
+        }
+
+        // ✅ GET GC LEADERS BY CENTER
+        public async Task<DbResponse<List<GrowthCenterLeader>>> GetGrowthCenterLeadersByCenterAsync(int centerId)
+        {
+            try
+            {
+                var leaders = await _context.GrowthCenterLeaders
+                    .Include(l => l.Member)
+                    .Where(l => l.GrowthCenterId == centerId)
+                    .ToListAsync();
+
+                return new DbResponse<List<GrowthCenterLeader>>
+                {
+                    Success = true,
+                    Data = leaders
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching GC leaders by center: {ex}");
+                return new DbResponse<List<GrowthCenterLeader>>
+                {
+                    Success = false,
+                    Message = $"Error fetching GC leaders: {ex.Message}"
+                };
+            }
+        }
+
+        // ✅ GET GC MEMBERS
+        public async Task<DbResponse<List<GrowthCenterMember>>> GetGrowthCenterMembersAsync(int centerId)
+        {
+            try
+            {
+                var members = await _context.GrowthCenterMembers
+                    .Include(m => m.Member)
+                    .Where(m => m.GrowthCenterId == centerId)
+                    .ToListAsync();
+
+                return new DbResponse<List<GrowthCenterMember>>
+                {
+                    Success = true,
+                    Data = members
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error fetching GC members: {ex}");
+                return new DbResponse<List<GrowthCenterMember>>
+                {
+                    Success = false,
+                    Message = $"Error fetching GC members: {ex.Message}"
+                };
+            }
+        }
+
+        // ✅ ADD MEMBER TO GC
+        public async Task<DbResponse<bool>> AddMemberToGrowthCenterAsync(GrowthCenterMember newMember)
+        {
+            try
+            {
+                bool exists = await _context.GrowthCenterMembers
+                    .AnyAsync(m => m.GrowthCenterId == newMember.GrowthCenterId && m.MemberId == newMember.MemberId);
+
+                if (exists)
+                {
+                    return new DbResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Member is already in this Growth Center."
+                    };
+                }
+
+                _context.GrowthCenterMembers.Add(newMember);
+                await _context.SaveChangesAsync();
+
+                return new DbResponse<bool>
+                {
+                    Success = true,
+                    Message = "Member added successfully.",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                Loggers.DoLogs($"Error adding GC member: {ex}");
+                return new DbResponse<bool>
+                {
+                    Success = false,
+                    Message = $"Error adding member: {ex.Message}"
                 };
             }
         }

@@ -121,10 +121,10 @@ namespace GCI_Admin.Controllers
                     return NotFound($"RCP with ID {id} not found");
                 }
 
-                var countyMembers = await _context.RcpCountyMembers
-                    .Include(m => m.Member)
-                    .Where(m => m.RcpsId == id)
-                    .ToListAsync();
+                var countyMembersResult = await _rcpsService.GetRcpCountyMembersByRcpsAsync(id);
+                var countyMembers = countyMembersResult.IsSuccess && countyMembersResult.Data != null 
+                    ? countyMembersResult.Data 
+                    : new List<RcpCountyMember>();
 
                 rcpsDetailsViewModel.CountyMembers = countyMembers;
                 rcpsDetailsViewModel.CountyCoordinators = countyMembers
@@ -144,35 +144,8 @@ namespace GCI_Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> AddMember(int rcpsId, int memberId)
         {
-            try
-            {
-                // Check if already a member
-                bool exists = await _context.RcpCountyMembers
-                    .AnyAsync(m => m.RcpsId == rcpsId && m.MemberId == memberId);
-
-                if (exists)
-                {
-                    return Json(new { success = false, message = "Member is already in this RCP." });
-                }
-
-                var newMember = new RcpCountyMember
-                {
-                    RcpsId = rcpsId,
-                    MemberId = memberId,
-                    IsLeader = false,
-                    Status = "Active",
-                    CreatedAt = DateTime.Now
-                };
-
-                _context.RcpCountyMembers.Add(newMember);
-                await _context.SaveChangesAsync();
-
-                return Json(new { success = true, message = "Member added successfully." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "An error occurred: " + ex.Message });
-            }
+            var response = await _rcpsService.AddMemberToRcpCountyAsync(rcpsId, memberId);
+            return Json(new { success = response.IsSuccess, message = response.Message });
         }
 
 

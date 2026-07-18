@@ -22,5 +22,10 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<GrowthCenterLeader>> UpdateGCLeaderAsync(GCLeaderDto dto);
         Task<ApiResponse<bool>> DeleteGCLeaderAsync(int id);
         Task<ApiResponse<bool>> ToggleGCLeaderStatusAsync(int id, bool isActive);
+        Task<ApiResponse<List<GrowthCenterLeader>>> GetGrowthCenterLeadersByCenterAsync(int centerId);
+
+        // ✅ Growth Center Members
+        Task<ApiResponse<List<GrowthCenterMember>>> GetGrowthCenterMembersAsync(int centerId);
+        Task<ApiResponse<bool>> AddMemberToGrowthCenterAsync(int centerId, int memberId);
     }
 }

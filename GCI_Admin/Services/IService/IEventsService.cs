@@ -25,17 +25,21 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<bool>> DeleteAnnualThemeAsync(int id);
         Task<ApiResponse<List<MonthlyTheme>>> GetAllMonthlyThemesAsync(string? assemblyName = null);
         Task<ApiResponse<bool>> DeleteMonthlyThemeAsync(int id);
-        Task<ApiResponse<AnnualTheme>> GetCurrentYearThemeAsync(string? assemblyName = null);
         Task<ApiResponse<MonthlyTheme>> GetCurrentMonthlyThemeAsync(string? assemblyName = null);
+        Task<ApiResponse<AnnualTheme>> GetCurrentYearThemeAsync(string? assemblyName = null);
         Task<ApiResponse<MonthlyTheme>> UpdateMonthlyThemeAsync(int id, MonthlyThemeDto dto, string? assemblyName = null);
         Task<ApiResponse<AnnualTheme>> UpdateAnnualThemeAsync(int id, AnnualThemeDto dto, string? assemblyName = null);
         Task<ApiResponse<List<Event>>> GetUpcomingEventsAsync();
         Task<ApiResponse<List<Event>>> GetEventsByDateRangeAsync(DateTime startDate, DateTime endDate);
         Task<ApiResponse<List<EventRegistration>>> GetEventRegistrationsByEventIdAsync(int eventId);
 
+        Task<ApiResponse<string>> SendPaymentReminderAsync(int id);
+        Task<ApiResponse<string>> SendBulkPaymentRemindersAsync(int eventId);
+        Task<ApiResponse<string>> SendAttendanceReminderAsync(int id);
+        Task<ApiResponse<string>> SendBulkAttendanceRemindersAsync(int eventId);
 
-
-
+        Task<ApiResponse<object>> CheckEventRegistrationAsync(string phone, int eventId);
+        Task<ApiResponse<int>> CheckPaymentStatusAsync(int registrationId);
+        Task<ApiResponse<bool>> UsherSubmitRegistrationAsync(GCI_Admin.Controllers.UsherRegistrationDto dto);
     }
 }
-

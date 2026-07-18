@@ -594,6 +594,38 @@ namespace GCI_Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdatePaymentStatus([FromBody] UpdatePaymentRequest request)
+        {
+            try
+            {
+                var registration = await _context.EventRegistrations
+                    .FirstOrDefaultAsync(r => r.RegistrationId == request.Id);
+
+                if (registration == null)
+                {
+                    return Json(new { success = false, message = "Registration not found." });
+                }
+
+                registration.PaymentStatusId = request.PaymentStatusId;
+                _context.EventRegistrations.Update(registration);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Payment status updated successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error updating payment status: {ex.Message}" });
+            }
+        }
+
+        public class UpdatePaymentRequest
+        {
+            public int Id { get; set; }
+            public int PaymentStatusId { get; set; }
+        }
+
+        [HttpPost]
         public async Task<IActionResult> SendEventNotification(int eventId, [FromBody] NotificationDto dto)
         {
             try
@@ -653,183 +685,29 @@ namespace GCI_Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> SendPaymentReminder(int id)
         {
-            try
-            {
-                var reg = await _context.EventRegistrations
-                    .Include(r => r.Event)
-                    .Include(r => r.Member)
-                    .FirstOrDefaultAsync(r => r.RegistrationId == id);
-                
-                if (reg == null) return Json(new { isSuccess = false, message = "Registration not found." });
-                if (reg.PaymentStatusId == 4) return Json(new { isSuccess = false, message = "User has already paid." });
-
-                string phone = reg.MemberId != 0 ? reg.Member?.Phone : reg.GuestPhone;
-                string email = reg.MemberId != 0 ? reg.Member?.Email : reg.GuestEmail;
-                string name = !string.IsNullOrWhiteSpace(reg.GuestName) ? reg.GuestName : (reg.MemberId != 0 ? reg.Member?.FirstName : "Guest");
-                string eventName = reg.Event?.Title ?? "the upcoming event";
-
-                if (string.IsNullOrEmpty(phone) && string.IsNullOrEmpty(email))
-                    return Json(new { isSuccess = false, message = "No contact information available for this user." });
-
-                string message = $"Hello {name}, we hope you're doing well. This is a gentle reminder that your payment for {eventName} is still pending." +
-                          $" \nPlease click the link to complete your payment." +
-                          $"https://portal.gospelcentresinternational.com/Register/Event/{reg.EventId}" +
-                          $" \nThank you and God bless!";
-
-                bool sent = false;
-                if (!string.IsNullOrEmpty(phone))
-                {
-                    await _communicationService.SendSmsAsync(phone, message);
-                    sent = true;
-                }
-
-                if (!string.IsNullOrEmpty(email) && !sent)
-                {
-                    await _communicationService.SendEmailAsync(email, $"Payment Reminder: {eventName}", message);
-                }
-
-                return Json(new { isSuccess = true, message = "Payment reminder sent successfully." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
+            var response = await _eventsService.SendPaymentReminderAsync(id);
+            return Json(response);
         }
 
         [HttpPost]
         public async Task<IActionResult> SendBulkPaymentReminders(int eventId)
         {
-            try
-            {
-                var unpaidRegistrations = await _context.EventRegistrations
-                    .Include(r => r.Event)
-                    .Include(r => r.Member)
-                    .Where(r => r.EventId == eventId && r.PaymentStatusId != 4)
-                    .ToListAsync();
-
-                if (!unpaidRegistrations.Any())
-                    return Json(new { isSuccess = false, message = "No unpaid registrations found for this event." });
-
-                int count = 0;
-                foreach (var reg in unpaidRegistrations)
-                {
-                    string phone = reg.MemberId != 0 ? reg.Member?.Phone : reg.GuestPhone;
-                    string email = reg.MemberId != 0 ? reg.Member?.Email : reg.GuestEmail;
-                    string name = !string.IsNullOrWhiteSpace(reg.GuestName) ? reg.GuestName : (reg.MemberId != 0 ? reg.Member?.FirstName : "Guest");
-                    string eventName = reg.Event?.Title ?? "the upcoming event";
-
-                    if (!string.IsNullOrEmpty(phone) || !string.IsNullOrEmpty(email))
-                    {
-                        string message = $"Hello {name}, we hope you're doing well. This is a gentle reminder that your payment for {eventName} is still pending." +
-                            $" \nPlease click the link to complete your payment." +
-                            $"https://portal.gospelcentresinternational.com/Register/Event/{reg.EventId}" +
-                            $" \nThank you and God bless!";
-                        if (!string.IsNullOrEmpty(phone))
-                        {
-                            await _communicationService.SendSmsAsync(phone, message);
-                        }
-                        else if (!string.IsNullOrEmpty(email))
-                        {
-                            await _communicationService.SendEmailAsync(email, $"Payment Reminder: {eventName}", message);
-                        }
-                        count++;
-                    }
-                }
-
-                return Json(new { isSuccess = true, message = $"Successfully sent payment reminders to {count} registrants." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
+            var response = await _eventsService.SendBulkPaymentRemindersAsync(eventId);
+            return Json(response);
         }
+
         [HttpPost]
         public async Task<IActionResult> SendAttendanceReminder(int id)
         {
-            try
-            {
-                var reg = await _context.EventRegistrations
-                    .Include(r => r.Event)
-                    .Include(r => r.Member)
-                    .FirstOrDefaultAsync(r => r.RegistrationId == id);
-                
-                if (reg == null) return Json(new { isSuccess = false, message = "Registration not found." });
-
-                string phone = reg.MemberId != 0 ? reg.Member?.Phone : reg.GuestPhone;
-                string email = reg.MemberId != 0 ? reg.Member?.Email : reg.GuestEmail;
-                string name = !string.IsNullOrWhiteSpace(reg.GuestName) ? reg.GuestName : (reg.MemberId != 0 ? reg.Member?.FirstName : "Guest");
-                string eventName = reg.Event?.Title ?? "the upcoming event";
-
-                if (string.IsNullOrEmpty(phone) && string.IsNullOrEmpty(email))
-                    return Json(new { isSuccess = false, message = "No contact information available for this user." });
-
-               
-                string message = $"Hello {name}, we hope you're doing well. This is a Gentle reminder about your upcoming attendance for {eventName}. We are looking forward to welcoming you and sharing this special time together. We can't wait to see you. Thank you and God bless!";
-                bool sent = false;
-                if (!string.IsNullOrEmpty(phone))
-                {
-                    await _communicationService.SendSmsAsync(phone, message);
-                    sent = true;
-                }
-
-                if (!string.IsNullOrEmpty(email) && !sent)
-                {
-                    await _communicationService.SendEmailAsync(email, $"Attendance Reminder: {eventName}", message);
-                }
-
-                return Json(new { isSuccess = true, message = "Attendance reminder sent successfully." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
+            var response = await _eventsService.SendAttendanceReminderAsync(id);
+            return Json(response);
         }
 
         [HttpPost]
         public async Task<IActionResult> SendBulkAttendanceReminders(int eventId)
         {
-            try
-            {
-                var registrations = await _context.EventRegistrations
-                    .Include(r => r.Event)
-                    .Include(r => r.Member)
-                    .Where(r => r.EventId == eventId && r.HasAttended != true)
-                    .ToListAsync();
-
-                if (!registrations.Any())
-                    return Json(new { isSuccess = false, message = "No registrations pending attendance found for this event." });
-
-                int count = 0;
-                foreach (var reg in registrations)
-                {
-                    string phone = reg.MemberId != 0 ? reg.Member?.Phone : reg.GuestPhone;
-                    string email = reg.MemberId != 0 ? reg.Member?.Email : reg.GuestEmail;
-                    string name = !string.IsNullOrWhiteSpace(reg.GuestName) ? reg.GuestName : (reg.MemberId != 0 ? reg.Member?.FirstName : "Guest");
-                    string eventName = reg.Event?.Title ?? "the upcoming event";
-
-                    if (!string.IsNullOrEmpty(phone) || !string.IsNullOrEmpty(email))
-                    {
-                        string message = $"Hello {name}, we hope you're doing well. This is a Gentle reminder about your upcoming attendance for {eventName}. We are looking forward to welcoming you and sharing this special time together. We can't wait to see you. Thank you and God bless!";
-                        if (!string.IsNullOrEmpty(phone))
-                        {
-                            await _communicationService.SendSmsAsync(phone, message);
-                        }
-                        else if (!string.IsNullOrEmpty(email))
-                        {
-                            await _communicationService.SendEmailAsync(email, $"Attendance Reminder: {eventName}", message);
-                        }
-                        count++;
-                    }
-                }
-
-                return Json(new { isSuccess = true, message = $"Successfully sent attendance reminders to {count} registrants." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
+            var response = await _eventsService.SendBulkAttendanceRemindersAsync(eventId);
+            return Json(response);
         }
     }
 }
-
-

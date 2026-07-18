@@ -627,5 +627,105 @@ namespace GCI_Admin.Services.Service
             }
             return response;
         }
+        public async Task<ApiResponse<List<RcpCountyMember>>> GetRcpCountyMembersByRcpsAsync(int rcpsId)
+        {
+            var response = new ApiResponse<List<RcpCountyMember>>();
+            try
+            {
+                var result = await _rcpsRepository.GetRcpCountyMembersByRcpsAsync(rcpsId);
+                
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "RCP county members retrieved successfully";
+                response.Code = "200";
+                response.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in GetRcpCountyMembersByCountyAsync service: {ex}");
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<bool>> AddMemberToRcpCountyAsync(int rcpsId, int memberId)
+        {
+            var response = new ApiResponse<bool>();
+            try
+            {
+                var newMember = new RcpCountyMember
+                {
+                    RcpsId = rcpsId,
+                    MemberId = memberId,
+                    IsLeader = false,
+                    Status = "Active",
+                    CreatedAt = DateTime.Now
+                };
+
+                var result = await _rcpsRepository.AddMemberToRcpCountyAsync(newMember);
+
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                Loggers.EventLogs($"Member ID {memberId} successfully added to RCP ID {rcpsId}.");
+
+                response.Data = result.Data;
+                response.Message = result.Message;
+                response.Code = "200";
+                response.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in AddMemberToRcpCountyAsync service: {ex}");
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<RcpsInvite>> GetRcpsInviteByCodeAsync(string code)
+        {
+            var response = new ApiResponse<RcpsInvite>();
+            try
+            {
+                var result = await _rcpsRepository.GetRcpsInviteByCodeAsync(code);
+                
+                if (!result.Success)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "404";
+                    response.Message = result.Message;
+                    return response;
+                }
+
+                response.Data = result.Data;
+                response.Message = "Rcps Invite retrieved successfully";
+                response.Code = "200";
+                response.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+                Loggers.DoLogs($"Error in GetRcpsInviteByCodeAsync service: {ex}");
+            }
+            return response;
+        }
     }
 }
