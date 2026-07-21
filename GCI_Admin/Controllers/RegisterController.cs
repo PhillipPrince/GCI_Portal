@@ -108,6 +108,21 @@ namespace GCI_Admin.Controllers
                 return BadRequest(new { isSuccess = false, message = result.Message });
             }
         }
+
+        [HttpPost("Register/SubmitGroupRest")]
+        public async Task<IActionResult> SubmitGroupRest([FromBody] SubmitGroupRestDto dto)
+        {
+            if (dto == null || dto.guests == null)
+                return BadRequest(new { isSuccess = false, message = "Invalid data." });
+
+            var result = await _eventsService.SubmitGroupRestAsync(dto);
+
+            if (result.IsSuccess)
+            {
+                return Ok(new { isSuccess = true, message = result.Message, groupId = result.Data });
+            }
+            return BadRequest(new { isSuccess = false, message = result.Message });
+        }
     }
 
     public class UsherRegistrationDto
@@ -120,5 +135,11 @@ namespace GCI_Admin.Controllers
         public string guestAgeGroup { get; set; }
         public decimal amountPaid { get; set; }
         public bool isPaid { get; set; }
+    }
+
+    public class SubmitGroupRestDto
+    {
+        public int primaryRegistrationId { get; set; }
+        public List<UsherRegistrationDto> guests { get; set; }
     }
 }

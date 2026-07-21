@@ -1109,10 +1109,79 @@ namespace GCI_Admin.DBOperations.Repositories
         {
             try
             {
+                try 
+                {
+                    await _context.Database.ExecuteSqlRawAsync("ALTER TABLE EventRegistrations ADD GroupId nvarchar(max) NULL");
+                } 
+                catch { }
+
                 var registrations = await _context.EventRegistrations
                     .Where(r => r.EventId == eventId)
                     .OrderByDescending(r => r.RegistrationDate)
                     .ToListAsync();
+
+                bool changed = false;
+
+                // Heal orphaned primary registrations whose GroupId might have been overwritten by external API callback
+                var ungroupedPrimary = registrations.Where(r => string.IsNullOrEmpty(r.GroupId)).ToList();
+                var groupedRegistrations = registrations.Where(r => !string.IsNullOrEmpty(r.GroupId)).ToList();
+                
+                foreach (var primary in ungroupedPrimary)
+                {
+                    var matchingGroup = groupedRegistrations
+                        .Where(r => r.GuestPhone == primary.GuestPhone && 
+                                    Math.Abs((r.RegistrationDate - primary.RegistrationDate).TotalMinutes) < 5)
+                        .FirstOrDefault();
+                        
+                    if (matchingGroup != null)
+                    {
+                        primary.GroupId = matchingGroup.GroupId;
+                        changed = true;
+                    }
+                }
+
+                var groups = registrations.Where(r => !string.IsNullOrEmpty(r.GroupId)).GroupBy(r => r.GroupId);
+                foreach (var group in groups)
+                {
+                    // If any record in the group is Paid (4), mark all other Pending records as Paid (4)
+                    if (group.Any(r => r.PaymentStatusId == 4))
+                    {
+                        foreach (var reg in group.Where(r => r.PaymentStatusId != 4))
+                        {
+                            reg.PaymentStatusId = 4;
+                            changed = true;
+                        }
+                    }
+                    // If any record is Failed/Cancelled (3), mark all Pending records as Failed (3)
+                    else if (group.Any(r => r.PaymentStatusId == 3))
+                    {
+                        foreach (var reg in group.Where(r => r.PaymentStatusId == 2)) // Only override Pending ones
+                        {
+                            reg.PaymentStatusId = 3;
+                            changed = true;
+                        }
+                    }
+
+                    // Distribute AmountPaid evenly among all members in the group
+                    var totalAmount = group.Sum(r => r.AmountPaid);
+                    if (totalAmount > 0)
+                    {
+                        var perPerson = totalAmount / group.Count();
+                        foreach (var reg in group)
+                        {
+                            if (reg.AmountPaid != perPerson)
+                            {
+                                reg.AmountPaid = perPerson;
+                                changed = true;
+                            }
+                        }
+                    }
+                }
+
+                if (changed)
+                {
+                    await _context.SaveChangesAsync();
+                }
 
                 var memberIds = registrations
                     .Where(r => r.MemberId != 0)
@@ -1196,9 +1265,8 @@ namespace GCI_Admin.DBOperations.Repositories
         public async Task<List<EventRegistration>> GetEventRegistrationsByPhoneAndEventAsync(string phone, int eventId)
         {
             return await _context.EventRegistrations
-                .Include(r => r.Member)
                 .Where(r => r.EventId == eventId && 
-                            (r.GuestPhone == phone || (r.Member != null && r.Member.Phone == phone)))
+                            (r.GuestPhone == phone ))
                 .OrderByDescending(r => r.RegistrationDate)
                 .ToListAsync();
         }

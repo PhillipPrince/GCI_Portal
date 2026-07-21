@@ -1149,6 +1149,66 @@ namespace GCI_Admin.Services.Service
             }
             return response;
         }
+
+        public async Task<ApiResponse<string>> SubmitGroupRestAsync(GCI_Admin.Controllers.SubmitGroupRestDto dto)
+        {
+            var response = new ApiResponse<string>();
+            try
+            {
+                string groupId = Guid.NewGuid().ToString("N");
+                if (dto.primaryRegistrationId > 0)
+                {
+                    var primaryRegistration = await _eventsRepository.GetEventRegistrationByIdAsync(dto.primaryRegistrationId);
+                    if (primaryRegistration != null)
+                    {
+                        primaryRegistration.GroupId = groupId;
+                        await _eventsRepository.UpdateEventRegistrationAsync(primaryRegistration);
+                    }
+                }
+                else if (dto.guests != null && dto.guests.Any())
+                {
+                    var firstGuest = dto.guests.First();
+                    var phoneRegistrations = await _eventsRepository.GetEventRegistrationsByPhoneAndEventAsync(firstGuest.guestPhone, firstGuest.eventId);
+                    var primaryRegistration = phoneRegistrations.OrderByDescending(r => r.RegistrationDate).FirstOrDefault();
+                    if (primaryRegistration != null && string.IsNullOrEmpty(primaryRegistration.GroupId))
+                    {
+                        primaryRegistration.GroupId = groupId;
+                        await _eventsRepository.UpdateEventRegistrationAsync(primaryRegistration);
+                    }
+                }
+
+                foreach (var guest in dto.guests)
+                {
+                    var registration = new EventRegistration
+                    {
+                        EventId = guest.eventId,
+                        MemberId = 0,
+                        GuestName = guest.guestName,
+                        GuestEmail = guest.guestEmail,
+                        GuestPhone = PhoneHelper.NormalizeKenyanPhoneOrEmail(guest.guestPhone),
+                        GuestAssembly = guest.guestAssembly,
+                        GuestAgeGroup = guest.guestAgeGroup,
+                        PaymentStatusId = guest.isPaid ? 4 : 2,
+                        AmountPaid = guest.amountPaid,
+                        RegistrationDate = DateTime.UtcNow,
+                        HasAttended = false,
+                        GroupId = groupId
+                    };
+                    await _eventsRepository.AddEventRegistrationAsync(registration);
+                }
+
+                response.IsSuccess = true;
+                response.Message = "Group submitted successfully.";
+                response.Data = groupId;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = "An error occurred: " + ex.Message;
+                Loggers.DoLogs($"Error in SubmitGroupRestAsync: {ex}");
+            }
+            return response;
+        }
     }
 }
 

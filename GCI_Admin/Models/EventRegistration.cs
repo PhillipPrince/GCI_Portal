@@ -27,6 +27,7 @@ namespace GCI_Admin.Models
 
         public bool? HasAttended { get; set; }
         public string? CheckoutRequestID { get; set; }
+        public string? GroupId { get; set; }
 
         [ForeignKey("EventId")]
        public Event Event { get; set; }

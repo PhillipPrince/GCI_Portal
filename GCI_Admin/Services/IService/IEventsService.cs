@@ -41,5 +41,6 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<object>> CheckEventRegistrationAsync(string phone, int eventId);
         Task<ApiResponse<int>> CheckPaymentStatusAsync(int registrationId);
         Task<ApiResponse<bool>> UsherSubmitRegistrationAsync(GCI_Admin.Controllers.UsherRegistrationDto dto);
+        Task<ApiResponse<string>> SubmitGroupRestAsync(GCI_Admin.Controllers.SubmitGroupRestDto dto);
     }
 }

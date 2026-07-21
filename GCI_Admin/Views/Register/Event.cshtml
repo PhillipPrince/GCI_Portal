@@ -189,20 +189,11 @@
                 <form id="registrationForm">
                     <input type="hidden" id="eventId" value="@targetEvent.EventId" />
 
-                    <div class="form-group">
-                        <label for="guestName">Full Name <span style="color:red;">*</span></label>
-                        <input type="text" id="guestName" class="form-control" required placeholder="e.g. John Doe">
+                    <div id="guestsContainer">
+                        <!-- Dynamic guest inputs will be injected here -->
                     </div>
-
-                    <div class="form-group">
-                        <label for="guestPhone">Phone Number <span style="color:red;">*</span></label>
-                        <input type="tel" id="guestPhone" class="form-control" required placeholder="e.g. +254712345678">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="guestEmail">Email Address (Optional)</label>
-                        <input type="email" id="guestEmail" class="form-control" placeholder="e.g. john@example.com">
-                    </div>
+                    
+                    <button type="button" id="addPersonBtn" class="btn btn-outline-primary" style="margin-bottom: 20px; padding: 8px 16px; border-radius: 8px; border: 1px solid #1e4a6b; background: transparent; color: #1e4a6b; cursor: pointer; font-weight: 600;">+ Add Another Person</button>
 
                     @if (!string.IsNullOrWhiteSpace(targetEvent.AllowedAgeGroups))
                     {
@@ -215,22 +206,26 @@
                             }
                         } catch { }
 
-                        if (groups.Any())
-                        {
-                            <div class="form-group" id="ageGroupContainer">
-                                <label>Age Group <span style="color:red;">*</span></label>
-                                <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 8px;">
-                                    @foreach (var ageGroup in groups)
-                                    {
-                                        <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                                            <input type="radio" name="guestAgeGroup" value="@ageGroup" required>
-                                            @ageGroup
-                                        </label>
-                                    }
-                                </div>
-                            </div>
-                        }
+                        <script>
+                            window.allowedAgeGroups = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(groups));
+                        </script>
                     }
+                    else
+                    {
+                        <script>
+                            window.allowedAgeGroups = [];
+                        </script>
+                    }
+
+                    <div class="form-group">
+                        <label for="guestPhone">Phone Number <span style="color:red;">*</span></label>
+                        <input type="tel" id="guestPhone" class="form-control" required placeholder="e.g. +254712345678">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="guestEmail">Email Address (Optional)</label>
+                        <input type="email" id="guestEmail" class="form-control" placeholder="e.g. john@example.com">
+                    </div>
 
                     <div class="form-group">
                         <label for="assemblySelect">Your Assembly / Branch <span style="color:red;">*</span></label>
@@ -252,8 +247,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="amountPaid">Amount to Pay <span style="color:red;">*</span></label>
-                        <input type="number" id="amountPaid" class="form-control" required value="@(targetEvent.IsPaid ? targetEvent.Price : 0)" min="0" step="0.01">
+                        <label for="amountPaid">Total Amount to Pay <span style="color:red;">*</span></label>
+                        <input type="number" id="amountPaid" class="form-control" required value="@(targetEvent.IsPaid ? targetEvent.Price : 0)" min="0" step="0.01" readonly>
                     </div>
 
                     <button type="submit" id="submitBtn" class="btn-submit">Complete Registration</button>
@@ -279,6 +274,100 @@
             const otherAssemblyInput = document.getElementById('otherAssembly');
             const submitBtn = document.getElementById('submitBtn');
             const guestPhoneInput = document.getElementById('guestPhone');
+            const guestsContainer = document.getElementById('guestsContainer');
+            const addPersonBtn = document.getElementById('addPersonBtn');
+            const amountPaidInput = document.getElementById('amountPaid');
+            
+            const basePrice = @(targetEvent.IsPaid ? targetEvent.Price : 0);
+            let guestCount = 0;
+
+
+
+            function addGuestEntry(record = null) {
+                const index = guestCount++;
+                const guestDiv = document.createElement('div');
+                guestDiv.className = 'guest-entry event-info';
+                guestDiv.style = 'background-color: #fff; border: 1px solid #cbd5e6; margin-bottom:15px; border-left: 4px solid #1e4a6b; padding: 12px; border-radius: 8px; position: relative;';
+                
+                let isPaid = record && record.paymentStatusId === 4;
+                let isPaidHtml = isPaid ? `<span style="float: right; color: green; font-weight: bold; background: #e6f4ea; padding: 2px 8px; border-radius: 12px; font-size: 0.85rem;">Paid</span>` : '';
+                if(record && record.paymentStatusId !== 4) {
+                    isPaidHtml = `<span style="float: right; color: orange; font-weight: bold; background: #fef0db; padding: 2px 8px; border-radius: 12px; font-size: 0.85rem;" class="status-badge">Pending</span>`;
+                }
+
+                let html = `
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label>Full Name ${isPaidHtml} <span style="color:red;">*</span></label>
+                        <input type="text" class="form-control guest-name" required placeholder="e.g. John Doe" value="${record ? (record.guestName || '') : ''}" ${isPaid ? 'readonly' : ''}>
+                    </div>
+                `;
+
+                if (window.allowedAgeGroups && window.allowedAgeGroups.length > 0) {
+                    html += `
+                        <div class="form-group guest-age-group-container" style="margin-bottom: 0;">
+                            <label>Age Group <span style="color:red;">*</span></label>
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                    `;
+                    window.allowedAgeGroups.forEach(group => {
+                        let isChecked = record && record.guestAgeGroup === group ? 'checked' : '';
+                        html += `
+                                <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                    <input type="radio" name="guestAgeGroup_${index}" class="guest-age-group" value="${group}" required ${isChecked} ${isPaid ? 'disabled' : ''}>
+                                    ${group}
+                                </label>
+                        `;
+                    });
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Add a hidden input to track if this record is already paid
+                html += `<input type="hidden" class="guest-is-paid" value="${isPaid ? 'true' : 'false'}">`;
+
+                if (!isPaid && index > 0) {
+                    html += `
+                        <button type="button" class="remove-guest-btn" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 20px; line-height: 1;">&times;</button>
+                    `;
+                }
+
+                guestDiv.innerHTML = html;
+                
+                if (!isPaid && index > 0) {
+                    const removeBtn = guestDiv.querySelector('.remove-guest-btn');
+                    if(removeBtn) {
+                        removeBtn.addEventListener('click', function() {
+                            guestDiv.remove();
+                            updateTotalAmount();
+                        });
+                    }
+                }
+
+                guestsContainer.appendChild(guestDiv);
+                updateTotalAmount();
+            }
+
+            function updateTotalAmount() {
+                const guestEntries = guestsContainer.querySelectorAll('.guest-entry');
+                let unpaidCount = 0;
+                guestEntries.forEach(entry => {
+                    const isPaidInput = entry.querySelector('.guest-is-paid');
+                    if (isPaidInput && isPaidInput.value === 'false') {
+                        unpaidCount++;
+                    }
+                });
+                amountPaidInput.value = (basePrice * unpaidCount).toFixed(2);
+            }
+
+            if(addPersonBtn) {
+                addPersonBtn.addEventListener('click', () => addGuestEntry());
+            }
+
+            // Initialize first guest
+            if(guestsContainer) {
+                addGuestEntry();
+            }
 
             let phoneCheckTimeout;
             guestPhoneInput.addEventListener('input', function() {
@@ -286,37 +375,37 @@
                 const phone = this.value.trim();
                 const eventId = document.getElementById('eventId').value;
                 if (phone.length >= 9) {
+                    // show spinner
+                    let spinner = document.getElementById('phone-spinner');
+                    if(!spinner) {
+                        spinner = document.createElement('span');
+                        spinner.id = 'phone-spinner';
+                        spinner.innerHTML = ' <small style="color: #1e4a6b;">Loading existing records...</small>';
+                        guestPhoneInput.parentNode.appendChild(spinner);
+                    }
+
                     phoneCheckTimeout = setTimeout(() => {
                         fetch(`/Register/CheckRegistration?phone=${encodeURIComponent(phone)}&eventId=${eventId}`)
                             .then(res => res.json())
                             .then(data => {
-                                if (data.isRegistered && data.records && data.records.length > 0) {
-                                    let detailsHtml = '<div style="text-align: left; font-size: 14px; max-height: 200px; overflow-y: auto; margin-top: 10px;">';
-                                    data.records.forEach((record, index) => {
-                                        let statusText = record.paymentStatusId === 4 ? '<span style="color: green;">Paid</span>' : '<span style="color: orange;">Pending Payment</span>';
-                                        detailsHtml += `<div style="padding: 10px; border-bottom: 1px solid #ddd;">
-                                            <strong>Name:</strong> ${record.guestName || 'N/A'}<br/>
-                                            <strong>Status:</strong> ${statusText}<br/>
-                                        </div>`;
-                                    });
-                                    detailsHtml += '</div>';
+                                const sp = document.getElementById('phone-spinner');
+                                if(sp) sp.remove();
 
-                                    Swal.fire({
-                                        title: 'Existing Registrations Found',
-                                        html: `The following registrations exist for this phone number:<br/>${detailsHtml}<br/>Do you want to proceed and register/pay for someone else?`,
-                                        icon: 'info',
-                                        showCancelButton: true,
-                                        confirmButtonText: 'Yes, proceed',
-                                        cancelButtonText: 'No, clear number'
-                                    }).then((result) => {
-                                        if (!result.isConfirmed) {
-                                            guestPhoneInput.value = '';
-                                        }
+                                if (data.isRegistered && data.records && data.records.length > 0) {
+                                    guestsContainer.innerHTML = '';
+                                    guestCount = 0;
+                                    
+                                    data.records.forEach(record => {
+                                        addGuestEntry(record);
                                     });
                                 }
                             })
-                            .catch(err => console.error(err));
-                    }, 500);
+                            .catch(err => {
+                                const sp = document.getElementById('phone-spinner');
+                                if(sp) sp.remove();
+                                console.error(err);
+                            });
+                    }, 800);
                 }
             });
 
@@ -333,37 +422,66 @@
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
 
+                const guestEntries = document.querySelectorAll('.guest-entry');
+                let unpaidGuests = [];
+                let hasAgeGroup = window.allowedAgeGroups && window.allowedAgeGroups.length > 0;
+
+                let isValid = true;
+                guestEntries.forEach((entry, idx) => {
+                    const isPaid = entry.querySelector('.guest-is-paid').value === 'true';
+                    if (!isPaid) {
+                        const name = entry.querySelector('.guest-name').value.trim();
+                        if (!name) isValid = false;
+
+                        let ageGroup = '';
+                        if (hasAgeGroup) {
+                            const ageGroupRadio = entry.querySelector(`input[name^="guestAgeGroup_"]:checked`);
+                            if (!ageGroupRadio) isValid = false;
+                            else ageGroup = ageGroupRadio.value;
+                        }
+
+                        unpaidGuests.push({
+                            guestName: name,
+                            guestAgeGroup: ageGroup
+                        });
+                    }
+                });
+
+                if (!isValid) {
+                    Swal.fire('Error', 'Please fill out all names and age groups for every unpaid person.', 'error');
+                    return;
+                }
+
+                if (unpaidGuests.length === 0) {
+                    Swal.fire('Info', 'All guests listed are already paid. No further payment needed.', 'info');
+                    return;
+                }
+
                 const eventId = document.getElementById('eventId').value;
-                const guestName = document.getElementById('guestName').value;
                 const guestPhone = guestPhoneInput.value;
                 const guestEmail = document.getElementById('guestEmail').value;
                 const amountPaid = document.getElementById('amountPaid').value;
-                const ageGroupContainer = document.getElementById('ageGroupContainer');
-                
-                let guestAgeGroup = '';
-                if (ageGroupContainer) {
-                    const ageGroupRadio = document.querySelector('input[name="guestAgeGroup"]:checked');
-                    guestAgeGroup = ageGroupRadio ? ageGroupRadio.value : '';
-                }
 
                 let assembly = assemblySelect.value;
-
                 if (assembly === 'Other') {
                     assembly = otherAssemblyInput.value;
                 }
 
-                if (!guestName || !guestPhone || !assembly || !amountPaid || (ageGroupContainer && !guestAgeGroup)) {
+                if (!guestPhone || !assembly || !amountPaid) {
                     Swal.fire('Error', 'Please fill all required fields.', 'error');
                     return;
                 }
 
+                const firstGuest = unpaidGuests[0];
+                const restGuests = unpaidGuests.slice(1);
+
                 const payload = {
                     eventId: parseInt(eventId, 10),
-                    guestName: guestName,
+                    guestName: firstGuest.guestName,
                     guestPhone: guestPhone,
                     guestEmail: guestEmail,
                     guestAssembly: assembly,
-                    guestAgeGroup: guestAgeGroup,
+                    guestAgeGroup: firstGuest.guestAgeGroup,
                     amountPaid: parseFloat(amountPaid) 
                 };
 
@@ -380,11 +498,41 @@
                     body: JSON.stringify(payload)
                 })
                 .then(response => response.json().then(data => ({ status: response.status, body: data })))
-                .then(res => {
+                .then(async res => {
                     if (res.status >= 200 && res.status < 300 && res.body.isSuccess !== false) {
                         const amtPaid = parseFloat(amountPaid);
-                        if (amtPaid > 0 && res.body.data && res.body.data.registrationId) {
-                            let regId = res.body.data.registrationId;
+                        let regId = 0;
+                        if (res.body.data && res.body.data.registrationId) {
+                            regId = res.body.data.registrationId;
+                        }
+                        
+                        // Immediately sync the rest of the group securely to pending
+                        if (restGuests.length > 0) {
+                            const restPayload = {
+                                primaryRegistrationId: regId,
+                                guests: restGuests.map(g => ({
+                                    eventId: parseInt(eventId, 10),
+                                    guestName: g.guestName,
+                                    guestPhone: guestPhone,
+                                    guestEmail: guestEmail,
+                                    guestAssembly: assembly,
+                                    guestAgeGroup: g.guestAgeGroup,
+                                    amountPaid: 0,
+                                    isPaid: false
+                                }))
+                            };
+                            try {
+                                await fetch('/Register/SubmitGroupRest', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(restPayload)
+                                });
+                            } catch(e) {
+                                console.error(e);
+                            }
+                        }
+
+                        if (regId && amtPaid > 0) {
                             Swal.fire({
                                 title: 'Awaiting Payment...',
                                 text: 'Please enter your M-Pesa PIN on your phone to confirm registration.',
@@ -410,6 +558,11 @@
                                                     }).then(() => {
                                                         window.location.reload();
                                                     });
+                                                } else if (statusData.paymentStatusId === 3) {
+                                                    clearInterval(pollInterval);
+                                                    submitBtn.disabled = false;
+                                                    submitBtn.innerText = 'Complete Registration';
+                                                    Swal.fire('Payment Failed', 'M-Pesa payment failed or was cancelled.', 'error');
                                                 } else if (attempts >= maxAttempts) {
                                                     clearInterval(pollInterval);
                                                     submitBtn.disabled = false;
@@ -429,6 +582,7 @@
                                 }
                             });
                         } else {
+                            // Free event or fallback
                             Swal.fire({
                                 title: 'Success!',
                                 text: 'You have successfully registered for this event.',
