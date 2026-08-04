@@ -17,18 +17,20 @@
     bool isGcLeader = roleId == 4;
     
     // Customize page based on role
-    string pageTitle = isAdmin ? "Meeting Attendance Dashboard" :
-                       (isPastor ? "Meeting Attendance Overview" : "Meeting Attendance");
-    string welcomeMessage = isAdmin ? "Complete overview of church service attendance and demographics" :
+    string pageTitle = isFinance ? "Meeting Collections Verification" :
+                       (isAdmin ? "Meeting Attendance Dashboard" :
+                       (isPastor ? "Meeting Attendance Overview" : "Meeting Attendance"));
+    string welcomeMessage = isFinance ? "Verify and inspect cash collections for church meetings" :
+                           (isAdmin ? "Complete overview of church service attendance and demographics" :
                            (isPastor ? "Track your congregation's attendance patterns" :
-                           "View meeting attendance records");
+                           "View meeting attendance records"));
 }
 
 <!-- Page Header -->
 <div class="row mb-4">
     <div class="col-md-8">
         <h2 class="fw-bold mb-1">
-            <i class="fa fa-church me-2 text-primary"></i>@pageTitle
+            <i class="fa @(isFinance ? "fa-money-bill-wave" : "fa-church") me-2 text-primary"></i>@pageTitle
         </h2>
         <p class="text-muted mb-0">@welcomeMessage</p>
         @if (isGcLeader)

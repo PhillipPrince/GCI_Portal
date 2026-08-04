@@ -1,4 +1,14 @@
 @model List<GCI_Admin.Models.MeetingAttendance>
+@using System.Security.Claims
+
+@{
+    var roleIdClaim = User.FindFirst("RoleId")?.Value ??
+                     User.FindFirst(ClaimTypes.Role)?.Value ??
+                     "0";
+    int.TryParse(roleIdClaim, out int roleId);
+    bool isFinance = roleId == 6;
+    bool isAdmin = roleId == 1 || roleId == 2;
+}
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
@@ -8,11 +18,14 @@
                     <th>#</th>
                     <th>Meeting Type</th>
                     <th>Meeting Date</th>
-                    <th>Total Attendees</th>
-                    <th>Male</th>
-                    <th>Female</th>
-                    <th>Children</th>
-                    <th>Remarks</th>
+                    @if (!isFinance)
+                    {
+                        <th>Total Attendees</th>
+                        <th>Male</th>
+                        <th>Female</th>
+                        <th>Children</th>
+                        <th>Remarks</th>
+                    }
                     <th>Recorded By</th>
                     <th>Created At</th>
                     <th>Actions</th>
@@ -34,21 +47,24 @@
                     <th>
                         <input type="text" placeholder="Search Date" class="form-control form-control-sm date-filter" />
                     </th>
-                    <th>
-                        <input type="text" placeholder="Min Attendees" class="form-control form-control-sm number-filter" />
-                    </th>
-                    <th>
-                        <input type="text" placeholder="Min Male" class="form-control form-control-sm number-filter" />
-                    </th>
-                    <th>
-                        <input type="text" placeholder="Min Female" class="form-control form-control-sm number-filter" />
-                    </th>
-                    <th>
-                        <input type="text" placeholder="Min Children" class="form-control form-control-sm number-filter" />
-                    </th>
-                    <th>
-                        <input type="text" placeholder="Search Remarks" class="form-control form-control-sm" />
-                    </th>
+                    @if (!isFinance)
+                    {
+                        <th>
+                            <input type="text" placeholder="Min Attendees" class="form-control form-control-sm number-filter" />
+                        </th>
+                        <th>
+                            <input type="text" placeholder="Min Male" class="form-control form-control-sm number-filter" />
+                        </th>
+                        <th>
+                            <input type="text" placeholder="Min Female" class="form-control form-control-sm number-filter" />
+                        </th>
+                        <th>
+                            <input type="text" placeholder="Min Children" class="form-control form-control-sm number-filter" />
+                        </th>
+                        <th>
+                            <input type="text" placeholder="Search Remarks" class="form-control form-control-sm" />
+                        </th>
+                    }
                     <th>
                         <input type="text" placeholder="Search User ID" class="form-control form-control-sm" />
                     </th>
@@ -119,61 +135,64 @@
                                 <div class="small text-muted">@meeting.MeetingDate.ToString("hh:mm tt")</div>
                             </td>
                             
-                            <!-- Total Attendees -->
-                            <td class="text-center">
-                                <span class="badge bg-primary fs-6">@meeting.TotalAttendees.ToString("N0")</span>
-                            </td>
-                            
-                            <!-- Male Count -->
-                            <td class="text-center">
-                                @if (meeting.MaleCount.HasValue)
-                                {
-                                    <span class="badge bg-info">@meeting.MaleCount.Value.ToString("N0")</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">—</span>
-                                }
-                            </td>
-                            
-                            <!-- Female Count -->
-                            <td class="text-center">
-                                @if (meeting.FemaleCount.HasValue)
-                                {
-                                    <span class="badge bg-success">@meeting.FemaleCount.Value.ToString("N0")</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">—</span>
-                                }
-                            </td>
-                            
-                            <!-- Children Count -->
-                            <td class="text-center">
-                                @if (meeting.ChildrenCount.HasValue)
-                                {
-                                    <span class="badge bg-warning text-dark">@meeting.ChildrenCount.Value.ToString("N0")</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">—</span>
-                                }
-                            </td>
-                            
-                            <!-- Remarks -->
-                            <td>
-                                @if (!string.IsNullOrEmpty(meeting.Remarks))
-                                {
-                                    <span class="text-muted" data-bs-toggle="tooltip" title="@meeting.Remarks">
-                                        <i class="fa fa-comment me-1"></i>
-                                        @(meeting.Remarks.Length > 50 ? meeting.Remarks.Substring(0, 50) + "..." : meeting.Remarks)
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">—</span>
-                                }
-                            </td>
+                            @if (!isFinance)
+                            {
+                                <!-- Total Attendees -->
+                                <td class="text-center">
+                                    <span class="badge bg-primary fs-6">@meeting.TotalAttendees.ToString("N0")</span>
+                                </td>
+                                
+                                <!-- Male Count -->
+                                <td class="text-center">
+                                    @if (meeting.MaleCount.HasValue)
+                                    {
+                                        <span class="badge bg-info">@meeting.MaleCount.Value.ToString("N0")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                
+                                <!-- Female Count -->
+                                <td class="text-center">
+                                    @if (meeting.FemaleCount.HasValue)
+                                    {
+                                        <span class="badge bg-success">@meeting.FemaleCount.Value.ToString("N0")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                
+                                <!-- Children Count -->
+                                <td class="text-center">
+                                    @if (meeting.ChildrenCount.HasValue)
+                                    {
+                                        <span class="badge bg-warning text-dark">@meeting.ChildrenCount.Value.ToString("N0")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                
+                                <!-- Remarks -->
+                                <td>
+                                    @if (!string.IsNullOrEmpty(meeting.Remarks))
+                                    {
+                                        <span class="text-muted" data-bs-toggle="tooltip" title="@meeting.Remarks">
+                                            <i class="fa fa-comment me-1"></i>
+                                            @(meeting.Remarks.Length > 50 ? meeting.Remarks.Substring(0, 50) + "..." : meeting.Remarks)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                            }
                             
                             <!-- Recorded By -->
                             <td class="text-center">
@@ -191,25 +210,40 @@
                             <!-- Actions -->
                             <td class="text-center">
                                 <div class="btn-group" role="group">
-                                    <a href="@Url.Action("MeetingDetails", "Meetings", new { id = meeting.MeetingAttendancesId })"
-                                           class="btn btn-sm btn-outline-info"
-                                           data-bs-toggle="tooltip"
-                                           title="View Meeting Details">
-                                        <i class="fa fa-eye me-1"></i> View
-                                    </a>
-                                    <a href="@Url.Action("EditMeeting", "Meeting", new { id = meeting.MeetingAttendancesId })"
-                                           class="btn btn-sm btn-outline-warning"
-                                           data-bs-toggle="tooltip"
-                                           title="Edit Meeting">
-                                        <i class="fa fa-edit me-1"></i> Edit
-                                    </a>
-                                    <button type="button"
-                                            class="btn btn-sm btn-outline-danger"
-                                            onclick="deleteMeeting(@meeting.MeetingAttendancesId)"
-                                            data-bs-toggle="tooltip"
-                                            title="Delete Meeting">
-                                        <i class="fa fa-trash me-1"></i> Delete
-                                    </button>
+                                    @if (isFinance)
+                                    {
+                                        <a href="@Url.Action("MeetingDetails", "Meetings", new { id = meeting.MeetingAttendancesId })"
+                                               class="btn btn-sm btn-primary"
+                                               data-bs-toggle="tooltip"
+                                               title="Verify / View Collection Details">
+                                            <i class="fa fa-money-bill-wave me-1"></i> Verify / View Collections
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("MeetingDetails", "Meetings", new { id = meeting.MeetingAttendancesId })"
+                                               class="btn btn-sm btn-outline-info"
+                                               data-bs-toggle="tooltip"
+                                               title="View Meeting Details">
+                                            <i class="fa fa-eye me-1"></i> View
+                                        </a>
+                                        @if (isAdmin)
+                                        {
+                                            <a href="@Url.Action("EditMeeting", "Meeting", new { id = meeting.MeetingAttendancesId })"
+                                                   class="btn btn-sm btn-outline-warning"
+                                                   data-bs-toggle="tooltip"
+                                                   title="Edit Meeting">
+                                                <i class="fa fa-edit me-1"></i> Edit
+                                            </a>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    onclick="deleteMeeting(@meeting.MeetingAttendancesId)"
+                                                    data-bs-toggle="tooltip"
+                                                    title="Delete Meeting">
+                                                <i class="fa fa-trash me-1"></i> Delete
+                                            </button>
+                                        }
+                                    }
                                 </div>
                             </td>
                         </tr>
@@ -219,59 +253,28 @@
                 else
                 {
                     <tr>
-                        <td colspan="11" class="text-center text-muted py-4">
+                        <td colspan="@(isFinance ? 6 : 11)" class="text-center text-muted py-4">
                             <i class="fa fa-church fa-2x mb-2 d-block"></i>
                             No meeting records found
                         </td>
                     </tr>
                 }
             </tbody>
-            <tfoot class="table-light fw-bold">
-                <tr>
-                    <td colspan="3" class="text-end">Total Meetings:</td>
-                    <td class="text-center">@Model?.Count(m => m.IsActive)</td>
-                    <td colspan="7"></td>
-                </tr>
-                <tr>
-                    <td colspan="3" class="text-end">Total Attendees (All Meetings):</td>
-                    <td class="text-center">@Model?.Where(m => m.IsActive).Sum(m => m.TotalAttendees).ToString("N0")</td>
-                    <td colspan="7"></td>
-                </tr>
-                <tr>
-                    <td colspan="3" class="text-end">Average Attendance/Meeting:</td>
-                    <td class="text-center">
-                        @{
-                            var avgAttendance = Model != null && Model.Any(m => m.IsActive)
-                                ? Model.Where(m => m.IsActive).Average(m => m.TotalAttendees).ToString("N0")
-                                : "0";
-                        }
-                        @avgAttendance
-                    </td>
-                    <td colspan="7"></td>
-                </tr>
-                @if (Model != null && Model.Any(m => m.IsActive))
-                {
-                    var totalMale = Model.Where(m => m.IsActive && m.MaleCount.HasValue).Sum(m => m.MaleCount.Value);
-                    var totalFemale = Model.Where(m => m.IsActive && m.FemaleCount.HasValue).Sum(m => m.FemaleCount.Value);
-                    var totalChildren = Model.Where(m => m.IsActive && m.ChildrenCount.HasValue).Sum(m => m.ChildrenCount.Value);
-                    
+            @if (!isFinance)
+            {
+                <tfoot class="table-light fw-bold">
                     <tr>
-                        <td colspan="3" class="text-end">Total Male Attendees:</td>
-                        <td class="text-center text-info">@totalMale.ToString("N0")</td>
+                        <td colspan="3" class="text-end">Total Meetings:</td>
+                        <td class="text-center">@Model?.Count(m => m.IsActive)</td>
                         <td colspan="7"></td>
                     </tr>
                     <tr>
-                        <td colspan="3" class="text-end">Total Female Attendees:</td>
-                        <td class="text-center text-success">@totalFemale.ToString("N0")</td>
+                        <td colspan="3" class="text-end">Total Attendees (All Meetings):</td>
+                        <td class="text-center">@Model?.Where(m => m.IsActive).Sum(m => m.TotalAttendees).ToString("N0")</td>
                         <td colspan="7"></td>
                     </tr>
-                    <tr>
-                        <td colspan="3" class="text-end">Total Children Attendees:</td>
-                        <td class="text-center text-warning">@totalChildren.ToString("N0")</td>
-                        <td colspan="7"></td>
-                    </tr>
-                }
-            </tfoot>
+                </tfoot>
+            }
         </table>
     </div>
 </div>

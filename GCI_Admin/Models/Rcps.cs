@@ -120,7 +120,7 @@ namespace GCI_Admin.Models
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public decimal Balance { get; set; }
-        public bool PaymentRecieved { get; set; }
+        public bool CollectionRecieved { get; set; }
 
         public Member Member { get; set; }
     }

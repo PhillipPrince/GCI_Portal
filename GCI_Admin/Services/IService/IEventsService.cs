@@ -33,13 +33,13 @@ namespace GCI_Admin.Services.IService
         Task<ApiResponse<List<Event>>> GetEventsByDateRangeAsync(DateTime startDate, DateTime endDate);
         Task<ApiResponse<List<EventRegistration>>> GetEventRegistrationsByEventIdAsync(int eventId);
 
-        Task<ApiResponse<string>> SendPaymentReminderAsync(int id);
-        Task<ApiResponse<string>> SendBulkPaymentRemindersAsync(int eventId);
+        Task<ApiResponse<string>> SendCollectionReminderAsync(int id);
+        Task<ApiResponse<string>> SendBulkCollectionRemindersAsync(int eventId);
         Task<ApiResponse<string>> SendAttendanceReminderAsync(int id);
         Task<ApiResponse<string>> SendBulkAttendanceRemindersAsync(int eventId);
 
         Task<ApiResponse<object>> CheckEventRegistrationAsync(string phone, int eventId);
-        Task<ApiResponse<int>> CheckPaymentStatusAsync(int registrationId);
+        Task<ApiResponse<int>> CheckCollectionstatusAsync(int registrationId);
         Task<ApiResponse<bool>> UsherSubmitRegistrationAsync(GCI_Admin.Controllers.UsherRegistrationDto dto);
         Task<ApiResponse<string>> SubmitGroupRestAsync(GCI_Admin.Controllers.SubmitGroupRestDto dto);
     }

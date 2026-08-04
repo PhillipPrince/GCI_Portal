@@ -745,7 +745,7 @@ namespace GCI_Admin.Migrations
                     b.Property<int>("MemberId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PaymentStatusId")
+                    b.Property<int>("CollectionstatusId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("RegistrationDate")
@@ -1754,7 +1754,7 @@ namespace GCI_Admin.Migrations
                     b.ToTable("OTPs");
                 });
 
-            modelBuilder.Entity("GCI_Admin.Models.Payment", b =>
+            modelBuilder.Entity("GCI_Admin.Models.Collection", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1791,7 +1791,7 @@ namespace GCI_Admin.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("PaymentStatusId")
+                    b.Property<int>("CollectionstatusId")
                         .HasColumnType("int");
 
                     b.Property<string>("PhoneNumber")
@@ -1813,7 +1813,7 @@ namespace GCI_Admin.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Collections");
                 });
 
             modelBuilder.Entity("GCI_Admin.Models.RcpCountyMember", b =>
@@ -1968,7 +1968,7 @@ namespace GCI_Admin.Migrations
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("bit");
 
-                    b.Property<int>("PaymentStatusId")
+                    b.Property<int>("CollectionstatusId")
                         .HasColumnType("int");
 
                     b.Property<int>("RcpsInviteId")
@@ -2082,7 +2082,7 @@ namespace GCI_Admin.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("PaymentRecieved")
+                    b.Property<bool>("CollectionRecieved")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("PledgeDate")

@@ -24,6 +24,7 @@ namespace GCI_Admin.Models
         [StringLength(150)]
         [EmailAddress]
         public string? ContactEmail { get; set; }
+        public int? AssemblyLeaderId { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

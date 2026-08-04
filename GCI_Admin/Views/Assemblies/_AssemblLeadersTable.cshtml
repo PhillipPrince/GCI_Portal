@@ -56,7 +56,7 @@
                         <tr>
                             <td>@count</td>
 
-                            <td>@(leader.Member.FirstName+" "+leader.Member.OtherNames) @* You may want to display member name if Member navigation property exists *@</td>
+                            <td>@((leader.TitlePrefix != null ? leader.TitlePrefix.Title + " " : "") + leader.Member?.FirstName + " " + leader.Member?.OtherNames)</td>
                             <td>@(leader.Assembly.Name) @* You may want to display assembly name if Assembly navigation property exists *@</td>
 
                             <td>

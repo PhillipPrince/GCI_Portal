@@ -178,7 +178,7 @@
                         </div>
                     </div>
 
-                    <!-- Payment Information -->
+                    <!-- Collection Information -->
                     <div class="row g-3 mb-4">
                         <div class="col-md-12">
                             <label class="form-label fw-medium">Registration Fee</label>
@@ -372,7 +372,7 @@
         <div class="card border-0 shadow-sm mb-4 bg-light">
             <div class="card-body">
                 <h5><i class="fa fa-info-circle text-primary me-2"></i>Editing Events</h5>
-                <p class="small text-muted">Updating this event will instantly update details displayed to members on the mobile app. All registrations and payment history are preserved.</p>
+                <p class="small text-muted">Updating this event will instantly update details displayed to members on the mobile app. All registrations and Collection history are preserved.</p>
             </div>
         </div>
     </div>
@@ -397,7 +397,7 @@
                 }
             });
 
-            // Handle payment toggle
+            // Handle Collection toggle
             $('input[name="IsPaid"]').on('change', function () {
                 if ($('#isPaidYes').is(':checked')) {
                     $('#priceContainer').slideDown(300);

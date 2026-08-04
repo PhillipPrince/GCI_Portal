@@ -230,7 +230,7 @@ namespace GCI_Admin.DBOperations.Repositories
                     TargetCompletionDate = dto.TargetCompletionDate,
                     Notes = dto.Notes,
                     Status = dto.Status,
-                    PaymentRecieved = dto.PaymentRecieved,
+                    CollectionRecieved = dto.CollectionRecieved,
                     Balance = dto.PledgedAmount - dto.AmountPaid,
                     CreatedAt = DateTime.Now
                 };
@@ -351,7 +351,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 existing.TargetCompletionDate = dto.TargetCompletionDate;
                 existing.Notes = dto.Notes;
                 existing.Status = dto.Status;
-                existing.PaymentRecieved = dto.PaymentRecieved;
+                existing.CollectionRecieved = dto.CollectionRecieved;
                 existing.Balance = dto.PledgedAmount - dto.AmountPaid;
                 existing.UpdatedAt = DateTime.Now;
 

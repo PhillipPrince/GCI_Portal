@@ -635,7 +635,7 @@ textarea.edit-field {
         box-shadow: var(--shadow-sm);
     }
 
-/* Payment Progress Bar */
+/* Collection Progress Bar */
 .progress {
     background-color: var(--secondary-border);
     border-radius: 10px;
@@ -825,8 +825,8 @@ textarea.edit-field {
     }
 }
 
-/* Payment Progress Label */
-.payment-progress-label {
+/* Collection Progress Label */
+.Collection-progress-label {
     font-size: 0.75rem;
     font-weight: 500;
 }

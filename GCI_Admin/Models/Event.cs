@@ -44,6 +44,7 @@ namespace GCI_Admin.Models
         public Event Event { get; set; }
         public List<EventRegistration> Registrations { get; set; }
         public List<EventFeedback> Feedbacks { get; set; } = new();
+        public List<EventSponsor> Sponsors { get; set; } = new();
     }
 
 }

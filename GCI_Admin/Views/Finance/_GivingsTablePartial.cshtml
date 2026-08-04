@@ -1,12 +1,12 @@
-@model List<GCI_Admin.Models.Payment>
+@model List<GCI_Admin.Models.Collection>
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
-        <table id="paymentsTable" class="table table-striped table-hover align-middle datatable">
+        <table id="CollectionsTable" class="table table-striped table-hover align-middle datatable">
 
             <thead class="table-light">
                 <tr>
-                    <th>Payment ID</th>
+                    <th>Collection ID</th>
                     <th>Phone Number</th>
                     <th>Amount</th>
                     <th>Receipt No</th>
@@ -19,7 +19,7 @@
                 <!-- Search Row -->
                 <tr>
                     <th>
-                        <input type="text" placeholder="Search Payment ID" class="form-control form-control-sm" />
+                        <input type="text" placeholder="Search Collection ID" class="form-control form-control-sm" />
                     </th>
                     <th>
                         <input type="text" placeholder="Search Phone" class="form-control form-control-sm" />
@@ -49,22 +49,22 @@
             </thead>
 
             <tbody>
-                @foreach (var payment in Model)
+                @foreach (var Collection in Model)
                 {
-                    <tr>
+                    <tr data-amount="@Collection.Amount" data-date="@((Collection.TransactionDate ?? Collection.CreatedAt).ToString("yyyy-MM-ddTHH:mm:ss"))">
                         <td>
-                            <strong>#@payment.Id</strong>
+                            <strong>#@Collection.Id</strong>
                         </td>
-                        <td>@payment.PhoneNumber</td>
-                        <td>KES @payment.Amount.ToString("N2")</td>
-                        <td>@payment.MpesaReceiptNumber</td>
+                        <td>@Collection.PhoneNumber</td>
+                        <td>KES @Collection.Amount.ToString("N2")</td>
+                        <td>@Collection.MpesaReceiptNumber</td>
 
                         <td>
-                            @if (payment.PaymentStatusId == 1)
+                            @if (Collection.PaymentStatusId == 1)
                             {
                                 <span class="badge bg-warning">Pending</span>
                             }
-                            else if (payment.PaymentStatusId == 2)
+                            else if (Collection.PaymentStatusId == 2)
                             {
                                 <span class="badge bg-success">Success</span>
                             }
@@ -75,26 +75,26 @@
                     </td>
 
                     <td>
-                        @(payment.TransactionDate.HasValue
-                                                ? payment.TransactionDate.Value.ToString("dd MMM yyyy HH:mm")
+                        @(Collection.TransactionDate.HasValue
+                                                ? Collection.TransactionDate.Value.ToString("dd MMM yyyy HH:mm")
                                                 : "-")
                     </td>
 
-                        <td>@payment.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>@Collection.CreatedAt.ToString("dd MMM yyyy")</td>
 
                         <td class="text-end">
 
                             <!-- View -->
                             <button class="btn btn-sm btn-outline-info"
-                                    onclick="openPaymentModal('@Url.Action("Details", "Payments", new { id = payment.Id })')">
+                                    onclick="openCollectionModal('@Url.Action("Details", "Collections", new { id = Collection.Id })')">
                                 <i class="fa fa-eye"></i>
                             </button>
 
-                            <!-- Optional: Retry (for failed payments) -->
-                        @if (payment.PaymentStatusId == 3)
+                            <!-- Optional: Retry (for failed Collections) -->
+                            @if (Collection.PaymentStatusId == 3)
                             {
                                 <button class="btn btn-sm btn-outline-warning"
-                                        onclick="retryPayment(@payment.Id)">
+                                        onclick="retryCollection(@Collection.Id)">
                                     <i class="fa fa-refresh"></i>
                                 </button>
                             }

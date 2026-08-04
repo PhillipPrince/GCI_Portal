@@ -48,7 +48,7 @@
                     <th>Phone</th>
                     <th>Assembly</th>
                     <th>Amount Paid</th>
-                    <th>Payment Status</th>
+                    <th>Collection Status</th>
                     <th>Attended</th>
                     <th>Registered Date</th>
                     <th class="d-none">Age Group</th>
@@ -138,7 +138,7 @@
                             </td>
                             <td class="fw-medium">KES @r.AmountPaid.ToString("N2")</td>
 
-                            <!-- Payment Badge -->
+                            <!-- Collection Badge -->
                             <td>
                                 @if (r.PaymentStatusId == 4)
                                 {
@@ -226,13 +226,13 @@
                                     @if (r.PaymentStatusId != 4)
                                     {
                                         <button class="btn btn-outline-warning"
-                                                title="Send Payment Reminder"
-                                                onclick="sendPaymentReminder(@r.RegistrationId)">
+                                                title="Send Collection Reminder"
+                                                onclick="sendCollectionReminder(@r.RegistrationId)">
                                             <i class="fa fa-bell"></i>
                                         </button>
                                         <button class="btn btn-outline-success"
                                                 title="Mark as Paid"
-                                                onclick="markPaymentPaid(@r.RegistrationId)">
+                                                onclick="markCollectionPaid(@r.RegistrationId)">
                                             <i class="fa fa-money-bill-wave"></i>
                                         </button>
                                     }
@@ -433,7 +433,7 @@ else
         // Global DataTable initializer handles #eventRegistrationsTable (has datatable class + filter row)
     });
 
-    async function markPaymentPaid(id) {
+    async function markCollectionPaid(id) {
         const result = await Swal.fire({
             title: 'Mark as Paid',
             text: 'Are you sure you want to mark this registration as paid?',
@@ -450,7 +450,7 @@ else
                         'Content-Type': 'application/json',
                         'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
                     },
-                    body: JSON.stringify({ id: id, paymentStatusId: 4 })
+                    body: JSON.stringify({ id: id, PaymentStatusId: 4 })
                 });
                 
                 const data = await response.json();
@@ -463,17 +463,17 @@ else
                         }
                     });
                 } else {
-                    Swal.fire('Error', data.message || 'Failed to update payment status.', 'error');
+                    Swal.fire('Error', data.message || 'Failed to update Collection status.', 'error');
                 }
             } catch (error) {
-                Swal.fire('Error', 'An error occurred while updating the payment status.', 'error');
+                Swal.fire('Error', 'An error occurred while updating the Collection status.', 'error');
             }
         }
     }
 
-    async function sendPaymentReminder(id) {
+    async function sendCollectionReminder(id) {
         const result = await Swal.fire({
-            title: 'Send Payment Reminder?',
+            title: 'Send Collection Reminder?',
             text: 'This will send an SMS/Email to remind them to pay for the event.',
             icon: 'question',
             showCancelButton: true,
@@ -482,7 +482,7 @@ else
 
         if (result.isConfirmed) {
             try {
-                const response = await fetch('@Url.Action("SendPaymentReminder", "Event")/' + id, {
+                const response = await fetch('@Url.Action("SendCollectionReminder", "Event")/' + id, {
                     method: 'POST',
                     headers: {
                         'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()

@@ -248,13 +248,13 @@ namespace GCI_Admin.Controllers
         [HttpGet]
       
         [HttpGet]
-        public async Task<IActionResult> RecordPaymentPartial(int pledgeId)
+        public async Task<IActionResult> RecordCollectionPartial(int pledgeId)
         {
             var pledge = await _rcpsService.GetRcpsPledgeByIdAsync(pledgeId);
             if (pledge?.Data == null)
                 return NotFound();
 
-            return PartialView("_RecordPaymentModal", pledge.Data);
+            return PartialView("_RecordCollectionModal", pledge.Data);
         }
 
       
@@ -284,7 +284,7 @@ namespace GCI_Admin.Controllers
                     FulfillmentRate = pledges.Sum(x => x.PledgedAmount) > 0 ? (pledges.Sum(x => x.AmountPaid) / pledges.Sum(x => x.PledgedAmount)) * 100 : 0,
                     PercentageOfTarget = (rcp?.TargetAmount ) > 0 ? (rcp?.AmountRaised ) / rcp.TargetAmount * 100 : 0,
                     ActivePledgesCount = pledges.Count(x => x.Balance > 0 && x.Status != "Completed"),
-                    FulfilledPledgesCount = pledges.Count(x => x.Balance == 0 && x.PaymentRecieved),
+                    FulfilledPledgesCount = pledges.Count(x => x.Balance == 0 && x.CollectionRecieved),
                     OverduePledgesCount = pledges.Count(x => x.TargetCompletionDate < DateTime.Now && x.Balance > 0),
                     PartiallyPaidPledgesCount = pledges.Count(x => x.AmountPaid > 0 && x.AmountPaid < x.PledgedAmount),
                     PendingPledgesCount = pledges.Count(x => x.AmountPaid == 0)

@@ -82,8 +82,8 @@
     </div>
 </div>
 
-<!-- Record Payment Modal Container -->
-<div id="recordPaymentModalContainer"></div>
+<!-- Record Collection Modal Container -->
+<div id="recordCollectionModalContainer"></div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -279,12 +279,12 @@
             window.location.href = '@Url.Action("RcpsDetails", "Rcps")?id=' + pledgeId;
         }
 
-        function recordPayment(pledgeId) {
-            $.get('@Url.Action("RecordPaymentPartial", "Rcps")/' + pledgeId, function(data) {
-                $('#recordPaymentModalContainer').html(data);
-                $('#recordPaymentModal').modal('show');
+        function recordCollection(pledgeId) {
+            $.get('@Url.Action("RecordCollectionPartial", "Rcps")/' + pledgeId, function(data) {
+                $('#recordCollectionModalContainer').html(data);
+                $('#recordCollectionModal').modal('show');
             }).fail(function() {
-                showError('Failed to load payment form');
+                showError('Failed to load Collection form');
             });
         }
 

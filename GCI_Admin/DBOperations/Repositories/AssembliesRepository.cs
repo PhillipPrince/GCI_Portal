@@ -127,6 +127,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 existingAssembly.Location = dto.Location;
                 existingAssembly.ContactPhone = dto.ContactPhone;
                 existingAssembly.ContactEmail = dto.ContactEmail;
+                existingAssembly.AssemblyLeaderId = dto.LeaderMemberId;
 
                 await _context.SaveChangesAsync();
 
@@ -198,10 +199,11 @@ namespace GCI_Admin.DBOperations.Repositories
 
                 var leaders = await _context.AssembliesLeaders
                     .AsNoTracking()
-                    .Where(l => l.IsActive)  
-                    .Include(l => l.Member)   
-                    .Include(l => l.Assembly) 
-                    .OrderByDescending(l => l.StartDate)
+                    .Where(l => l.IsActive)
+                   .Include(l => l.Member)
+                    .Include(l => l.Assembly)
+                    .Include(l => l.TitlePrefix)
+                    .OrderBy(l => l.AssemblyLeaderId)
                     .ToListAsync();
 
                 return new DbResponse<List<AssemblyLeader>>
@@ -259,6 +261,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 {
                     MemberId = dto.MemberId,
                     AssemblyId = dto.AssemblyId,
+                    TitlePrefixId = dto.TitlePrefixId,
                     Bio = dto.Bio,
                     StartDate = dto.StartDate,
                     EndDate = dto.EndDate,
@@ -295,6 +298,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 var leader = await _context.AssembliesLeaders
                     .Include(l => l.Member)
                     .Include(l => l.Assembly)
+                    .Include(l => l.TitlePrefix)
                     .FirstOrDefaultAsync(l => l.AssemblyLeaderId == id);
 
                 if (leader == null)
@@ -359,6 +363,7 @@ namespace GCI_Admin.DBOperations.Repositories
 
                 existing.MemberId = dto.MemberId;
                 existing.AssemblyId = dto.AssemblyId;
+                existing.TitlePrefixId = dto.TitlePrefixId;
                 existing.Bio = dto.Bio;
                 existing.StartDate = dto.StartDate;
                 existing.EndDate = dto.EndDate;

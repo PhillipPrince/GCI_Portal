@@ -208,12 +208,17 @@ namespace GCI_Admin.Controllers
                     .Where(f => f.EventId == id)
                     .OrderByDescending(f => f.CreatedAt)
                     .ToListAsync();
+                var sponsors = await _context.EventSponsors
+                    .Where(s => s.EventId == id)
+                    .OrderByDescending(s => s.CreatedAt)
+                    .ToListAsync();
 
                 eventData = new EventViewModel
                 {
                     Event = response.Data,
                     Registrations = registrationsResponse.Data,
-                    Feedbacks = feedbacks
+                    Feedbacks = feedbacks,
+                    Sponsors = sponsors ?? new List<EventSponsor>()
                 };  
 
                 return View(eventData);
@@ -505,14 +510,34 @@ namespace GCI_Admin.Controllers
         {
             try
             {
-                var stats = await _eventsService.GetEventRegistrationsByEventIdAsync(id);
+                var targetEventResult = await _eventsService.GetEventByIdAsync(id);
+                var eventObj = targetEventResult?.Data;
+
+                var regsResponse = await _eventsService.GetEventRegistrationsByEventIdAsync(id);
+                var regs = regsResponse?.Data ?? new List<EventRegistration>();
+
+                var sponsors = await _context.EventSponsors
+                    .Where(s => s.EventId == id)
+                    .ToListAsync();
+
+                int attendeeCount = regs.Count;
+                int attendedCount = regs.Count(r => r.HasAttended == true);
+
+                int regPendingCount = regs.Count(r => r.PaymentStatusId != 4);
+                int sponsorPendingCount = sponsors.Count(s => s.PaymentStatusId != 4);
+                int totalPendingCount = regPendingCount + sponsorPendingCount;
+
+                decimal regSuccessRev = regs.Where(r => r.PaymentStatusId == 4).Sum(r => r.AmountPaid);
+                decimal sponsorSuccessRev = sponsors.Where(s => s.PaymentStatusId == 4).Sum(s => s.Amount);
+                decimal totalRevenue = regSuccessRev + sponsorSuccessRev;
 
                 return Json(new
                 {
                     isSuccess = true,
-                    attendeeCount = stats.Data.Count(),
-                    attendedCount = stats.Data.Where(e=> e.HasAttended==true).Count(),
-                    pendingCount = stats.Data.Where(e=> e.HasAttended==false).Count(),
+                    attendeeCount = attendeeCount,
+                    attendedCount = attendedCount,
+                    pendingCount = totalPendingCount,
+                    revenue = totalRevenue
                 });
             }
             catch (Exception ex)
@@ -595,7 +620,7 @@ namespace GCI_Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdatePaymentStatus([FromBody] UpdatePaymentRequest request)
+        public async Task<IActionResult> UpdateCollectionstatus([FromBody] UpdateCollectionRequest request)
         {
             try
             {
@@ -611,15 +636,15 @@ namespace GCI_Admin.Controllers
                 _context.EventRegistrations.Update(registration);
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true, message = "Payment status updated successfully!" });
+                return Json(new { success = true, message = "Collection status updated successfully!" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = $"Error updating payment status: {ex.Message}" });
+                return Json(new { success = false, message = $"Error updating Collection status: {ex.Message}" });
             }
         }
 
-        public class UpdatePaymentRequest
+        public class UpdateCollectionRequest
         {
             public int Id { get; set; }
             public int PaymentStatusId { get; set; }
@@ -683,16 +708,16 @@ namespace GCI_Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendPaymentReminder(int id)
+        public async Task<IActionResult> SendCollectionReminder(int id)
         {
-            var response = await _eventsService.SendPaymentReminderAsync(id);
+            var response = await _eventsService.SendCollectionReminderAsync(id);
             return Json(response);
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendBulkPaymentReminders(int eventId)
+        public async Task<IActionResult> SendBulkCollectionReminders(int eventId)
         {
-            var response = await _eventsService.SendBulkPaymentRemindersAsync(eventId);
+            var response = await _eventsService.SendBulkCollectionRemindersAsync(eventId);
             return Json(response);
         }
 
@@ -709,5 +734,59 @@ namespace GCI_Admin.Controllers
             var response = await _eventsService.SendBulkAttendanceRemindersAsync(eventId);
             return Json(response);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> AddSponsor([FromBody] EventSponsor sponsor)
+        {
+            try
+            {
+                if (sponsor == null || sponsor.EventId <= 0 || string.IsNullOrWhiteSpace(sponsor.SponsorName) || string.IsNullOrWhiteSpace(sponsor.SponsorPhone))
+                {
+                    return BadRequest(new { isSuccess = false, message = "Invalid sponsor details provided." });
+                }
+
+                sponsor.SponsorName = sponsor.SponsorName.Trim();
+                sponsor.SponsorPhone = global::Utils.PhoneHelper.NormalizeKenyanPhoneOrEmail(sponsor.SponsorPhone);
+                sponsor.CreatedAt = DateTime.UtcNow;
+
+                _context.EventSponsors.Add(sponsor);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { isSuccess = true, message = "Sponsor added successfully." });
+            }
+            catch (Exception ex)
+            {
+                global::Utils.Loggers.DoLogs($"AddSponsor Error: {ex}");
+                return StatusCode(500, new { isSuccess = false, message = $"Error adding sponsor: {ex.Message}" });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateSponsorStatus([FromBody] UpdateSponsorStatusDto dto)
+        {
+            try
+            {
+                var sponsor = await _context.EventSponsors.FindAsync(dto.SponsorId);
+                if (sponsor == null)
+                {
+                    return NotFound(new { isSuccess = false, message = "Sponsor not found." });
+                }
+
+                sponsor.PaymentStatusId = dto.PaymentStatusId;
+                await _context.SaveChangesAsync();
+
+                return Ok(new { isSuccess = true, message = "Sponsor payment status updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { isSuccess = false, message = ex.Message });
+            }
+        }
+    }
+
+    public class UpdateSponsorStatusDto
+    {
+        public int SponsorId { get; set; }
+        public int PaymentStatusId { get; set; }
     }
 }

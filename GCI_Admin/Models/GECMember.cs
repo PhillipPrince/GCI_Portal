@@ -12,6 +12,11 @@ namespace GCI_Admin.Models
         
         [ForeignKey("GECPositionId")]
         public GECPosition? GECPosition { get; set; }
+
+        public int? TitlePrefixId { get; set; }
+        [ForeignKey("TitlePrefixId")]
+        public TitlePrefix? TitlePrefix { get; set; }
+
         public string Bio { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }

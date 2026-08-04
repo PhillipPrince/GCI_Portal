@@ -1246,7 +1246,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 .FirstOrDefaultAsync(r => r.RegistrationId == id);
         }
 
-        public async Task<List<EventRegistration>> GetEventRegistrationsForPaymentReminderAsync(int eventId)
+        public async Task<List<EventRegistration>> GetEventRegistrationsForCollectionReminderAsync(int eventId)
         {
             return await _context.EventRegistrations
                 .Where(r => r.EventId == eventId && r.PaymentStatusId != 4)

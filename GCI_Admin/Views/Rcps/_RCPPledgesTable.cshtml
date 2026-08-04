@@ -16,7 +16,7 @@
                     <th>Pledge Date</th>
                     <th>Target Date</th>
                     <th>Status</th>
-                    <th>Payment Received</th>
+                    <th>Collection Received</th>
                     <th class="text-end">Actions</th>
                 </tr>
             </thead>
@@ -126,7 +126,7 @@
                             }
                         </td>
                         <td>
-                            @if (pledge.PaymentRecieved)
+                            @if (pledge.CollectionRecieved)
                             {
                                 <span class="badge bg-success">
                                     <i class="fa fa-check-circle"></i> Yes
@@ -146,11 +146,11 @@
                                 <i class="fa fa-eye"></i>
                             </button>
 
-                            <!-- Record Payment -->
+                            <!-- Record Collection -->
                             @if (pledge.Balance > 0 && pledge.Status != "Cancelled")
                             {
                                 <button class="btn btn-sm btn-outline-success"
-                                        onclick="recordPayment(@pledge.Id)">
+                                        onclick="recordCollection(@pledge.Id)">
                                     <i class="fa fa-money"></i>
                                 </button>
                             }
@@ -190,12 +190,12 @@
         window.location.href = '/RCPS/PledgeDetails/' + id;
     }
 
-    function recordPayment(id) {
-        $.get('/RCPS/RecordPaymentPartial/' + id, function(data) {
-            $('#paymentModalContainer').html(data);
-            $('#recordPaymentModal').modal('show');
+    function recordCollection(id) {
+        $.get('/RCPS/RecordCollectionPartial/' + id, function(data) {
+            $('#CollectionModalContainer').html(data);
+            $('#recordCollectionModal').modal('show');
         }).fail(function() {
-            Swal.fire('Error', 'Failed to load payment form', 'error');
+            Swal.fire('Error', 'Failed to load Collection form', 'error');
         });
     }
 

@@ -267,6 +267,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 var entity = new Elder
                 {
                     MemberId = dto.MemberId,
+                    TitlePrefixId = dto.TitlePrefixId,
                     Description = dto.Description,
                     DateOrdained = dto.DateOrdained,
                     IsActive = true,
@@ -301,6 +302,7 @@ namespace GCI_Admin.DBOperations.Repositories
                 var data = await _context.Elders
                     .Where(x => x.IsActive)
                     .Include(x => x.Member)
+                    .Include(x => x.TitlePrefix)
                     .OrderByDescending(x => x.CreatedAt)
                     .ToListAsync();
 
@@ -327,6 +329,7 @@ namespace GCI_Admin.DBOperations.Repositories
             {
                 var data = await _context.Elders
                     .Include(x => x.Member)
+                    .Include(x => x.TitlePrefix)
                     .FirstOrDefaultAsync(x => x.ElderId == id);
 
                 if (data == null)
@@ -366,6 +369,7 @@ namespace GCI_Admin.DBOperations.Repositories
                     };
 
                 existing.MemberId = dto.MemberId;
+                existing.TitlePrefixId = dto.TitlePrefixId;
                 existing.Description = dto.Description;
                 existing.DateOrdained = dto.DateOrdained;
                 existing.UpdatedAt = DateTime.Now;

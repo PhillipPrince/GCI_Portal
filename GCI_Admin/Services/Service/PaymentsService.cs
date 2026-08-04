@@ -1,5 +1,3 @@
-using DocumentFormat.OpenXml.InkML;
-using DocumentFormat.OpenXml.Spreadsheet;
 using GCI_Admin.DBOperations;
 using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
@@ -15,22 +13,24 @@ using Utils;
 
 namespace GCI_Admin.Services.Service
 {
-    public class PaymentsService : IPaymentsService
+    public class CollectionsService : ICollectionsService
     {
-        private readonly PaymentsRepository _repo;
+        private readonly CollectionsRepository _repo;
         private readonly AppDbContext _appDbContext;
         private readonly AuthRepository _auth;
+        private readonly IMembersService _membersService;
 
-        public PaymentsService(PaymentsRepository repo,AppDbContext context, AuthRepository auth)
+        public CollectionsService(CollectionsRepository repo, AppDbContext context, AuthRepository auth, IMembersService membersService)
         {
             _repo = repo;
             _appDbContext = context;
             _auth = auth;
+            _membersService = membersService;
         }
 
-        public async Task<ApiResponse<List<Payment>>> GetAllAsync()
+        public async Task<ApiResponse<List<Collection>>> GetAllAsync()
         {
-            var response = new ApiResponse<List<Payment>>();
+            var response = new ApiResponse<List<Collection>>();
 
             try
             {
@@ -51,9 +51,9 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-        public async Task<ApiResponse<List<Payment>>> GetByMemberIdAsync(int memberId)
+        public async Task<ApiResponse<List<Collection>>> GetByMemberIdAsync(int memberId)
         {
-            var response = new ApiResponse<List<Payment>>();
+            var response = new ApiResponse<List<Collection>>();
 
             try
             {
@@ -97,6 +97,237 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
+        public async Task<ApiResponse<List<MeetingAttendance>>> GetActiveMeetingsAsync()
+        {
+            var response = new ApiResponse<List<MeetingAttendance>>();
+            try
+            {
+                var result = await _repo.GetActiveMeetingsAsync();
+                response.IsSuccess = result.Success;
+                response.Data = result.Data;
+                response.Message = result.Message;
+                response.Code = result.Success ? "200" : "400";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<List<Collection>>> GetFilteredCollectionsAsync(
+            string search,
+            string accountReference,
+            string dateRange,
+            string PaymentStatus,
+            DateTime? fromDate,
+            DateTime? toDate,
+            int? filterYear,
+            int? filterMonth,
+            string paybill)
+        {
+            var response = new ApiResponse<List<Collection>>();
+            try
+            {
+                var allCollections = await _repo.GetAllAsync();
+                var Collections = allCollections?.Data ?? new List<Collection>();
+
+                var query = Collections.AsQueryable();
+
+                if (filterYear.HasValue)
+                {
+                    query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Year == filterYear.Value);
+                }
+
+                if (filterMonth.HasValue)
+                {
+                    query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Month == filterMonth.Value);
+                }
+
+                if (!string.IsNullOrEmpty(search))
+                {
+                    query = query.Where(p =>
+                        (p.PhoneNumber != null && p.PhoneNumber.Contains(search)) ||
+                        (p.MpesaReceiptNumber != null && p.MpesaReceiptNumber.Contains(search)) ||
+                        (p.AccountReference != null && p.AccountReference.Contains(search))
+                    );
+                }
+
+                if (!string.IsNullOrEmpty(accountReference))
+                {
+                    query = query.Where(p => p.AccountReference == accountReference);
+                }
+
+                if (!string.IsNullOrEmpty(paybill))
+                {
+                    query = query.Where(p => p.Paybill == paybill);
+                }
+
+                if (!string.IsNullOrEmpty(PaymentStatus) && int.TryParse(PaymentStatus, out int statusId))
+                {
+                    query = query.Where(p => p.PaymentStatusId == statusId);
+                }
+
+                var now = DateTime.Now;
+                switch (dateRange)
+                {
+                    case "today":
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Date == now.Date);
+                        break;
+                    case "yesterday":
+                        var yesterday = now.AddDays(-1).Date;
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Date == yesterday);
+                        break;
+                    case "thisweek":
+                        var weekStart = now.AddDays(-(int)now.DayOfWeek).Date;
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= weekStart);
+                        break;
+                    case "thismonth":
+                        var monthStart = new DateTime(now.Year, now.Month, 1);
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= monthStart);
+                        break;
+                    case "lastmonth":
+                        var lastMonth = now.AddMonths(-1);
+                        var lastMonthStart = new DateTime(lastMonth.Year, lastMonth.Month, 1);
+                        var lastMonthEnd = lastMonthStart.AddMonths(1).AddDays(-1);
+                        query = query.Where(p => p.TransactionDate.HasValue &&
+                                                p.TransactionDate.Value >= lastMonthStart &&
+                                                p.TransactionDate.Value <= lastMonthEnd);
+                        break;
+                    case "thisyear":
+                        var yearStart = new DateTime(now.Year, 1, 1);
+                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= yearStart);
+                        break;
+                    case "custom":
+                        if (fromDate.HasValue && toDate.HasValue)
+                        {
+                            var toDateEnd = toDate.Value.AddDays(1).AddSeconds(-1);
+                            query = query.Where(p => p.TransactionDate.HasValue &&
+                                                    p.TransactionDate.Value >= fromDate.Value &&
+                                                    p.TransactionDate.Value <= toDateEnd);
+                        }
+                        break;
+                }
+
+                var filteredCollections = query.OrderBy(p => p.Id).ToList();
+
+                response.IsSuccess = true;
+                response.Data = filteredCollections;
+                response.Code = "200";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        public async Task<ApiResponse> SaveManualCollectionAsync(Collection Collection)
+        {
+            var response = new ApiResponse();
+            try
+            {
+                if (Collection == null || Collection.Amount <= 0)
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = "Invalid Collection data";
+                    return response;
+                }
+
+                var result = await _repo.SaveManualCollectionWithReconciliationAsync(Collection);
+                response.IsSuccess = result.Success;
+                response.Message = result.Message;
+                response.Code = result.Success ? "200" : "500";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse> SendOtpAsync(SendOtpRequest request)
+        {
+            var response = new ApiResponse();
+            try
+            {
+                if (request != null && request.MeetingId > 0)
+                {
+                    var limitCheck = await _repo.CheckAndUpdateResendOtpLimitAsync(request.MeetingId);
+                    if (!limitCheck.Success)
+                    {
+                        response.IsSuccess = false;
+                        response.Code = "400";
+                        response.Message = limitCheck.Message;
+                        return response;
+                    }
+                }
+
+                var otp = await _auth.GenerateAndInsertOtpAsync(request.EmailOrPhone, 10);
+                if (otp != null)
+                {
+                    response.IsSuccess = true;
+                    response.Code = "200";
+                    response.Message = "OTP sent successfully";
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.Code = "400";
+                    response.Message = "Failed to send OTP";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<List<object>>> GetActiveMembersDtoAsync()
+        {
+            var response = new ApiResponse<List<object>>();
+            try
+            {
+                var allMembersResponse = await _membersService.GetAllMembersAsync();
+                var membersList = allMembersResponse?.Data ?? new List<Member>();
+
+                var activeMembers = membersList
+                    .Where(m => m.StatusId == 1)
+                    .OrderBy(m => m.FirstName)
+                    .Select(m => (object)new {
+                        id = m.Id,
+                        firstName = m.FirstName,
+                        otherNames = m.OtherNames,
+                        email = m.Email,
+                        phone = m.Phone,
+                        gender = m.Gender
+                    })
+                    .ToList();
+
+                response.IsSuccess = true;
+                response.Data = activeMembers;
+                response.Code = "200";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
         public async Task<ApiResponse> VerifyCollection(VerifyCollectionRequest request)
         {
             try
@@ -107,10 +338,10 @@ namespace GCI_Admin.Services.Service
                     EmailOrPhone = request.EmailOrPhone
                 };
 
-    var user = await _appDbContext.Members
-        .FirstOrDefaultAsync(m =>
-            m.Phone == request.EmailOrPhone ||
-            m.Email == request.EmailOrPhone);
+                var user = await _appDbContext.Members
+                    .FirstOrDefaultAsync(m =>
+                        m.Phone == request.EmailOrPhone ||
+                        m.Email == request.EmailOrPhone);
 
                 if (user == null)
                 {
@@ -122,7 +353,6 @@ namespace GCI_Admin.Services.Service
                     };
                 }
 
-                // Use phone for OTP validation
                 confirmOtpDto.EmailOrPhone = user.Phone;
 
                 var confirm = await _auth.ConfirmOrRegenerateOtpAsync(confirmOtpDto);
@@ -140,6 +370,7 @@ namespace GCI_Admin.Services.Service
                 var collectionVerified = await _appDbContext.ServiceCollectionSummaries
                     .FirstOrDefaultAsync(s =>
                         s.MeetingAttendancesId == request.MeetingId);
+                var meeting = _appDbContext.MeetingAttendances.FirstOrDefault(m => m.MeetingAttendancesId == request.MeetingId);
 
                 if (collectionVerified == null)
                 {
@@ -172,17 +403,18 @@ namespace GCI_Admin.Services.Service
 
                 var now = DateTime.Now;
 
-                Payment CreatePayment(string accountReference, decimal amount)
+                Collection CreateCollection(string accountReference, decimal amount)
                 {
-                    return new Payment
+                    return new Collection
                     {
                         MemberId = 0,
+                        MeetingId = request.MeetingId,
                         AccountReference = accountReference,
                         MerchantRequestID = "N/A",
                         CheckoutRequestID = "N/A",
                         MpesaReceiptNumber = "N/A",
                         PhoneNumber = "N/A",
-                        TransactionDate = now,
+                        TransactionDate = meeting != null ? meeting.MeetingDate : now,
                         ResultCode = 0,
                         ResultDesc = "Cash Collection",
                         Amount = amount,
@@ -191,31 +423,31 @@ namespace GCI_Admin.Services.Service
                     };
                 }
 
-                var paymentDefinitions = new[]
+                var CollectionDefinitions = new[]
                 {
-        new { Name = "Tithes", Amount = collectionVerified.Tithes },
-        new { Name = "Offerings", Amount = collectionVerified.Offerings },
-        new { Name = "Sunday School", Amount = collectionVerified.SundaySchool },
-        new { Name = "Thanksgiving", Amount = collectionVerified.Thanksgiving },
-        new { Name = "Missions", Amount = collectionVerified.Missions },
-        new { Name = "Projects", Amount = collectionVerified.Projects },
-        new { Name = "Youth", Amount = collectionVerified.Youth },
-        new { Name = "Widows & Orphans", Amount = collectionVerified.WidowsOrphans },
-        new { Name = "Others", Amount = collectionVerified.Others }
-    };
+                    new { Name = "Tithes", Amount = collectionVerified.Tithes },
+                    new { Name = "Offerings", Amount = collectionVerified.Offerings },
+                    new { Name = "Sunday School", Amount = collectionVerified.SundaySchool },
+                    new { Name = "Thanksgiving", Amount = collectionVerified.Thanksgiving },
+                    new { Name = "Missions", Amount = collectionVerified.Missions },
+                    new { Name = "Projects", Amount = collectionVerified.Projects },
+                    new { Name = "Youth", Amount = collectionVerified.Youth },
+                    new { Name = "Widows & Orphans", Amount = collectionVerified.WidowsOrphans },
+                    new { Name = "Others", Amount = collectionVerified.Others }
+                };
 
-                var payments = paymentDefinitions
+                var Collections = CollectionDefinitions
                     .Where(x => x.Amount > 0)
-                    .Select(x => CreatePayment(x.Name, x.Amount))
+                    .Select(x => CreateCollection(x.Name, x.Amount))
                     .ToList();
 
-                if (payments.Any())
+                if (Collections.Any())
                 {
-                    await _appDbContext.Payments.AddRangeAsync(payments);
+                    await _appDbContext.Collections.AddRangeAsync(Collections);
                     await _appDbContext.SaveChangesAsync();
 
                     Loggers.EventLogs(
-                        $"Created {payments.Count} payment records for Meeting ID {request.MeetingId}");
+                        $"Created {Collections.Count} Collection records for Meeting ID {request.MeetingId}");
                 }
 
                 return new ApiResponse
@@ -236,9 +468,86 @@ namespace GCI_Admin.Services.Service
                     Message = ex.InnerException?.Message ?? "An error occurred while verifying the collection."
                 };
             }
+        }
 
+        public async Task<ApiResponse<List<Collection>>> GetGBICollectionsAsync()
+        {
+            var response = new ApiResponse<List<Collection>>();
+            try
+            {
+                var result = await _repo.GetGBICollectionsAsync();
+                response.IsSuccess = result.Success;
+                response.Data = result.Data;
+                response.Message = result.Message;
+                response.Code = result.Success ? "200" : "400";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
 
-}
+        public async Task<ApiResponse<List<AccountReferenceSummaryDto>>> GetGBIAccountReferenceSummaryAsync()
+        {
+            var response = new ApiResponse<List<AccountReferenceSummaryDto>>();
+            try
+            {
+                var result = await _repo.GetGBIAccountReferenceSummaryAsync();
+                response.IsSuccess = result.Success;
+                response.Data = result.Data;
+                response.Message = result.Message;
+                response.Code = result.Success ? "200" : "400";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
 
+        public async Task<ApiResponse<List<Collection>>> GetChurchCollectionsAsync()
+        {
+            var response = new ApiResponse<List<Collection>>();
+            try
+            {
+                var result = await _repo.GetChurchCollectionsAsync();
+                response.IsSuccess = result.Success;
+                response.Data = result.Data;
+                response.Message = result.Message;
+                response.Code = result.Success ? "200" : "400";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
+
+        public async Task<ApiResponse<List<AccountReferenceSummaryDto>>> GetChurchAccountReferenceSummaryAsync()
+        {
+            var response = new ApiResponse<List<AccountReferenceSummaryDto>>();
+            try
+            {
+                var result = await _repo.GetChurchAccountReferenceSummaryAsync();
+                response.IsSuccess = result.Success;
+                response.Data = result.Data;
+                response.Message = result.Message;
+                response.Code = result.Success ? "200" : "400";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Code = "500";
+                response.Message = ex.Message;
+            }
+            return response;
+        }
     }
 }

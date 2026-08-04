@@ -420,7 +420,7 @@ namespace GCI_Admin.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Payments",
+                name: "Collections",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -442,7 +442,7 @@ namespace GCI_Admin.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Payments", x => x.Id);
+                    table.PrimaryKey("PK_Collections", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -1007,7 +1007,7 @@ namespace GCI_Admin.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Balance = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    PaymentRecieved = table.Column<bool>(type: "bit", nullable: false)
+                    CollectionRecieved = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1617,7 +1617,7 @@ namespace GCI_Admin.Migrations
                 name: "OTPs");
 
             migrationBuilder.DropTable(
-                name: "Payments");
+                name: "Collections");
 
             migrationBuilder.DropTable(
                 name: "RcpCountyMembers");

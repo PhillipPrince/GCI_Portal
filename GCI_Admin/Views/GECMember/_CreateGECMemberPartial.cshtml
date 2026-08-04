@@ -58,6 +58,20 @@
 
         <div class="row">
             <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Title Prefix <span class="text-danger">*</span></label>
+                <select asp-for="GECMember.TitlePrefixId" class="form-select" required>
+                    <option value="">-- Select Title Prefix --</option>
+                    @if (Model?.TitlePrefixes != null)
+                    {
+                        foreach (var prefix in Model.TitlePrefixes)
+                        {
+                            <option value="@prefix.Id">@prefix.Title</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="GECMember.TitlePrefixId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-3">
                 <label class="form-label fw-bold">Position *</label>
                 <select asp-for="GECMember.GECPositionId" class="form-select" required>
                     <option value="">-- Select Position --</option>
@@ -70,12 +84,6 @@
                     }
                 </select>
                 <span asp-validation-for="GECMember.GECPositionId" class="text-danger"></span>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold">Bio</label>
-                <textarea asp-for="GECMember.Bio" class="form-control" rows="3" maxlength="500" 
-                          placeholder="Brief biography or qualifications"></textarea>
-                <span asp-validation-for="GECMember.Bio" class="text-danger"></span>
             </div>
         </div>
 
@@ -129,6 +137,7 @@
         
         // Get all field values for the confirmation message
         const memberDisplayName = $('#gecMemberSelector_display').val();
+        const titlePrefixText = $('select[name="GECMember.TitlePrefixId"] option:selected').text();
         const positionTitle = $('select[name="GECMember.GECPositionId"] option:selected').text();
         const startDate = $('#GECMember_StartDate').val();
         const isActive = $('#GECMember_IsActive').is(':checked');
@@ -148,6 +157,7 @@
                     <p>Are you sure you want to update this GEC member?</p>
                     <hr>
                     <p><strong>Member:</strong> ${memberDisplayName || 'Not selected'}</p>
+                    <p><strong>Title Prefix:</strong> ${titlePrefixText}</p>
                     <p><strong>Position:</strong> ${positionTitle}</p>
                     <p><strong>Start Date:</strong> ${formattedStartDate}</p>
                     <p><strong>Status:</strong> ${isActive ? 'Active' : 'Inactive'}</p>
@@ -163,6 +173,7 @@
                     <p>Are you sure you want to create a new GEC member?</p>
                     <hr>
                     <p><strong>Member:</strong> ${memberDisplayName || 'Not selected'}</p>
+                    <p><strong>Title Prefix:</strong> ${titlePrefixText}</p>
                     <p><strong>Position:</strong> ${positionTitle}</p>
                     <p><strong>Start Date:</strong> ${formattedStartDate}</p>
                     <p><strong>Status:</strong> ${isActive ? 'Active' : 'Inactive'}</p>
@@ -225,6 +236,7 @@
             // Get all field values
             const gecId = $('#GECId').val() || '0';
             const memberId = $('#gecMemberSelector_selectedId').val();
+            const titlePrefixId = $('select[name="GECMember.TitlePrefixId"]').val();
             const gecPositionId = $('select[name="GECMember.GECPositionId"]').val();
             const bio = $('#GECMember_Bio').val();
             const startDate = $('#GECMember_StartDate').val();
@@ -251,6 +263,13 @@
             if (!memberId || memberId === '') {
                 Swal.fire('Validation Error', 'Please select a member', 'warning');
                 reject('Member not selected');
+                return;
+            }
+
+            // Validate title prefix is selected
+            if (!titlePrefixId || titlePrefixId === '') {
+                Swal.fire('Validation Error', 'Please select a title prefix', 'warning');
+                reject('Title prefix not selected');
                 return;
             }
 
@@ -285,6 +304,7 @@
             const requestData = {
                 GECId: parseInt(gecId) || 0,
                 MemberId: parseInt(memberId),
+                TitlePrefixId: parseInt(titlePrefixId),
                 GECPositionId: parseInt(gecPositionId),
                 Bio: bio || '',
                 StartDate: startDate,
@@ -430,6 +450,7 @@
         }
         
         // Reset other fields (but keep default values)
+        $('select[name="GECMember.TitlePrefixId"]').val('');
         $('select[name="GECMember.GECPositionId"]').val('');
         $('#GECMember_Bio').val('');
         $('#GECMember_StartDate').val(new Date().toISOString().split('T')[0]);

@@ -61,7 +61,7 @@
                         <tr>
                             <td>@count</td>
                             <td>
-                                @($"{m.Member?.FirstName} {m.Member?.OtherNames}")
+                                @($"{(m.TitlePrefix != null ? m.TitlePrefix.Title + " " : "")}{m.Member?.FirstName} {m.Member?.OtherNames}")
                             </td>
                             <td>@m.Member?.Phone</td>
                             <td>@m.Member?.Email</td>

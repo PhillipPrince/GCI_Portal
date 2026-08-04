@@ -1,12 +1,13 @@
-using GCI_Admin.DBOperations;
-using GCI_Admin.DBOperations.Repositories;
 using GCI_Admin.Models;
 using GCI_Admin.Models.DTOs;
 using GCI_Admin.Services.IService;
 using GCI_Admin.Utils;
+using Utils;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace GCI_Admin.Controllers
 {
@@ -14,52 +15,101 @@ namespace GCI_Admin.Controllers
     [PermissionAuthorize("VIEW_FINANCE")]
     public class FinanceController : Controller
     {
-        private readonly IPaymentsService _paymentsService;
-        private readonly AuthRepository _authRepository;
-        private readonly AppDbContext _context;
+        private readonly ICollectionsService _collectionsService;
 
-        public FinanceController(IPaymentsService paymentsService, AuthRepository authRepository, AppDbContext context)
+        public FinanceController(ICollectionsService collectionsService)
         {
-            _paymentsService = paymentsService;
-            _authRepository = authRepository;
-            _context = context;
+            _collectionsService = collectionsService;
         }
 
         public async Task<IActionResult> Index()
         {
+            var sessionManager = HttpContext.RequestServices.GetService(typeof(SessionManager)) as SessionManager;
+            var currentUser = sessionManager?.GetUserSession<Member>();
+            if (currentUser == null || currentUser.UserRole != 6)
+            {
+                return RedirectToAction("UnauthorizedAccess", "Auth");
+            }
+
             var finance = new Finance();
 
             try
             {
-                var paymentsResponse = await _paymentsService.GetAllAsync();
-                var accountsSummaryResponse = await _paymentsService.GetAccountReferenceSummaryAsync();
+                var collectionsTask = _collectionsService.GetChurchCollectionsAsync();
+                var accountsSummaryTask = _collectionsService.GetChurchAccountReferenceSummaryAsync();
+                var meetingsTask = _collectionsService.GetActiveMeetingsAsync();
 
-                finance.Payments = paymentsResponse?.Data ?? new List<Payment>();
+                await Task.WhenAll(collectionsTask, accountsSummaryTask, meetingsTask);
+
+                var collectionsResponse = await collectionsTask;
+                var accountsSummaryResponse = await accountsSummaryTask;
+                var meetingsResponse = await meetingsTask;
+
+                finance.Collections = collectionsResponse?.Data ?? new List<Collection>();
                 finance.AccountReferenceSummaries = accountsSummaryResponse?.Data ?? new List<AccountReferenceSummaryDto>();
 
-                // Load active members (StatusId == 1) for the payment recording member selector
-                ViewBag.Members = await _context.Members
-                    .Where(m => m.StatusId == 1)
-                    .OrderBy(m => m.FirstName)
-                    .ToListAsync();
+                ViewBag.Members = new List<Member>();
+                ViewBag.Meetings = meetingsResponse?.Data ?? new List<MeetingAttendance>();
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Error loading finance data: {ex.Message}";
-                finance.Payments = new List<Payment>();
+                TempData["ErrorMessage"] = $"Error loading church finance data: {ex.Message}";
+                finance.Collections = new List<Collection>();
                 finance.AccountReferenceSummaries = new List<AccountReferenceSummaryDto>();
                 ViewBag.Members = new List<Member>();
+                ViewBag.Meetings = new List<MeetingAttendance>();
+            }
+
+            return View(finance);
+        }
+
+        public async Task<IActionResult> GBICollections()
+        {
+            var sessionManager = HttpContext.RequestServices.GetService(typeof(SessionManager)) as SessionManager;
+            var currentUser = sessionManager?.GetUserSession<Member>();
+            if (currentUser == null || currentUser.UserRole != 6)
+            {
+                return RedirectToAction("UnauthorizedAccess", "Auth");
+            }
+
+            var finance = new Finance();
+
+            try
+            {
+                var collectionsTask = _collectionsService.GetGBICollectionsAsync();
+                var accountsSummaryTask = _collectionsService.GetGBIAccountReferenceSummaryAsync();
+                var meetingsTask = _collectionsService.GetActiveMeetingsAsync();
+
+                await Task.WhenAll(collectionsTask, accountsSummaryTask, meetingsTask);
+
+                var collectionsResponse = await collectionsTask;
+                var accountsSummaryResponse = await accountsSummaryTask;
+                var meetingsResponse = await meetingsTask;
+
+                finance.Collections = collectionsResponse?.Data ?? new List<Collection>();
+                finance.AccountReferenceSummaries = accountsSummaryResponse?.Data ?? new List<AccountReferenceSummaryDto>();
+
+                ViewBag.Members = new List<Member>();
+                ViewBag.Meetings = meetingsResponse?.Data ?? new List<MeetingAttendance>();
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error loading GBI finance data: {ex.Message}";
+                finance.Collections = new List<Collection>();
+                finance.AccountReferenceSummaries = new List<AccountReferenceSummaryDto>();
+                ViewBag.Members = new List<Member>();
+                ViewBag.Meetings = new List<MeetingAttendance>();
             }
 
             return View(finance);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetFilteredPayments(
+        public async Task<IActionResult> GetFilteredCollections(
             string search = null,
             string accountReference = null,
             string dateRange = null,
-            string paymentStatus = null,
+            string PaymentStatus = null,
             DateTime? fromDate = null,
             DateTime? toDate = null,
             int? filterYear = null,
@@ -68,133 +118,12 @@ namespace GCI_Admin.Controllers
         {
             try
             {
-                var response = await _paymentsService.GetAllAsync();
-                var payments = response?.Data ?? new List<Payment>();
+                var response = await _collectionsService.GetFilteredCollectionsAsync(
+                    search, accountReference, dateRange, PaymentStatus, fromDate, toDate, filterYear, filterMonth, paybill);
 
-                // Apply filters
-                var query = payments.AsQueryable();
+                var filteredCollections = response?.Data ?? new List<Collection>();
 
-                if (filterYear.HasValue)
-                {
-                    query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Year == filterYear.Value);
-                }
-
-                if (filterMonth.HasValue)
-                {
-                    query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Month == filterMonth.Value);
-                }
-
-                if (!string.IsNullOrEmpty(search))
-                {
-                    query = query.Where(p =>
-                        (p.PhoneNumber != null && p.PhoneNumber.Contains(search)) ||
-                        (p.MpesaReceiptNumber != null && p.MpesaReceiptNumber.Contains(search)) ||
-                        (p.AccountReference != null && p.AccountReference.Contains(search)) 
-                       
-                    );
-                }
-
-                if (!string.IsNullOrEmpty(accountReference))
-                {
-                    query = query.Where(p => p.AccountReference == accountReference);
-                }
-
-                if (!string.IsNullOrEmpty(paybill))
-                {
-                    query = query.Where(p => p.Paybill == paybill);
-                }
-
-                if (!string.IsNullOrEmpty(paymentStatus) && int.TryParse(paymentStatus, out int statusId))
-                {
-                    query = query.Where(p => p.PaymentStatusId == statusId);
-                }
-
-                // Apply date range
-                var now = DateTime.Now;
-                switch (dateRange)
-                {
-                    case "today":
-                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Date == now.Date);
-                        break;
-                    case "yesterday":
-                        var yesterday = now.AddDays(-1).Date;
-                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Date == yesterday);
-                        break;
-                    case "thisweek":
-                        var weekStart = now.AddDays(-(int)now.DayOfWeek).Date;
-                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= weekStart);
-                        break;
-                    case "thismonth":
-                        var monthStart = new DateTime(now.Year, now.Month, 1);
-                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= monthStart);
-                        break;
-                    case "lastmonth":
-                        var lastMonth = now.AddMonths(-1);
-                        var lastMonthStart = new DateTime(lastMonth.Year, lastMonth.Month, 1);
-                        var lastMonthEnd = lastMonthStart.AddMonths(1).AddDays(-1);
-                        query = query.Where(p => p.TransactionDate.HasValue &&
-                                                p.TransactionDate.Value >= lastMonthStart &&
-                                                p.TransactionDate.Value <= lastMonthEnd);
-                        break;
-                    case "thisyear":
-                        var yearStart = new DateTime(now.Year, 1, 1);
-                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= yearStart);
-                        break;
-                    case "custom":
-                        if (fromDate.HasValue && toDate.HasValue)
-                        {
-                            var toDateEnd = toDate.Value.AddDays(1).AddSeconds(-1);
-                            query = query.Where(p => p.TransactionDate.HasValue &&
-                                                    p.TransactionDate.Value >= fromDate.Value &&
-                                                    p.TransactionDate.Value <= toDateEnd);
-                        }
-                        break;
-                }
-
-              //  var now = DateTime.Now;
-                switch (dateRange)
-                {
-                    case "today":
-                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Date == now.Date);
-                        break;
-                    case "yesterday":
-                        var yesterday = now.AddDays(-1).Date;
-                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Date == yesterday);
-                        break;
-                    case "thisweek":
-                        var weekStart = now.AddDays(-(int)now.DayOfWeek).Date;
-                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= weekStart);
-                        break;
-                    case "thismonth":
-                        var monthStart = new DateTime(now.Year, now.Month, 1);
-                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= monthStart);
-                        break;
-                    case "lastmonth":
-                        var lastMonth = now.AddMonths(-1);
-                        var lastMonthStart = new DateTime(lastMonth.Year, lastMonth.Month, 1);
-                        var lastMonthEnd = lastMonthStart.AddMonths(1).AddDays(-1);
-                        query = query.Where(p => p.TransactionDate.HasValue &&
-                                                p.TransactionDate.Value >= lastMonthStart &&
-                                                p.TransactionDate.Value <= lastMonthEnd);
-                        break;
-                    case "thisyear":
-                        var yearStart = new DateTime(now.Year, 1, 1);
-                        query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= yearStart);
-                        break;
-                    case "custom":
-                        if (fromDate.HasValue && toDate.HasValue)
-                        {
-                            var toDateEnd = toDate.Value.AddDays(1).AddSeconds(-1);
-                            query = query.Where(p => p.TransactionDate.HasValue &&
-                                                    p.TransactionDate.Value >= fromDate.Value &&
-                                                    p.TransactionDate.Value <= toDateEnd);
-                        }
-                        break;
-                }
-
-                var filteredPayments = query.OrderBy(p => p.Id).ToList();
-
-                return PartialView("_GivingsTablePartial", filteredPayments);
+                return PartialView("_GivingsTablePartial", filteredCollections);
             }
             catch (Exception ex)
             {
@@ -213,22 +142,13 @@ namespace GCI_Admin.Controllers
                     return Content("{\"success\":true,\"data\":" + cachedMembersJson + "}", "application/json");
                 }
 
-                var members = await _context.Members
-                    .Where(m => m.StatusId == 1)
-                    .OrderBy(m => m.FirstName)
-                    .Select(m => new {
-                        id = m.Id,
-                        firstName = m.FirstName,
-                        otherNames = m.OtherNames,
-                        email = m.Email,
-                        phone = m.Phone,
-                        gender = m.Gender
-                    })
-                    .ToListAsync();
+                var activeMembersResponse = await _collectionsService.GetActiveMembersDtoAsync();
+                var activeMembers = activeMembersResponse?.Data ?? new List<object>();
 
-                HttpContext.Session.SetString("ActiveMembers", JsonSerializer.Serialize(members));
+                var jsonStr = JsonSerializer.Serialize(activeMembers);
+                HttpContext.Session.SetString("ActiveMembers", jsonStr);
 
-                return Ok(new { success = true, data = members });
+                return Content("{\"success\":true,\"data\":" + jsonStr + "}", "application/json");
             }
             catch (Exception ex)
             {
@@ -237,135 +157,31 @@ namespace GCI_Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveManualPayment([FromBody] Payment payment)
+        public async Task<IActionResult> SaveManualCollection([FromBody] Collection collection)
         {
             try
             {
-                // Validate
-                if (payment == null || payment.Amount <= 0)
+                var response = await _collectionsService.SaveManualCollectionAsync(collection);
+                if (response.IsSuccess)
                 {
-                    return BadRequest(new { message = "Invalid payment data" });
+                    return Ok(new { success = true, message = response.Message ?? "Collection saved successfully" });
                 }
 
-                // Set default values
-                payment.CreatedAt = DateTime.UtcNow;
-                payment.MerchantRequestID = "MANUAL";
-                payment.CheckoutRequestID = "MANUAL";
-                payment.Paybill = "CASH";
-
-                // Save to database
-                _context.Payments.Add(payment);
-                await _context.SaveChangesAsync();
-
-                return Ok(new { success = true, message = "Payment saved successfully" });
+                return StatusCode(500, new { message = response.Message ?? "Error saving Collection" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = $"Error saving payment: {ex.Message}" });
+                return StatusCode(500, new { message = $"Error saving Collection: {ex.Message}" });
             }
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> ExportGivings(
-        //    string search = null,
-        //    string accountReference = null,
-        //    string dateRange = null,
-        //    string paymentStatus = null,
-        //    DateTime? fromDate = null,
-        //    DateTime? toDate = null)
-        //{
-        //    try
-        //    {
-        //        var response = await _paymentsService.GetAllAsync();
-        //        var payments = response?.Data ?? new List<Payment>();
-
-        //        // Apply same filters as GetFilteredPayments
-        //        var query = payments.AsQueryable();
-
-        //        if (!string.IsNullOrEmpty(search))
-        //        {
-        //            query = query.Where(p =>
-        //                (p.PhoneNumber != null && p.PhoneNumber.Contains(search)) ||
-        //                (p.MpesaReceiptNumber != null && p.MpesaReceiptNumber.Contains(search)) ||
-        //                (p.AccountReference != null && p.AccountReference.Contains(search))
-        //            );
-        //        }
-
-        //        if (!string.IsNullOrEmpty(accountReference))
-        //        {
-        //            query = query.Where(p => p.AccountReference == accountReference);
-        //        }
-
-        //        if (!string.IsNullOrEmpty(paymentStatus) && int.TryParse(paymentStatus, out int statusId))
-        //        {
-        //            query = query.Where(p => p.PaymentStatusId == statusId);
-        //        }
-
-        //        // Apply date range filters
-        //        switch (dateRange)
-        //        {
-        //            case "today":
-        //                query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Date == now.Date);
-        //                break;
-        //            case "yesterday":
-        //                var yesterday = now.AddDays(-1).Date;
-        //                query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value.Date == yesterday);
-        //                break;
-        //            case "thisweek":
-        //                var weekStart = now.AddDays(-(int)now.DayOfWeek).Date;
-        //                query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= weekStart);
-        //                break;
-        //            case "thismonth":
-        //                var monthStart = new DateTime(now.Year, now.Month, 1);
-        //                query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= monthStart);
-        //                break;
-        //            case "lastmonth":
-        //                var lastMonth = now.AddMonths(-1);
-        //                var lastMonthStart = new DateTime(lastMonth.Year, lastMonth.Month, 1);
-        //                var lastMonthEnd = lastMonthStart.AddMonths(1).AddDays(-1);
-        //                query = query.Where(p => p.TransactionDate.HasValue &&
-        //                                        p.TransactionDate.Value >= lastMonthStart &&
-        //                                        p.TransactionDate.Value <= lastMonthEnd);
-        //                break;
-        //            case "thisyear":
-        //                var yearStart = new DateTime(now.Year, 1, 1);
-        //                query = query.Where(p => p.TransactionDate.HasValue && p.TransactionDate.Value >= yearStart);
-        //                break;
-        //            case "custom":
-        //                if (fromDate.HasValue && toDate.HasValue)
-        //                {
-        //                    var toDateEnd = toDate.Value.AddDays(1).AddSeconds(-1);
-        //                    query = query.Where(p => p.TransactionDate.HasValue &&
-        //                                            p.TransactionDate.Value >= fromDate.Value &&
-        //                                            p.TransactionDate.Value <= toDateEnd);
-        //                }
-        //                break;
-        //        }
-
-        //        var filteredPayments = query.OrderByDescending(p => p.TransactionDate).ToList();
-
-        //        return Ok(filteredPayments);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, new { error = ex.Message });
-        //    }
-        //}
         [HttpPost]
         public async Task<IActionResult> SendOtp([FromBody] SendOtpRequest request)
         {
             try
             {
-               var otp= await _authRepository.GenerateAndInsertOtpAsync(request.EmailOrPhone,10);
-                if (otp != null)
-                {
-
-                    return Ok(new { isSuccess = true, message = "OTP sent successfully" });
-                }
-                else
-                {
-                    return Ok(new { isSuccess = false, message = "Failed to send OTP" });
-                }
+                var response = await _collectionsService.SendOtpAsync(request);
+                return Ok(new { isSuccess = response.IsSuccess, message = response.Message });
             }
             catch (Exception ex)
             {
@@ -378,32 +194,13 @@ namespace GCI_Admin.Controllers
         {
             try
             {
-                var verified = _paymentsService.VerifyCollection(request);
-                if (verified.Result.IsSuccess)
-                {
-
-                
-
-                    return Ok(new { isSuccess = true, message = verified.Result.Message});
-
-
-                }
-
-                else
-                {
-                    return Ok(new { isSuccess = false, message = verified.Result.Message });
-                }
-
-
+                var response = await _collectionsService.VerifyCollection(request);
+                return Ok(new { isSuccess = response.IsSuccess, message = response.Message });
             }
             catch (Exception ex)
             {
                 return Ok(new { isSuccess = false, message = ex.Message });
             }
         }
-
-       
-        
-      
     }
 }

@@ -16,11 +16,36 @@ namespace GCI_Admin.DBOperations
         {
 
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<AssemblyLeader>(entity =>
+            {
+                entity.HasOne(al => al.Assembly)
+                      .WithMany()
+                      .HasForeignKey(al => al.AssemblyId);
+
+                entity.HasOne(al => al.Member)
+                      .WithMany()
+                      .HasForeignKey(al => al.MemberId);
+            });
+
+            modelBuilder.Entity<Assembly>(entity =>
+            {
+                entity.HasOne<AssemblyLeader>()
+                      .WithMany()
+                      .HasForeignKey(a => a.AssemblyLeaderId)
+                      .IsRequired(false);
+            });
+        }
         public DbSet<Member> Members { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<AnnualEventCalendar> AnnualEventCalendars { get; set; }
         public DbSet<GECMember> GECMembers { get; set; }
         public DbSet<GECPosition> GECPositions { get; set; }
+        public DbSet<TitlePrefix> TitlePrefixes { get; set; }
         public DbSet<SystemConfig> SystemConfig { get; set; }
         public DbSet<EventRegistration> EventRegistrations { get; set; }
         public DbSet<MemberAdditionalInformation> MemberAdditionalInformations { get; set; }
@@ -35,7 +60,7 @@ namespace GCI_Admin.DBOperations
         public DbSet<AnnualTheme> AnnualThemes { get; set; }
         public DbSet<MonthlyTheme> MonthlyThemes { get; set; }
         public DbSet<Notification> Notifications { get; set; }
-        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Collection> Collections { get; set; }
         public DbSet<BenevolenceMember> BenevolenceMembers { get; set; }
         public DbSet<BenevolenceBeneficiary> BenevolenceBeneficiaries { get; set; }
         public DbSet<Deacon> Deacons { get; set; }
@@ -68,6 +93,7 @@ namespace GCI_Admin.DBOperations
         public DbSet<County> Counties { get; set; }
         public DbSet<EventAttendance> EventAttendances { get; set; }
         public DbSet<ChurchDailyActivity> ChurchDailyActivities { get; set; }
+        public DbSet<EventSponsor> EventSponsors { get; set; }
 
     }
 }

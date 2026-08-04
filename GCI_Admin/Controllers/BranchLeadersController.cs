@@ -17,11 +17,13 @@ namespace GCI_Admin.Controllers
     {
         private readonly IAssembliesService _assembliesService;
         private readonly MembersRepository _membersRepository;
+        private readonly TitlePrefixRepository _prefixRepository;
 
-        public BranchLeadersController(IAssembliesService assembliesService, MembersRepository membersRepository)
+        public BranchLeadersController(IAssembliesService assembliesService, MembersRepository membersRepository, TitlePrefixRepository prefixRepository)
         {
             _assembliesService = assembliesService;
             _membersRepository = membersRepository;
+            _prefixRepository = prefixRepository;
         }
 
         public async Task<IActionResult> LoadCreateForm()
@@ -40,6 +42,12 @@ namespace GCI_Admin.Controllers
             if (assembliesResult.IsSuccess && assembliesResult.Data != null)
             {
                 dto.Assemblies = assembliesResult.Data;
+            }
+
+            var prefixesResult = await _prefixRepository.GetActivePrefixesAsync();
+            if (prefixesResult.Success && prefixesResult.Data != null)
+            {
+                dto.TitlePrefixes = prefixesResult.Data;
             }
 
             dto.AssemblyLeader = new AssemblyLeaderDto
@@ -76,12 +84,19 @@ namespace GCI_Admin.Controllers
                 dto.Assemblies = assembliesResult.Data;
             }
 
+            var prefixesResult = await _prefixRepository.GetActivePrefixesAsync();
+            if (prefixesResult.Success && prefixesResult.Data != null)
+            {
+                dto.TitlePrefixes = prefixesResult.Data;
+            }
+
             var leader = leaderResult.Data;
             dto.AssemblyLeader = new AssemblyLeaderDto
             {
                 AssemblyLeaderId = leader.AssemblyLeaderId,
                 MemberId = leader.MemberId,
                 AssemblyId = leader.AssemblyId,
+                TitlePrefixId = leader.TitlePrefixId,
                 Bio = leader.Bio,
                 StartDate = leader.StartDate,
                 EndDate = leader.EndDate,

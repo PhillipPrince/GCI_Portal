@@ -15,24 +15,38 @@ namespace GCI_Admin.Services.Service
     {
         private readonly MembersRepository _membersRepository;
         private readonly AppDbContext _context;
+        private readonly SessionManager _sessionManager;
         private readonly Security _security = new Security();
 
-
-
-        public MembersService(MembersRepository membersRepository, AppDbContext context)
+        public MembersService(MembersRepository membersRepository, AppDbContext context, SessionManager sessionManager)
         {
             _membersRepository = membersRepository;
             _context = context;
+            _sessionManager = sessionManager;
         }
 
-        // ✅ GET ALL MEMBERS
+        // ✅ GET ALL MEMBERS (Checks Session first)
         public async Task<ApiResponse<List<Member>>> GetAllMembersAsync()
         {
             var response = new ApiResponse<List<Member>>();
 
             try
             {
+                // Check session cache first
+                var cachedMembers = _sessionManager.GetMembersSession();
+                if (cachedMembers != null && cachedMembers.Any())
+                {
+                    response.Data = cachedMembers;
+                    response.Message = "Members retrieved from session successfully";
+                    return response;
+                }
+
+                // If not in session, fetch from DB and store in session
                 var result = await _membersRepository.GetAllMembersAsync();
+                if (result.Success && result.Data != null)
+                {
+                    _sessionManager.SetMembersSession(result.Data);
+                }
 
                 response.Data = result.Data;
                 response.Message = "Members retrieved successfully";

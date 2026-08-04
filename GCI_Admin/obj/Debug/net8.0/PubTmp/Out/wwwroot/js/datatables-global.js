@@ -13,6 +13,11 @@
 (function ($) {
     'use strict';
 
+    // Suppress DataTables browser alert popups
+    if ($.fn.dataTable) {
+        $.fn.dataTable.ext.errMode = 'none';
+    }
+
     /**
      * Core initializer.
      * @param {string|jQuery} selector - CSS selector or jQuery element.

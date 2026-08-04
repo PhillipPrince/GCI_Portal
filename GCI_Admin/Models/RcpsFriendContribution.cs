@@ -28,7 +28,7 @@ namespace GCI_Admin.Models
         [StringLength(100)]
         public string? CheckoutRequestID { get; set; }
 
-        public int PaymentStatusId { get; set; }
+        public int CollectionstatusId { get; set; }
 
         public DateTime Date { get; set; } = DateTime.UtcNow;
 

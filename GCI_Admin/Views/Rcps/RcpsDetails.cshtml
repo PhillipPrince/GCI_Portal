@@ -369,12 +369,12 @@
             });
         });
 
-        function recordPayment(pledgeId) {
-            $.get('/RCPS/RecordPaymentPartial/' + pledgeId, function(data) {
+        function recordCollection(pledgeId) {
+            $.get('/RCPS/RecordCollectionPartial/' + pledgeId, function(data) {
                 $('#makePledgeModalContainer').html(data);
-                $('#recordPaymentModal').modal('show');
+                $('#recordCollectionModal').modal('show');
             }).fail(function() {
-                Swal.fire('Error', 'Failed to load payment form', 'error');
+                Swal.fire('Error', 'Failed to load Collection form', 'error');
             });
         }
 

@@ -60,6 +60,19 @@
 
         <div class="row">
             <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Title Prefix</label>
+                <select asp-for="AssemblyLeader.TitlePrefixId" class="form-select" id="TitlePrefixId" name="TitlePrefixId">
+                    <option value="">-- None --</option>
+                    @if (Model?.TitlePrefixes != null)
+                    {
+                        foreach (var prefix in Model.TitlePrefixes)
+                        {
+                            <option value="@prefix.Id" selected="@(Model?.AssemblyLeader?.TitlePrefixId == prefix.Id)">@prefix.Title</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
                 <label class="form-label fw-bold">Branch / Assembly <span class="text-danger">*</span></label>
                 <select asp-for="AssemblyLeader.AssemblyId" class="form-select" id="AssemblyId" name="AssemblyId" required>
                     <option value="">-- Select Branch --</option>
@@ -72,12 +85,6 @@
                     }
                 </select>
                 <span asp-validation-for="AssemblyLeader.AssemblyId" class="text-danger"></span>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label fw-bold">Start Date <span class="text-danger">*</span></label>
-                <input asp-for="AssemblyLeader.StartDate" type="date" class="form-control" id="StartDate" name="StartDate" required
-                       value="@(Model?.AssemblyLeader?.StartDate.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))">
-                <span asp-validation-for="AssemblyLeader.StartDate" class="text-danger"></span>
             </div>
         </div>
 

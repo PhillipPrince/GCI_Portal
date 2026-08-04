@@ -86,7 +86,7 @@
                     <div class="col-md-6">
                         <div class="border-bottom pb-3 mb-3">
                             <h6 class="text-muted mb-2">
-                                <i class="fa fa-tag me-1"></i> Payment
+                                <i class="fa fa-tag me-1"></i> Collection
                             </h6>
                             @if (Model.Event.IsPaid && Model.Event.Price.HasValue)
                             {
@@ -321,7 +321,35 @@
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm">
+@{
+    var regsList = Model.Registrations ?? new List<GCI_Admin.Models.EventRegistration>();
+    var sponsorsList = Model.Sponsors ?? new List<GCI_Admin.Models.EventSponsor>();
+    var eventPrice = Model.Event.Price ?? 0;
+
+    int regSuccessCount = regsList.Count(r => r.PaymentStatusId == 4);
+    int regPendingCount = regsList.Count(r => r.PaymentStatusId != 4);
+
+    decimal regSuccessRev = regsList.Where(r => r.PaymentStatusId == 4).Sum(r => r.AmountPaid);
+    decimal regPendingRev = regPendingCount * eventPrice;
+
+    int sponsorSuccessCount = sponsorsList.Count(s => s.PaymentStatusId == 4);
+    int sponsorPendingCount = sponsorsList.Count(s => s.PaymentStatusId != 4);
+
+    decimal sponsorSuccessRev = sponsorsList.Where(s => s.PaymentStatusId == 4).Sum(s => s.Amount);
+    decimal sponsorPendingRev = sponsorsList.Where(s => s.PaymentStatusId != 4).Sum(s => s.Amount);
+
+    int totalSuccessCount = regSuccessCount + sponsorSuccessCount;
+    int totalPendingCount = regPendingCount + sponsorPendingCount;
+
+    decimal totalSuccessRev = regSuccessRev + sponsorSuccessRev;
+    decimal totalPendingRev = regPendingRev + sponsorPendingRev;
+
+    int totalRegisteredAttendees = regsList.Count;
+    int totalMarkedAttended = regsList.Count(r => r.HasAttended == true);
+}
+
+        <!-- Quick Stats Card -->
+        <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white border-0 py-3">
                 <h5 class="fw-bold mb-0">
                     <i class="fa fa-chart-bar me-2 text-info"></i>
@@ -330,21 +358,21 @@
             </div>
             <div class="card-body">
                 <div class="text-center mb-3">
-                    <div class="display-4 text-primary fw-bold" id="attendeeCount">-</div>
+                    <div class="display-4 text-primary fw-bold" id="attendeeCount">@totalRegisteredAttendees</div>
                     <div class="text-muted">Registered Attendees</div>
                 </div>
                 <div class="text-center mb-3">
-                    <div class="display-4 text-success fw-bold" id="attendedCount">-</div>
+                    <div class="display-4 text-success fw-bold" id="attendedCount">@totalMarkedAttended</div>
                     <div class="text-muted">Marked Attended</div>
                 </div>
                 <div class="text-center">
-                    <div class="display-4 text-warning fw-bold" id="pendingCount">-</div>
-                    <div class="text-muted">Pending Payments</div>
+                    <div class="display-4 text-warning fw-bold" id="pendingCount">@totalPendingCount</div>
+                    <div class="text-muted">Pending Collections</div>
                 </div>
                 @if (Model.Event.IsPaid)
                 {
                     <div class="text-center mt-3 pt-3 border-top">
-                        <div class="display-4 text-info fw-bold" id="revenue">-</div>
+                        <div class="display-4 text-info fw-bold" id="revenue">KES @totalSuccessRev.ToString("N2")</div>
                         <div class="text-muted">Revenue Generated</div>
                     </div>
                 }
@@ -361,14 +389,6 @@
         .Select(g => new { Assembly = g.Key, Count = g.Count() })
         .OrderByDescending(x => x.Count)
         .ToList();
-
-    int totalSuccessfulPayments = Model.Registrations.Where(r => r.PaymentStatusId == 4).Count();
-    int totalFailedPayments = Model.Registrations.Where(r => r.PaymentStatusId != 4 && r.PaymentStatusId != 2).Count();
-    int totalPendingPayments = Model.Registrations.Where(r => r.PaymentStatusId == 2).Count();
-    
-    decimal successfulRevenue = Model.Registrations.Where(r => r.PaymentStatusId == 4).Sum(r => r.AmountPaid);
-    decimal expectedFromPending = totalPendingPayments * (Model.Event.Price ?? 0);
-    decimal expectedFromFailed = totalFailedPayments * (Model.Event.Price ?? 0);
 
     <div class="row mt-4">
         <!-- Assembly Summary Card -->
@@ -421,17 +441,14 @@
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
-                            <span class="text-success fw-bold"><i class="fa fa-check-circle me-1"></i> Successful Payments</span>
-                            <span class="fw-bold">KES @successfulRevenue.ToString("N2") <span class="text-muted small">(@totalSuccessfulPayments)</span></span>
+                            <span class="text-success fw-bold"><i class="fa fa-check-circle me-1"></i> Successful Collections</span>
+                            <span class="fw-bold">KES @totalSuccessRev.ToString("N2") <span class="text-muted small">(@totalSuccessCount)</span></span>
                         </div>
                         <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
-                            <span class="text-warning fw-bold"><i class="fa fa-clock me-1"></i> Pending Payments</span>
-                            <span class="fw-bold">KES @expectedFromPending.ToString("N2") <span class="text-muted small">(@totalPendingPayments)</span></span>
+                            <span class="text-warning fw-bold"><i class="fa fa-clock me-1"></i> Pending Collections</span>
+                            <span class="fw-bold">KES @totalPendingRev.ToString("N2") <span class="text-muted small">(@totalPendingCount)</span></span>
                         </div>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span class="text-danger fw-bold"><i class="fa fa-times-circle me-1"></i> Failed Payments</span>
-                            <span class="fw-bold">KES @expectedFromFailed.ToString("N2") <span class="text-muted small">(@totalFailedPayments)</span></span>
-                        </div>
+                       
                     </div>
                 </div>
             </div>
@@ -454,7 +471,7 @@
                     <div>
                         @if (Model.Event.IsPaid)
                         {
-                            <button class="btn btn-sm btn-outline-warning me-2" onclick="sendBulkPaymentReminders(@Model.Event.EventId)">
+                            <button class="btn btn-sm btn-outline-warning me-2" onclick="sendBulkCollectionReminders(@Model.Event.EventId)">
                                 <i class="fa fa-bell me-1"></i> Remind Unpaid
                             </button>
                         }
@@ -478,6 +495,98 @@
         </div>
     </div>
 }
+
+<!-- Sponsors Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">
+                    <i class="fa fa-hand-holding-heart me-2 text-success"></i>
+                    Event Sponsors
+                    <span class="badge bg-success ms-2">@(Model.Sponsors?.Count ?? 0)</span>
+                </h5>
+                <div class="d-flex align-items-center">
+                    @if (Model.Sponsors != null && Model.Sponsors.Any())
+                    {
+                        var totalSponsoredSeats = Model.Sponsors.Where(s => s.PaymentStatusId == 4 || s.PaymentStatusId == 2).Sum(s => s.NumberOfPeople);
+                        var totalSponsorshipAmount = Model.Sponsors.Where(s => s.PaymentStatusId == 4 || s.PaymentStatusId == 2).Sum(s => s.Amount);
+                        <span class="badge bg-light text-dark border me-2">Seats Sponsored: <strong>@totalSponsoredSeats</strong></span>
+                        <span class="badge bg-success me-3">Total Raised: <strong>KES @totalSponsorshipAmount.ToString("N2")</strong></span>
+                    }
+                    <button class="btn btn-sm btn-success" onclick="openAddSponsorModal()">
+                        <i class="fa fa-plus-circle me-1"></i> Add Sponsor
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Sponsor Name</th>
+                                <th>Phone Number</th>
+                                <th class="text-center">People Sponsored</th>
+                                <th class="text-end">Amount (KES)</th>
+                                <th class="text-center">Payment Status</th>
+                                <th>Date Sponsored</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Sponsors != null && Model.Sponsors.Any())
+                            {
+                                int idx = 1;
+                                foreach (var sponsor in Model.Sponsors)
+                                {
+                                    <tr>
+                                        <td>@(idx++)</td>
+                                        <td class="fw-bold text-dark">@sponsor.SponsorName</td>
+                                        <td>@sponsor.SponsorPhone</td>
+                                        <td class="text-center"><span class="badge bg-info px-3 py-1">@sponsor.NumberOfPeople</span></td>
+                                        <td class="text-end fw-bold text-success">KES @sponsor.Amount.ToString("N2")</td>
+                                        <td class="text-center">
+                                            <select class="form-select form-select-sm d-inline-block w-auto" onchange="updateSponsorPaymentStatus(@sponsor.SponsorId, this.value)">
+                                                @if (sponsor.PaymentStatusId == 4)
+                                                {
+                                                    <option value="4" selected>Paid / Success</option>
+                                                    <option value="2">Pending</option>
+                                                    <option value="3">Failed</option>
+                                                }
+                                                else if (sponsor.PaymentStatusId == 3)
+                                                {
+                                                    <option value="4">Paid / Success</option>
+                                                    <option value="2">Pending</option>
+                                                    <option value="3" selected>Failed</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="4">Paid / Success</option>
+                                                    <option value="2" selected>Pending</option>
+                                                    <option value="3">Failed</option>
+                                                }
+                                            </select>
+                                        </td>
+                                        <td>@sponsor.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-muted">
+                                        <i class="fa fa-hand-holding-heart fa-2x mb-2 d-block text-muted"></i>
+                                        No sponsors recorded for this event yet.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Feedback Section -->
 <div class="row mt-4 mb-4">
@@ -756,7 +865,7 @@
             Phone = !string.IsNullOrWhiteSpace(r.GuestPhone) ? r.GuestPhone : (r.Member != null ? r.Member.Phone : ""),
             Assembly = !string.IsNullOrWhiteSpace(r.GuestAssembly) ? r.GuestAssembly : (r.Member != null ? (r.Member.Assembly ?? "Unknown") : "Unknown"),
             AmountPaid = r.AmountPaid,
-            PaymentStatus = r.PaymentStatusId == 4 ? "Paid" : (r.PaymentStatusId == 2 ? "Pending" : "Failed"),
+            Collectionstatus = r.PaymentStatusId == 4 ? "Paid" : (r.PaymentStatusId == 2 ? "Pending" : "Failed"),
             Attended = r.HasAttended == true ? "Yes" : "No",
             RegistrationDate = r.RegistrationDate.ToString("yyyy-MM-dd HH:mm")
         })) : "[]");
@@ -798,10 +907,10 @@
                 let failedCount = 0;
 
                 rawRegistrations.forEach(r => {
-                    if (r.PaymentStatus === 'Paid') {
+                    if (r.Collectionstatus === 'Paid') {
                         successCount++;
                         successAmount += r.AmountPaid;
-                    } else if (r.PaymentStatus === 'Pending') {
+                    } else if (r.Collectionstatus === 'Pending') {
                         pendingCount++;
                     } else {
                         failedCount++;
@@ -810,9 +919,9 @@
 
                 const eventPrice = @(Model.Event.Price ?? 0);
                 const financialSummaryArray = [
-                    { Category: 'Successful Payments', Count: successCount, Amount: successAmount },
-                    { Category: 'Pending Payments', Count: pendingCount, Amount: pendingCount * eventPrice },
-                    { Category: 'Failed Payments', Count: failedCount, Amount: failedCount * eventPrice }
+                    { Category: 'Successful Collections', Count: successCount, Amount: successAmount },
+                    { Category: 'Pending Collections', Count: pendingCount, Amount: pendingCount * eventPrice },
+                    { Category: 'Failed Collections', Count: failedCount, Amount: failedCount * eventPrice }
                 ];
                 
                 XLSX.utils.sheet_add_json(ws, financialSummaryArray, { origin: { r: currentRow, c: 0 }, skipHeader: false });
@@ -864,10 +973,10 @@
             });
         }
 
-        function sendBulkPaymentReminders(eventId) {
+        function sendBulkCollectionReminders(eventId) {
             Swal.fire({
-                title: 'Send Bulk Payment Reminders?',
-                text: 'This will send SMS/Email payment reminders to ALL registrants who have not paid. Are you sure?',
+                title: 'Send Bulk Collection Reminders?',
+                text: 'This will send SMS/Email Collection reminders to ALL registrants who have not paid. Are you sure?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Yes, Send Reminders'
@@ -882,7 +991,7 @@
                     });
 
                     $.ajax({
-                        url: '/Event/SendBulkPaymentReminders',
+                        url: '/Event/SendBulkCollectionReminders',
                         type: 'POST',
                         data: { eventId: eventId },
                         headers: {
@@ -896,7 +1005,7 @@
                             }
                         },
                         error: function() {
-                            Swal.fire('Error', 'Failed to send bulk payment reminders.', 'error');
+                            Swal.fire('Error', 'Failed to send bulk Collection reminders.', 'error');
                         }
                     });
                 }
@@ -974,8 +1083,8 @@
                         $('#attendeeCount').text(response.attendeeCount || 0);
                         $('#attendedCount').text(response.attendedCount || 0);
                         $('#pendingCount').text(response.pendingCount || 0);
-                        if (response.revenue) {
-                            $('#revenue').text(`KES ${response.revenue.toLocaleString()}`);
+                        if (response.revenue !== undefined) {
+                            $('#revenue').text(`KES ${(response.revenue || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`);
                         }
                     }
                 }
@@ -1201,5 +1310,138 @@
                 }
             });
         }
+
+        function openAddSponsorModal() {
+            $('#addSponsorForm')[0].reset();
+            $('#addSponsorModal').modal('show');
+        }
+
+        function calculateSponsorTotalAmount() {
+            const count = parseInt($('#addSponsorCount').val(), 10) || 1;
+            const price = @(Model.Event.Price ?? 0);
+            if (price > 0) {
+                $('#addSponsorAmount').val((count * price).toFixed(2));
+            }
+        }
+
+        function submitAddSponsor() {
+            const eventId = parseInt($('#addSponsorEventId').val(), 10);
+            const name = $('#addSponsorName').val().trim();
+            const phone = $('#addSponsorPhone').val().trim();
+            const count = parseInt($('#addSponsorCount').val(), 10) || 0;
+            const amount = parseFloat($('#addSponsorAmount').val()) || 0;
+            const statusId = parseInt($('#addSponsorPaymentStatus').val(), 10) || 4;
+
+            if (!name || !phone || count <= 0 || amount <= 0) {
+                Swal.fire('Validation Error', 'Please fill in all required fields with valid values.', 'warning');
+                return;
+            }
+
+            const payload = {
+                EventId: eventId,
+                SponsorName: name,
+                SponsorPhone: phone,
+                NumberOfPeople: count,
+                Amount: amount,
+                PaymentStatusId: statusId
+            };
+
+            $.ajax({
+                url: '@Url.Action("AddSponsor", "Event")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function(res) {
+                    if (res.isSuccess) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Sponsor Added',
+                            text: res.message || 'Sponsor saved successfully.'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', res.message || 'Failed to add sponsor', 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Failed to communicate with server.', 'error');
+                }
+            });
+        }
+
+        function updateSponsorPaymentStatus(sponsorId, newStatusId) {
+            $.ajax({
+                url: '@Url.Action("UpdateSponsorStatus", "Event")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ SponsorId: sponsorId, PaymentStatusId: parseInt(newStatusId, 10) }),
+                success: function(res) {
+                    if (res.isSuccess) {
+                        showToast('Sponsor payment status updated successfully', 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showToast(res.message || 'Failed to update status', 'error');
+                    }
+                },
+                error: function() {
+                    showToast('Failed to communicate with server', 'error');
+                }
+            });
+        }
     </script>
+
+<!-- Add Sponsor Modal -->
+<div class="modal fade" id="addSponsorModal" tabindex="-1" aria-labelledby="addSponsorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold" id="addSponsorModalLabel">
+                    <i class="fa fa-hand-holding-heart me-2"></i> Add Event Sponsor
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addSponsorForm">
+                    <input type="hidden" id="addSponsorEventId" value="@Model.Event.EventId" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Sponsor Name <span class="text-danger">*</span></label>
+                        <input type="text" id="addSponsorName" class="form-control" required placeholder="e.g. Jane Doe" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Sponsor Phone Number <span class="text-danger">*</span></label>
+                        <input type="text" id="addSponsorPhone" class="form-control" required placeholder="e.g. 2547XXXXXXXX" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Number of People Sponsored <span class="text-danger">*</span></label>
+                        <input type="number" id="addSponsorCount" class="form-control" required min="1" value="1" oninput="calculateSponsorTotalAmount()" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Total Amount (KES) <span class="text-danger">*</span></label>
+                        <input type="number" step="0.01" id="addSponsorAmount" class="form-control" required min="1" value="@(Model.Event.Price ?? 0)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Payment Status <span class="text-danger">*</span></label>
+                        <select id="addSponsorPaymentStatus" class="form-select" required>
+                            <option value="4" selected>Paid / Success</option>
+                            <option value="2">Pending</option>
+                            <option value="3">Failed</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="submitAddSponsor()">
+                    <i class="fa fa-check me-1"></i> Save Sponsor
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 }

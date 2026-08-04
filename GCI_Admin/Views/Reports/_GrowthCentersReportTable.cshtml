@@ -1,4 +1,4 @@
-﻿@model List<GCI_Admin.Models.GrowthCenterMeeting>
+@model List<GCI_Admin.Models.GrowthCenterMeeting>
 
 <div class="card shadow-sm">
     <div class="table-responsive p-3">
@@ -72,27 +72,21 @@
                         count++;
                     }
                 }
-                else
-                {
-                    <tr>
-                        <td colspan="12" class="text-center text-muted py-4">
-                            <i class="fa fa-chart-line fa-2x mb-2 d-block"></i>
-                            No meeting records found
-                        </td>
-                    </tr>
-                }
             </tbody>
-            <tfoot>
-                <tr class="table-light fw-bold">
-                    <td colspan="6" class="text-end">Totals:</td>
-                    <td class="text-center">@Model?.Sum(m => m.TotalMembers)</td>
-                    <td class="text-center">@Model?.Sum(m => m.TotalVisitors)</td>
-                    <td class="text-center">@Model?.Sum(m => m.TotalMembers + m.TotalVisitors)</td>
-                    <td class="text-center">@Model?.Sum(m => m.NumberOfChildren)</td>
-                    <td class="text-end text-success">KES @(Model?.Sum(m => m.OfferingCollected).ToString("N2") ?? "0.00")</td>
-                    <td></td>
-                </tr>
-            </tfoot>
+            @if (Model != null && Model.Any())
+            {
+                <tfoot>
+                    <tr class="table-light fw-bold">
+                        <td colspan="6" class="text-end">Totals:</td>
+                        <td class="text-center">@Model.Sum(m => m.TotalMembers)</td>
+                        <td class="text-center">@Model.Sum(m => m.TotalVisitors)</td>
+                        <td class="text-center">@Model.Sum(m => m.TotalMembers + m.TotalVisitors)</td>
+                        <td class="text-center">@Model.Sum(m => m.NumberOfChildren)</td>
+                        <td class="text-end text-success">KES @(Model.Sum(m => m.OfferingCollected).ToString("N2"))</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            }
         </table>
     </div>
 </div>

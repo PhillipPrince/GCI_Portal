@@ -4,7 +4,7 @@ namespace GCI_Admin.Models
 {
     public class Finance
     {
-        public List<Payment> Payments { get; set; }
+        public List<Collection> Collections { get; set; }
 
         public List<AccountReferenceSummaryDto> AccountReferenceSummaries { get; set; }
     }

@@ -50,7 +50,7 @@
                     <tr>
                         <!-- Elder Name (combining FirstName and OtherNames from Member) -->
                         <td>
-                            @(elder.Member != null ? $"{elder.Member.FirstName} {elder.Member.OtherNames}" : "-")
+                            @(elder.Member != null ? $"{(elder.TitlePrefix != null ? elder.TitlePrefix.Title + " " : "")}{elder.Member.FirstName} {elder.Member.OtherNames}" : "-")
                         </td>
 
                         <!-- Phone -->

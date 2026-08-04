@@ -1,0 +1,216 @@
+@model List<GCI_Admin.Models.TitlePrefix>
+@{
+    ViewData["Title"] = "Title / Leader Prefixes";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="mb-0 fw-bold">Title / Leader Prefixes</h3>
+        <p class="text-muted mb-0">Manage leader prefixes (e.g. Rev, Bishop, Elder, Pastor)</p>
+    </div>
+    <button class="btn btn-primary" onclick="openPrefixModal(0, '', '', true)">
+        <i class="fa fa-plus me-1"></i> Add Title Prefix
+    </button>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="prefixesTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Title Prefix</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td><span class="fw-bold fs-6 text-primary">@item.Title</span></td>
+                            <td>@(string.IsNullOrEmpty(item.Description) ? "-" : item.Description)</td>
+                            <td>
+                                @if (item.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactive</span>
+                                }
+                            </td>
+                            <td>@item.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-primary" 
+                                        onclick="openPrefixModal(@item.Id, '@item.Title.Replace("'", "\\'")', '@(item.Description?.Replace("'", "\\'") ?? "")', @(item.IsActive ? "true" : "false"))">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm @(item.IsActive ? "btn-outline-warning" : "btn-outline-success")"
+                                        onclick="togglePrefixStatus(@item.Id, @(item.IsActive ? "false" : "true"))"
+                                        title="@(item.IsActive ? "Deactivate" : "Activate")">
+                                    <i class="fa @(item.IsActive ? "fa-ban" : "fa-check")"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deletePrefix(@item.Id)">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="prefixModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Add Title Prefix</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="prefixForm">
+                    <input type="hidden" id="prefixId" value="0" />
+                    <div class="mb-3">
+                        <label class="form-label required">Title Prefix</label>
+                        <input type="text" id="prefixTitle" class="form-control" placeholder="e.g. Rev., Bishop, Pastor, Elder" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea id="prefixDescription" class="form-control" rows="3" placeholder="Optional description..."></textarea>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" id="prefixIsActive" class="form-check-input" checked />
+                        <label class="form-check-label" for="prefixIsActive">Is Active</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="savePrefix()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            if ($.fn.DataTable.isDataTable('#prefixesTable')) {
+                $('#prefixesTable').DataTable().destroy();
+            }
+            if (typeof GCIDataTable !== 'undefined') {
+                GCIDataTable.init('#prefixesTable');
+            } else {
+                $('#prefixesTable').DataTable();
+            }
+        });
+
+        function openPrefixModal(id, title, description, isActive) {
+            $('#prefixId').val(id);
+            $('#prefixTitle').val(title);
+            $('#prefixDescription').val(description);
+            $('#prefixIsActive').prop('checked', isActive);
+
+            $('#modalTitle').text(id === 0 ? 'Add Title Prefix' : 'Edit Title Prefix');
+            var modal = new bootstrap.Modal(document.getElementById('prefixModal'));
+            modal.show();
+        }
+
+        function savePrefix() {
+            const id = parseInt($('#prefixId').val()) || 0;
+            const title = $('#prefixTitle').val().trim();
+            const description = $('#prefixDescription').val().trim();
+            const isActive = $('#prefixIsActive').is(':checked');
+
+            if (!title) {
+                Swal.fire('Error', 'Title Prefix is required.', 'error');
+                return;
+            }
+
+            const url = id === 0 
+                ? '@Url.Action("Create", "TitlePrefixes")' 
+                : '@Url.Action("Edit", "TitlePrefixes")';
+
+            const payload = {
+                id: id,
+                title: title,
+                description: description,
+                isActive: isActive
+            };
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Error', 'An error occurred while saving.', 'error');
+                }
+            });
+        }
+
+        function togglePrefixStatus(id, isActive) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to change the status of this title prefix?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, change it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('@Url.Action("ToggleStatus", "TitlePrefixes")', { id: id, isActive: isActive }, function (response) {
+                        if (response.success) {
+                            Swal.fire('Updated!', response.message, 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function deletePrefix(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'This will permanently delete this title prefix.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('@Url.Action("Delete", "TitlePrefixes")', { id: id }, function (response) {
+                        if (response.success) {
+                            Swal.fire('Deleted!', response.message, 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', response.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

@@ -5,6 +5,7 @@ namespace GCI_Admin.Models.DTOs
     public class ElderDto
     {
         public int MemberId { get; set; }
+        public int? TitlePrefixId { get; set; }
         public string Description { get; set; }
         public DateTime? DateOrdained { get; set; }
         public string ProfileImageBase64 { get; set; }
@@ -13,5 +14,6 @@ namespace GCI_Admin.Models.DTOs
     public class NewElder
     {
         public List<DropdownItem> MembersList { get; set; }
+        public List<TitlePrefix> TitlePrefixes { get; set; } = new List<TitlePrefix>();
     }
 }

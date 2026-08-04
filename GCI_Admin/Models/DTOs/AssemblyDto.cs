@@ -15,6 +15,7 @@ namespace GCI_Admin.Models.DTOs
         public int AssemblyLeaderId { get; set; }
         public int MemberId { get; set; }
         public int AssemblyId { get; set; }
+        public int? TitlePrefixId { get; set; }
         public string? Bio { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
@@ -26,6 +27,7 @@ namespace GCI_Admin.Models.DTOs
     {
         public List<Member> Members { get; set; }
         public List<Assembly> Assemblies { get; set; }
+        public List<TitlePrefix> TitlePrefixes { get; set; } = new List<TitlePrefix>();
         public AssemblyLeaderDto AssemblyLeader { get; set; }
     }
 }

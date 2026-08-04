@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Utils
 {
@@ -33,10 +33,6 @@ namespace Utils
                         "CREATE_EVENTS",
                         "EDIT_EVENTS",
                         "DELETE_EVENTS",
-                        "VIEW_FINANCE",
-                        "CREATE_FINANCE",
-                        "EDIT_FINANCE",
-                        "DELETE_FINANCE",
                         "VIEW_REPORTS",
                         "CREATE_REPORTS",
                         "EXPORT_REPORTS",
@@ -62,7 +58,6 @@ namespace Utils
                         "CREATE_EVENTS",
                         "EDIT_EVENTS",
                         "DELETE_EVENTS",
-                        "VIEW_FINANCE",
                         "VIEW_REPORTS",
                         "EXPORT_REPORTS",
                         "MANAGE_MINISTRIES",

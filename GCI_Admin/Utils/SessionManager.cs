@@ -1,5 +1,8 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
+using GCI_Admin.Models;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
@@ -11,6 +14,8 @@ namespace Utils
         private const string UserSessionKey = "LoggedInUser";
         private const string TokenKey = "UserToken";
         private const string UserPermissionsKey = "UserPermissions";
+        private const string AllMembersKey = "AllMembers";
+        private const string ActiveMembersKey = "ActiveMembers";
 
         public SessionManager(IHttpContextAccessor httpContextAccessor)
         {
@@ -237,6 +242,79 @@ namespace Utils
             catch
             {
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Save members list to session
+        /// </summary>
+        public void SetMembersSession(IEnumerable<Member> members)
+        {
+            try
+            {
+                var session = _httpContextAccessor.HttpContext?.Session;
+                if (session == null || members == null) return;
+
+                var memberList = members.ToList();
+                var jsonData = JsonConvert.SerializeObject(memberList);
+                session.SetString(AllMembersKey, jsonData);
+
+                var activeMembers = memberList.Where(m => m.StatusId == 1)
+                    .OrderBy(m => m.FirstName)
+                    .Select(m => new
+                    {
+                        id = m.Id,
+                        firstName = m.FirstName,
+                        otherNames = m.OtherNames,
+                        email = m.Email,
+                        phone = m.Phone,
+                        gender = m.Gender
+                    }).ToList();
+
+                session.SetString(ActiveMembersKey, System.Text.Json.JsonSerializer.Serialize(activeMembers));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving members to session: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Get members list from session
+        /// </summary>
+        public List<Member> GetMembersSession()
+        {
+            try
+            {
+                var session = _httpContextAccessor.HttpContext?.Session;
+                if (session == null) return null;
+
+                var jsonData = session.GetString(AllMembersKey);
+                if (string.IsNullOrEmpty(jsonData)) return null;
+
+                return JsonConvert.DeserializeObject<List<Member>>(jsonData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting members from session: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Clear members session cache
+        /// </summary>
+        public void ClearMembersSession()
+        {
+            try
+            {
+                var session = _httpContextAccessor.HttpContext?.Session;
+                session?.Remove(AllMembersKey);
+                session?.Remove(ActiveMembersKey);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error clearing members session: {ex.Message}");
             }
         }
 

@@ -4,8 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace GCI_Admin.Models
 {
     
-        [Table("Payments")]
-        public class Payment
+        [Table("Collections")]
+        public class Collection
         {
             [Key]
             public int Id { get; set; }
@@ -36,6 +36,8 @@ namespace GCI_Admin.Models
             public DateTime? TransactionDate { get; set; }
 
             public int PaymentStatusId { get; set; }
+
+            public int? MeetingId { get; set; }
 
             public int? ResultCode { get; set; }
 

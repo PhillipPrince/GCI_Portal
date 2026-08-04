@@ -8,21 +8,40 @@ namespace GCI_Admin.DBOperations.Repositories
     public class MembersRepository
     {
         private readonly AppDbContext _context;
+        private readonly SessionManager _sessionManager;
         private readonly Security _security = new Security();
 
-
-        public MembersRepository(AppDbContext context)
+        public MembersRepository(AppDbContext context, SessionManager sessionManager = null)
         {
             _context = context;
+            _sessionManager = sessionManager;
         }
 
         public async Task<DbResponse<List<Member>>> GetAllMembersAsync()
         {
             try
             {
+                if (_sessionManager != null)
+                {
+                    var cachedMembers = _sessionManager.GetMembersSession();
+                    if (cachedMembers != null && cachedMembers.Any())
+                    {
+                        return new DbResponse<List<Member>>
+                        {
+                            Success = true,
+                            Data = cachedMembers
+                        };
+                    }
+                }
+
                 var members = await _context.Members
                     .OrderByDescending(m => m.CreatedAt)
                     .ToListAsync();
+
+                if (_sessionManager != null && members != null)
+                {
+                    _sessionManager.SetMembersSession(members);
+                }
 
                 return new DbResponse<List<Member>>
                 {

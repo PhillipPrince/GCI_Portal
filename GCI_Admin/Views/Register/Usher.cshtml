@@ -253,7 +253,7 @@
 
                     <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
                         <input type="checkbox" id="isPaid" style="width: 20px; height: 20px;" checked>
-                        <label for="isPaid" style="margin-bottom: 0;">Payment Received</label>
+                        <label for="isPaid" style="margin-bottom: 0;">Collection Received</label>
                     </div>
 
                     <button type="submit" id="submitBtn" class="btn-submit">Complete Registration</button>
@@ -365,7 +365,7 @@
                                 if (data.isRegistered && data.records && data.records.length > 0) {
                                     let detailsHtml = '<div style="text-align: left; font-size: 14px; max-height: 200px; overflow-y: auto; margin-top: 10px;">';
                                     data.records.forEach((record, index) => {
-                                        let statusText = record.paymentStatusId === 4 ? '<span style="color: green;">Paid</span>' : '<span style="color: orange;">Pending Payment</span>';
+                                        let statusText = record.CollectionstatusId === 4 ? '<span style="color: green;">Paid</span>' : '<span style="color: orange;">Pending Collection</span>';
                                         detailsHtml += `<div style="padding: 10px; border-bottom: 1px solid #ddd;">
                                             <strong>Name:</strong> ${record.guestName || 'N/A'}<br/>
                                             <strong>Status:</strong> ${statusText}<br/>

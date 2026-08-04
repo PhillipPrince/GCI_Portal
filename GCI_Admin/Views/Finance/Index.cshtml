@@ -1,21 +1,38 @@
 @model GCI_Admin.Models.Finance
 
 @{
-    ViewData["Title"] = "Finance Dashboard";
+    ViewData["Title"] = "Church Collections Dashboard";
+
+    var initCollections = Model?.Collections ?? new List<GCI_Admin.Models.Collection>();
+    var initNow = DateTime.Now;
+    var initTodayStart = initNow.Date;
+    var initWeekStart = initNow.AddDays(-(int)initNow.DayOfWeek).Date;
+    var initMonthStart = new DateTime(initNow.Year, initNow.Month, 1);
+    var initYearStart = new DateTime(initNow.Year, 1, 1);
+
+    var initTodayColls = initCollections.Where(c => c.PaymentStatusId == 2 && (c.TransactionDate ?? c.CreatedAt).Date == initTodayStart).ToList();
+    var initWeekColls = initCollections.Where(c => c.PaymentStatusId == 2 && (c.TransactionDate ?? c.CreatedAt).Date >= initWeekStart).ToList();
+    var initMonthColls = initCollections.Where(c => c.PaymentStatusId == 2 && (c.TransactionDate ?? c.CreatedAt).Date >= initMonthStart).ToList();
+    var initYearColls = initCollections.Where(c => c.PaymentStatusId == 2 && (c.TransactionDate ?? c.CreatedAt).Date >= initYearStart).ToList();
+
+    var initTodayTotal = initTodayColls.Sum(c => c.Amount);
+    var initWeekTotal = initWeekColls.Sum(c => c.Amount);
+    var initMonthTotal = initMonthColls.Sum(c => c.Amount);
+    var initYearTotal = initYearColls.Sum(c => c.Amount);
 }
 
 <!-- Page Header with Stats -->
 <div class="row mb-4">
     <div class="col-md-8">
-        <h2 class="fw-bold mb-1">Finance Dashboard</h2>
-        <p class="text-muted mb-0">Track and manage all church giving and contributions</p>
+        <h2 class="fw-bold mb-1">Church Collections Dashboard</h2>
+        <p class="text-muted mb-0">Track and manage main church giving and contributions</p>
     </div>
     <div class="col-md-4 text-end">
         <button class="btn btn-success btn-lg me-2" onclick="exportGivings()">
             <i class="fa fa-download me-2"></i>Export Report
         </button>
-        <button class="btn btn-primary btn-lg" onclick="showPaymentModal()">
-            <i class="fa fa-plus-circle me-2"></i>Record Payment
+        <button class="btn btn-primary btn-lg" onclick="showCollectionModal()">
+            <i class="fa fa-plus-circle me-2"></i>Record Collection
         </button>
     </div>
 </div>
@@ -35,8 +52,8 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">Today's Giving</h6>
-                        <h3 class="fw-bold mb-0" id="todayTotal">KES 0</h3>
-                        <small class="text-muted" id="todayCount">0 transactions</small>
+                        <h3 class="fw-bold mb-0" id="todayTotal">KES @initTodayTotal.ToString("N2")</h3>
+                        <small class="text-muted" id="todayCount">@initTodayColls.Count transactions</small>
                     </div>
                 </div>
             </div>
@@ -54,8 +71,8 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">This Week</h6>
-                        <h3 class="fw-bold mb-0" id="weekTotal">KES 0</h3>
-                        <small class="text-muted" id="weekCount">0 transactions</small>
+                        <h3 class="fw-bold mb-0" id="weekTotal">KES @initWeekTotal.ToString("N2")</h3>
+                        <small class="text-muted" id="weekCount">@initWeekColls.Count transactions</small>
                     </div>
                 </div>
             </div>
@@ -73,8 +90,8 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">This Month</h6>
-                        <h3 class="fw-bold mb-0" id="monthTotal">KES 0</h3>
-                        <small class="text-muted" id="monthCount">0 transactions</small>
+                        <h3 class="fw-bold mb-0" id="monthTotal">KES @initMonthTotal.ToString("N2")</h3>
+                        <small class="text-muted" id="monthCount">@initMonthColls.Count transactions</small>
                     </div>
                 </div>
             </div>
@@ -92,8 +109,8 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">This Year</h6>
-                        <h3 class="fw-bold mb-0" id="yearTotal">KES 0</h3>
-                        <small class="text-muted" id="yearCount">0 transactions</small>
+                        <h3 class="fw-bold mb-0" id="yearTotal">KES @initYearTotal.ToString("N2")</h3>
+                        <small class="text-muted" id="yearCount">@initYearColls.Count transactions</small>
                     </div>
                 </div>
             </div>
@@ -164,7 +181,7 @@
                 </select>
             </div>
             <div class="col-md-1">
-                <select class="form-select" id="paymentStatus">
+                <select class="form-select" id="Collectionstatus">
                     <option value="">Status</option>
                     <option value="1">Pending</option>
                     <option value="2">Success</option>
@@ -198,81 +215,116 @@
     </div>
 </div>
 
-<ul class="nav nav-tabs mb-3" id="paymentTabs" role="tablist">
+<ul class="nav nav-tabs mb-3" id="CollectionTabs" role="tablist">
     <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="tab-all" data-bs-toggle="tab" data-bs-target="#content-all" type="button" role="tab" onclick="filterByPaybill('')">All Payments</button>
+        <button class="nav-link active" id="tab-all" data-bs-toggle="tab" data-bs-target="#content-all" type="button" role="tab" onclick="filterByPaybill('')">All Church Collections</button>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="tab-844632" data-bs-toggle="tab" data-bs-target="#content-all" type="button" role="tab" onclick="filterByPaybill('844632')">Paybill 844632</button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-4099245" data-bs-toggle="tab" data-bs-target="#content-all" type="button" role="tab" onclick="filterByPaybill('4099245')">Paybill 4099245 (GBI)</button>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="tab-cash" data-bs-toggle="tab" data-bs-target="#content-all" type="button" role="tab" onclick="filterByPaybill('CASH')">Manual (Cash)</button>
     </li>
 </ul>
 
-<div class="tab-content" id="paymentTabsContent">
+<div class="tab-content" id="CollectionTabsContent">
     <div class="tab-pane fade show active" id="content-all" role="tabpanel">
         <input type="hidden" id="activePaybillFilter" value="" />
         <div id="givingsTableContainer">
-            @await Html.PartialAsync("_GivingsTablePartial", Model.Payments)
+            @await Html.PartialAsync("_GivingsTablePartial", Model.Collections)
         </div>
     </div>
 </div>
 
-<!-- Record Payment Modal -->
-<div class="modal fade" id="paymentModal" tabindex="-1">
+<!-- Record Collection Modal -->
+<div class="modal fade" id="CollectionModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Record Manual Payment</h5>
+                <h5 class="modal-title">Record Manual Collection</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="paymentForm">
-                    <div class="mb-3">
+                <form id="CollectionForm">
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="isAnonymousCollection" onchange="toggleAnonymousCollection()">
+                        <label class="form-check-label fw-semibold" for="isAnonymousCollection">Record as Anonymous Collection (Member ID = 0)</label>
+                    </div>
+
+                    <div class="mb-3" id="CollectionMemberSelector_container">
                         @await Html.PartialAsync("_MemberSelector", new GCI_Admin.Models.ViewModels.MemberSelectorViewModel
                         {
-                            ControlId = "paymentMemberSelector",
+                            ControlId = "CollectionMemberSelector",
                             LabelText = "Select Member",
                             MemberIdFieldName = "MemberId",
                             SelectedMemberId = null,
                             Members = ViewBag.Members as List<GCI_Admin.Models.Member>,
-                            IsRequired = true,
+                            IsRequired = false,
                             IsEdit = false,
                             ShowPhoneAndGender = true
                         })
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label">Account Reference</label>
+                        <label class="form-label fw-semibold">Link to Meeting (Optional)</label>
+                        <select class="form-select" id="meetingSelect">
+                            <option value="">-- No Meeting Link (Standalone Collection) --</option>
+                            @if (ViewBag.Meetings != null)
+                            {
+                                var meetingsList = ViewBag.Meetings as List<GCI_Admin.Models.MeetingAttendance>;
+                                if (meetingsList != null)
+                                {
+                                    foreach (var m in meetingsList)
+                                    {
+                                        <option value="@m.MeetingAttendancesId">@m.MeetingType - @m.MeetingDate.ToString("dd MMM yyyy") (@m.TotalAttendees Attendees)</option>
+                                    }
+                                }
+                            }
+                        </select>
+                        <small class="text-muted d-block mt-1">If linked to a verified meeting, individual amount will be reconciled against the meeting's bulk collection.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Account Reference</label>
                         <select class="form-select" id="accountRef" required>
-                            <option value="">Select Account</option>
+                            <option value="">-- Select Account --</option>
+                            <option value="Tithes">Tithes</option>
+                            <option value="Offerings">Offerings</option>
+                            <option value="Sunday School">Sunday School</option>
+                            <option value="Thanksgiving">Thanksgiving</option>
+                            <option value="Missions">Missions</option>
+                            <option value="Projects">Projects</option>
+                            <option value="Youth">Youth</option>
+                            <option value="Widows & Orphans">Widows & Orphans</option>
+                            <option value="Others">Others</option>
                             @if (Model.AccountReferenceSummaries != null)
                             {
+                                var standardAccounts = new[] { "Tithes", "Offerings", "Sunday School", "Thanksgiving", "Missions", "Projects", "Youth", "Widows & Orphans", "Others" };
                                 foreach (var summary in Model.AccountReferenceSummaries)
                                 {
-                                    <option value="@summary.AccountReference">@summary.AccountReference</option>
+                                    if (!standardAccounts.Contains(summary.AccountReference))
+                                    {
+                                        <option value="@summary.AccountReference">@summary.AccountReference</option>
+                                    }
                                 }
                             }
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Amount (KES)</label>
-                        <input type="number" class="form-control" id="amount" min="1" required>
+                        <label class="form-label fw-semibold">Amount (KES)</label>
+                        <input type="number" class="form-control" id="amount" min="1" step="0.01" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Transaction Date</label>
+                        <label class="form-label fw-semibold">Transaction Date</label>
                         <input type="datetime-local" class="form-control" id="transactionDate" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Receipt Number</label>
+                        <label class="form-label fw-semibold">Receipt Number</label>
                         <input type="text" class="form-control" id="receiptNumber" placeholder="Enter receipt number">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Payment Status</label>
-                        <select class="form-select" id="paymentStatusId" required>
+                        <label class="form-label fw-semibold">Collection Status</label>
+                        <select class="form-select" id="CollectionstatusId" required>
                             <option value="2">Success</option>
                             <option value="1">Pending</option>
                             <option value="3">Failed</option>
@@ -282,7 +334,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="saveManualPayment()">Save Payment</button>
+                <button type="button" class="btn btn-primary" onclick="saveManualCollection()">Save Collection</button>
             </div>
         </div>
     </div>
@@ -354,7 +406,7 @@
 
     <script>
         // Global variables
-        let payments = @Html.Raw(Json.Serialize(Model.Payments));
+        let Collections = @Html.Raw(Json.Serialize(Model.Collections));
         let currentFilters = {};
 
         $(document).ready(function() {
@@ -362,16 +414,16 @@
             updateStats();
             initializeEventListeners();
 
-            // Clear member selector when payment modal is closed
-            $('#paymentModal').on('hidden.bs.modal', function() {
-                $('#paymentMemberSelector_display').val('');
-                $('#paymentMemberSelector_selectedId').val('');
-                $('#paymentMemberSelector_fullName').val('');
-                $('#paymentMemberSelector_email').val('');
-                $('#paymentMemberSelector_phone').val('');
-                $('#paymentMemberSelector_gender').val('');
+            // Clear member selector when Collection modal is closed
+            $('#CollectionModal').on('hidden.bs.modal', function() {
+                $('#CollectionMemberSelector_display').val('');
+                $('#CollectionMemberSelector_selectedId').val('');
+                $('#CollectionMemberSelector_fullName').val('');
+                $('#CollectionMemberSelector_email').val('');
+                $('#CollectionMemberSelector_phone').val('');
+                $('#CollectionMemberSelector_gender').val('');
                 $('.dropdown-list').hide();
-                $('#paymentMemberSelector_validation').text('');
+                $('#CollectionMemberSelector_validation').text('');
             });
 
             // Check for success message from TempData
@@ -393,21 +445,21 @@
                 }
             });
 
-            $('#accountReference, #filterYear, #filterMonth, #paymentStatus').on('change', function() {
+            $('#accountReference, #filterYear, #filterMonth, #Collectionstatus').on('change', function() {
                 applyFilters();
             });
 
             // Individual column search
-            $('#paymentsTable thead tr:eq(1) th').each(function(i) {
+            $('#CollectionsTable thead tr:eq(1) th').each(function(i) {
                 $('input', this).on('keyup change', function() {
-                    if (window.paymentsTable) {
-                        window.paymentsTable.column(i).search(this.value).draw();
+                    if (window.CollectionsTable) {
+                        window.CollectionsTable.column(i).search(this.value).draw();
                     }
                 });
 
                 $('select', this).on('change', function() {
-                    if (window.paymentsTable) {
-                        window.paymentsTable.column(i).search(this.value).draw();
+                    if (window.CollectionsTable) {
+                        window.CollectionsTable.column(i).search(this.value).draw();
                     }
                 });
             });
@@ -415,20 +467,20 @@
 
         function initializeDataTable() {
             // Delegate to global GCIDataTable initializer
-            GCIDataTable.init('#paymentsTable');
+            GCIDataTable.init('#CollectionsTable');
             // Grab a reference to the instance for column-search operations
-            window.paymentsTable = $('#paymentsTable').DataTable();
+            window.CollectionsTable = $('#CollectionsTable').DataTable();
         }
 
-        function reloadPaymentsTable() {
+        function reloadCollectionsTable() {
             const filters = getFilterParams();
 
-            $.get('@Url.Action("GetFilteredPayments", "Finance")', filters, function(data) {
+            $.get('@Url.Action("GetFilteredCollections", "Finance")', filters, function(data) {
                 $('#givingsTableContainer').html(data);
                 initializeDataTable();
                 updateStats();
             }).fail(function() {
-                showToast('Failed to reload payments', 'error');
+                showToast('Failed to reload Collections', 'error');
             });
         }
 
@@ -437,7 +489,7 @@
                 search: $('#givingSearch').val(),
                 accountReference: $('#accountReference').val(),
                 dateRange: $('#dateRange').val(),
-                paymentStatus: $('#paymentStatus').val(),
+                Collectionstatus: $('#Collectionstatus').val(),
                 fromDate: $('#fromDate').val(),
                 toDate: $('#toDate').val(),
                 filterYear: $('#filterYear').val(),
@@ -453,67 +505,58 @@
 
         function updateStats() {
             const now = moment();
-            const today = now.format('YYYY-MM-DD');
-            const weekStart = now.startOf('week').format('YYYY-MM-DD');
-            const monthStart = now.startOf('month').format('YYYY-MM-DD');
-            const yearStart = now.startOf('year').format('YYYY-MM-DD');
+            const todayStr = now.format('YYYY-MM-DD');
+            const weekStart = now.clone().startOf('week');
+            const monthStart = now.clone().startOf('month');
+            const yearStart = now.clone().startOf('year');
 
             let todayTotal = 0, todayCount = 0;
             let weekTotal = 0, weekCount = 0;
             let monthTotal = 0, monthCount = 0;
             let yearTotal = 0, yearCount = 0;
-            
-            const selectedPaybill = $('#activePaybillFilter').val();
-            const selectedAccount = $('#accountReference').val();
-            const search = $('#givingSearch').val().toLowerCase();
 
-            payments.forEach(p => {
-                if (p.paymentStatusId !== 2) return; // Only count success
+            $('#CollectionsTable tbody tr').each(function() {
+                const row = $(this);
+                if (row.find('td').length <= 1) return;
 
-                if (selectedPaybill && p.paybill !== selectedPaybill) return;
-                if (selectedAccount && p.accountReference !== selectedAccount) return;
-                
-                if (search && !(
-                    (p.phoneNumber && p.phoneNumber.toLowerCase().includes(search)) ||
-                    (p.mpesaReceiptNumber && p.mpesaReceiptNumber.toLowerCase().includes(search)) ||
-                    (p.accountReference && p.accountReference.toLowerCase().includes(search))
-                )) return;
+                const amount = parseFloat(row.attr('data-amount')) || 0;
+                const dateStr = row.attr('data-date');
+                if (!dateStr) return;
+                const txDate = moment(dateStr);
 
-                if (p.transactionDate) {
-                    const date = moment(p.transactionDate).format('YYYY-MM-DD');
-
-                    if (date === today) {
-                        todayTotal += p.amount;
+                if (txDate.isValid()) {
+                    if (txDate.format('YYYY-MM-DD') === todayStr) {
+                        todayTotal += amount;
                         todayCount++;
                     }
-                    if (date >= weekStart) {
-                        weekTotal += p.amount;
+                    if (txDate.isSameOrAfter(weekStart)) {
+                        weekTotal += amount;
                         weekCount++;
                     }
-                    if (date >= monthStart) {
-                        monthTotal += p.amount;
+                    if (txDate.isSameOrAfter(monthStart)) {
+                        monthTotal += amount;
                         monthCount++;
                     }
-                    if (date >= yearStart) {
-                        yearTotal += p.amount;
+                    if (txDate.isSameOrAfter(yearStart)) {
+                        yearTotal += amount;
                         yearCount++;
                     }
                 }
             });
 
-            $('#todayTotal').text('KES ' + todayTotal.toLocaleString('en-US', {minimumFractionDigits: 2}));
+            $('#todayTotal').text('KES ' + formatNumber(todayTotal));
             $('#todayCount').text(todayCount + ' transactions');
-            $('#weekTotal').text('KES ' + weekTotal.toLocaleString('en-US', {minimumFractionDigits: 2}));
+            $('#weekTotal').text('KES ' + formatNumber(weekTotal));
             $('#weekCount').text(weekCount + ' transactions');
-            $('#monthTotal').text('KES ' + monthTotal.toLocaleString('en-US', {minimumFractionDigits: 2}));
+            $('#monthTotal').text('KES ' + formatNumber(monthTotal));
             $('#monthCount').text(monthCount + ' transactions');
-            $('#yearTotal').text('KES ' + yearTotal.toLocaleString('en-US', {minimumFractionDigits: 2}));
+            $('#yearTotal').text('KES ' + formatNumber(yearTotal));
             $('#yearCount').text(yearCount + ' transactions');
         }
 
         // Apply filters
         function applyFilters() {
-            reloadPaymentsTable();
+            reloadCollectionsTable();
         }
 
         // Clear filters
@@ -523,15 +566,15 @@
             $('#filterYear').val('');
             $('#filterMonth').val('');
             $('#dateRange').val('all');
-            $('#paymentStatus').val('');
+            $('#Collectionstatus').val('');
             $('#customDateRange').hide();
 
             // Clear DataTable column searches
-            if (window.paymentsTable) {
-                window.paymentsTable.search('').columns().search('').draw();
+            if (window.CollectionsTable) {
+                window.CollectionsTable.search('').columns().search('').draw();
             }
 
-            reloadPaymentsTable();
+            reloadCollectionsTable();
         }
 
         function applyCustomDate() {
@@ -556,34 +599,56 @@
             applyFilters();
         }
 
-        function showPaymentModal() {
-            // Set default transaction date to now
-            $('#transactionDate').val(moment().format('YYYY-MM-DDTHH:mm'));
-            $('#paymentModal').modal('show');
+        function toggleAnonymousCollection() {
+            const isAnonymous = $('#isAnonymousCollection').is(':checked');
+            if (isAnonymous) {
+                $('#CollectionMemberSelector_container').hide();
+                $('#CollectionMemberSelector_selectedId').val('0');
+            } else {
+                $('#CollectionMemberSelector_container').show();
+                $('#CollectionMemberSelector_selectedId').val('');
+            }
         }
 
-        function saveManualPayment() {
-            // Validate member is selected
-            const memberIdVal = $('#paymentMemberSelector_selectedId').val();
-            if (!memberIdVal || memberIdVal === '') {
-                Swal.fire('Validation Error', 'Please select a member', 'warning');
+        function showCollectionModal() {
+            $('#isAnonymousCollection').prop('checked', false);
+            toggleAnonymousCollection();
+            $('#meetingSelect').val('');
+            $('#accountRef').val('');
+            $('#amount').val('');
+            $('#receiptNumber').val('');
+            $('#transactionDate').val(moment().format('YYYY-MM-DDTHH:mm'));
+            $('#CollectionModal').modal('show');
+        }
+
+        function saveManualCollection() {
+            const isAnonymous = $('#isAnonymousCollection').is(':checked');
+            let memberIdVal = $('#CollectionMemberSelector_selectedId').val();
+
+            if (isAnonymous) {
+                memberIdVal = '0';
+            } else if (!memberIdVal || memberIdVal === '') {
+                Swal.fire('Validation Error', 'Please select a member or check Anonymous Collection.', 'warning');
                 return;
             }
 
             // Validate form
-            if (!$('#paymentForm')[0].checkValidity()) {
-                $('#paymentForm')[0].reportValidity();
+            if (!$('#CollectionForm')[0].checkValidity()) {
+                $('#CollectionForm')[0].reportValidity();
                 return;
             }
 
-            const paymentData = {
-                memberId: parseInt(memberIdVal),
-                phoneNumber: $('#paymentMemberSelector_phone').val(),
+            const meetingIdVal = $('#meetingSelect').val();
+
+            const CollectionData = {
+                memberId: parseInt(memberIdVal, 10),
+                meetingId: meetingIdVal ? parseInt(meetingIdVal, 10) : null,
+                phoneNumber: isAnonymous ? 'N/A' : $('#CollectionMemberSelector_phone').val(),
                 accountReference: $('#accountRef').val(),
                 amount: parseFloat($('#amount').val()),
                 transactionDate: $('#transactionDate').val(),
                 mpesaReceiptNumber: $('#receiptNumber').val() ? 'CASH-' + $('#receiptNumber').val() : 'CASH-' + Date.now().toString(),
-                paymentStatusId: parseInt($('#paymentStatusId').val()),
+                paymentStatusId: parseInt($('#CollectionstatusId').val(), 10),
                 createdAt: new Date().toISOString()
             };
 
@@ -596,23 +661,23 @@
             });
 
             $.ajax({
-                url: '@Url.Action("SaveManualPayment", "Finance")',
+                url: '@Url.Action("SaveManualCollection", "Finance")',
                 type: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify(paymentData),
+                data: JSON.stringify(CollectionData),
                 success: function(response) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',
-                        text: 'Payment recorded successfully'
+                        text: 'Collection recorded successfully'
                     }).then(() => {
-                        $('#paymentModal').modal('hide');
-                        $('#paymentForm')[0].reset();
-                        reloadPaymentsTable();
+                        $('#CollectionModal').modal('hide');
+                        $('#CollectionForm')[0].reset();
+                        reloadCollectionsTable();
                     });
                 },
                 error: function(xhr) {
-                    let message = 'Failed to save payment';
+                    let message = 'Failed to save Collection';
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         message = xhr.responseJSON.message;
                     }
@@ -621,28 +686,35 @@
             });
         }
 
-        function openPaymentModal(url) {
+        function openCollectionModal(url) {
             window.location.href = url;
         }
 
-        function retryPayment(id) {
+        function retryCollection(id) {
             Swal.fire({
-                title: 'Retry Payment',
-                text: 'Are you sure you want to retry this payment?',
+                title: 'Retry Collection',
+                text: 'Are you sure you want to retry this Collection?',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Yes, retry'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $.post('@Url.Action("RetryPayment", "Finance")/' + id, function() {
-                        showToast('Payment retry initiated');
-                        reloadPaymentsTable();
+                    $.post('@Url.Action("RetryCollection", "Finance")/' + id, function() {
+                        showToast('Collection retry initiated');
+                        reloadCollectionsTable();
                     }).fail(function() {
-                        showToast('Failed to retry payment', 'error');
+                        showToast('Failed to retry Collection', 'error');
                     });
                 }
             });
         }
+
+        $(document).ready(function() {
+            // Pre-fetch active members asynchronously in background without blocking page load
+            setTimeout(function() {
+                $.get('/Finance/GetActiveMembers');
+            }, 100);
+        });
 
         function exportGivings() {
             const filters = getFilterParams();
@@ -660,12 +732,12 @@
 
                 // Format data for export
                 const exportData = data.map(p => ({
-                    'Payment ID': p.id,
+                    'Collection ID': p.id,
                     'Phone Number': p.phoneNumber,
                     'Amount (KES)': p.amount,
                     'Receipt Number': p.mpesaReceiptNumber || '-',
                     'Account Reference': p.accountReference,
-                    'Status': p.paymentStatusId === 1 ? 'Pending' : p.paymentStatusId === 2 ? 'Success' : 'Failed',
+                    'Status': p.CollectionstatusId === 1 ? 'Pending' : p.CollectionstatusId === 2 ? 'Success' : 'Failed',
                     'Transaction Date': p.transactionDate ? moment(p.transactionDate).format('DD/MM/YYYY HH:mm') : '-',
                     'Created At': moment(p.createdAt).format('DD/MM/YYYY HH:mm')
                 }));
@@ -674,7 +746,7 @@
 
                 // Set column widths
                 ws['!cols'] = [
-                    { wch: 10 }, // Payment ID
+                    { wch: 10 }, // Collection ID
                     { wch: 15 }, // Phone
                     { wch: 15 }, // Amount
                     { wch: 20 }, // Receipt

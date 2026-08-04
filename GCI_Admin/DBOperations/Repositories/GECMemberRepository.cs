@@ -18,10 +18,20 @@ namespace GCI_Admin.DBOperations.Repositories
         {
             try
             {
+                if (dto.TitlePrefixId == null || dto.TitlePrefixId <= 0)
+                {
+                    return new DbResponse<GECMember>
+                    {
+                        Success = false,
+                        Message = "Title prefix is required."
+                    };
+                }
+
                 var newMember = new GECMember
                 {
                     MemberId = dto.MemberId,
                     GECPositionId = dto.GECPositionId,
+                    TitlePrefixId = dto.TitlePrefixId,
                     Bio = dto.Bio,
                     StartDate = dto.StartDate,
                     EndDate = dto.EndDate,
@@ -59,6 +69,7 @@ namespace GCI_Admin.DBOperations.Repositories
                     .OrderBy(g => g.GECId)
                     .Include(g=>g.Member)
                     .Include(g=>g.GECPosition)
+                    .Include(g=>g.TitlePrefix)
                     .ToListAsync();
 
                 return new DbResponse<List<GECMember>>
@@ -83,6 +94,7 @@ namespace GCI_Admin.DBOperations.Repositories
             {
                 var member = await _context.GECMembers
                     .Include(g => g.GECPosition)
+                    .Include(g => g.TitlePrefix)
                     .FirstOrDefaultAsync(x => x.GECId == gecId);
 
                 if (member == null)
@@ -114,6 +126,15 @@ namespace GCI_Admin.DBOperations.Repositories
         {
             try
             {
+                if (dto.TitlePrefixId == null || dto.TitlePrefixId <= 0)
+                {
+                    return new DbResponse<GECMember>
+                    {
+                        Success = false,
+                        Message = "Title prefix is required."
+                    };
+                }
+
                 var existingMember = await _context.GECMembers.FindAsync(dto.GECId);
 
                 if (existingMember == null)
@@ -127,6 +148,7 @@ namespace GCI_Admin.DBOperations.Repositories
 
                 existingMember.MemberId = dto.MemberId;
                 existingMember.GECPositionId = dto.GECPositionId;
+                existingMember.TitlePrefixId = dto.TitlePrefixId;
                 existingMember.Bio = dto.Bio;
                 existingMember.StartDate = dto.StartDate;
                 existingMember.EndDate = dto.EndDate;

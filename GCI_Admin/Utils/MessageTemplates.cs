@@ -47,7 +47,7 @@ namespace Utils
             if (balanceAmount <= 0 || balanceAmount == null)
             {
                 return $"Dear {memberName},\n\n" +
-                       $"You have successfully completed your {rcpName} pledge with a final payment of KES {redeemedAmount:N0}.\n\n" +
+                       $"You have successfully completed your {rcpName} pledge with a final Collection of KES {redeemedAmount:N0}.\n\n" +
                        $"We sincerely appreciate your commitment and support. May God richly bless you!\n\n" +
                        $"Blessings,\n{churchName}";
             }
@@ -69,10 +69,10 @@ namespace Utils
                    $"Blessings,\n{churchName}";
         }
 
-        public static string BenevolencePayment(string memberName, string amount, string churchName = "GCI Central")
+        public static string BenevolenceCollection(string memberName, string amount, string churchName = "GCI Central")
         {
             return $"Dear {memberName},\n\n" +
-                   $"We have received your benevolence payment of KES {amount}.\n\n" +
+                   $"We have received your benevolence Collection of KES {amount}.\n\n" +
                    $"Thank you for your kindness in supporting those in need!\n\n" +
                    $"Blessings,\n{churchName}";
         }
@@ -86,7 +86,7 @@ namespace Utils
                    $"Blessings,\n{churchName}";
         }
 
-        public static string EventPaymentConfirmation(
+        public static string EventCollectionConfirmation(
             string memberName,
             string eventName,
             decimal amount,
@@ -94,7 +94,7 @@ namespace Utils
             string churchName = "GCI Central")
         {
             return $"Dear {memberName},\n\n" +
-                   $"Your payment of KES {amount:N0} for \"{eventName}\" has been successfully received.\n\n" +
+                   $"Your Collection of KES {amount:N0} for \"{eventName}\" has been successfully received.\n\n" +
                    $"M-Pesa Receipt: {receiptNumber}\n\n" +
                    $"Thank you for your participation. We look forward to seeing you!\n\n" +
                    $"Blessings,\n{churchName}";

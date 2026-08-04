@@ -781,8 +781,8 @@
                     `${member.member.firstName} ${member.member.otherNames || ''}` :
                     member.memberId || 'Unknown';
 
-                const paymentStatus = member.balanceAmount > 0 ?
-                    '<span class="badge bg-warning">Partial Payment</span>' :
+                const Collectionstatus = member.balanceAmount > 0 ?
+                    '<span class="badge bg-warning">Partial Collection</span>' :
                     '<span class="badge bg-success">Fully Paid</span>';
 
                 container.append(`
@@ -932,9 +932,9 @@
                 const month = moment().subtract(i, 'months');
                 months.push(month.format('MMM YYYY'));
 
-                // Calculate payments for this month (simplified - in real app, you'd have payment history)
+                // Calculate Collections for this month (simplified - in real app, you'd have Collection history)
                 const monthTotal = members.reduce((sum, m) => {
-                    // This is a placeholder - you'd need actual payment dates
+                    // This is a placeholder - you'd need actual Collection dates
                     return sum + (m.amountPaid / 6);
                 }, 0);
 

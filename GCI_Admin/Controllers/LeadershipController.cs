@@ -13,12 +13,14 @@ namespace GCI_Admin.Controllers
         private readonly ILeadershipService _leadershipService;
         private readonly IMembersService _members;
         private readonly IMinistriesService _ministries;
+        private readonly DBOperations.Repositories.TitlePrefixRepository _prefixRepository;
 
-        public LeadershipController(ILeadershipService leadershipService, IMembersService membersService, IMinistriesService ministriesService)
+        public LeadershipController(ILeadershipService leadershipService, IMembersService membersService, IMinistriesService ministriesService, DBOperations.Repositories.TitlePrefixRepository prefixRepository)
         {
             _leadershipService = leadershipService;
             _members = membersService;
             _ministries = ministriesService;
+            _prefixRepository = prefixRepository;
         }
 
         public async Task<IActionResult> Deacons()
@@ -220,6 +222,12 @@ namespace GCI_Admin.Controllers
             };
 
             var response = await _members.GetAllMembersAsync();
+            var prefixesResult = await _prefixRepository.GetActivePrefixesAsync();
+
+            if (prefixesResult.Success && prefixesResult.Data != null)
+            {
+                model.TitlePrefixes = prefixesResult.Data;
+            }
 
             var members = response?.Data?
                 .Where(m => m.StatusId == 1)

@@ -24,6 +24,6 @@ namespace GCI_Admin.Models.DTOs
         public DateTime? TargetCompletionDate { get; set; }
         public string Notes { get; set; }
         public string Status { get; set; }
-        public bool PaymentRecieved { get; set; }
+        public bool CollectionRecieved { get; set; }
     }
 }

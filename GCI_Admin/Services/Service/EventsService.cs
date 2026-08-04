@@ -704,7 +704,7 @@ namespace GCI_Admin.Services.Service
             throw new NotImplementedException();
         }
 
-        public async Task<ApiResponse<string>> SendPaymentReminderAsync(int id)
+        public async Task<ApiResponse<string>> SendCollectionReminderAsync(int id)
         {
             var response = new ApiResponse<string>();
             try
@@ -713,7 +713,7 @@ namespace GCI_Admin.Services.Service
 
                 if (reg == null)
                 {
-                    Loggers.EventLogs($"SendPaymentReminder: No record found for Registration ID: {id}");
+                    Loggers.EventLogs($"SendCollectionReminder: No record found for Registration ID: {id}");
                     response.IsSuccess = false;
                     response.Code = "404";
                     response.Message = "Registration not found.";
@@ -758,8 +758,8 @@ namespace GCI_Admin.Services.Service
                 }
 
                 string message =
-                    $"Hello {name}, we hope you're doing well. This is a gentle reminder that your payment for {eventName} is still pending." +
-                    $"\nPlease click the link to complete your payment." +
+                    $"Hello {name}, we hope you're doing well. This is a gentle reminder that your Collection for {eventName} is still pending." +
+                    $"\nPlease click the link to complete your Collection." +
                     $"\nhttps://portal.gospelcentresinternational.com/Register/Event/{reg.EventId}" +
                     $"\nThank you and God bless!";
 
@@ -773,12 +773,12 @@ namespace GCI_Admin.Services.Service
 
                 if (!string.IsNullOrEmpty(email) && !sent)
                 {
-                    await _communicationService.SendEmailAsync(email, $"Payment Reminder: {eventName}", message);
+                    await _communicationService.SendEmailAsync(email, $"Collection Reminder: {eventName}", message);
                 }
 
                 response.IsSuccess = true;
                 response.Code = "200";
-                response.Message = "Payment reminder sent successfully.";
+                response.Message = "Collection reminder sent successfully.";
             }
             catch (Exception ex)
             {
@@ -789,20 +789,20 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-        public async Task<ApiResponse<string>> SendBulkPaymentRemindersAsync(int eventId)
+        public async Task<ApiResponse<string>> SendBulkCollectionRemindersAsync(int eventId)
         {
             var response = new ApiResponse<string>();
             try
             {
-                Loggers.EventLogs($"SendBulkPaymentReminders: Starting to send payment reminders for Event ID: {eventId}");
+                Loggers.EventLogs($"SendBulkCollectionReminders: Starting to send Collection reminders for Event ID: {eventId}");
                 
-                var registrations = await _eventsRepository.GetEventRegistrationsForPaymentReminderAsync(eventId);
+                var registrations = await _eventsRepository.GetEventRegistrationsForCollectionReminderAsync(eventId);
                     
-                Loggers.EventLogs($"SendBulkPaymentReminders: Found {registrations.Count} registrations for Event ID: {eventId} with unpaid status.");
+                Loggers.EventLogs($"SendBulkCollectionReminders: Found {registrations.Count} registrations for Event ID: {eventId} with unpaid status.");
 
                 if (!registrations.Any())
                 {
-                    Loggers.EventLogs($"SendBulkPaymentReminders: No record found for Event ID: {eventId}");
+                    Loggers.EventLogs($"SendBulkCollectionReminders: No record found for Event ID: {eventId}");
                     response.IsSuccess = false;
                     response.Code = "404";
                     response.Message = "No unpaid registrations found for this event.";
@@ -837,8 +837,8 @@ namespace GCI_Admin.Services.Service
                     if (!string.IsNullOrEmpty(phone) || !string.IsNullOrEmpty(email))
                     {
                         string message =
-                            $"Hello {name}, we hope you're doing well. This is a gentle reminder that your payment for {eventName} is still pending." +
-                            $"\nPlease click the link to complete your payment." +
+                            $"Hello {name}, we hope you're doing well. This is a gentle reminder that your Collection for {eventName} is still pending." +
+                            $"\nPlease click the link to complete your Collection." +
                             $"\nhttps://portal.gospelcentresinternational.com/Register/Event/{item.EventId}" +
                             $"\nThank you and God bless!";
 
@@ -848,7 +848,7 @@ namespace GCI_Admin.Services.Service
                         }
                         else
                         {
-                            await _communicationService.SendEmailAsync(email, $"Payment Reminder: {eventName}", message);
+                            await _communicationService.SendEmailAsync(email, $"Collection Reminder: {eventName}", message);
                         }
 
                         count++;
@@ -857,7 +857,7 @@ namespace GCI_Admin.Services.Service
 
                 response.IsSuccess = true;
                 response.Code = "200";
-                response.Message = $"Successfully sent payment reminders to {count} registrants.";
+                response.Message = $"Successfully sent Collection reminders to {count} registrants.";
             }
             catch (Exception ex)
             {
@@ -1028,7 +1028,7 @@ namespace GCI_Admin.Services.Service
                 }
 
                 var records = registrationsQuery.Select(r => new {
-                    paymentStatusId = r.PaymentStatusId,
+                    CollectionstatusId = r.PaymentStatusId,
                     registrationId = r.RegistrationId,
                     guestName = r.GuestName ?? (r.Member != null ? $"{r.Member.FirstName} {r.Member.OtherNames}".Trim() : "N/A")
                 }).ToList();
@@ -1048,7 +1048,7 @@ namespace GCI_Admin.Services.Service
             return response;
         }
 
-        public async Task<ApiResponse<int>> CheckPaymentStatusAsync(int registrationId)
+        public async Task<ApiResponse<int>> CheckCollectionstatusAsync(int registrationId)
         {
             var response = new ApiResponse<int>();
             try
@@ -1069,7 +1069,7 @@ namespace GCI_Admin.Services.Service
             {
                 response.IsSuccess = false;
                 response.Message = ex.Message;
-                Loggers.DoLogs($"Error checking payment status: {ex}");
+                Loggers.DoLogs($"Error checking Collection status: {ex}");
             }
             return response;
         }
@@ -1097,7 +1097,7 @@ namespace GCI_Admin.Services.Service
                 }
                 var existingGuestRegistration = await _eventsRepository.GetGuestEventRegistrationAsync(dto.eventId, dto.guestPhone, dto.guestName);
 
-                int newPaymentStatusId = dto.isPaid ? 4 : 2; // 4 = Paid, 2 = Pending/Not Paid
+                int newCollectionstatusId = dto.isPaid ? 4 : 2; // 4 = Paid, 2 = Pending/Not Paid
                 if ((existingRegistration != null && existingRegistration.PaymentStatusId == 4) || 
                     (existingGuestRegistration != null && existingGuestRegistration.PaymentStatusId == 4))
                 {
@@ -1109,7 +1109,7 @@ namespace GCI_Admin.Services.Service
                          (existingGuestRegistration != null && existingGuestRegistration.PaymentStatusId != 4))
                 {
                     var regToUpdate = existingRegistration ?? existingGuestRegistration;
-                    regToUpdate.PaymentStatusId = newPaymentStatusId;
+                    regToUpdate.PaymentStatusId = newCollectionstatusId;
                     regToUpdate.RegistrationDate = DateTime.UtcNow;
                     regToUpdate.AmountPaid = dto.amountPaid;
                     
@@ -1129,7 +1129,7 @@ namespace GCI_Admin.Services.Service
                     GuestPhone = dto.guestPhone,
                     GuestAssembly = dto.guestAssembly,
                     GuestAgeGroup = dto.guestAgeGroup,
-                    PaymentStatusId = newPaymentStatusId,
+                    PaymentStatusId = newCollectionstatusId,
                     AmountPaid = dto.amountPaid,
                     RegistrationDate = DateTime.UtcNow,
                     HasAttended = false

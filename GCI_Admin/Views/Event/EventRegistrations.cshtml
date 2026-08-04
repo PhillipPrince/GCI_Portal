@@ -120,8 +120,8 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <select class="form-select" id="paymentFilter">
-                    <option value="">Payment Status</option>
+                <select class="form-select" id="CollectionFilter">
+                    <option value="">Collection Status</option>
                     <option value="paid">Paid</option>
                     <option value="unpaid">Unpaid</option>
                     <option value="partial">Partial</option>
@@ -192,7 +192,7 @@
                             <th>Contact</th>
                             <th>Registered On</th>
                             <th>Status</th>
-                            <th>Payment</th>
+                            <th>Collection</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -247,7 +247,7 @@
                             <p id="modalReadStatus"></p>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-muted small">Payment Status</label>
+                            <label class="form-label text-muted small">Collection Status</label>
                             <p id="modalPaymentStatus"></p>
                         </div>
                         <div class="mb-3">
@@ -578,8 +578,8 @@
                                             <i class="fa ${reg.isRead ? 'fa-envelope-open' : 'fa-envelope'} me-1"></i>
                                             ${reg.isRead ? 'Read' : 'Unread'}
                                         </span>
-                                        <span class="badge ${reg.paymentStatus === 'Paid' ? 'bg-success' : reg.paymentStatus === 'Partial' ? 'bg-warning' : 'bg-danger'}">
-                                            ${escapeHtml(reg.paymentStatus || 'Unpaid')}
+                                        <span class="badge ${reg.PaymentStatus === 'Paid' ? 'bg-success' : reg.PaymentStatus === 'Partial' ? 'bg-warning' : 'bg-danger'}">
+                                            ${escapeHtml(reg.PaymentStatus || 'Unpaid')}
                                         </span>
                                     </div>
 
@@ -655,8 +655,8 @@
                             </span>
                         </td>
                         <td>
-                            <span class="badge ${reg.paymentStatus === 'Paid' ? 'bg-success' : reg.paymentStatus === 'Partial' ? 'bg-warning' : 'bg-danger'}">
-                                ${escapeHtml(reg.paymentStatus || 'Unpaid')}
+                            <span class="badge ${reg.PaymentStatus === 'Paid' ? 'bg-success' : reg.PaymentStatus === 'Partial' ? 'bg-warning' : 'bg-danger'}">
+                                ${escapeHtml(reg.PaymentStatus || 'Unpaid')}
                             </span>
                         </td>
                         <td onclick="event.stopPropagation()">
@@ -691,9 +691,9 @@
                 '<span class="badge bg-warning">Unread</span>';
             $('#modalReadStatus').html(readStatus);
 
-            const paymentStatus = reg.paymentStatus || 'Unpaid';
-            const paymentClass = paymentStatus === 'Paid' ? 'success' : paymentStatus === 'Partial' ? 'warning' : 'danger';
-            $('#modalPaymentStatus').html(`<span class="badge bg-${paymentClass}">${paymentStatus}</span>`);
+            const PaymentStatus = reg.PaymentStatus || 'Unpaid';
+            const CollectionClass = PaymentStatus === 'Paid' ? 'success' : PaymentStatus === 'Partial' ? 'warning' : 'danger';
+            $('#modalPaymentStatus').html(`<span class="badge bg-${CollectionClass}">${PaymentStatus}</span>`);
 
             $('#modalAmount').text(`$${(reg.amount || 0).toFixed(2)} (Paid: $${(reg.amountPaid || 0).toFixed(2)})`);
             $('#modalGuests').text(reg.numberOfGuests || '0');
@@ -916,7 +916,7 @@
             const search = $('#registrationSearch').val().toLowerCase();
             const eventId = $('#eventFilter').val();
             const readStatus = $('#readStatusFilter').val();
-            const paymentStatus = $('#paymentFilter').val();
+            const PaymentStatus = $('#CollectionFilter').val();
 
             // Filter the data
             const filtered = registrations.filter(reg => {
@@ -944,9 +944,9 @@
                     }
                 }
 
-                if (paymentStatus) {
-                    const regPayment = (reg.paymentStatus || 'unpaid').toLowerCase();
-                    matches = matches && regPayment === paymentStatus.toLowerCase();
+                if (PaymentStatus) {
+                    const regCollection = (reg.PaymentStatus || 'unpaid').toLowerCase();
+                    matches = matches && regCollection === PaymentStatus.toLowerCase();
                 }
 
                 return matches;
@@ -985,7 +985,7 @@
             $('#registrationSearch').val('');
             $('#eventFilter').val('');
             $('#readStatusFilter').val('');
-            $('#paymentFilter').val('');
+            $('#CollectionFilter').val('');
 
             if (currentView === 'table') {
                 const table = $('#eventRegistrationsTable').DataTable();
@@ -1027,7 +1027,7 @@
                     'Phone': reg.phone,
                     'Registration Date': moment(reg.registrationDate).format('YYYY-MM-DD HH:mm:ss'),
                     'Read Status': reg.isRead ? 'Read' : 'Unread',
-                    'Payment Status': reg.paymentStatus || 'Unpaid',
+                    'Collection Status': reg.PaymentStatus || 'Unpaid',
                     'Amount': reg.amount || 0,
                     'Amount Paid': reg.amountPaid || 0,
                     'Balance': (reg.amount || 0) - (reg.amountPaid || 0),
@@ -1049,7 +1049,7 @@
                 { wch: 20 },  // Phone
                 { wch: 20 },  // Registration Date
                 { wch: 12 },  // Read Status
-                { wch: 15 },  // Payment Status
+                { wch: 15 },  // Collection Status
                 { wch: 10 },  // Amount
                 { wch: 12 },  // Amount Paid
                 { wch: 10 },  // Balance

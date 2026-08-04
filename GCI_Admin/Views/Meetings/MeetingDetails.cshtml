@@ -1,4 +1,4 @@
-﻿@model GCI_Admin.Models.MeetingFullDetails
+@model GCI_Admin.Models.MeetingFullDetails
 @using System.Security.Claims
 
 @{
@@ -29,7 +29,7 @@
     
     string attendanceLabel = isFinance ? "Meeting Information" : "Attendance";
     string financialLabel = isFinance ? "Financial Summary (Verification Required)" : "Financial Summary";
-    string collectionStatus = isFinance && Model.FinancialSummary != null && !Model.FinancialSummary.IsVerified ? "Pending Verification" : "Verified";
+    string PaymentStatus = isFinance && Model.FinancialSummary != null && !Model.FinancialSummary.IsVerified ? "Pending Verification" : "Verified";
 }
 
 <!-- Page Header -->
@@ -60,7 +60,7 @@
         {
             <span class="badge @(Model.FinancialSummary.IsVerified ? "bg-success" : "bg-warning") mt-2">
                 <i class="fa @(Model.FinancialSummary.IsVerified ? "fa-check-circle" : "fa-clock") me-1"></i>
-                Collection Status: @collectionStatus
+                Collection Status: @PaymentStatus
             </span>
         }
     </div>
@@ -253,30 +253,26 @@ else
     </div>
 </div>
 
-<!-- Financial Summary Section -->
-@if (Model.FinancialSummary != null && (isFinance))
+<!-- Financial Summary Section - Visible ONLY to Finance Users (Role 6) -->
+@if (Model.FinancialSummary != null && isFinance)
 {
-
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
             <h5 class="fw-bold mb-0">
                 <i class="fa fa-chart-pie me-2 text-success"></i>@financialLabel
             </h5>
 
-            @if (isFinance)
+            @if (!Model.FinancialSummary.IsVerified)
             {
-                if (!Model.FinancialSummary.IsVerified)
-                {
-                    <button class="btn btn-success btn-sm" id="sendOtpBtn">
-                        <i class="fa fa-paper-plane me-1"></i> Send OTP & Verify
-                    </button>
-                }
-                else
-                {
-                    <span class="badge bg-success">
-                        <i class="fa fa-check-circle me-1"></i> Already Verified
-                    </span>
-                }
+                <button class="btn btn-success btn-sm" id="sendOtpBtn">
+                    <i class="fa fa-paper-plane me-1"></i> Send OTP & Verify
+                </button>
+            }
+            else
+            {
+                <span class="badge bg-success">
+                    <i class="fa fa-check-circle me-1"></i> Already Verified
+                </span>
             }
         </div>
         <div class="card-body">
@@ -347,23 +343,9 @@ else
         </div>
     </div>
 }
-else if (!isFinance && !isAdmin && !isPastor && Model.FinancialSummary != null)
-{
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white border-0 py-3">
-            <h5 class="fw-bold mb-0">
-                <i class="fa fa-lock me-2 text-muted"></i>Financial Information
-            </h5>
-        </div>
-        <div class="card-body text-center text-muted py-5">
-            <i class="fa fa-lock fa-3x mb-3"></i>
-            <p>Financial information is restricted to authorized personnel only.</p>
-        </div>
-    </div>
-}
 
-<!-- Cash Breakdown Partial View -->
-@if (isFinance || isAdmin || isPastor)
+<!-- Cash Breakdown Partial View - Visible ONLY to Finance Users -->
+@if (isFinance)
 {
     <div id="cashBreakdownContainer">
         @await Html.PartialAsync("_CashBreakdownTable", Model.CashBreakdowns)
@@ -401,8 +383,8 @@ else if (!isFinance && !isAdmin && !isPastor && Model.FinancialSummary != null)
                     <small class="text-muted">Enter the 6-digit code sent to you</small>
                 </div>
                 <div class="text-center">
-                    <button type="button" class="btn btn-link" id="resendOtpBtn">
-                        <i class="fa fa-redo me-1"></i>Resend OTP
+                    <button type="button" class="btn btn-link text-decoration-none" id="resendOtpBtn">
+                        <i class="fa fa-redo me-1"></i>Resend OTP <span id="resendCountBadge" class="badge bg-secondary ms-1">0/3</span>
                     </button>
                 </div>
             </div>
@@ -610,11 +592,19 @@ else if (!isFinance && !isAdmin && !isPastor && Model.FinancialSummary != null)
             });
         }
         
+        var resendAttempts = 0;
+
         // Resend OTP
         function resendOtp() {
+            if (resendAttempts >= 3) {
+                Swal.fire('Limit Reached', 'You have reached the maximum limit of 3 OTP resends for this signature confirmation.', 'warning');
+                $('#resendOtpBtn').prop('disabled', true).addClass('disabled');
+                return;
+            }
+
             Swal.fire({
                 title: 'Resend OTP?',
-                text: 'A new verification code will be sent to your email/phone',
+                text: 'A new verification code will be sent to your email/phone (Attempt ' + (resendAttempts + 1) + ' of 3)',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Yes, resend',
@@ -643,8 +633,18 @@ else if (!isFinance && !isAdmin && !isPastor && Model.FinancialSummary != null)
                             Swal.close();
                             
                             if (response.isSuccess) {
-                                Swal.fire('Success', 'A new OTP has been sent to your registered contact', 'success');
+                                resendAttempts++;
+                                $('#resendCountBadge').text(resendAttempts + '/3');
+                                if (resendAttempts >= 3) {
+                                    $('#resendOtpBtn').prop('disabled', true).addClass('disabled');
+                                }
+                                Swal.fire('Success', response.message || 'A new OTP has been sent to your registered contact.', 'success');
                             } else {
+                                if (response.message && response.message.toLowerCase().includes('limit')) {
+                                    resendAttempts = 3;
+                                    $('#resendCountBadge').text('3/3');
+                                    $('#resendOtpBtn').prop('disabled', true).addClass('disabled');
+                                }
                                 Swal.fire('Error', response.message || 'Failed to resend OTP', 'error');
                             }
                         },

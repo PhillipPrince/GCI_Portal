@@ -14,12 +14,14 @@ namespace GCI_Admin.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _userService;
+        private readonly IMembersService _membersService;
         private readonly ILogger<AuthController> _logger;
         private readonly AppDbContext _context;
 
-        public AuthController(IAuthService userService, ILogger<AuthController> logger, AppDbContext context)
+        public AuthController(IAuthService userService, IMembersService membersService, ILogger<AuthController> logger, AppDbContext context)
         {
             _userService = userService;
+            _membersService = membersService;
             _logger = logger;
             _context = context;
         }
@@ -282,6 +284,15 @@ namespace GCI_Admin.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
+            // Pre-load members into session asynchronously upon login so they are immediately available
+            try
+            {
+                await _membersService.GetAllMembersAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"Background member pre-load error: {ex.Message}");
+            }
         }
 
         // Get current user info

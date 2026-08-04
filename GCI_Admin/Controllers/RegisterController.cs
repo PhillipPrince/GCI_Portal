@@ -9,11 +9,13 @@ namespace GCI_Admin.Controllers
     {
         private readonly IEventsService _eventsService;
         private readonly IAssembliesService _assembliesService;
+        private readonly GCI_Admin.DBOperations.AppDbContext _appDbContext;
 
-        public RegisterController(IEventsService eventsService, IAssembliesService assembliesService)
+        public RegisterController(IEventsService eventsService, IAssembliesService assembliesService, GCI_Admin.DBOperations.AppDbContext appDbContext)
         {
             _eventsService = eventsService;
             _assembliesService = assembliesService;
+            _appDbContext = appDbContext;
         }
 
         [HttpGet("Register/Event/{eventId}")]
@@ -53,15 +55,15 @@ namespace GCI_Admin.Controllers
             return Json(new { isRegistered = false });
         }
 
-        [HttpGet("Register/CheckPaymentStatus/{registrationId}")]
-        public async Task<IActionResult> CheckPaymentStatus(int registrationId)
+        [HttpGet("Register/CheckCollectionstatus/{registrationId}")]
+        public async Task<IActionResult> CheckCollectionstatus(int registrationId)
         {
-            var result = await _eventsService.CheckPaymentStatusAsync(registrationId);
+            var result = await _eventsService.CheckCollectionstatusAsync(registrationId);
 
             if (!result.IsSuccess)
                 return NotFound();
 
-            return Json(new { paymentStatusId = result.Data });
+            return Json(new { CollectionstatusId = result.Data });
         }
 
         [HttpGet("Register/Usher/{eventId}")]
@@ -123,6 +125,93 @@ namespace GCI_Admin.Controllers
             }
             return BadRequest(new { isSuccess = false, message = result.Message });
         }
+
+        [HttpPost("Register/SponsorSubmit")]
+        public async Task<IActionResult> SponsorSubmit([FromBody] SponsorSubmitDto dto)
+        {
+            try
+            {
+                if (dto == null || dto.eventId <= 0 || string.IsNullOrWhiteSpace(dto.sponsorPhone) || string.IsNullOrWhiteSpace(dto.sponsorName))
+                    return BadRequest(new { isSuccess = false, message = "Invalid input data." });
+
+                var targetEventResult = await _eventsService.GetEventByIdAsync(dto.eventId);
+                if (!targetEventResult.IsSuccess || targetEventResult.Data == null)
+                    return NotFound(new { isSuccess = false, message = "Event not found." });
+
+                var targetEvent = targetEventResult.Data;
+                var accountRef = $"{targetEvent.Title} Sponsor";
+
+                var normalizedPhone = global::Utils.PhoneHelper.NormalizeKenyanPhoneOrEmail(dto.sponsorPhone);
+                var payload = new
+                {
+                    MemberId = 0,
+                    PhoneNumber = normalizedPhone,
+                    Amount = dto.amount,
+                    Account = accountRef
+                };
+
+                string checkoutRequestId = null;
+                try
+                {
+                    using (var httpClient = new System.Net.Http.HttpClient())
+                    {
+                        var content = new System.Net.Http.StringContent(
+                            System.Text.Json.JsonSerializer.Serialize(payload),
+                            System.Text.Encoding.UTF8,
+                            "application/json"
+                        );
+                        var response = await httpClient.PostAsync("https://api.gospelcentresinternational.com/api/Payments/MakePayment", content);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var jsonStr = await response.Content.ReadAsStringAsync();
+                            if (!string.IsNullOrWhiteSpace(jsonStr))
+                            {
+                                using (var doc = System.Text.Json.JsonDocument.Parse(jsonStr))
+                                {
+                                    if (doc.RootElement.TryGetProperty("data", out var dataProp))
+                                    {
+                                        checkoutRequestId = dataProp.GetString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    global::Utils.Loggers.DoLogs($"Error calling MakePayment API: {ex}");
+                }
+
+                var sponsorRecord = new EventSponsor
+                {
+                    EventId = dto.eventId,
+                    SponsorName = dto.sponsorName.Trim(),
+                    SponsorPhone = normalizedPhone,
+                    NumberOfPeople = dto.numberOfPeople,
+                    Amount = dto.amount,
+                    CheckoutRequestID = checkoutRequestId,
+                    PaymentStatusId = 2, // 2 = Pending / Success
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                try
+                {
+                    _appDbContext.EventSponsors.Add(sponsorRecord);
+                    await _appDbContext.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    global::Utils.Loggers.DoLogs($"Error saving EventSponsor record to DB: {ex}");
+                }
+
+                return Ok(new { isSuccess = true, message = "Sponsorship initiated successfully.", checkoutRequestId = checkoutRequestId });
+            }
+            catch (Exception ex)
+            {
+                global::Utils.Loggers.DoLogs($"SponsorSubmit Exception: {ex}");
+                return StatusCode(500, new { isSuccess = false, message = $"Server error initiating sponsorship: {ex.Message}" });
+            }
+        }
     }
 
     public class UsherRegistrationDto
@@ -141,5 +230,14 @@ namespace GCI_Admin.Controllers
     {
         public int primaryRegistrationId { get; set; }
         public List<UsherRegistrationDto> guests { get; set; }
+    }
+
+    public class SponsorSubmitDto
+    {
+        public int eventId { get; set; }
+        public string sponsorName { get; set; }
+        public string sponsorPhone { get; set; }
+        public int numberOfPeople { get; set; }
+        public decimal amount { get; set; }
     }
 }

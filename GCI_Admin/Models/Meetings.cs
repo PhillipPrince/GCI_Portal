@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -110,6 +110,7 @@ namespace GCI_Admin.Models
         public DateTime? OtpSentAt { get; set; }
         public DateTime? OtpVerifiedAt { get; set; }
         public string? OtpChannel { get; set; }
+        public int? ResendCount { get; set; } = 0;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         [NotMapped]

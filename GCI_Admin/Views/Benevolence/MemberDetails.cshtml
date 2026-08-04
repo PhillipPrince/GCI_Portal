@@ -152,22 +152,22 @@
                                 </tr>
                             </table>
 
-                            <!-- Payment Progress Bar -->
+                            <!-- Collection Progress Bar -->
                             @{
-                                var paymentPercentage = member.TotalAmountDue > 0
+                                var CollectionPercentage = member.TotalAmountDue > 0
                                 ? (member.AmountPaid / member.TotalAmountDue) * 100
                                 : 0;
                             }
                             <div class="mt-3">
                                 <div class="d-flex justify-content-between mb-1">
-                                    <span class="text-muted small">Payment Progress</span>
-                                    <span class="text-muted small" id="paymentPercentage">@paymentPercentage.ToString("F0")%</span>
+                                    <span class="text-muted small">Collection Progress</span>
+                                    <span class="text-muted small" id="CollectionPercentage">@CollectionPercentage.ToString("F0")%</span>
                                 </div>
                                 <div class="progress" style="height: 10px;">
                                     <div class="progress-bar bg-success" role="progressbar"
-                                         id="paymentProgressBar"
-                                         style="width: @paymentPercentage%"
-                                         aria-valuenow="@paymentPercentage"
+                                         id="CollectionProgressBar"
+                                         style="width: @CollectionPercentage%"
+                                         aria-valuenow="@CollectionPercentage"
                                          aria-valuemin="0"
                                          aria-valuemax="100">
                                     </div>
@@ -512,8 +512,8 @@
             });
         }
 
-        // Update payment progress when amount paid or total due changes
-        function updatePaymentProgress() {
+        // Update Collection progress when amount paid or total due changes
+        function updateCollectionProgress() {
             const amountPaid = parseFloat($('[data-field="amountPaid"] input').val()) || 0;
             const totalDue = parseFloat($('[data-field="totalAmountDue"] input').val()) || 0;
 
@@ -522,14 +522,14 @@
                 percentage = (amountPaid / totalDue) * 100;
             }
 
-            $('#paymentPercentage').text(Math.round(percentage) + '%');
-            $('#paymentProgressBar').css('width', percentage + '%');
-            $('#paymentProgressBar').attr('aria-valuenow', percentage);
+            $('#CollectionPercentage').text(Math.round(percentage) + '%');
+            $('#CollectionProgressBar').css('width', percentage + '%');
+            $('#CollectionProgressBar').attr('aria-valuenow', percentage);
         }
 
         // Listen for changes in amount paid and total due
         $(document).on('input', '[data-field="amountPaid"] input, [data-field="totalAmountDue"] input', function() {
-            updatePaymentProgress();
+            updateCollectionProgress();
         });
 
         // Initialize beneficiaries DataTable

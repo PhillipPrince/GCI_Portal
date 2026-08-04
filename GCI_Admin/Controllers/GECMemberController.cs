@@ -17,13 +17,15 @@ namespace GCI_Admin.Controllers
         private readonly AppDbContext _context;
         private readonly MembersRepository _membersRepository;
         private readonly GECPositionRepository _positionsRepository;
+        private readonly TitlePrefixRepository _prefixRepository;
 
-        public GECMemberController(IGECMemberService gecMemberService, AppDbContext context, MembersRepository repository, GECPositionRepository positionsRepository)
+        public GECMemberController(IGECMemberService gecMemberService, AppDbContext context, MembersRepository repository, GECPositionRepository positionsRepository, TitlePrefixRepository prefixRepository)
         {
             _gecMemberService = gecMemberService;
             _context = context;
             _membersRepository = repository;
             _positionsRepository = positionsRepository;
+            _prefixRepository = prefixRepository;
         }
 
         // ✅ INDEX
@@ -37,28 +39,19 @@ namespace GCI_Admin.Controllers
             return View(members);
         }
 
-        //public async Task<IActionResult> Index()
-        //{
-        //    return View();
-        //}
-
-
-
-
         public async Task<IActionResult> AddNewGecMember()
         {
             CreateGECMemberDto dto = new CreateGECMemberDto();
-            // Get all members for the dropdown
             var members = await _membersRepository.GetAllMembersAsync();
             var positions = await _positionsRepository.GetAllPositionsAsync();
+            var prefixes = await _prefixRepository.GetActivePrefixesAsync();
 
             dto.Members = members.Data;
             dto.Positions = positions.Data?.Where(p => p.IsActive).ToList() ?? new List<GECPosition>();
-
+            dto.TitlePrefixes = prefixes.Data ?? new List<TitlePrefix>();
 
             return View(dto);
         }
-
 
         // ✅ CREATE
         [HttpPost]
@@ -75,15 +68,16 @@ namespace GCI_Admin.Controllers
             return Json(response);
         }
 
-      
-
         public async Task<IActionResult> LoadCreateForm()
         {
             CreateGECMemberDto dto = new CreateGECMemberDto();
             var members = await _membersRepository.GetAllMembersAsync();
             var positions = await _positionsRepository.GetAllPositionsAsync();
+            var prefixes = await _prefixRepository.GetActivePrefixesAsync();
+
             dto.Members = members.Data;
             dto.Positions = positions.Data?.Where(p => p.IsActive).ToList() ?? new List<GECPosition>();
+            dto.TitlePrefixes = prefixes.Data ?? new List<TitlePrefix>();
 
             ViewBag.IsEdit = false;
             return PartialView("_CreateGECMemberPartial", dto);
@@ -206,6 +200,7 @@ namespace GCI_Admin.Controllers
         {
             var members = await _membersRepository.GetAllMembersAsync();
             var positions = await _positionsRepository.GetAllPositionsAsync();
+            var prefixes = await _prefixRepository.GetActivePrefixesAsync();
             var gecResponse = await _gecMemberService.GetGECMemberByIdAsync(id);
             if (gecResponse == null || !gecResponse.IsSuccess)
                 return NotFound("GEC Member not found");
@@ -214,11 +209,13 @@ namespace GCI_Admin.Controllers
             {
                 Members = members.Data,
                 Positions = positions.Data?.Where(p => p.IsActive).ToList() ?? new List<GECPosition>(),
+                TitlePrefixes = prefixes.Data ?? new List<TitlePrefix>(),
                 GECMember = new GECMemberDto
                 {
                     GECId = gecResponse.Data.GECId,
                     MemberId = gecResponse.Data.MemberId,
                     GECPositionId = gecResponse.Data.GECPositionId,
+                    TitlePrefixId = gecResponse.Data.TitlePrefixId,
                     Bio = gecResponse.Data.Bio,
                     StartDate = gecResponse.Data.StartDate,
                     EndDate = gecResponse.Data.EndDate,
